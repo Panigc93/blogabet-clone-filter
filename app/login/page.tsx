@@ -12,7 +12,7 @@ async function loginAction(formData: FormData) {
     redirect('/login?error=1')
   }
 
-  const token = signCookie(sitePassword, secret)
+  const token = await signCookie(sitePassword, secret)
   const cookieStore = await cookies()
   cookieStore.set('auth_token', token, {
     httpOnly: true,

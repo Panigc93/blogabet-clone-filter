@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { verifyCookie } from '@/lib/auth'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/login')) {
     return NextResponse.next()
   }
@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
   const password = process.env.SITE_PASSWORD!
   const secret = process.env.AUTH_SECRET!
 
-  if (!verifyCookie(token, password, secret)) {
+  if (!await verifyCookie(token, password, secret)) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
