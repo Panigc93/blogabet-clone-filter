@@ -34,3 +34,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# superpowers / internal tooling
+.superpowers/
+
+# crawler checkpoints
+crawler/.checkpoint-*
