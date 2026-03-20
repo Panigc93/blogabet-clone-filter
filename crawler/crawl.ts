@@ -117,7 +117,11 @@ async function crawl() {
   console.log(`Crawl finished. Total upserted: ${total}`)
 }
 
-crawl().catch((err) => {
-  console.error('Crawl failed:', err)
-  process.exit(1)
-})
+// Only run when executed directly (not when imported by tests)
+import { fileURLToPath } from 'url'
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  crawl().catch((err) => {
+    console.error('Crawl failed:', err)
+    process.exit(1)
+  })
+}
