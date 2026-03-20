@@ -6,7 +6,7 @@ function StatCell({ value, label, colorClass }: { value: string; label: string; 
       <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: 22.5, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#333' }}>
         {value}
       </span>
-      <span style={{ display: 'block', fontSize: 10, color: '#999', textTransform: 'uppercase', letterSpacing: '0.3px', marginTop: 2 }}>
+      <span style={{ display: 'block', fontSize: 15, fontFamily: 'Roboto, sans-serif', fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.3px', marginTop: 2 }}>
         {label}
       </span>
     </div>
@@ -22,6 +22,15 @@ function numColorClass(value: string | null): string {
   return ''
 }
 
+function IconBadge({ icon, title }: { icon: string; title?: string }) {
+  return (
+    <span className="fa-stack" title={title} style={{ fontSize: 15, width: 30, lineHeight: '30px', height: 30 }}>
+      <i className="fa fa-circle fa-stack-2x" style={{ color: '#000' }}></i>
+      <i className={`fa ${icon} fa-stack-1x fa-inverse`}></i>
+    </span>
+  )
+}
+
 export function TipsterRow({ tipster }: { tipster: Tipster }) {
   const blogUrl = `https://${tipster.slug}.blogabet.com`
   const initials = tipster.name.slice(0, 2).toUpperCase()
@@ -32,42 +41,34 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
       target="_blank"
       rel="noopener noreferrer"
       className="tipster-block"
-      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'stretch', background: '#fff', border: '1px solid #dbe1e8', borderRadius: 3, marginBottom: 6 }}
+      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'stretch', background: '#fff', border: '1px solid #dbe1e8', borderRadius: 3, marginBottom: 0, minHeight: 126 }}
     >
       {/* LEFT: avatar + info */}
-      <div style={{ borderLeft: '4px solid #82daca', display: 'flex', alignItems: 'center', padding: '10px 12px', minWidth: 240, maxWidth: 240 }}>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', minWidth: 260, maxWidth: 260 }}>
         <div style={{ flexShrink: 0, marginRight: 10 }}>
           {tipster.avatarUrl ? (
-            <img src={tipster.avatarUrl} alt={tipster.name} style={{ width: 60, height: 60, borderRadius: '50%', border: '2px solid #82daca', objectFit: 'cover', display: 'block' }} />
+            <img src={tipster.avatarUrl} alt={tipster.name} style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
           ) : (
-            <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#82daca', border: '2px solid #82daca', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 12 }}>
+            <div style={{ width: 96, height: 96, borderRadius: '50%', background: '#82daca', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
               {initials}
             </div>
           )}
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: '#333', margin: '0 0 2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            <strong>{tipster.name}</strong>
+          <div style={{ fontSize: 24, fontWeight: 800, fontFamily: 'Fira Sans, sans-serif', color: '#333', margin: '0 0 2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {tipster.name}
           </div>
-          <span style={{ fontSize: 11, color: '#4dbfa2', display: 'block', marginBottom: 5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <span style={{ fontSize: 15, fontFamily: 'Roboto, sans-serif', fontWeight: 300, color: '#4dbfa2', display: 'block', marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {tipster.slug}.blogabet.com
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-            <span className="fa-stack" style={{ fontSize: 9, width: 18, lineHeight: '18px', height: 18 }}>
-              <i className={`fa fa-circle fa-stack-2x`} style={{ color: Number(tipster.verifiedPct) > 0 ? '#4dbfa2' : '#ccc' }}></i>
-              <i className={`fa ${Number(tipster.verifiedPct) > 0 ? 'fa-check' : 'fa-times'} fa-stack-1x fa-inverse`}></i>
-            </span>
-            {tipster.isPaid && (
-              <span className="fa-stack" style={{ fontSize: 9, width: 18, lineHeight: '18px', height: 18 }}>
-                <i className="fa fa-circle fa-stack-2x" style={{ color: '#4dbfa2' }}></i>
-                <i className="fa fa-usd fa-stack-1x fa-inverse"></i>
-              </span>
-            )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <IconBadge
+              icon={Number(tipster.verifiedPct) > 0 ? 'fa-check' : 'fa-times'}
+              title={Number(tipster.verifiedPct) > 0 ? 'Verificado' : 'No verificado'}
+            />
+            {tipster.isPaid && <IconBadge icon="fa-usd" title="De pago" />}
             {Number(tipster.resetCount) > 0 && (
-              <span className="fa-stack" title={`Stats reseteadas ${tipster.resetCount} veces`} style={{ fontSize: 9, width: 18, lineHeight: '18px', height: 18 }}>
-                <i className="fa fa-circle fa-stack-2x" style={{ color: '#ccc' }}></i>
-                <i className="fa fa-refresh fa-stack-1x fa-inverse"></i>
-              </span>
+              <IconBadge icon="fa-refresh" title={`Stats reseteadas ${tipster.resetCount} veces`} />
             )}
             {tipster.flagUrl && (
               <img src={tipster.flagUrl} alt={tipster.countryCode ?? ''} style={{ height: 14 }} />

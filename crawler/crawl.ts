@@ -13,7 +13,7 @@ function parseNum(text: string): string | null {
   return isNaN(n) ? null : String(n)
 }
 
-export function parseBlocks(html: string): TipsterInsert[] {
+export function parseBlocks(html: string, lastActive = 12): TipsterInsert[] {
   const $ = cheerio.load(html)
   const results: TipsterInsert[] = []
 
@@ -128,7 +128,7 @@ async function fetchPage(lastActive: number, start: number, cookie: string): Pro
   if (!res.ok) throw new Error(`Blogabet HTTP ${res.status} ${res.statusText}`)
 
   const html = await res.text()
-  return parseBlocks(html)
+  return parseBlocks(html, lastActive)
 }
 
 // ─── Checkpoint helpers ───────────────────────────────────────────────────────
