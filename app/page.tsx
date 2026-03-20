@@ -1,95 +1,63 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { Suspense } from 'react'
+import { db } from '@/db'
+import { tipsters } from '@/db/schema'
+import { buildFilters, sortColumn, TipsterFilters, SortField } from '@/lib/query'
+import { and, desc, count } from 'drizzle-orm'
+import { FilterBar } from '@/components/FilterBar'
+import { TipsterRow } from '@/components/TipsterRow'
+import { LoadMore } from '@/components/LoadMore'
 
-export default function Home() {
+const PAGE_SIZE = 50
+
+interface PageProps {
+  searchParams: {
+    tipo?: string; minYield?: string; minPicks?: string; activity?: string
+    excludeYears?: string; priceMin?: string; priceMax?: string; sort?: string
+  }
+}
+
+export default async function Home({ searchParams }: PageProps) {
+  const filters: TipsterFilters = {
+    tipo:           (searchParams.tipo as TipsterFilters['tipo']) ?? 'all',
+    minYield:       searchParams.minYield ? Number(searchParams.minYield) : undefined,
+    minPicks:       searchParams.minPicks ? Number(searchParams.minPicks) : undefined,
+    activityMonths: searchParams.activity ? Number(searchParams.activity) : undefined,
+    excludeYears:   searchParams.excludeYears
+      ? searchParams.excludeYears.split(',').map(Number)
+      : undefined,
+    priceMin:       searchParams.priceMin ? Number(searchParams.priceMin) : undefined,
+    priceMax:       searchParams.priceMax ? Number(searchParams.priceMax) : undefined,
+  }
+
+  const sort = (searchParams.sort as SortField) ?? 'yield'
+  const where = buildFilters(filters)
+  const whereClause = where.length ? and(...where) : undefined
+
+  const [rows, [{ value: total }]] = await Promise.all([
+    db.select().from(tipsters)
+      .where(whereClause)
+      .orderBy(desc(sortColumn(sort)))
+      .limit(PAGE_SIZE),
+    db.select({ value: count() }).from(tipsters).where(whereClause),
+  ])
+
+  const hasMore = rows.length === PAGE_SIZE
+  const searchString = new URLSearchParams(searchParams as Record<string, string>).toString()
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <>
+      <Suspense>
+        <FilterBar />
+      </Suspense>
+      <div id="page-content" style={{ maxWidth: 1020, margin: '0 auto', padding: '0 12px' }}>
+        <div style={{ padding: '8px 0 4px', fontSize: 13, color: '#777' }}>
+          Mostrando <strong>{rows.length} de {total.toLocaleString('es')}</strong> tipsters
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+        <div>
+          {rows.map(t => <TipsterRow key={t.id} tipster={t} />)}
+          <LoadMore initialHasMore={hasMore} searchString={searchString} />
+        </div>
+      </div>
+    </>
+  )
 }
