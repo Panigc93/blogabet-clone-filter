@@ -1,0 +1,26 @@
+name: Crawl Daily (last month)
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 03:00 UTC daily
+  workflow_dispatch:        # allow manual trigger
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run crawler
+        env:
+          DATABASE_URL_DIRECT: ${{ secrets.DATABASE_URL_DIRECT }}
+          BLOGABET_COOKIE: ${{ secrets.BLOGABET_COOKIE }}
+          LAST_ACTIVE: '1'
+        run: npx tsx crawler/crawl.ts

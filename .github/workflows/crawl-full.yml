@@ -1,0 +1,25 @@
+name: Crawl Full (last 12 months)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run full crawler
+        env:
+          DATABASE_URL_DIRECT: ${{ secrets.DATABASE_URL_DIRECT }}
+          BLOGABET_COOKIE: ${{ secrets.BLOGABET_COOKIE }}
+          LAST_ACTIVE: '12'
+        run: npx tsx crawler/crawl.ts
