@@ -88,7 +88,7 @@ export function parseBlocks(html: string): TipsterInsert[] {
         yield:       yieldVal,
         verifiedPct,
         followers:   isNaN(followers) ? 0 : followers,
-        lastPickAt:  new Date(), // approximation: was active at crawl time
+        lastPickAt:  lastActive <= 1 ? new Date() : null, // only set for monthly-active crawl
         resetCount:  isNaN(resetCount) ? 0 : resetCount,
         lastResetAt,
         updatedAt:   new Date(),
@@ -207,7 +207,7 @@ async function crawl() {
           yield:       sql`excluded.yield`,
           verifiedPct: sql`excluded.verified_pct`,
           followers:   sql`excluded.followers`,
-          lastPickAt:  sql`excluded.last_pick_at`,
+          lastPickAt:  sql`COALESCE(excluded.last_pick_at, tipsters.last_pick_at)`,
           resetCount:  sql`excluded.reset_count`,
           lastResetAt: sql`excluded.last_reset_at`,
           updatedAt:   sql`NOW()`,
