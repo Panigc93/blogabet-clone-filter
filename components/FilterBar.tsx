@@ -86,6 +86,7 @@ export function FilterBar() {
               onChange={e => update('minPicks', e.target.value === '0' ? null : e.target.value)}>
               <option value="0">Todos</option>
               <option value="50">Más de 50</option>
+              <option value="100">Más de 100</option>
               <option value="200">Más de 200</option>
               <option value="500">Más de 500</option>
               <option value="1000">Más de 1.000</option>

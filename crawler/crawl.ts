@@ -52,10 +52,20 @@ export function parseBlocks(html: string): TipsterInsert[] {
       const verifiedPct = parseNum((nums[4] ?? '').replace('%', ''))
       const followers  = nums[5] ? parseInt(nums[5], 10) : 0
 
-      // Reset count — "Blog stats have been reset 3 times"
+      // Reset count + last reset date — tooltip: "Blog stats have been reset 3 times. Last reset on 25 Nov 2023."
       const resetTitle = $el.find('[data-original-title*="reset"]').attr('data-original-title') ?? ''
       const resetMatch = resetTitle.match(/reset\s+(\d+)\s+time/i)
       const resetCount = resetMatch ? parseInt(resetMatch[1], 10) : 0
+
+      // Try to parse a date from the reset tooltip (various formats blogabet may use)
+      let lastResetAt: Date | null = null
+      const dateMatch = resetTitle.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+(\d{4})/i)
+        ?? resetTitle.match(/(\d{4})-(\d{2})-(\d{2})/)
+        ?? resetTitle.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/)
+      if (dateMatch) {
+        const parsed = new Date(dateMatch[0])
+        if (!isNaN(parsed.getTime())) lastResetAt = parsed
+      }
 
       // isPaid + price — look for subscribe button with price text
       const subscribeText = $el.find('.subscribe-btns').text()
@@ -80,6 +90,7 @@ export function parseBlocks(html: string): TipsterInsert[] {
         followers:   isNaN(followers) ? 0 : followers,
         lastPickAt:  new Date(), // approximation: was active at crawl time
         resetCount:  isNaN(resetCount) ? 0 : resetCount,
+        lastResetAt,
         updatedAt:   new Date(),
       })
     } catch (err) {
@@ -198,6 +209,7 @@ async function crawl() {
           followers:   sql`excluded.followers`,
           lastPickAt:  sql`excluded.last_pick_at`,
           resetCount:  sql`excluded.reset_count`,
+          lastResetAt: sql`excluded.last_reset_at`,
           updatedAt:   sql`NOW()`,
         },
       })

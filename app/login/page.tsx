@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { signCookie } from '@/lib/auth'
+import LoginForm from './LoginForm'
 
 async function loginAction(formData: FormData) {
   'use server'
@@ -30,24 +31,7 @@ export default function LoginPage({ searchParams }: { searchParams: { [key: stri
     <div style={{ minHeight: '100vh', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Fira Sans, sans-serif' }}>
       <div style={{ background: '#fff', borderRadius: 4, padding: '32px 40px', boxShadow: '0 2px 8px rgba(0,0,0,.1)', minWidth: 300 }}>
         <h2 style={{ color: '#82daca', fontWeight: 900, marginBottom: 20, fontSize: 22 }}>TIPSTERS</h2>
-        {searchParams.error && (
-          <p style={{ color: '#eb6379', marginBottom: 12, fontSize: 13 }}>Contraseña incorrecta.</p>
-        )}
-        <form action={loginAction}>
-          <input
-            name="password"
-            type="password"
-            placeholder="Contraseña"
-            required
-            style={{ width: '100%', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '8px 10px', fontSize: 14, marginBottom: 12, boxSizing: 'border-box' }}
-          />
-          <button
-            type="submit"
-            style={{ width: '100%', background: '#82daca', color: '#fff', border: '1px solid #4dbfa2', borderBottomWidth: 3, borderRadius: 4, padding: '9px', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}
-          >
-            Entrar
-          </button>
-        </form>
+        <LoginForm action={loginAction} error={!!searchParams.error} />
       </div>
     </div>
   )

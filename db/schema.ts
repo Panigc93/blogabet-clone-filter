@@ -18,6 +18,7 @@ export const tipsters = pgTable('tipsters', {
   followers:   integer('followers').notNull().default(0),
   lastPickAt:  timestamp('last_pick_at', { withTimezone: true }),
   resetCount:  smallint('reset_count').notNull().default(0),
+  lastResetAt: timestamp('last_reset_at', { withTimezone: true }),
   updatedAt:   timestamp('updated_at', { withTimezone: true }).notNull().default(sql`NOW()`),
 }, (t) => ({
   yieldIdx:      index('idx_tipsters_yield').on(t.yield),
