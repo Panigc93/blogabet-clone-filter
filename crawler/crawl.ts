@@ -120,6 +120,33 @@ async function fetchPage(lastActive: number, start: number, cookie: string): Pro
   return parseBlocks(html)
 }
 
+// ─── Checkpoint helpers ───────────────────────────────────────────────────────
+
+import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs'
+
+function checkpointPath(lastActive: number) {
+  return `./crawler/.checkpoint-${lastActive}`
+}
+
+function readCheckpoint(lastActive: number): { start: number; total: number } {
+  const path = checkpointPath(lastActive)
+  if (!existsSync(path)) return { start: 0, total: 0 }
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'))
+  } catch {
+    return { start: 0, total: 0 }
+  }
+}
+
+function saveCheckpoint(lastActive: number, start: number, total: number) {
+  writeFileSync(checkpointPath(lastActive), JSON.stringify({ start, total }))
+}
+
+function clearCheckpoint(lastActive: number) {
+  const path = checkpointPath(lastActive)
+  if (existsSync(path)) unlinkSync(path)
+}
+
 // ─── Main crawl loop ─────────────────────────────────────────────────────────
 
 async function crawl() {
@@ -132,9 +159,15 @@ async function crawl() {
   const lastActive = Number(process.env.LAST_ACTIVE ?? '1')
   const db = drizzle(neon(dbUrl), { schema: { tipsters } })
 
-  console.log(`Starting crawl: lastActive=${lastActive}`)
-  let start = 0
-  let total = 0
+  const checkpoint = readCheckpoint(lastActive)
+  let start = checkpoint.start
+  let total = checkpoint.total
+
+  if (start > 0) {
+    console.log(`Resuming crawl from checkpoint: lastActive=${lastActive}, start=${start}, total=${total}`)
+  } else {
+    console.log(`Starting crawl: lastActive=${lastActive}`)
+  }
 
   while (true) {
     console.log(`Fetching page start=${start}`)
@@ -170,12 +203,14 @@ async function crawl() {
       })
 
     total += records.length
-    console.log(`Upserted ${records.length} tipsters (total: ${total})`)
     start += 25
+    saveCheckpoint(lastActive, start, total)
+    console.log(`Upserted ${records.length} tipsters (total: ${total})`)
 
     await new Promise(r => setTimeout(r, 300))
   }
 
+  clearCheckpoint(lastActive)
   console.log(`Crawl finished. Total upserted: ${total}`)
 }
 
