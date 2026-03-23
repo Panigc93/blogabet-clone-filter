@@ -1,10 +1,16 @@
 'use client'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 
-export function FilterBar() {
+interface FilterBarProps {
+  searchParams: Record<string, string | undefined>
+}
+
+export function FilterBar({ searchParams }: FilterBarProps) {
   const router = useRouter()
-  const sp = useSearchParams()
+  const sp = new URLSearchParams(
+    Object.entries(searchParams).filter(([, v]) => v != null) as [string, string][]
+  )
 
   const update = useCallback((key: string, value: string | null) => {
     const params = new URLSearchParams(sp.toString())
@@ -13,9 +19,9 @@ export function FilterBar() {
     } else {
       params.set(key, value)
     }
-    params.delete('page') // reset pagination on filter change
+    params.delete('page')
     router.push(`/?${params.toString()}`)
-  }, [router, sp])
+  }, [router, sp.toString()])
 
   const tipo = sp.get('tipo') ?? 'all'
 

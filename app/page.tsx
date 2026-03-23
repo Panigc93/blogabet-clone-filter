@@ -1,4 +1,3 @@
-import { Suspense } from 'react'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
 import { buildFilters, sortColumn, TipsterFilters, SortField } from '@/lib/query'
@@ -46,12 +45,10 @@ export default async function Home({ searchParams }: PageProps) {
 
   return (
     <>
-      <Suspense>
-        <FilterBar />
-      </Suspense>
+      <FilterBar searchParams={searchParams} />
       <div id="page-content" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px' }}>
         <div style={{ padding: '8px 0 4px', fontSize: 13, color: '#777' }}>
-          Mostrando <strong>{rows.length} de {total.toLocaleString('es')}</strong> tipsters
+          Mostrando <strong>{rows.length} de {total}</strong> tipsters
         </div>
         <div>
           {rows.map(t => <TipsterRow key={t.id} tipster={t} />)}
