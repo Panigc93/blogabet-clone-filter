@@ -2,7 +2,8 @@ import * as cheerio from 'cheerio'
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { tipsters, TipsterInsert } from '../db/schema'
-import { sql } from 'drizzle-orm'
+import { sql, inArray, notInArray, and } from 'drizzle-orm'
+import type { BrowserContext, Browser } from 'playwright'
 
 // ─── HTML parser ─────────────────────────────────────────────────────────────
 
@@ -101,9 +102,25 @@ export function parseBlocks(html: string, lastActive = 12): TipsterInsert[] {
   return results
 }
 
-// ─── Fetch one page ──────────────────────────────────────────────────────────
+// ─── Retry helper ────────────────────────────────────────────────────────────
 
-async function fetchPage(lastActive: number, start: number, cookie: string): Promise<TipsterInsert[]> {
+async function withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 4): Promise<T> {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn()
+    } catch (err) {
+      if (attempt === maxAttempts) throw err
+      const wait = attempt * 2000
+      console.warn(`${label} failed (attempt ${attempt}/${maxAttempts}), retrying in ${wait / 1000}s... ${(err as Error).message}`)
+      await new Promise(r => setTimeout(r, wait))
+    }
+  }
+  throw new Error('unreachable')
+}
+
+// ─── Build Blogabet URL ───────────────────────────────────────────────────────
+
+function blogabetUrl(lastActive: number, start: number): string {
   const url = new URL('https://blogabet.com/tipsters/')
   url.searchParams.set('f[language]', 'all')
   url.searchParams.set('f[pickType]', 'all')
@@ -114,18 +131,46 @@ async function fetchPage(lastActive: number, start: number, cookie: string): Pro
   url.searchParams.set('f[bookiesUsed]', 'null')
   url.searchParams.set('f[order]', 'yield')
   url.searchParams.set('f[start]', String(start))
+  return url.toString()
+}
 
-  const res = await fetch(url.toString(), {
-    headers: {
-      Cookie: cookie,
-      'X-Requested-With': 'XMLHttpRequest',
-      'Accept': 'text/html, */*',
-      'Referer': 'https://blogabet.com/tipsters',
-      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    },
+const COMMON_HEADERS = {
+  'accept': '*/*',
+  'accept-language': 'en,es-ES;q=0.9,es;q=0.8',
+  'cache-control': 'no-cache',
+  'pragma': 'no-cache',
+  'referer': 'https://blogabet.com/tipsters',
+  'sec-ch-ua': '"Chromium";v="142", "Google Chrome";v="142", "Not_A Brand";v="99"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"Linux"',
+  'sec-fetch-dest': 'empty',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-site': 'same-origin',
+  'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+  'x-requested-with': 'XMLHttpRequest',
+}
+
+// ─── Fetch one page (Node fetch) ─────────────────────────────────────────────
+
+async function fetchPage(lastActive: number, start: number, cookie: string): Promise<TipsterInsert[]> {
+  const res = await fetch(blogabetUrl(lastActive, start), {
+    headers: { ...COMMON_HEADERS, Cookie: cookie },
   })
 
   if (!res.ok) throw new Error(`Blogabet HTTP ${res.status} ${res.statusText}`)
+
+  const html = await res.text()
+  return parseBlocks(html, lastActive)
+}
+
+// ─── Fetch one page (Playwright / real Chrome) ───────────────────────────────
+
+async function fetchPagePlaywright(lastActive: number, start: number, cookie: string, ctx: BrowserContext): Promise<TipsterInsert[]> {
+  const res = await ctx.request.get(blogabetUrl(lastActive, start), {
+    headers: COMMON_HEADERS,
+  })
+
+  if (!res.ok()) throw new Error(`Blogabet HTTP ${res.status()} ${res.statusText()}`)
 
   const html = await res.text()
   return parseBlocks(html, lastActive)
@@ -168,7 +213,24 @@ async function crawl() {
   if (!dbUrl) throw new Error('DATABASE_URL_DIRECT is not set')
 
   const lastActive = Number(process.env.LAST_ACTIVE ?? '1')
+  const usePlaywright = process.env.USE_PLAYWRIGHT === '1'
   const db = drizzle(neon(dbUrl), { schema: { tipsters } })
+
+  // Launch Playwright browser if needed
+  const { chromium } = await import('playwright')
+  let browser: Browser | null = null
+  let pwCtx: BrowserContext | null = null
+  if (usePlaywright) {
+    console.log('Using Playwright (real Chrome) for requests')
+    browser = await chromium.launch({ headless: true })
+    pwCtx = await browser.newContext()
+    // Inject cookies into the Playwright context
+    const cookiePairs = cookie.split(';').map(s => s.trim()).filter(Boolean)
+    await pwCtx.addCookies(cookiePairs.map(pair => {
+      const [name, ...rest] = pair.split('=')
+      return { name: name.trim(), value: rest.join('=').trim(), domain: 'blogabet.com', path: '/' }
+    }))
+  }
 
   const checkpoint = readCheckpoint(lastActive)
   let start = checkpoint.start
@@ -180,19 +242,29 @@ async function crawl() {
     console.log(`Starting crawl: lastActive=${lastActive}`)
   }
 
+  try {
   while (true) {
     console.log(`Fetching page start=${start}`)
-    const records = await fetchPage(lastActive, start, cookie)
+    const fetch = usePlaywright && pwCtx
+      ? () => fetchPagePlaywright(lastActive, start, cookie, pwCtx!)
+      : () => fetchPage(lastActive, start, cookie)
+    const records = await withRetry(fetch, `fetchPage(${start})`)
 
     if (records.length === 0) {
       console.log('Empty page — crawl complete')
       break
     }
 
-    await db
-      .insert(tipsters)
-      .values(records)
-      .onConflictDoUpdate({
+    await withRetry(async () => {
+      // Remove stale records: same slug but different id (tipster reset their account)
+      const slugs = records.map(r => r.slug)
+      const ids = records.map(r => r.id!)
+      await db.delete(tipsters).where(and(inArray(tipsters.slug, slugs), notInArray(tipsters.id, ids)))
+
+      await db
+        .insert(tipsters)
+        .values(records)
+        .onConflictDoUpdate({
         target: tipsters.id,
         set: {
           slug:        sql`excluded.slug`,
@@ -213,9 +285,10 @@ async function crawl() {
           updatedAt:   sql`NOW()`,
         },
       })
+    }, `upsert(start=${start})`)
 
     total += records.length
-    start += 25
+    start += records.length
     saveCheckpoint(lastActive, start, total)
     console.log(`Upserted ${records.length} tipsters (total: ${total})`)
 
@@ -224,6 +297,9 @@ async function crawl() {
 
   clearCheckpoint(lastActive)
   console.log(`Crawl finished. Total upserted: ${total}`)
+  } finally {
+    await browser?.close()
+  }
 }
 
 // Only run when executed directly (not when imported by tests)

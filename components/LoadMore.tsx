@@ -1,35 +1,48 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Tipster } from '@/db/schema'
 import { TipsterRow } from './TipsterRow'
 
 export function LoadMore({ initialHasMore, searchString }: { initialHasMore: boolean; searchString: string }) {
   const [rows, setRows] = useState<Tipster[]>([])
-  const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [loading, setLoading] = useState(false)
+  const pageRef = useRef(1)
+  const loadingRef = useRef(false)
+  const hasMoreRef = useRef(initialHasMore)
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
-  async function loadMore() {
+  const loadMore = useCallback(async () => {
+    if (loadingRef.current || !hasMoreRef.current) return
+    loadingRef.current = true
     setLoading(true)
-    const res = await fetch(`/api/tipsters?${searchString}&page=${page}`)
+    const res = await fetch(`/api/tipsters?${searchString}&page=${pageRef.current}`)
     const json = await res.json()
     setRows(prev => [...prev, ...json.data])
+    hasMoreRef.current = json.hasMore
     setHasMore(json.hasMore)
-    setPage(p => p + 1)
+    pageRef.current += 1
     setLoading(false)
-  }
+    loadingRef.current = false
+  }, [searchString])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => { if (entries[0].isIntersecting) loadMore() },
+      { rootMargin: '400px' }
+    )
+    const el = sentinelRef.current
+    if (el) observer.observe(el)
+    return () => observer.disconnect()
+  }, [loadMore])
 
   return (
     <>
       {rows.map(t => <TipsterRow key={t.id} tipster={t} />)}
-      {hasMore && (
-        <div style={{ textAlign: 'center', padding: '14px 0 24px' }}>
-          <button onClick={loadMore} disabled={loading}
-            style={{ background: '#eb6379', color: '#fff', border: '1px solid #d44f65', borderBottomWidth: 3, borderRadius: 4, padding: '10px 28px', fontSize: 14, fontWeight: 700, cursor: loading ? 'wait' : 'pointer', textTransform: 'uppercase' }}>
-            {loading ? 'Cargando...' : 'Ver más'}
-          </button>
-        </div>
-      )}
+      <div ref={sentinelRef} style={{ textAlign: 'center', padding: '14px 0', color: '#999', fontSize: 13 }}>
+        {loading && 'Cargando...'}
+        {!loading && !hasMore && rows.length > 0 && 'No hay más tipsters'}
+      </div>
     </>
   )
 }

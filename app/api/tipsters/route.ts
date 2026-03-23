@@ -10,13 +10,13 @@ export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams
 
   const filters: TipsterFilters = {
+    search:         p.get('search') ?? undefined,
     tipo:           (p.get('tipo') as TipsterFilters['tipo']) ?? 'all',
     minYield:       p.has('minYield')  ? Number(p.get('minYield'))  : undefined,
+    maxYield:       p.has('maxYield')  ? Number(p.get('maxYield'))  : undefined,
     minPicks:       p.has('minPicks')  ? Number(p.get('minPicks'))  : undefined,
     activityMonths: p.has('activity')  ? Number(p.get('activity'))  : undefined,
-    excludeYears:   p.has('excludeYears')
-      ? p.get('excludeYears')!.split(',').map(Number)
-      : undefined,
+    minYears:       p.has('minYears') ? Number(p.get('minYears')) : undefined,
     priceMin:       p.has('priceMin')  ? Number(p.get('priceMin'))  : undefined,
     priceMax:       p.has('priceMax')  ? Number(p.get('priceMax'))  : undefined,
   }

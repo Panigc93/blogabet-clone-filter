@@ -11,20 +11,20 @@ const PAGE_SIZE = 50
 
 interface PageProps {
   searchParams: {
-    tipo?: string; minYield?: string; minPicks?: string; activity?: string
-    excludeYears?: string; priceMin?: string; priceMax?: string; sort?: string
+    search?: string; tipo?: string; minYield?: string; maxYield?: string; minPicks?: string
+    activity?: string; minYears?: string; priceMin?: string; priceMax?: string; sort?: string
   }
 }
 
 export default async function Home({ searchParams }: PageProps) {
   const filters: TipsterFilters = {
+    search:         searchParams.search ?? undefined,
     tipo:           (searchParams.tipo as TipsterFilters['tipo']) ?? 'all',
     minYield:       searchParams.minYield ? Number(searchParams.minYield) : undefined,
+    maxYield:       searchParams.maxYield ? Number(searchParams.maxYield) : undefined,
     minPicks:       searchParams.minPicks ? Number(searchParams.minPicks) : undefined,
     activityMonths: searchParams.activity ? Number(searchParams.activity) : undefined,
-    excludeYears:   searchParams.excludeYears
-      ? searchParams.excludeYears.split(',').map(Number)
-      : undefined,
+    minYears:       searchParams.minYears ? Number(searchParams.minYears) : undefined,
     priceMin:       searchParams.priceMin ? Number(searchParams.priceMin) : undefined,
     priceMax:       searchParams.priceMax ? Number(searchParams.priceMax) : undefined,
   }
@@ -49,7 +49,7 @@ export default async function Home({ searchParams }: PageProps) {
       <Suspense>
         <FilterBar />
       </Suspense>
-      <div id="page-content" style={{ maxWidth: 1020, margin: '0 auto', padding: '0 12px' }}>
+      <div id="page-content" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px' }}>
         <div style={{ padding: '8px 0 4px', fontSize: 13, color: '#777' }}>
           Mostrando <strong>{rows.length} de {total.toLocaleString('es')}</strong> tipsters
         </div>

@@ -1,20 +1,27 @@
-import { eq, gte, lte, notInArray, SQL, sql } from 'drizzle-orm'
+import { eq, gte, ilike, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
 export interface TipsterFilters {
+  search?: string
   tipo?: 'all' | 'free' | 'paid'
   minYield?: number
+  maxYield?: number
   minPicks?: number
   activityMonths?: number  // 1 | 3 | 6 | 12
-  excludeYears?: number[]
+  minYears?: number
   priceMin?: number
   priceMax?: number
 }
 
-export type SortField = 'yield' | 'profit' | 'picks' | 'followers' | 'since_year' | 'price'
+export type SortField = 'yield' | 'profit' | 'picks' | 'followers' | 'since_year' | 'price' | 'yield6m' | 'yield12m' | 'picks6m_avg'
 
 export function buildFilters(params: TipsterFilters): SQL[] {
   const conditions: SQL[] = []
+
+  if (params.search) {
+    const term = `%${params.search}%`
+    conditions.push(or(ilike(tipsters.name, term), ilike(tipsters.slug, term))!)
+  }
 
   if (params.tipo === 'free') {
     conditions.push(eq(tipsters.isPaid, false))
@@ -24,6 +31,10 @@ export function buildFilters(params: TipsterFilters): SQL[] {
 
   if (params.minYield !== undefined) {
     conditions.push(gte(tipsters.yield, String(params.minYield)))
+  }
+
+  if (params.maxYield !== undefined) {
+    conditions.push(lte(tipsters.yield, String(params.maxYield)))
   }
 
   if (params.minPicks !== undefined) {
@@ -36,8 +47,8 @@ export function buildFilters(params: TipsterFilters): SQL[] {
     )
   }
 
-  if (params.excludeYears && params.excludeYears.length > 0) {
-    conditions.push(notInArray(tipsters.sinceYear, params.excludeYears))
+  if (params.minYears !== undefined) {
+    conditions.push(lte(tipsters.sinceYear, new Date().getFullYear() - params.minYears))
   }
 
   if (params.priceMin !== undefined || params.priceMax !== undefined) {
@@ -55,11 +66,14 @@ export function buildFilters(params: TipsterFilters): SQL[] {
 
 export function sortColumn(sort: SortField) {
   switch (sort) {
-    case 'profit':    return tipsters.profit
-    case 'picks':     return tipsters.picks
-    case 'followers': return tipsters.followers
-    case 'since_year':return tipsters.sinceYear
-    case 'price':     return tipsters.price
-    default:          return tipsters.yield
+    case 'profit':      return tipsters.profit
+    case 'picks':       return tipsters.picks
+    case 'followers':   return tipsters.followers
+    case 'since_year':  return tipsters.sinceYear
+    case 'price':       return tipsters.price
+    case 'yield6m':     return tipsters.yield6m
+    case 'yield12m':    return tipsters.yield12m
+    case 'picks6m_avg': return tipsters.picks6mAvg
+    default:            return tipsters.yield
   }
 }
