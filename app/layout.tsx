@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import { Fira_Sans } from 'next/font/google'
+
+const firaSans = Fira_Sans({ subsets: ['latin'], weight: ['400', '600', '700', '900'], display: 'swap' })
 
 export const metadata: Metadata = {
   title: 'Tipsters',
@@ -6,11 +9,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" className={firaSans.className}>
       <head>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
-        <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;600;700;900&display=swap" rel="stylesheet" />
         <style>{`
           * { font-family: "Fira Sans", sans-serif; }
           body { background: #f0f0f0; font-size: 13px; color: #333; }
