@@ -100,7 +100,7 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
       {/* MIDDLE: stats */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 4px' }}>
         {/* Row 1: alltime stats */}
-        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '6px 0 4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '14px 0 4px' }}>
           <StatCell value={String(tipster.sinceYear ?? '—')} label="Since" />
           <StatCell value={String(tipster.picks)} label="Picks" />
           <StatCell
@@ -122,7 +122,7 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
         </div>
         {/* Row 2: period stats (only if available) */}
         {(tipster.yield6m != null || tipster.yield12m != null || tipster.picks6mAvg != null) && (
-          <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '4px 0 6px', borderTop: '1px dashed #eee' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '8px 0 6px', borderTop: '1px dashed #eee' }}>
             <PeriodCell
               value={tipster.yield3m != null ? fmtYield(tipster.yield3m) : '—'}
               label="Yield 3m"
