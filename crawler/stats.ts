@@ -1,8 +1,9 @@
 import * as cheerio from 'cheerio'
+import type { CheerioAPI } from 'cheerio'
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { tipsters } from '../db/schema'
-import { sql, gt } from 'drizzle-orm'
+import { sql, gt, and, gte, lt, or, isNull } from 'drizzle-orm'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 
 // Load .env.local if vars aren't already set (avoids shell $ expansion issues)
@@ -32,15 +33,14 @@ interface StatsResult {
   yield3m: string | null
   yield6m: string | null
   yield12m: string | null
+  picksFree3mAvg: string | null
+  yieldFree3m: string | null
 }
 
-export function parseStatsHtml(html: string): StatsResult | null {
-  const $ = cheerio.load(html)
-
+function parseArchiveTab($: CheerioAPI, scope: string): MonthRow[] {
   const rows: MonthRow[] = []
 
-  // Archive table: div[data-stats="archive"] tbody tr
-  $('[data-stats="archive"] tbody tr').each((_, tr) => {
+  $(`${scope} [data-stats="archive"] tbody tr`).each((_, tr) => {
     const tds = $(tr).find('td')
     if (tds.length < 7) return
 
@@ -66,32 +66,82 @@ export function parseStatsHtml(html: string): StatsResult | null {
     rows.push({ ts, picks, profit, stakeAvg })
   })
 
-  if (rows.length === 0) return null
-
-  // Sort newest first
   rows.sort((a, b) => b.ts - a.ts)
+  return rows
+}
 
-  function computeYield(monthRows: MonthRow[]): string | null {
-    if (monthRows.length === 0) return null
-    const totalProfit = monthRows.reduce((s, r) => s + r.profit, 0)
-    const totalStakes = monthRows.reduce((s, r) => s + r.picks * r.stakeAvg, 0)
-    if (totalStakes === 0) return null
-    return (totalProfit / totalStakes * 100).toFixed(2)
+function computeYield(monthRows: MonthRow[]): string | null {
+  if (monthRows.length === 0) return null
+  const totalProfit = monthRows.reduce((s, r) => s + r.profit, 0)
+  const totalStakes = monthRows.reduce((s, r) => s + r.picks * r.stakeAvg, 0)
+  if (totalStakes === 0) return null
+  return (totalProfit / totalStakes * 100).toFixed(2)
+}
+
+export function parseStatsHtml(html: string): StatsResult | null {
+  const $ = cheerio.load(html)
+
+  // Scope to #alltimeStatsTab for paid tipsters; fall back to unscoped for free tipsters
+  let alltimeRows = parseArchiveTab($, '#alltimeStatsTab')
+  if (alltimeRows.length === 0) {
+    alltimeRows = parseArchiveTab($, '')  // free tipster: no tab wrapper
   }
+  if (alltimeRows.length === 0) return null
 
-  const last3  = rows.slice(0, 3)
-  const last6  = rows.slice(0, 6)
-  const last12 = rows.slice(0, 12)
+  // Only use closed months (exclude current in-progress month)
+  const now = new Date()
+  const currentMonthTs = Math.floor(new Date(now.getFullYear(), now.getMonth(), 1).getTime() / 1000)
+  const closedRows = alltimeRows.filter(r => r.ts < currentMonthTs)
+
+  // Filter by real calendar windows, not just "last N rows" (which would pick old inactive months)
+  const cutoff3m  = Math.floor(new Date(now.getFullYear(), now.getMonth() - 3,  1).getTime() / 1000)
+  const cutoff6m  = Math.floor(new Date(now.getFullYear(), now.getMonth() - 6,  1).getTime() / 1000)
+  const cutoff12m = Math.floor(new Date(now.getFullYear(), now.getMonth() - 12, 1).getTime() / 1000)
+
+  const last3  = closedRows.filter(r => r.ts >= cutoff3m)
+  const last6  = closedRows.filter(r => r.ts >= cutoff6m)
+  const last12 = closedRows.filter(r => r.ts >= cutoff12m)
 
   const picks6mAvg = last6.length > 0
     ? (last6.reduce((s, r) => s + r.picks, 0) / last6.length).toFixed(2)
     : null
+
+  // Free picks stats: alltime - paid (only for paid tipsters with a paid tab)
+  let picksFree3mAvg: string | null = null
+  let yieldFree3m: string | null = null
+
+  const paidRows = parseArchiveTab($, '#paidStatsTab')
+  if (paidRows.length > 0) {
+    const closedPaidRows = paidRows.filter(r => r.ts < currentMonthTs)
+    const paidMap = new Map(closedPaidRows.map(r => [r.ts, r]))
+
+    // Build free rows for the last 3 closed alltime months
+    const freeRows = last3.map(a => {
+      const p = paidMap.get(a.ts)
+      const freePickCount = p ? a.picks - p.picks : a.picks
+      const freeProfit    = p ? a.profit - p.profit : a.profit
+      const freeStakes    = p
+        ? a.picks * a.stakeAvg - p.picks * p.stakeAvg
+        : a.picks * a.stakeAvg
+      return { picks: freePickCount, profit: freeProfit, stakes: freeStakes }
+    }).filter(r => r.picks > 0)
+
+    if (freeRows.length > 0) {
+      picksFree3mAvg = (freeRows.reduce((s, r) => s + r.picks, 0) / freeRows.length).toFixed(2)
+      const totalFreeStakes = freeRows.reduce((s, r) => s + r.stakes, 0)
+      if (totalFreeStakes > 0) {
+        yieldFree3m = (freeRows.reduce((s, r) => s + r.profit, 0) / totalFreeStakes * 100).toFixed(2)
+      }
+    }
+  }
 
   return {
     picks6mAvg,
     yield3m:  computeYield(last3),
     yield6m:  computeYield(last6),
     yield12m: computeYield(last12),
+    picksFree3mAvg,
+    yieldFree3m,
   }
 }
 
@@ -169,10 +219,19 @@ async function crawlStats() {
   const minPicks = Number(process.env.MIN_PICKS ?? '0')
   const db = drizzle(neon(dbUrl), { schema: { tipsters } })
 
-  console.log(`Loading tipsters from DB (minPicks=${minPicks})...`)
+  // Crawl all tipsters active in the last month
+  const oneMonthAgo = new Date()
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+
+  const conditions = [
+    gte(tipsters.lastPickAt, oneMonthAgo),
+    ...(minPicks > 0 ? [gt(tipsters.picks, minPicks)] : []),
+  ]
+
+  console.log(`Loading active tipsters from DB (minPicks=${minPicks})...`)
   const allTipsters = await db.select({ id: tipsters.id, slug: tipsters.slug })
     .from(tipsters)
-    .where(minPicks > 0 ? gt(tipsters.picks, minPicks) : undefined)
+    .where(and(...conditions))
     .orderBy(tipsters.id)
 
   console.log(`Found ${allTipsters.length} tipsters to process`)
@@ -205,11 +264,13 @@ async function crawlStats() {
       await withRetry(async () => {
         await db.update(tipsters)
           .set({
-            picks6mAvg:     result!.picks6mAvg,
-            yield3m:        result!.yield3m,
-            yield6m:        result!.yield6m,
-            yield12m:       result!.yield12m,
-            statsUpdatedAt: new Date(),
+            picks6mAvg:      result!.picks6mAvg,
+            yield3m:         result!.yield3m,
+            yield6m:         result!.yield6m,
+            yield12m:        result!.yield12m,
+            picksFree3mAvg:  result!.picksFree3mAvg,
+            yieldFree3m:     result!.yieldFree3m,
+            statsUpdatedAt:  new Date(),
           })
           .where(sql`${tipsters.id} = ${id}`)
       }, `upsert(${slug})`)
@@ -232,6 +293,13 @@ async function crawlStats() {
     const { unlinkSync } = await import('fs')
     unlinkSync(CHECKPOINT_PATH)
   }
+
+  // Null out stats for tipsters not active in the last month
+  const cleared = await db.update(tipsters)
+    .set({ yield3m: null, yield6m: null, yield12m: null, picks6mAvg: null,
+           picksFree3mAvg: null, yieldFree3m: null, statsUpdatedAt: null })
+    .where(or(isNull(tipsters.lastPickAt), lt(tipsters.lastPickAt, oneMonthAgo)))
+  console.log(`Cleared stale stats for inactive tipsters.`)
 }
 
 // Only run when executed directly

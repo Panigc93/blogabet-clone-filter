@@ -56,12 +56,9 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
   const initials = tipster.name.slice(0, 2).toUpperCase()
 
   return (
-    <a
-      href={blogUrl}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="tipster-block"
-      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'stretch', background: '#fff', border: '1px solid #dbe1e8', borderRadius: 3, marginBottom: 6, minHeight: 126 }}
+      style={{ display: 'flex', alignItems: 'stretch', background: '#fff', border: '1px solid #dbe1e8', borderRadius: 3, marginBottom: 6, minHeight: 126 }}
     >
       {/* LEFT: avatar + info */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', width: 364, flexShrink: 0 }}>
@@ -78,9 +75,9 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
           <div style={{ fontSize: 24, fontWeight: 800, color: '#333', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {tipster.name}
           </div>
-          <span style={{ fontSize: 15, fontFamily: 'Roboto, sans-serif', fontWeight: 300, color: '#eb6379', display: 'block', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <a href={blogUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: 15, fontFamily: 'Roboto, sans-serif', fontWeight: 300, color: '#eb6379', display: 'block', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: 'none' }}>
             {tipster.slug}.blogabet.com
-          </span>
+          </a>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
             <IconBadge
               icon={Number(tipster.verifiedPct) > 0 ? 'fa-check' : 'fa-times'}
@@ -122,7 +119,8 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
         </div>
         {/* Row 2: period stats (only if available) */}
         {(tipster.yield6m != null || tipster.yield12m != null || tipster.picks6mAvg != null) && (
-          <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '8px 0 6px', borderTop: '1px dashed #eee' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', borderTop: '1px dashed #eee' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '4px 0 6px' }}>
             <PeriodCell
               value={tipster.yield3m != null ? fmtYield(tipster.yield3m) : '—'}
               label="Yield 3m"
@@ -142,21 +140,35 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
               value={tipster.picks6mAvg != null ? `${Math.round(Number(tipster.picks6mAvg))}` : '—'}
               label="P/mes 6m"
             />
+            {tipster.isPaid && (
+              <>
+                <PeriodCell
+                  value={tipster.picksFree3mAvg != null ? `${Math.round(Number(tipster.picksFree3mAvg))}` : '—'}
+                  label="P/mes free 3m"
+                />
+                <PeriodCell
+                  value={tipster.yieldFree3m != null ? fmtYield(tipster.yieldFree3m) : '—'}
+                  label="Yield free 3m"
+                  colorClass={numColorClass(tipster.yieldFree3m)}
+                />
+              </>
+            )}
+          </div>
           </div>
         )}
       </div>
 
       {/* RIGHT: actions */}
       <div style={{ background: '#fff', minWidth: 150, width: 150, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6 }}>
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#82daca', color: '#fff', border: '1px solid #4dbfa2', borderBottomWidth: 3, borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box' }}>
+        <a href={blogUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#82daca', color: '#fff', border: '1px solid #4dbfa2', borderBottomWidth: 3, borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
           <i className="fa fa-external-link"></i> VER EN BLOGABET
-        </span>
+        </a>
         {tipster.isPaid && tipster.price && (
           <div style={{ fontSize: 14, fontWeight: 700, color: '#333', textAlign: 'center', width: '100%', cursor: 'default', userSelect: 'none', whiteSpace: 'nowrap' }}>
             {tipster.price}€ <small style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#999' }}>/ mes</small>
           </div>
         )}
       </div>
-    </a>
+    </div>
   )
 }

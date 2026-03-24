@@ -21,11 +21,14 @@ export const tipsters = pgTable('tipsters', {
   lastResetAt:    timestamp('last_reset_at', { withTimezone: true }),
   updatedAt:      timestamp('updated_at', { withTimezone: true }).notNull().default(sql`NOW()`),
   // Per-tipster statistics fetched from {slug}.blogabet.com/blog/stats
-  picks6mAvg:     numeric('picks_6m_avg', { precision: 7, scale: 2 }),
-  yield3m:        numeric('yield_3m', { precision: 6, scale: 2 }),
-  yield6m:        numeric('yield_6m', { precision: 6, scale: 2 }),
-  yield12m:       numeric('yield_12m', { precision: 6, scale: 2 }),
-  statsUpdatedAt: timestamp('stats_updated_at', { withTimezone: true }),
+  picks6mAvg:      numeric('picks_6m_avg', { precision: 7, scale: 2 }),
+  yield3m:         numeric('yield_3m', { precision: 6, scale: 2 }),
+  yield6m:         numeric('yield_6m', { precision: 6, scale: 2 }),
+  yield12m:        numeric('yield_12m', { precision: 6, scale: 2 }),
+  // Free picks stats for paid tipsters (alltime - paid per month)
+  picksFree3mAvg:  numeric('picks_free_3m_avg', { precision: 7, scale: 2 }),
+  yieldFree3m:     numeric('yield_free_3m', { precision: 6, scale: 2 }),
+  statsUpdatedAt:  timestamp('stats_updated_at', { withTimezone: true }),
 }, (t) => ({
   yieldIdx:      index('idx_tipsters_yield').on(t.yield),
   yield6mIdx:    index('idx_tipsters_yield_6m').on(t.yield6m),

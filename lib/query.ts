@@ -1,4 +1,4 @@
-import { eq, gte, ilike, lte, or, SQL, sql } from 'drizzle-orm'
+import { eq, gt, gte, ilike, isNotNull, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
 export interface TipsterFilters {
@@ -11,6 +11,7 @@ export interface TipsterFilters {
   minYears?: number
   priceMin?: number
   priceMax?: number
+  conPicksFree?: boolean
 }
 
 export type SortField = 'yield' | 'profit' | 'picks' | 'followers' | 'since_year' | 'price' | 'yield6m' | 'yield12m' | 'picks6m_avg'
@@ -49,6 +50,11 @@ export function buildFilters(params: TipsterFilters): SQL[] {
 
   if (params.minYears !== undefined) {
     conditions.push(lte(tipsters.sinceYear, new Date().getFullYear() - params.minYears))
+  }
+
+  if (params.conPicksFree) {
+    conditions.push(isNotNull(tipsters.picksFree3mAvg))
+    conditions.push(gt(tipsters.picksFree3mAvg, '0'))
   }
 
   if (params.priceMin !== undefined || params.priceMax !== undefined) {

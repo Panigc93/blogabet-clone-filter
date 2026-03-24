@@ -110,7 +110,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             {/* PICKS */}
             <div style={{ flex: 1, minWidth: 130, maxWidth: 150, marginBottom: 2 }}>
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Nº de picks</label>
-              <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14 }}
+              <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('minPicks') ?? '0'}
                 onChange={e => update('minPicks', e.target.value === '0' ? null : e.target.value)}>
                 <option value="0">Todos</option>
@@ -125,7 +125,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             {/* ACTIVIDAD */}
             <div style={{ flex: 1, minWidth: 130, maxWidth: 150, marginBottom: 2 }}>
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Actividad</label>
-              <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14 }}
+              <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('activity') ?? ''}
                 onChange={e => update('activity', e.target.value || null)}>
                 <option value="">Todos</option>
@@ -139,7 +139,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             {/* AÑOS EN BLOGABET */}
             <div style={{ flex: 1, minWidth: 130, maxWidth: 150, marginBottom: 2 }}>
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Años en BB</label>
-              <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14 }}
+              <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('minYears') ?? ''}
                 onChange={e => update('minYears', e.target.value || null)}>
                 <option value="">Todos</option>
@@ -154,7 +154,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             {/* ORDENAR POR */}
             <div style={{ flex: 1, minWidth: 130, maxWidth: 150, marginBottom: 2 }}>
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Ordenar por</label>
-              <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14 }}
+              <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('sort') ?? 'yield'}
                 onChange={e => update('sort', e.target.value)}>
                 <option value="yield">Yield (histórico)</option>
@@ -181,6 +181,21 @@ export function FilterBar({ searchParams }: FilterBarProps) {
                     value={sp.get('priceMax') ?? ''}
                     onChange={e => update('priceMax', e.target.value || null)} />
                 </div>
+              </div>
+            )}
+
+            {/* CON PICKS FREE (solo pago) — último a la derecha */}
+            {tipo === 'paid' && (
+              <div style={{ flexShrink: 0, marginBottom: 2, display: 'flex', alignItems: 'flex-end', paddingBottom: 4 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, userSelect: 'none', lineHeight: 1.2 }}>
+                  <input
+                    type="checkbox"
+                    checked={sp.get('conPicksFree') === '1'}
+                    onChange={e => update('conPicksFree', e.target.checked ? '1' : null)}
+                    style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#5b8dd9', flexShrink: 0 }}
+                  />
+                  Con picks<br />free
+                </label>
               </div>
             )}
 
