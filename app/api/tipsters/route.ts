@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
 import { buildFilters, sortColumn, TipsterFilters, SortField } from '@/lib/query'
-import { and, desc, sql } from 'drizzle-orm'
+import { and, sql } from 'drizzle-orm'
 
 const PAGE_SIZE = 50
 

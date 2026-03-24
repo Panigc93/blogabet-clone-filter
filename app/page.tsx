@@ -1,7 +1,7 @@
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
 import { buildFilters, sortColumn, TipsterFilters, SortField } from '@/lib/query'
-import { and, desc, count, sql } from 'drizzle-orm'
+import { and, count, sql } from 'drizzle-orm'
 import { FilterBar } from '@/components/FilterBar'
 import { TipsterRow } from '@/components/TipsterRow'
 import { LoadMore } from '@/components/LoadMore'
