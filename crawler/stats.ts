@@ -24,7 +24,7 @@ if (existsSync(envPath)) {
 interface MonthRow {
   ts: number   // Unix epoch (month start)
   picks: number
-  profit: number
+  yieldPct: number  // col[4]: yield% (e.g. 83 for "+83%") — more accurate than rounded profit
   stakeAvg: number
 }
 
@@ -53,17 +53,17 @@ function parseArchiveTab($: CheerioAPI, scope: string): MonthRow[] {
     const picks = parseInt($(tds[1]).text().trim(), 10)
     if (isNaN(picks) || picks <= 0) return
 
-    // Col 3: profit (span with +/- prefix, e.g. "+8" or "-6")
-    const profitText = $(tds[3]).find('span').text().trim().replace(/[+,\s]/g, '')
-    const profit = parseFloat(profitText)
-    if (isNaN(profit)) return
+    // Col 4: yield% (e.g. "+83%" or "-24%") — use this instead of col[3] profit (which is rounded)
+    const yieldText = $(tds[4]).find('span').text().trim().replace(/[+%,\s]/g, '')
+    const yieldPct = parseFloat(yieldText)
+    if (isNaN(yieldPct)) return
 
     // Col 6: stake avg (e.g. "1.12")
     const stakeText = $(tds[6]).find('span').text().trim().replace(',', '.')
     const stakeAvg = parseFloat(stakeText)
     if (isNaN(stakeAvg) || stakeAvg <= 0) return
 
-    rows.push({ ts, picks, profit, stakeAvg })
+    rows.push({ ts, picks, yieldPct, stakeAvg })
   })
 
   rows.sort((a, b) => b.ts - a.ts)
@@ -72,7 +72,8 @@ function parseArchiveTab($: CheerioAPI, scope: string): MonthRow[] {
 
 function computeYield(monthRows: MonthRow[]): string | null {
   if (monthRows.length === 0) return null
-  const totalProfit = monthRows.reduce((s, r) => s + r.profit, 0)
+  // Reconstruct profit from yieldPct to avoid integer rounding errors in col[3]
+  const totalProfit = monthRows.reduce((s, r) => s + (r.yieldPct / 100) * r.picks * r.stakeAvg, 0)
   const totalStakes = monthRows.reduce((s, r) => s + r.picks * r.stakeAvg, 0)
   if (totalStakes === 0) return null
   return (totalProfit / totalStakes * 100).toFixed(2)
@@ -118,9 +119,11 @@ export function parseStatsHtml(html: string): StatsResult | null {
     // Build free rows for the last 3 closed alltime months
     const freeRows = last3.map(a => {
       const p = paidMap.get(a.ts)
-      const freePickCount = p ? a.picks - p.picks : a.picks
-      const freeProfit    = p ? a.profit - p.profit : a.profit
-      const freeStakes    = p
+      const freePickCount   = p ? a.picks - p.picks : a.picks
+      const alltimeProfit   = (a.yieldPct / 100) * a.picks * a.stakeAvg
+      const paidProfit      = p ? (p.yieldPct / 100) * p.picks * p.stakeAvg : 0
+      const freeProfit      = alltimeProfit - paidProfit
+      const freeStakes      = p
         ? a.picks * a.stakeAvg - p.picks * p.stakeAvg
         : a.picks * a.stakeAvg
       return { picks: freePickCount, profit: freeProfit, stakes: freeStakes }
