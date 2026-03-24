@@ -75,7 +75,7 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
           )}
         </div>
         <div style={{ flex: 1, textAlign: 'center', overflow: 'hidden' }}>
-          <div style={{ fontSize: 24, fontWeight: 800, fontFamily: 'Fira Sans, sans-serif', color: '#333', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#333', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {tipster.name}
           </div>
           <span style={{ fontSize: 15, fontFamily: 'Roboto, sans-serif', fontWeight: 300, color: '#eb6379', display: 'block', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

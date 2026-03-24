@@ -30,7 +30,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
       <div id="page-content" style={{ maxWidth: 1100, margin: '0 auto' }}>
         {/* FILA TÍTULO */}
         <div style={{ padding: '22px 15px 10px' }}>
-          <h1 style={{ color: '#fff', fontSize: 30, fontWeight: 700, fontFamily: 'Fira Sans, sans-serif', letterSpacing: 1, margin: 0, textTransform: 'uppercase' }}>Tipsters</h1>
+          <h1 style={{ color: '#fff', fontSize: 30, fontWeight: 700, letterSpacing: 1, margin: 0, textTransform: 'uppercase' }}>Tipsters</h1>
         </div>
 
         {/* FILA BÚSQUEDA + TIPO */}
