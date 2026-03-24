@@ -1,7 +1,7 @@
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
 import { buildFilters, sortColumn, TipsterFilters, SortField } from '@/lib/query'
-import { and, desc, count } from 'drizzle-orm'
+import { and, desc, count, sql } from 'drizzle-orm'
 import { FilterBar } from '@/components/FilterBar'
 import { TipsterRow } from '@/components/TipsterRow'
 import { LoadMore } from '@/components/LoadMore'
@@ -37,7 +37,7 @@ export default async function Home({ searchParams }: PageProps) {
   const [rows, [{ value: total }]] = await Promise.all([
     db.select().from(tipsters)
       .where(whereClause)
-      .orderBy(desc(sortColumn(sort)))
+      .orderBy(sql`${sortColumn(sort)} DESC NULLS LAST`)
       .limit(PAGE_SIZE),
     db.select({ value: count() }).from(tipsters).where(whereClause),
   ])

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
 import { buildFilters, sortColumn, TipsterFilters, SortField } from '@/lib/query'
-import { and, desc } from 'drizzle-orm'
+import { and, desc, sql } from 'drizzle-orm'
 
 const PAGE_SIZE = 50
 
@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     minYears:       p.has('minYears') ? Number(p.get('minYears')) : undefined,
     priceMin:       p.has('priceMin')  ? Number(p.get('priceMin'))  : undefined,
     priceMax:       p.has('priceMax')  ? Number(p.get('priceMax'))  : undefined,
+    conPicksFree:   p.get('conPicksFree') === '1',
   }
 
   const sort = (p.get('sort') as SortField) ?? 'yield'
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
     .select()
     .from(tipsters)
     .where(where.length ? and(...where) : undefined)
-    .orderBy(desc(sortColumn(sort)))
+    .orderBy(sql`${sortColumn(sort)} DESC NULLS LAST`)
     .limit(PAGE_SIZE)
     .offset(page * PAGE_SIZE)
 
