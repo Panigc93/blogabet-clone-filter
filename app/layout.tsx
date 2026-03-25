@@ -5,6 +5,12 @@ const firaSans = Fira_Sans({ subsets: ['latin'], weight: ['400', '600', '700', '
 
 export const metadata: Metadata = {
   title: 'Tipsters',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
