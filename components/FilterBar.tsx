@@ -14,13 +14,23 @@ export function FilterBar({ searchParams }: FilterBarProps) {
   )
 
   const [searchValue, setSearchValue] = useState(sp.get('search') ?? '')
+  const [minYield, setMinYield] = useState(sp.get('minYield') ?? '')
+  const [maxYield, setMaxYield] = useState(sp.get('maxYield') ?? '')
+  const [priceMin, setPriceMin] = useState(sp.get('priceMin') ?? '')
+  const [priceMax, setPriceMax] = useState(sp.get('priceMax') ?? '')
 
   // Sync local state si cambia la URL (nav atrás/adelante)
+  useEffect(() => { setSearchValue(searchParams.search ?? '') }, [searchParams.search])
   useEffect(() => {
-    setSearchValue(searchParams.search ?? '')
-  }, [searchParams.search])
+    setMinYield(searchParams.minYield ?? '')
+    setMaxYield(searchParams.maxYield ?? '')
+  }, [searchParams.minYield, searchParams.maxYield])
+  useEffect(() => {
+    setPriceMin(searchParams.priceMin ?? '')
+    setPriceMax(searchParams.priceMax ?? '')
+  }, [searchParams.priceMin, searchParams.priceMax])
 
-  // Debounce del buscador de texto
+  // Debounce del buscador de texto (400ms)
   useEffect(() => {
     const currentUrlSearch = searchParams.search ?? ''
     if (searchValue === currentUrlSearch) return
@@ -32,6 +42,32 @@ export function FilterBar({ searchParams }: FilterBarProps) {
     }, 400)
     return () => clearTimeout(t)
   }, [searchValue])
+
+  // Debounce de campos numéricos — yield (800ms)
+  useEffect(() => {
+    if ((minYield || '') === (searchParams.minYield || '') && (maxYield || '') === (searchParams.maxYield || '')) return
+    const t = setTimeout(() => {
+      const params = new URLSearchParams(sp.toString())
+      if (minYield) params.set('minYield', minYield); else params.delete('minYield')
+      if (maxYield) params.set('maxYield', maxYield); else params.delete('maxYield')
+      params.delete('page')
+      startTransition(() => router.push(`/?${params.toString()}`))
+    }, 800)
+    return () => clearTimeout(t)
+  }, [minYield, maxYield])
+
+  // Debounce de campos numéricos — precio (800ms)
+  useEffect(() => {
+    if ((priceMin || '') === (searchParams.priceMin || '') && (priceMax || '') === (searchParams.priceMax || '')) return
+    const t = setTimeout(() => {
+      const params = new URLSearchParams(sp.toString())
+      if (priceMin) params.set('priceMin', priceMin); else params.delete('priceMin')
+      if (priceMax) params.set('priceMax', priceMax); else params.delete('priceMax')
+      params.delete('page')
+      startTransition(() => router.push(`/?${params.toString()}`))
+    }, 800)
+    return () => clearTimeout(t)
+  }, [priceMin, priceMax])
 
   const update = useCallback((key: string, value: string | null) => {
     const params = new URLSearchParams(sp.toString())
@@ -99,11 +135,11 @@ export function FilterBar({ searchParams }: FilterBarProps) {
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Yield (%)</label>
               <div style={{ display: 'flex', gap: 4 }}>
                 <input type="number" placeholder="Mín" style={{ background: '#fff', color: '#333', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '6px 6px', fontSize: 13, width: '100%' }}
-                  value={sp.get('minYield') ?? ''}
-                  onChange={e => update('minYield', e.target.value || null)} />
+                  value={minYield}
+                  onChange={e => setMinYield(e.target.value)} />
                 <input type="number" placeholder="Máx" style={{ background: '#fff', color: '#333', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '6px 6px', fontSize: 13, width: '100%' }}
-                  value={sp.get('maxYield') ?? ''}
-                  onChange={e => update('maxYield', e.target.value || null)} />
+                  value={maxYield}
+                  onChange={e => setMaxYield(e.target.value)} />
               </div>
             </div>
 
@@ -175,11 +211,11 @@ export function FilterBar({ searchParams }: FilterBarProps) {
                 <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Precio/mes (€)</label>
                 <div style={{ display: 'flex', gap: 4 }}>
                   <input type="number" placeholder="Mín" min={0} style={{ background: '#fff', color: '#333', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '6px 6px', fontSize: 13, width: '100%' }}
-                    value={sp.get('priceMin') ?? ''}
-                    onChange={e => update('priceMin', e.target.value || null)} />
+                    value={priceMin}
+                    onChange={e => setPriceMin(e.target.value)} />
                   <input type="number" placeholder="Máx" min={0} style={{ background: '#fff', color: '#333', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '6px 6px', fontSize: 13, width: '100%' }}
-                    value={sp.get('priceMax') ?? ''}
-                    onChange={e => update('priceMax', e.target.value || null)} />
+                    value={priceMax}
+                    onChange={e => setPriceMax(e.target.value)} />
                 </div>
               </div>
             )}
