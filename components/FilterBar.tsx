@@ -60,12 +60,12 @@ export function FilterBar({ searchParams }: FilterBarProps) {
           </div>
 
           {/* FILA BÚSQUEDA + TIPO */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 15px 14px' }}>
+          <div className="filterbar-top" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 15px 14px' }}>
             <input
               type="search"
               placeholder="Buscar por nombre o URL..."
-              className="form-control"
-              style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, width: 280, height: 36 }}
+              className="form-control filterbar-search"
+              style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, height: 36 }}
               value={searchValue}
               onChange={e => setSearchValue(e.target.value)}
             />

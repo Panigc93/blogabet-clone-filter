@@ -9,7 +9,7 @@ function fmtYield(v: string | null): string {
 
 function StatCell({ value, label, colorClass }: { value: string; label: string; colorClass?: string }) {
   return (
-    <div style={{ textAlign: 'center', minWidth: 60 }}>
+    <div className="stat-cell" style={{ textAlign: 'center' }}>
       <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: 22.5, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#333' }}>
         {value}
       </span>
@@ -22,7 +22,7 @@ function StatCell({ value, label, colorClass }: { value: string; label: string; 
 
 function PeriodCell({ value, label, colorClass }: { value: string; label: string; colorClass?: string }) {
   return (
-    <div style={{ textAlign: 'center', minWidth: 55 }}>
+    <div className="period-cell" style={{ textAlign: 'center' }}>
       <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: 14, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#555' }}>
         {value}
       </span>
@@ -61,7 +61,7 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
       style={{ display: 'flex', alignItems: 'stretch', background: '#fff', border: '1px solid #dbe1e8', borderRadius: 3, marginBottom: 6, minHeight: 126 }}
     >
       {/* LEFT: avatar + info */}
-      <div style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', width: 364, flexShrink: 0 }}>
+      <div className="tipster-left" style={{ display: 'flex', alignItems: 'center', padding: '10px 12px' }}>
         <div style={{ flexShrink: 0, marginRight: 12 }}>
           {tipster.avatarUrl ? (
             <img src={tipster.avatarUrl} alt={tipster.name} loading="lazy" style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
@@ -95,9 +95,9 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
       </div>
 
       {/* MIDDLE: stats */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 4px' }}>
+      <div className="tipster-middle" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 4px' }}>
         {/* Row 1: alltime stats */}
-        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '14px 0 4px' }}>
+        <div className="tipster-stats-alltime" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '14px 0 4px' }}>
           <StatCell value={String(tipster.sinceYear ?? '—')} label="Since" />
           <StatCell value={String(tipster.picks)} label="Picks" />
           <StatCell
@@ -120,7 +120,7 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
         {/* Row 2: period stats (only if available) */}
         {(tipster.yield6m != null || tipster.yield12m != null || tipster.picks6mAvg != null) && (
           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', borderTop: '1px dashed #eee' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '4px 0 6px' }}>
+          <div className="tipster-stats-period" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '4px 0 6px' }}>
             <PeriodCell
               value={tipster.yield3m != null ? fmtYield(tipster.yield3m) : '—'}
               label="Yield 3m"
@@ -159,7 +159,7 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
       </div>
 
       {/* RIGHT: actions */}
-      <div style={{ background: '#fff', minWidth: 150, width: 150, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6 }}>
+      <div className="tipster-right" style={{ background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6 }}>
         <a href={blogUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#82daca', color: '#fff', border: '1px solid #4dbfa2', borderBottomWidth: 3, borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
           <i className="fa fa-external-link"></i> VER EN BLOGABET
         </a>

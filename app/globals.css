@@ -40,3 +40,58 @@ a {
     color-scheme: dark;
   }
 }
+
+/* ── Desktop base styles ──────────────────────────────────────────────────── */
+
+.stat-cell   { min-width: 60px; }
+.period-cell { min-width: 55px; }
+
+.tipster-left  { width: 364px; flex-shrink: 0; }
+.tipster-right { min-width: 150px; width: 150px; }
+.filterbar-search { width: 280px; }
+
+/* ── Mobile (≤768px) ──────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+
+  /* TipsterRow: columnas → filas */
+  .tipster-block {
+    flex-direction: column !important;
+    min-height: unset !important;
+  }
+
+  .tipster-left {
+    width: 100% !important;
+    flex-shrink: 1 !important;
+    border-bottom: 1px solid #eee;
+  }
+
+  .tipster-middle {
+    flex: none !important;
+    width: 100% !important;
+  }
+
+  .tipster-stats-alltime,
+  .tipster-stats-period {
+    flex-wrap: wrap !important;
+  }
+
+  .stat-cell   { min-width: 0; flex: 1 1 30%; }
+  .period-cell { min-width: 0; flex: 1 1 30%; }
+
+  .tipster-right {
+    width: 100% !important;
+    min-width: unset !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    border-top: 1px solid #eee;
+  }
+
+  /* FilterBar: búsqueda ocupa todo el ancho */
+  .filterbar-top {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .filterbar-search { width: 100% !important; }
+}
