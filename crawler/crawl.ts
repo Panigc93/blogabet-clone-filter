@@ -68,10 +68,15 @@ export function parseBlocks(html: string, lastActive = 12): TipsterInsert[] {
         if (!isNaN(parsed.getTime())) lastResetAt = parsed
       }
 
-      // isPaid + price — look for subscribe button with price text
-      const subscribeText = $el.find('.subscribe-btns').text()
-      const priceMatch = subscribeText.match(/(\d+(?:[.,]\d+)?)\s*€/)
-      const isPaid = !!priceMatch
+      // isPaid + price
+      // .btn-subscribe exists on FREE tipsters too (follow button) — can't use for isPaid
+      // Use price regex (broader selectors) or special plan text in .subscribe-btns block
+      const $subscribeBlock = $el.find('.subscribe-btns')
+      const subscribeBlockText = $subscribeBlock.text()
+      const priceText = $el.find('.subscribe-btns, .btn-subscribe, .tipster-price').text()
+      const priceMatch = priceText.match(/(\d+(?:[.,]\d+)?)\s*€/)
+      const hasSpecialPlan = /full.?service|season.?break|by.?request/i.test(subscribeBlockText)
+      const isPaid = !!priceMatch || ($subscribeBlock.length > 0 && hasSpecialPlan)
       const price = priceMatch ? priceMatch[1].replace(',', '.') : null
 
       results.push({
