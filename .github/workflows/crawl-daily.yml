@@ -19,7 +19,7 @@ jobs:
 
       - run: npm ci
 
-       - name: Run crawler
+      - name: Run crawler
         env:
           DATABASE_URL_DIRECT: ${{ secrets.DATABASE_URL_DIRECT }}
           BLOGABET_COOKIE: ${{ secrets.BLOGABET_COOKIE }}
