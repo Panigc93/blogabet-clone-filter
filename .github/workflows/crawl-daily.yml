@@ -19,17 +19,25 @@ jobs:
 
       - run: npm ci
 
-      - name: Run crawler
+       - name: Run crawler
         env:
           DATABASE_URL_DIRECT: ${{ secrets.DATABASE_URL_DIRECT }}
           BLOGABET_COOKIE: ${{ secrets.BLOGABET_COOKIE }}
           LAST_ACTIVE: '1'
         run: |
           for i in 1 2 3; do
-            npx tsx crawler/crawl.ts && break
-            echo "Intento $i fallo, reintentando en 30s..."
-            sleep 30
+            if npx tsx crawler/crawl.ts; then
+              exit 0
+            fi
+
+            if [ "$i" -lt 3 ]; then
+              echo "Intento $i fallo; reintentando en 60 segundos..."
+              sleep 60
+            fi
           done
+
+          echo "El crawler fallo despues de 3 intentos."
+          exit 1
 
       - name: Run stats crawler
         env:
