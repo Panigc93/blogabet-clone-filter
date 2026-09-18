@@ -109,7 +109,7 @@ export function parseBlocks(html: string, lastActive = 12): TipsterInsert[] {
 
 // ─── Retry helper ────────────────────────────────────────────────────────────
 
-async function withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 4): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 8): Promise<T> {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn()

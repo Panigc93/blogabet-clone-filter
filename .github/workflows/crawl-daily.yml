@@ -24,10 +24,20 @@ jobs:
           DATABASE_URL_DIRECT: ${{ secrets.DATABASE_URL_DIRECT }}
           BLOGABET_COOKIE: ${{ secrets.BLOGABET_COOKIE }}
           LAST_ACTIVE: '1'
-        run: npx tsx crawler/crawl.ts
+        run: |
+          for i in 1 2 3; do
+            npx tsx crawler/crawl.ts && break
+            echo "Intento $i fallo, reintentando en 30s..."
+            sleep 30
+          done
 
       - name: Run stats crawler
         env:
           DATABASE_URL_DIRECT: ${{ secrets.DATABASE_URL_DIRECT }}
           BLOGABET_COOKIE: ${{ secrets.BLOGABET_COOKIE }}
-        run: npx tsx crawler/stats.ts
+        run: |
+          for i in 1 2 3; do
+            npx tsx crawler/stats.ts && break
+            echo "Intento $i fallo, reintentando en 30s..."
+            sleep 30
+          done
