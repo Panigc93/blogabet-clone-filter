@@ -154,6 +154,9 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
               </>
             )}
           </div>
+          <span style={{ display: 'block', textAlign: 'center', fontSize: 9, lineHeight: 1.2, color: '#999', paddingBottom: 4 }}>
+            Solo meses cerrados; no incluye el mes en curso
+          </span>
           </div>
         )}
       </div>
