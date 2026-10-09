@@ -135,7 +135,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             </div>
           </div>
 
-          <div style={{ padding: '0 15px 12px', display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'space-between' }}>
+          <div style={{ padding: '0 15px 12px', display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'space-between' }}>
 
             {/* YIELD */}
             <div style={{ flex: 1, minWidth: 110, maxWidth: 130, marginBottom: 2 }}>
@@ -251,7 +251,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
                   onChange={e => update('resetOlderThan', e.target.checked ? '1' : null)}
                   style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#5b8dd9', flexShrink: 0 }}
                 />
-                Reset hace<br />+6 meses
+                Sin Reset hace<br />+6 meses
               </label>
             </div>
 
