@@ -76,6 +76,13 @@ export function FilterBar({ searchParams }: FilterBarProps) {
     } else {
       params.set(key, value)
     }
+
+    if (key === 'tipo' && value !== 'paid') {
+      params.delete('conPicksFree')
+      params.delete('priceMin')
+      params.delete('priceMax')
+    }
+
     params.delete('page')
     startTransition(() => router.push(`/?${params.toString()}`))
   }, [router, sp.toString()])
@@ -234,6 +241,19 @@ export function FilterBar({ searchParams }: FilterBarProps) {
                 </label>
               </div>
             )}
+
+            {/* ÚLTIMO RESET (+6 MESES) */}
+            <div style={{ flexShrink: 0, marginBottom: 2, display: 'flex', alignItems: 'flex-end', paddingBottom: 4 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, userSelect: 'none', lineHeight: 1.2 }}>
+                <input
+                  type="checkbox"
+                  checked={sp.get('resetOlderThan') === '1'}
+                  onChange={e => update('resetOlderThan', e.target.checked ? '1' : null)}
+                  style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#5b8dd9', flexShrink: 0 }}
+                />
+                Reset hace<br />+6 meses
+              </label>
+            </div>
 
           </div>
         </div>

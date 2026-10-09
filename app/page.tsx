@@ -12,7 +12,7 @@ interface PageProps {
   searchParams: {
     search?: string; tipo?: string; minYield?: string; maxYield?: string; minPicks?: string
     activity?: string; minYears?: string; priceMin?: string; priceMax?: string; sort?: string
-    conPicksFree?: string
+    conPicksFree?: string; resetOlderThan?: string
   }
 }
 
@@ -28,6 +28,7 @@ export default async function Home({ searchParams }: PageProps) {
     priceMin:       searchParams.priceMin ? Number(searchParams.priceMin) : undefined,
     priceMax:       searchParams.priceMax ? Number(searchParams.priceMax) : undefined,
     conPicksFree:   searchParams.conPicksFree === '1',
+    resetOlderThan: searchParams.resetOlderThan === '1',
   }
 
   const sort = (searchParams.sort as SortField) ?? 'yield'

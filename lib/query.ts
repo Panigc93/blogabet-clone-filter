@@ -12,6 +12,7 @@ export interface TipsterFilters {
   priceMin?: number
   priceMax?: number
   conPicksFree?: boolean
+  resetOlderThan?: boolean
 }
 
 export type SortField = 'yield' | 'profit' | 'picks' | 'followers' | 'since_year' | 'price' | 'yield6m' | 'yield12m' | 'picks6m_avg'
@@ -45,6 +46,12 @@ export function buildFilters(params: TipsterFilters): SQL[] {
   if (params.activityMonths !== undefined) {
     conditions.push(
       gte(tipsters.lastPickAt, sql`NOW() - make_interval(months => ${params.activityMonths})`)
+    )
+  }
+
+  if (params.resetOlderThan ) {
+    conditions.push(
+      sql`(${tipsters.lastResetAt} IS NULL OR ${tipsters.lastResetAt} < NOW() - make_interval(months => 6))`
     )
   }
 
