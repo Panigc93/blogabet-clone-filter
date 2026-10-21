@@ -62,11 +62,11 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
     >
       {/* LEFT: avatar + info */}
       <div className="tipster-left" style={{ display: 'flex', alignItems: 'center', padding: '10px 12px' }}>
-        <div style={{ flexShrink: 0, marginRight: 12 }}>
+        <div style={{ flexShrink: 0, marginRight: 12, width: 96 }}>
           {tipster.avatarUrl ? (
-            <img src={tipster.avatarUrl} alt={tipster.name} loading="lazy" style={{ width: 66, height: 66, borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+            <img src={tipster.avatarUrl} alt={tipster.name} loading="lazy" style={{ width: 76, height: 76, borderRadius: '50%', objectFit: 'cover', display: 'block', marginLeft: 15 }} />
           ) : (
-            <div style={{ width: 66, height: 66, borderRadius: '50%', background: '#82daca', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
+            <div style={{ width: 76, height: 76, borderRadius: '50%', background: '#82daca', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
               {initials}
             </div>
           )}
