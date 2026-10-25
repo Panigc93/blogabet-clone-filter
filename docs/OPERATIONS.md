@@ -46,18 +46,17 @@ Run these before claiming a change is verified.
 | Command | What it checks | Known state (2026-10-25) |
 |---|---|---|
 | `npm run lint` | Next.js ESLint | Exit 0; 7 warnings (5 exhaustive-deps in `FilterBar`, 2 `<img>` warnings in `TipsterRow`). |
-| `npx tsc --noEmit` | TypeScript strict check | Exit 1: `tests/lib/query.test.ts` still uses removed `excludeYears`. |
+| `npx tsc --noEmit` | TypeScript strict check | Exit 0. |
 | `npm test` | Vitest unit tests | Cannot start in the documented Windows/Node 26 checkout: missing `@rolldown/binding-win32-x64-msvc`. Not verified. |
 | `npm run build` | Production build | Identified, not executed. |
 | `npm run start` | Serve a production build | Identified, not executed; requires `npm run build`. |
 
-Do not report "tests pass" unless `npm test` actually completes. The current checkout has 18 test cases across `tests/lib/auth.test.ts`, `tests/lib/query.test.ts`, and `tests/crawler/transform.test.ts`; the historical plan in `docs/superpowers/` says 17.
+Do not report "tests pass" unless `npm test` actually completes. The current checkout has 20 test cases across `tests/lib/auth.test.ts`, `tests/lib/query.test.ts`, and `tests/crawler/transform.test.ts`; the historical plan in `docs/superpowers/` says 17.
 
 ### Fixing the validation failures (when explicitly asked)
 
-- Typecheck: update `tests/lib/query.test.ts` to the current filter model (`minYears` replaced `excludeYears`) rather than deleting the test.
 - Vitest: use Node 20 and `npm ci`. The lockfile declares `@rolldown/binding-win32-x64-msvc`, but it is absent in this checkout. Reinstalling dependencies modifies `node_modules`, so do it only when the task allows it.
-- Build: after the typecheck issue is fixed, run `npm run build`; it may need the app environment variables.
+- Build: run `npm run build`; it may need the app environment variables.
 
 ## Crawler runbook
 
@@ -226,16 +225,25 @@ Therefore:
 | Symptom | Likely cause | Action |
 |---|---|---|
 | `npm test` fails with `Cannot find native binding` / `@rolldown/binding-win32-x64-msvc` | Optional native dependency missing; Node 26/Windows checkout | Use Node 20 (CI version) and `npm ci`; do not delete `package-lock.json` as the error suggests. |
-| `npx tsc --noEmit` fails on `excludeYears` | Stale test from the old filter model | Update the test to `minYears` when the task allows code changes. |
+| Infinite scroll shows different results than page 1 | SSR and API parse filters separately | Check both `app/page.tsx` and `app/api/tipsters/route.ts`; the API once omitted `resetOlderThan`. |
 | App redirects every request to `/login` | Missing/wrong `SITE_PASSWORD` or `AUTH_SECRET`, or stale cookie | Check env vars; clear the `auth_token` cookie and log in again. |
 | App crashes at startup with a database error | `DATABASE_URL` missing or wrong | Set the pooled Neon URL in the app environment. |
 | Crawler exits with `BLOGABET_COOKIE is not set` / auth errors | Missing or expired cookie | Export the cookie locally or rotate the GitHub secret. |
 | Stats are all null after a full crawl | New rows have `last_pick_at = null`; stats only processes recently active rows | Run a daily catalog crawl (`LAST_ACTIVE=1`) first, then stats. |
 | Stats crawl reports errors and subsequent runs skip tipsters | Checkpoint saved at the end with `errors > 0` | Inspect the log, then delete `crawler/.checkpoint-stats` and rerun. |
-| Infinite scroll shows different results than page 1 | `resetOlderThan` is parsed only by `app/page.tsx`, not the API | Known limitation; fix the API parser if the task includes it. |
 | Workflow is green but stats did not run | Stats loop swallows three failures | Read the step log; check cookie/network/DB. |
 | Local helper script ignores `.env.local` on Windows | URL pathname becomes `/C:/...` | Export env vars in PowerShell or use WSL/Git Bash. |
 | `.env.local` not found by `crawler/crawl.ts` | That script has no dotenv loader | Export variables in the shell. |
+
+### Filter-parser regressions
+
+`app/page.tsx` and `app/api/tipsters/route.ts` parse filters independently. A filter can work on page 1 and silently stop applying on infinite scroll. To diagnose:
+
+1. Call `/api/tipsters` with the same query params plus `search=<slug>` and compare it with the SSR result.
+2. Compare the filter objects in both files; a missing field means the API ignores that filter.
+3. Add the field to the API, add a `buildFilters` test, and manually verify the API parser with a request. `tests/lib/query.test.ts` does not cover either parser.
+
+This is how the `resetOlderThan` bug was found: `ditales57` had `lastResetAt = 2026-07-18` but appeared on API page 1 because the API omitted the filter.
 
 ## Do not run without explicit request
 

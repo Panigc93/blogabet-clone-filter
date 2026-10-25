@@ -33,6 +33,15 @@ function PeriodCell({ value, label, colorClass }: { value: string; label: string
   )
 }
 
+function fmtResetDate(value: Date | string | null): string | null {
+  if (!value) return null
+  const date = new Date(value)
+  if (isNaN(date.getTime())) return null
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  return `${day}/${month}/${date.getUTCFullYear()}`
+}
+
 function numColorClass(value: string | null): string {
   if (!value) return ''
   const n = parseFloat(value)
@@ -54,6 +63,9 @@ function IconBadge({ icon, title }: { icon: string; title?: string }) {
 export function TipsterRow({ tipster }: { tipster: Tipster }) {
   const blogUrl = `https://${tipster.slug}.blogabet.com`
   const initials = tipster.name.slice(0, 2).toUpperCase()
+  const resetCount = Number(tipster.resetCount)
+  const resetDate = fmtResetDate(tipster.lastResetAt)
+  const resetTitle = `Stats reseteadas ${resetCount} ${resetCount === 1 ? 'vez' : 'veces'}${resetDate ? ` · Último reset: ${resetDate}` : ''}`
 
   return (
     <div
@@ -84,8 +96,8 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
               title={Number(tipster.verifiedPct) > 0 ? 'Verificado' : 'No verificado'}
             />
             {tipster.isPaid && <IconBadge icon="fa-usd" title="De pago" />}
-            {Number(tipster.resetCount) > 0 && (
-              <IconBadge icon="fa-refresh" title={`Stats reseteadas ${tipster.resetCount} veces`} />
+            {resetCount > 0 && (
+              <IconBadge icon="fa-refresh" title={resetTitle} />
             )}
             {tipster.flagUrl && (
               <img src={tipster.flagUrl} alt={tipster.countryCode ?? ''} style={{ width: 24, height: 24, objectFit: 'contain' }} />

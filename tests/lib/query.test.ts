@@ -32,9 +32,19 @@ describe('buildFilters', () => {
     expect(filters).toHaveLength(3)
   })
 
-  it('adds excludeYears filter', () => {
-    const filters = buildFilters({ excludeYears: [2024, 2025] })
+  it('adds minYears filter', () => {
+    const filters = buildFilters({ minYears: 1 })
     expect(filters).toHaveLength(1)
+  })
+
+  it('adds resetOlderThan filter when enabled', () => {
+    const filters = buildFilters({ resetOlderThan: true })
+    expect(filters).toHaveLength(1)
+  })
+
+  it('does not add resetOlderThan filter when disabled', () => {
+    const filters = buildFilters({ resetOlderThan: false })
+    expect(filters).toHaveLength(0)
   })
 
   it('adds price range with isPaid=true when priceMin/priceMax set', () => {

@@ -34,7 +34,7 @@ Open `http://localhost:3000`; unauthenticated requests redirect to `/login`.
 ## Validation status
 
 - `npm run lint` completes with warnings.
-- `npx tsc --noEmit` currently fails on a stale test that still uses the removed `excludeYears` filter.
+- `npx tsc --noEmit` passes.
 - `npm test` could not start in the documented Windows/Node 26 checkout because of a missing rolldown native binding.
 - CI runs the crawlers only; it does not run lint, typecheck, or tests.
 

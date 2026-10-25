@@ -24,7 +24,7 @@ Read this file first. Deeper context:
 | `npm ci` | CI install command; not run locally in this checkout. |
 | `npm run dev` | Identified, not executed. |
 | `npm run lint` | Executed: exit 0, 7 warnings. |
-| `npx tsc --noEmit` | Executed: exit 1 due to a stale test. |
+| `npx tsc --noEmit` | Executed: exit 0. |
 | `npm test` | Attempted: blocked by a missing native binding in this Windows/Node 26 environment. Not verified. |
 | `npm run build` / `npm start` | Identified, not executed. |
 | `npm run test:watch` | Identified, not executed. |
@@ -85,14 +85,14 @@ Data flow:
 - `resetOlderThan=1` means `lastResetAt IS NULL OR lastResetAt < now - 6 months`.
 - `conPicksFree=1` requires `picksFree3mAvg > 0`; price filters force `isPaid=true`.
 - When adding a filter or sort, update `TipsterFilters`/`SortField` and `buildFilters`/`sortColumn` in `lib/query.ts`, then both `app/page.tsx` and `app/api/tipsters/route.ts`, plus `components/FilterBar.tsx`.
-- The API currently does not parse `resetOlderThan`. SSR and infinite scroll disagree when that filter is active.
+- SSR (`app/page.tsx`) and `/api/tipsters` parse filters separately. Add new filters to both. `resetOlderThan` was once missing from the API and caused infinite-scroll mismatches.
 - Period stats use closed calendar months only; the current month is excluded. `picks6mAvg` averages months with data inside the window, not a fixed divisor.
 - The daily catalog crawl sets `lastPickAt = now` for crawled tipsters. It is an activity proxy, not the real date of the last pick.
 
 ## Known traps
 
-- `tests/lib/query.test.ts` still uses `excludeYears`, removed from `TipsterFilters`. `npx tsc --noEmit` fails because of it. Update the test; do not delete coverage silently.
 - `npm test` currently cannot start here: `@rolldown/binding-win32-x64-msvc` is missing. CI uses Node 20; this checkout uses Node 26. Do not claim tests pass until they actually run.
+- `tests/lib/query.test.ts` covers `buildFilters` only, not the SSR/API parsers. A filter can still be parsed on one side and missed on the other.
 - Migrations are out of sync: `db/schema.ts` has stats columns and `lastResetAt`; `drizzle/0000_sudden_jazinda.sql` does not. `drizzle/0001_add_last_reset_at.sql` exists but is absent from `drizzle/meta/_journal.json`, and no migration creates the stats columns. Do not run `drizzle-kit migrate` expecting the live DB to match the schema.
 - `crawler/stats.ts`, `crawler/cleanup.ts`, `crawler/count.mts`, and `crawler/check-*.ts` auto-load `.env.local` using `new URL(...).pathname`. On Windows that becomes `/C:/...`, so `existsSync` is false. `crawler/crawl.ts` does not auto-load `.env.local` at all.
 - The stats step in `crawl-daily.yml` can end green after three failures because the last command in its loop is `sleep 30`. Check the workflow log, not just the job status.

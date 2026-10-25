@@ -90,6 +90,10 @@ The page is dynamic because it reads `searchParams`. There is no caching layer a
 
 `app/api/tipsters/route.ts` repeats the filter parsing, applies `limit(50).offset(page * 50)`, and returns `{ data, page, hasMore }`. The duplication is a maintenance hazard; keep it in sync with `app/page.tsx`.
 
+### Row rendering
+
+`components/TipsterRow.tsx` renders all-time and period stats. It runs on the server for the initial page and on the client inside `LoadMore`; Drizzle values arrive as `Date` on the server but as ISO strings from the API JSON on the client, so date formatting must handle both. The reset badge appears only when `resetCount > 0`; its native tooltip shows the count and, when available, `lastResetAt` as `dd/mm/yyyy` in UTC. `lastResetAt` can be null even when `resetCount > 0`.
+
 ### Auth flow
 
 - `/login` posts a server action; the action compares the submitted password with `SITE_PASSWORD`.
@@ -120,7 +124,7 @@ Single table: `tipsters` (`db/schema.ts`). No history table; only current values
 | `followers` | integer | Followers. |
 | `last_pick_at` | timestamptz | Activity proxy, not the real last-pick timestamp. |
 | `reset_count` | smallint | Number of stat resets. |
-| `last_reset_at` | timestamptz | Parsed from the reset tooltip when a date is present. |
+| `last_reset_at` | timestamptz | Parsed from the reset tooltip when a date is present; can be null even when `reset_count > 0`. |
 | `updated_at` | timestamptz | Last catalog upsert. |
 | `picks_6m_avg` | numeric(7,2) | Average picks per month in closed months in the 6-month window. |
 | `yield_3m` | numeric(6,2) | Weighted yield over closed months in the 3-month window. |
@@ -163,7 +167,7 @@ All filters live in `lib/query.ts` and are passed from both the page and the API
 
 Sort fields: `yield`, `profit`, `picks`, `followers`, `since_year`, `price`, `yield6m`, `yield12m`, `picks6m_avg`. Unknown sort values fall back to `yield`.
 
-Known inconsistency: `app/page.tsx` parses `resetOlderThan`, but `app/api/tipsters/route.ts` does not. When the reset filter is active, SSR results and infinite-scroll results can disagree. Fix both sides if you touch this area.
+Both `app/page.tsx` and `app/api/tipsters/route.ts` parse `resetOlderThan`. Parsing is still duplicated: when adding a filter, update both sides or infinite scroll will disagree with the first page.
 
 ## Crawlers
 
@@ -289,8 +293,8 @@ Deployment notes:
 
 ## Known limitations and drift
 
-- `resetOlderThan` works in SSR but not in the paginated API.
-- `tests/lib/query.test.ts` still references `excludeYears`; typecheck fails.
+- SSR and API filter parsing are separate; `tests/lib/query.test.ts` covers `buildFilters` but not either parser.
+- Pagination sorts by a single column without a stable tiebreaker; rows with equal values can shift between pages. Add a deterministic tiebreaker (for example `id DESC`) if pagination consistency matters.
 - Vitest cannot start in the documented Windows/Node 26 checkout because the rolldown native binding is missing. This is an environment issue, not proof that the tests fail logically.
 - Migrations do not describe the current table; see "Migration drift".
 - `country_code` is never populated.

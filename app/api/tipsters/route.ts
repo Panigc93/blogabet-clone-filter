@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
     priceMin:       p.has('priceMin')  ? Number(p.get('priceMin'))  : undefined,
     priceMax:       p.has('priceMax')  ? Number(p.get('priceMax'))  : undefined,
     conPicksFree:   p.get('conPicksFree') === '1',
+    resetOlderThan: p.get('resetOlderThan') === '1',
   }
 
   const sort = (p.get('sort') as SortField) ?? 'yield'
