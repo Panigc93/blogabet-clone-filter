@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildFilters } from '@/lib/query'
+import { buildFilters, sortOrder } from '@/lib/query'
 
 describe('buildFilters', () => {
   it('returns empty array for default params', () => {
@@ -51,5 +51,14 @@ describe('buildFilters', () => {
     const filters = buildFilters({ priceMin: 5, priceMax: 20 })
     // enforces is_paid=true + price >= + price <=
     expect(filters).toHaveLength(3)
+  })
+})
+
+describe('sortOrder', () => {
+  it('adds a deterministic id tiebreaker to every sort', () => {
+    const sorts = ['yield', 'profit', 'picks', 'followers', 'since_year', 'price', 'yield6m', 'yield12m', 'picks6m_avg'] as const
+    for (const sort of sorts) {
+      expect(sortOrder(sort)).toHaveLength(2)
+    }
   })
 })

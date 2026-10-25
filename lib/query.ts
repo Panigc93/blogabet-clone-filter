@@ -90,3 +90,10 @@ export function sortColumn(sort: SortField) {
     default:            return tipsters.yield
   }
 }
+
+export function sortOrder(sort: SortField): SQL[] {
+  return [
+    sql`${sortColumn(sort)} DESC NULLS LAST`,
+    sql`${tipsters.id} DESC`,
+  ]
+}

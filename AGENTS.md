@@ -60,9 +60,9 @@ npx drizzle-kit migrate
 - `app/page.tsx` — SSR listing, first 50 rows, URL search params, total count.
 - `app/api/tipsters/route.ts` — paginated JSON used by infinite scroll.
 - `components/FilterBar.tsx` — client filter controls; URL is the state; debounces search 400 ms and numeric fields 800 ms.
-- `components/LoadMore.tsx` — IntersectionObserver infinite scroll, page 1 onward.
+- `components/LoadMore.tsx` — IntersectionObserver infinite scroll, page 1 onward; keyed by `searchString` so filter changes reset its state.
 - `components/TipsterRow.tsx` — row rendering, all-time stats plus period stats.
-- `lib/query.ts` — `buildFilters` and `sortColumn`.
+- `lib/query.ts` — `buildFilters`, `sortColumn`, and `sortOrder`.
 - `db/schema.ts` / `db/index.ts` — single `tipsters` table; Neon HTTP client from `DATABASE_URL`.
 - `crawler/crawl.ts` — scrapes the `/tipsters/` HTML, upserts rows, checkpoints, retries, optional Playwright.
 - `crawler/stats.ts` — scrapes `https://{slug}.blogabet.com/blog/stats`, computes closed-month stats, clears inactive rows.
@@ -79,7 +79,7 @@ Data flow:
 ## Data and filter rules
 
 - Page size is 50 in both `app/page.tsx` and `app/api/tipsters/route.ts`.
-- Default sort is `yield`; all sorts use `DESC NULLS LAST`.
+- Default sort is `yield`; all sorts use `DESC NULLS LAST` plus `id DESC` as a deterministic tiebreaker.
 - Filters: `search`, `tipo`, `minYield`, `maxYield`, `minPicks`, `activity`, `minYears`, `priceMin`, `priceMax`, `sort`, `conPicksFree=1`, `resetOlderThan=1`.
 - `activity` uses `lastPickAt`; `minYears` uses `sinceYear <= currentYear - N`.
 - `resetOlderThan=1` means `lastResetAt IS NULL OR lastResetAt < now - 6 months`.
@@ -92,7 +92,7 @@ Data flow:
 ## Known traps
 
 - `npm test` currently cannot start here: `@rolldown/binding-win32-x64-msvc` is missing. CI uses Node 20; this checkout uses Node 26. Do not claim tests pass until they actually run.
-- `tests/lib/query.test.ts` covers `buildFilters` only, not the SSR/API parsers. A filter can still be parsed on one side and missed on the other.
+- `tests/lib/query.test.ts` covers `buildFilters` and `sortOrder`, not the SSR/API parsers. A filter can still be parsed on one side and missed on the other.
 - Migrations are out of sync: `db/schema.ts` has stats columns and `lastResetAt`; `drizzle/0000_sudden_jazinda.sql` does not. `drizzle/0001_add_last_reset_at.sql` exists but is absent from `drizzle/meta/_journal.json`, and no migration creates the stats columns. Do not run `drizzle-kit migrate` expecting the live DB to match the schema.
 - `crawler/stats.ts`, `crawler/cleanup.ts`, `crawler/count.mts`, and `crawler/check-*.ts` auto-load `.env.local` using `new URL(...).pathname`. On Windows that becomes `/C:/...`, so `existsSync` is false. `crawler/crawl.ts` does not auto-load `.env.local` at all.
 - The stats step in `crawl-daily.yml` can end green after three failures because the last command in its loop is `sleep 30`. Check the workflow log, not just the job status.

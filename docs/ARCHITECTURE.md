@@ -48,7 +48,7 @@ Browser ── Next.js middleware ── app/page.tsx ──┘
 | `components/FilterBar.tsx` | All filter controls; changes the URL and resets pagination. |
 | `components/TipsterRow.tsx` | One tipster card: identity, all-time stats, period stats, outbound links. |
 | `components/LoadMore.tsx` | IntersectionObserver-based infinite scroll; appends rows from the API. |
-| `lib/query.ts` | `TipsterFilters`, `buildFilters`, `SortField`, `sortColumn`. |
+| `lib/query.ts` | `TipsterFilters`, `buildFilters`, `SortField`, `sortColumn`, `sortOrder`. |
 | `lib/auth.ts` | Web Crypto HMAC-SHA256 signing/verification helpers. |
 | `middleware.ts` | Auth gate and route exclusions. |
 | `db/schema.ts` | Drizzle table definition and inferred types. |
@@ -74,7 +74,7 @@ Browser ── Next.js middleware ── app/page.tsx ──┘
 1. Parses `searchParams` into `TipsterFilters`.
 2. Calls `buildFilters()` and `sortColumn()` from `lib/query.ts`.
 3. Runs two queries in parallel: the first 50 rows and a `count()` with the same `where`.
-4. Orders with raw SQL `DESC NULLS LAST` so null yields/profits sort last.
+4. Orders with raw SQL `DESC NULLS LAST, id DESC` so null yields/profits sort last and equal values stay deterministic across pages.
 5. Renders `FilterBar`, the initial rows, and `LoadMore` with `hasMore` and the serialized query string.
 
 The page is dynamic because it reads `searchParams`. There is no caching layer and no history table; every request reads current rows.
@@ -87,6 +87,7 @@ The page is dynamic because it reads `searchParams`. There is no caching layer a
 - Calls `/api/tipsters?<searchString>&page=N` when its sentinel enters the viewport (`rootMargin: 400px`).
 - Appends `json.data` and stops when the API returns `hasMore: false`.
 - Uses refs to avoid duplicate fetches from the observer.
+- Is mounted with `key={searchString}` so a filter or search change resets loaded rows and the page counter.
 
 `app/api/tipsters/route.ts` repeats the filter parsing, applies `limit(50).offset(page * 50)`, and returns `{ data, page, hasMore }`. The duplication is a maintenance hazard; keep it in sync with `app/page.tsx`.
 
@@ -293,8 +294,8 @@ Deployment notes:
 
 ## Known limitations and drift
 
-- SSR and API filter parsing are separate; `tests/lib/query.test.ts` covers `buildFilters` but not either parser.
-- Pagination sorts by a single column without a stable tiebreaker; rows with equal values can shift between pages. Add a deterministic tiebreaker (for example `id DESC`) if pagination consistency matters.
+- SSR and API filter parsing are separate; `tests/lib/query.test.ts` covers `buildFilters` and `sortOrder` but not either parser.
+- Pagination uses `id DESC` as a deterministic tiebreaker, but rows inserted or removed between page requests can still shift offsets; absolute consistency would require cursor pagination.
 - Vitest cannot start in the documented Windows/Node 26 checkout because the rolldown native binding is missing. This is an environment issue, not proof that the tests fail logically.
 - Migrations do not describe the current table; see "Migration drift".
 - `country_code` is never populated.

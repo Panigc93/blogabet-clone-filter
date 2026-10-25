@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, sortColumn, TipsterFilters, SortField } from '@/lib/query'
-import { and, sql } from 'drizzle-orm'
+import { buildFilters, sortOrder, TipsterFilters, SortField } from '@/lib/query'
+import { and } from 'drizzle-orm'
 
 const PAGE_SIZE = 50
 
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     .select()
     .from(tipsters)
     .where(where.length ? and(...where) : undefined)
-    .orderBy(sql`${sortColumn(sort)} DESC NULLS LAST`)
+    .orderBy(...sortOrder(sort))
     .limit(PAGE_SIZE)
     .offset(page * PAGE_SIZE)
 

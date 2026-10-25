@@ -51,7 +51,7 @@ Run these before claiming a change is verified.
 | `npm run build` | Production build | Identified, not executed. |
 | `npm run start` | Serve a production build | Identified, not executed; requires `npm run build`. |
 
-Do not report "tests pass" unless `npm test` actually completes. The current checkout has 20 test cases across `tests/lib/auth.test.ts`, `tests/lib/query.test.ts`, and `tests/crawler/transform.test.ts`; the historical plan in `docs/superpowers/` says 17.
+Do not report "tests pass" unless `npm test` actually completes. The current checkout has 21 test cases across `tests/lib/auth.test.ts`, `tests/lib/query.test.ts`, and `tests/crawler/transform.test.ts`; the historical plan in `docs/superpowers/` says 17.
 
 ### Fixing the validation failures (when explicitly asked)
 
@@ -226,6 +226,7 @@ Therefore:
 |---|---|---|
 | `npm test` fails with `Cannot find native binding` / `@rolldown/binding-win32-x64-msvc` | Optional native dependency missing; Node 26/Windows checkout | Use Node 20 (CI version) and `npm ci`; do not delete `package-lock.json` as the error suggests. |
 | Infinite scroll shows different results than page 1 | SSR and API parse filters separately | Check both `app/page.tsx` and `app/api/tipsters/route.ts`; the API once omitted `resetOlderThan`. |
+| Tipsters repeat while scrolling | Unstable ordering on tied sort values, or stale `LoadMore` state after a filter change | Both queries must use `sortOrder()` (`id DESC` tiebreaker); `LoadMore` must be keyed by `searchString`. |
 | App redirects every request to `/login` | Missing/wrong `SITE_PASSWORD` or `AUTH_SECRET`, or stale cookie | Check env vars; clear the `auth_token` cookie and log in again. |
 | App crashes at startup with a database error | `DATABASE_URL` missing or wrong | Set the pooled Neon URL in the app environment. |
 | Crawler exits with `BLOGABET_COOKIE is not set` / auth errors | Missing or expired cookie | Export the cookie locally or rotate the GitHub secret. |
