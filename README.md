@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Blogabet Tipsters Clone
 
-## Getting Started
+A private, password-protected browser for Blogabet tipsters. GitHub Actions crawlers scrape tipster data and period statistics into Neon PostgreSQL; a Next.js 14 app serves a fast, filterable list and links each row back to `https://<slug>.blogabet.com`.
 
-First, run the development server:
+## Stack
+
+- Next.js 14 App Router, React 18, TypeScript
+- Drizzle ORM with `@neondatabase/serverless`
+- Neon PostgreSQL
+- cheerio-based crawlers, optional Playwright
+- GitHub Actions for scheduled and manual crawls
+- Vitest for unit tests
+
+## Quick start
+
+Requirements: Node.js 20 (the version used by CI), npm, a Neon database, and a Blogabet session cookie for crawlers.
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local` with the required values. There is no `.env.example`; use the variable names from `docs/OPERATIONS.md`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open `http://localhost:3000`; unauthenticated requests redirect to `/login`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Documentation
 
-## Learn More
+- `AGENTS.md` — operational guide for coding agents: commands, module map, invariants, and known traps.
+- `docs/ARCHITECTURE.md` — system design, data model, filters, crawlers, auth, and deployment.
+- `docs/OPERATIONS.md` — local setup, crawler runbook, CI, migrations, and troubleshooting.
+- `docs/superpowers/` — historical design and implementation plan from 2026-03-20. Partly stale; prefer the current docs and source code.
 
-To learn more about Next.js, take a look at the following resources:
+## Validation status
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `npm run lint` completes with warnings.
+- `npx tsc --noEmit` currently fails on a stale test that still uses the removed `excludeYears` filter.
+- `npm test` could not start in the documented Windows/Node 26 checkout because of a missing rolldown native binding.
+- CI runs the crawlers only; it does not run lint, typecheck, or tests.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `docs/OPERATIONS.md` for the exact current status and troubleshooting.
