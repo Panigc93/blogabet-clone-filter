@@ -15,6 +15,7 @@ export const tipsters = pgTable('tipsters', {
   profit:      numeric('profit', { precision: 10, scale: 2 }),
   yield:       numeric('yield', { precision: 6, scale: 2 }),
   verifiedPct: numeric('verified_pct', { precision: 5, scale: 2 }),
+  isVerified:  boolean('is_verified').notNull().default(false),
   followers:   integer('followers').notNull().default(0),
   lastPickAt:     timestamp('last_pick_at', { withTimezone: true }),
   resetCount:     smallint('reset_count').notNull().default(0),

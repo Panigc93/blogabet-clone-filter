@@ -83,6 +83,7 @@ Data flow:
 - Filters: `search`, `tipo`, `minYield`, `maxYield`, `minPicks`, `activity`, `minYears`, `priceMin`, `priceMax`, `sort`, `conPicksFree=1`, `resetOlderThan=1`.
 - `activity` uses `lastPickAt`; `minYears` uses `sinceYear <= currentYear - N`.
 - `resetOlderThan=1` means `lastResetAt IS NULL OR lastResetAt < now - 6 months`.
+- `verifiedPct` is the percentage of verified picks from the listing; it is not account verification. The account badge uses `isVerified`, parsed from the `.icons` verified tooltip.
 - `conPicksFree=1` requires `picksFree3mAvg > 0`; price filters force `isPaid=true`.
 - When adding a filter or sort, update `TipsterFilters`/`SortField` and `buildFilters`/`sortColumn` in `lib/query.ts`, then both `app/page.tsx` and `app/api/tipsters/route.ts`, plus `components/FilterBar.tsx`.
 - SSR (`app/page.tsx`) and `/api/tipsters` parse filters separately. Add new filters to both. `resetOlderThan` was once missing from the API and caused infinite-scroll mismatches.
@@ -93,7 +94,8 @@ Data flow:
 
 - `npm test` currently cannot start here: `@rolldown/binding-win32-x64-msvc` is missing. CI uses Node 20; this checkout uses Node 26. Do not claim tests pass until they actually run.
 - `tests/lib/query.test.ts` covers `buildFilters` and `sortOrder`, not the SSR/API parsers. A filter can still be parsed on one side and missed on the other.
-- Migrations are out of sync: `db/schema.ts` has stats columns and `lastResetAt`; `drizzle/0000_sudden_jazinda.sql` does not. `drizzle/0001_add_last_reset_at.sql` exists but is absent from `drizzle/meta/_journal.json`, and no migration creates the stats columns. Do not run `drizzle-kit migrate` expecting the live DB to match the schema.
+- Migrations are out of sync: `db/schema.ts` has stats columns, `lastResetAt`, and `isVerified`; `drizzle/0000_sudden_jazinda.sql` does not. `drizzle/0001_add_last_reset_at.sql` and `drizzle/0002_add_is_verified.sql` exist but are absent from `drizzle/meta/_journal.json`, and no migration creates the stats columns. Do not run `drizzle-kit migrate` expecting the live DB to match the schema.
+- Apply `drizzle/0002_add_is_verified.sql` before deploying code that selects `is_verified`; Drizzle `select()` will fail if the column is missing. Existing rows default to `false` until the next catalog crawl.
 - `crawler/stats.ts`, `crawler/cleanup.ts`, `crawler/count.mts`, and `crawler/check-*.ts` auto-load `.env.local` using `new URL(...).pathname`. On Windows that becomes `/C:/...`, so `existsSync` is false. `crawler/crawl.ts` does not auto-load `.env.local` at all.
 - The stats step in `crawl-daily.yml` can end green after three failures because the last command in its loop is `sleep 30`. Check the workflow log, not just the job status.
 - CI does not run lint, typecheck, or tests. A green crawl workflow does not validate the app.

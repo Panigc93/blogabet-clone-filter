@@ -93,7 +93,7 @@ The page is dynamic because it reads `searchParams`. There is no caching layer a
 
 ### Row rendering
 
-`components/TipsterRow.tsx` renders all-time and period stats. It runs on the server for the initial page and on the client inside `LoadMore`; Drizzle values arrive as `Date` on the server but as ISO strings from the API JSON on the client, so date formatting must handle both. The reset badge appears only when `resetCount > 0`; its native tooltip shows the count and, when available, `lastResetAt` as `dd/mm/yyyy` in UTC. `lastResetAt` can be null even when `resetCount > 0`.
+`components/TipsterRow.tsx` renders all-time and period stats. It runs on the server for the initial page and on the client inside `LoadMore`; Drizzle values arrive as `Date` on the server but as ISO strings from the API JSON on the client, so date formatting must handle both. The account badge uses `isVerified`; the separate `verified_pct` stat means percentage of verified picks. The reset badge appears only when `resetCount > 0`; its native tooltip shows the count and, when available, `lastResetAt` as `dd/mm/yyyy` in UTC. `lastResetAt` can be null even when `resetCount > 0`.
 
 ### Auth flow
 
@@ -121,7 +121,8 @@ Single table: `tipsters` (`db/schema.ts`). No history table; only current values
 | `picks` | integer | All-time picks. |
 | `profit` | numeric(10,2) | All-time profit. |
 | `yield` | numeric(6,2) | All-time yield percentage. |
-| `verified_pct` | numeric(5,2) | Verified picks percentage. |
+| `verified_pct` | numeric(5,2) | Percentage of verified picks; not account verification. |
+| `is_verified` | boolean | Account verification badge from the listing `.icons` tooltip. Defaults to false. |
 | `followers` | integer | Followers. |
 | `last_pick_at` | timestamptz | Activity proxy, not the real last-pick timestamp. |
 | `reset_count` | smallint | Number of stat resets. |
@@ -144,7 +145,7 @@ Drizzle exposes `numeric` columns as strings. Code converts at the UI/query boun
 The schema is ahead of the migration files:
 
 - `drizzle/0000_sudden_jazinda.sql` creates the base table and indexes only.
-- `drizzle/0001_add_last_reset_at.sql` exists but is not listed in `drizzle/meta/_journal.json`.
+- `drizzle/0001_add_last_reset_at.sql` and `drizzle/0002_add_is_verified.sql` exist but are not listed in `drizzle/meta/_journal.json`.
 - No migration creates the period-stat columns (`picks_6m_avg`, `yield_3m`, `yield_6m`, `yield_12m`, `picks_free_3m_avg`, `yield_free_3m`, `stats_updated_at`).
 - The live database may have been altered manually. Do not assume `drizzle-kit migrate` makes a fresh database match `db/schema.ts`.
 
@@ -185,7 +186,7 @@ Flow:
 5. Parses `.tipster-block` elements with cheerio:
    - ID from `showFollowBox('...')`.
    - Slug from `https://{slug}.blogabet.com`.
-   - Name, avatar, flag, six stats, reset tooltip, price/plan text.
+   - Name, avatar, flag, account verification badge, six stats, reset tooltip, price/plan text.
 6. Before upserting a page, deletes rows with the same slug but a different ID (account reset/re-registration).
 7. Upserts by `id`; `last_pick_at` uses `COALESCE(excluded.last_pick_at, tipsters.last_pick_at)`.
 8. Advances `start` by the number of returned records and saves the checkpoint.
@@ -298,6 +299,7 @@ Deployment notes:
 - Pagination uses `id DESC` as a deterministic tiebreaker, but rows inserted or removed between page requests can still shift offsets; absolute consistency would require cursor pagination.
 - Vitest cannot start in the documented Windows/Node 26 checkout because the rolldown native binding is missing. This is an environment issue, not proof that the tests fail logically.
 - Migrations do not describe the current table; see "Migration drift".
+- `is_verified` defaults to false for existing rows until the next catalog crawl.
 - `country_code` is never populated.
 - The catalog crawler depends on Blogabet HTML selectors; changes to the listing markup can silently drop fields or tipsters.
 - `last_pick_at` is a crawl-time proxy; do not treat it as the exact last pick date.

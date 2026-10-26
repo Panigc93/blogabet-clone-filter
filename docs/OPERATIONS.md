@@ -51,7 +51,7 @@ Run these before claiming a change is verified.
 | `npm run build` | Production build | Identified, not executed. |
 | `npm run start` | Serve a production build | Identified, not executed; requires `npm run build`. |
 
-Do not report "tests pass" unless `npm test` actually completes. The current checkout has 21 test cases across `tests/lib/auth.test.ts`, `tests/lib/query.test.ts`, and `tests/crawler/transform.test.ts`; the historical plan in `docs/superpowers/` says 17.
+Do not report "tests pass" unless `npm test` actually completes. The current checkout has 22 test cases across `tests/lib/auth.test.ts`, `tests/lib/query.test.ts`, and `tests/crawler/transform.test.ts`; the historical plan in `docs/superpowers/` says 17.
 
 ### Fixing the validation failures (when explicitly asked)
 
@@ -210,7 +210,7 @@ Current state:
 
 - `db/schema.ts` is the source of truth for application code.
 - `drizzle/0000_sudden_jazinda.sql` creates the base table.
-- `drizzle/0001_add_last_reset_at.sql` exists but is missing from `drizzle/meta/_journal.json`.
+- `drizzle/0001_add_last_reset_at.sql` and `drizzle/0002_add_is_verified.sql` exist but are missing from `drizzle/meta/_journal.json`.
 - No migration creates `picks_6m_avg`, `yield_3m`, `yield_6m`, `yield_12m`, `picks_free_3m_avg`, `yield_free_3m`, or `stats_updated_at`.
 
 Therefore:
@@ -220,6 +220,16 @@ Therefore:
 - Before any migration work, back up or snapshot the database and verify the live columns with a read-only query.
 - Migrations and `db/schema.ts` are not to be edited together with live-DB changes unless the task explicitly asks for it.
 
+### Adding `is_verified`
+
+`drizzle/0002_add_is_verified.sql` adds the account-verification column:
+
+```sql
+ALTER TABLE "tipsters" ADD COLUMN IF NOT EXISTS "is_verified" boolean DEFAULT false NOT NULL;
+```
+
+Apply it **before** deploying code that selects `is_verified`; otherwise Drizzle `select()` fails. Existing rows default to `false` until the next catalog crawl fills the badge. The separate `verified_pct` column is the percentage of verified picks, not account verification.
+
 ## Troubleshooting
 
 | Symptom | Likely cause | Action |
@@ -227,6 +237,7 @@ Therefore:
 | `npm test` fails with `Cannot find native binding` / `@rolldown/binding-win32-x64-msvc` | Optional native dependency missing; Node 26/Windows checkout | Use Node 20 (CI version) and `npm ci`; do not delete `package-lock.json` as the error suggests. |
 | Infinite scroll shows different results than page 1 | SSR and API parse filters separately | Check both `app/page.tsx` and `app/api/tipsters/route.ts`; the API once omitted `resetOlderThan`. |
 | Tipsters repeat while scrolling | Unstable ordering on tied sort values, or stale `LoadMore` state after a filter change | Both queries must use `sortOrder()` (`id DESC` tiebreaker); `LoadMore` must be keyed by `searchString`. |
+| Every tipster shows the verified tick | UI used `verifiedPct`; `is_verified` is missing or not populated | Apply `0002_add_is_verified.sql`, deploy the parser/UI change, then run a catalog crawl. |
 | App redirects every request to `/login` | Missing/wrong `SITE_PASSWORD` or `AUTH_SECRET`, or stale cookie | Check env vars; clear the `auth_token` cookie and log in again. |
 | App crashes at startup with a database error | `DATABASE_URL` missing or wrong | Set the pooled Neon URL in the app environment. |
 | Crawler exits with `BLOGABET_COOKIE is not set` / auth errors | Missing or expired cookie | Export the cookie locally or rotate the GitHub secret. |

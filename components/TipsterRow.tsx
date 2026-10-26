@@ -92,8 +92,8 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
           </a>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
             <IconBadge
-              icon={Number(tipster.verifiedPct) > 0 ? 'fa-check' : 'fa-times'}
-              title={Number(tipster.verifiedPct) > 0 ? 'Verificado' : 'No verificado'}
+              icon={tipster.isVerified ? 'fa-check' : 'fa-times'}
+              title={tipster.isVerified ? 'Cuenta verificada' : 'Cuenta no verificada'}
             />
             {tipster.isPaid && <IconBadge icon="fa-usd" title="De pago" />}
             {resetCount > 0 && (

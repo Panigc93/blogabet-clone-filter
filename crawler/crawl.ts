@@ -44,6 +44,13 @@ export function parseBlocks(html: string, lastActive = 12): TipsterInsert[] {
       // Flag (img inside .icons that is NOT inside a fa-stack)
       const flagUrl = $el.find('.icons > img').attr('src') ?? null
 
+      // Account verification badge, separate from the "Verified" picks percentage.
+      const iconTitles = $el.find('.icons .fa-stack[data-original-title]')
+        .map((_, n) => $(n).attr('data-original-title') ?? '')
+        .get()
+      const verifiedTitle = iconTitles.find(title => /verified|verificado/i.test(title)) ?? ''
+      const isVerified = verifiedTitle !== '' && !/not\s+verified|unverified|no\s+verific/i.test(verifiedTitle)
+
       // Stats — 6 .number spans: Since, Picks, Profit, Yield, Verified%, Followers
       const nums = $el.find('.pins .number').map((_, n) => $(n).text().trim()).get()
       const sinceYear  = nums[0] ? parseInt(nums[0], 10) : null
@@ -93,6 +100,7 @@ export function parseBlocks(html: string, lastActive = 12): TipsterInsert[] {
         profit,
         yield:       yieldVal,
         verifiedPct,
+        isVerified,
         followers:   isNaN(followers) ? 0 : followers,
         lastPickAt:  lastActive <= 1 ? new Date() : null, // only set for monthly-active crawl
         resetCount:  isNaN(resetCount) ? 0 : resetCount,
@@ -283,6 +291,7 @@ async function crawl() {
           profit:      sql`excluded.profit`,
           yield:       sql`excluded.yield`,
           verifiedPct: sql`excluded.verified_pct`,
+          isVerified:  sql`excluded.is_verified`,
           followers:   sql`excluded.followers`,
           lastPickAt:  sql`COALESCE(excluded.last_pick_at, tipsters.last_pick_at)`,
           resetCount:  sql`excluded.reset_count`,

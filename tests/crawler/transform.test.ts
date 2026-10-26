@@ -59,6 +59,13 @@ const RESET_BLOCK = FREE_BLOCK
   .replace('>Test Tipster<', '>Reset Tipster<')
   .replace('data-original-title="Verified"', 'data-original-title="Blog stats have been reset 3 times.<br>Last reset at 18."')
 
+const UNVERIFIED_BLOCK = FREE_BLOCK
+  .replace("onclick=\"tipsters.showFollowBox('12345')\"", "onclick=\"tipsters.showFollowBox('88888')\"")
+  .replace('https://test-tipster.blogabet.com" title="Test Tipster"', 'https://unverified-tipster.blogabet.com" title="Unverified Tipster"')
+  .replace('href="https://test-tipster.blogabet.com"', 'href="https://unverified-tipster.blogabet.com"')
+  .replace('>Test Tipster<', '>Unverified Tipster<')
+  .replace('data-original-title="Verified"', 'data-original-title="Not verified"')
+
 describe('parseBlocks', () => {
   it('parses a free tipster block correctly', () => {
     const [t] = parseBlocks(FREE_BLOCK)
@@ -72,6 +79,7 @@ describe('parseBlocks', () => {
     expect(t.profit).toBe('1234.56')
     expect(t.yield).toBe('24.5')
     expect(t.verifiedPct).toBe('87')
+    expect(t.isVerified).toBe(true)
     expect(t.followers).toBe(120)
     expect(t.isPaid).toBe(false)
     expect(t.price).toBeNull()
@@ -88,6 +96,12 @@ describe('parseBlocks', () => {
   it('parses reset count from tooltip', () => {
     const [t] = parseBlocks(RESET_BLOCK)
     expect(t.resetCount).toBe(3)
+  })
+
+  it('separates account verification from verified-picks percentage', () => {
+    const [t] = parseBlocks(UNVERIFIED_BLOCK)
+    expect(t.verifiedPct).toBe('87')
+    expect(t.isVerified).toBe(false)
   })
 
   it('returns empty array for empty HTML', () => {
