@@ -25,7 +25,9 @@ El script:
    **Nunca commitees el parche.**
 3. Compila (`npm run build`) con env de test.
 4. Arranca mock + `next start` y corre `verify.mjs` (26 checks: filtros URL,
-   comparador, CSV, MYS, badges).
+   comparador, CSV, MYS, badges) y `verify3.mjs` (12 checks: pagina /top-mys —
+   pool exacto, orden por puntuacion, exclusiones, metodologia/caveats,
+   enlace desde el listado y overflow movil).
 5. Relanza con fixtures grandes (1200 tipsters, `MOCK_BIG=1`) y corre
    `verify2.mjs` (22 checks: paginación, LoadMore, export con límite 1000, ordenación).
 
