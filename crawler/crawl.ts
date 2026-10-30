@@ -264,6 +264,13 @@ async function crawl() {
     const records = await withRetry(fetch, `fetchPage(${start})`)
 
     if (records.length === 0) {
+      // A healthy first page ALWAYS has tipsters (the site lists thousands).
+      // Zero parsed records at start=0 means the markup changed or the cookie
+      // died — fail loudly instead of reporting a green "crawl complete" that
+      // would let last_pick_at decay and the stats sweeper silently empty the DB.
+      if (start === 0) {
+        throw new Error('Pagina 0 sin tipsters parseados: posible cambio de markup o cookie caducada. Revisar antes de reintentar.')
+      }
       console.log('Empty page — crawl complete')
       break
     }

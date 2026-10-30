@@ -40,3 +40,6 @@ next-env.d.ts
 
 # crawler checkpoints
 crawler/.checkpoint-*
+
+# crawler run logs
+crawler/*.log
