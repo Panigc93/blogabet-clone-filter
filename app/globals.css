@@ -95,3 +95,35 @@ a {
 
   .filterbar-search { width: 100% !important; }
 }
+
+/* Bandeja de comparación: compacta y poco intrusiva en pantallas pequeñas */
+.compare-tray-chip {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .compare-tray {
+    left: 0 !important;
+    right: auto !important;
+    bottom: 0 !important;
+    transform: none !important;
+    border-radius: 0 !important;
+    max-width: 100vw !important;
+    padding: 6px 8px !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+  }
+  .compare-tray-chips {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    min-width: 0;
+  }
+  .compare-tray-chip {
+    max-width: 72px;
+    font-size: 11px !important;
+    padding: 2px 6px !important;
+    flex-shrink: 0;
+  }
+}

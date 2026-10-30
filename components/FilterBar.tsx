@@ -89,6 +89,11 @@ export function FilterBar({ searchParams }: FilterBarProps) {
 
   const tipo = sp.get('tipo') ?? 'all'
 
+  const csvParams = new URLSearchParams(sp.toString())
+  csvParams.set('format', 'csv')
+  csvParams.delete('page')
+  const csvHref = `/api/tipsters?${csvParams.toString()}`
+
   return (
     <>
       {isPending && (
@@ -133,6 +138,36 @@ export function FilterBar({ searchParams }: FilterBarProps) {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* FILA ACCIONES: preset + export */}
+          <div style={{ padding: '0 15px 10px', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => {
+                const params = new URLSearchParams(sp.toString())
+                params.set('tipo', 'free')
+                params.set('minPicks', '100')
+                params.set('minYield', '11')
+                params.delete('page')
+                startTransition(() => router.push(`/?${params.toString()}`))
+              }}
+              title="Aplica tipo=free, mínimo 100 picks y yield mínimo 11%"
+              style={{ background: '#fff', color: '#555', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 12, fontWeight: 700, padding: '5px 12px', cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
+              Preselección MYS
+            </button>
+            <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontStyle: 'italic' }}>
+              Prefiltro (free, ≥100 picks, yield ≥11%): no valida el cumplimiento MYS
+            </span>
+            <div style={{ flex: 1 }} />
+            <a
+              href={csvHref}
+              title="Descarga en CSV los tipsters que cumplen los filtros actuales (máx. 1000 filas)"
+              style={{ background: '#fff', color: '#555', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 12, fontWeight: 700, padding: '5px 12px', cursor: 'pointer', whiteSpace: 'nowrap', textDecoration: 'none' }}
+            >
+              Exportar CSV
+            </a>
           </div>
 
           <div style={{ padding: '0 15px 12px', display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'space-between' }}>
@@ -197,7 +232,8 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             {/* ORDENAR POR */}
             <div style={{ flex: 1, minWidth: 130, maxWidth: 150, marginBottom: 2 }}>
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Ordenar por</label>
-              <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
+              <div style={{ display: 'flex', gap: 4 }}>
+              <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer', flex: 1 }}
                 value={sp.get('sort') ?? 'yield'}
                 onChange={e => update('sort', e.target.value)}>
                 <option value="yield">Yield (histórico)</option>
@@ -210,6 +246,15 @@ export function FilterBar({ searchParams }: FilterBarProps) {
                 <option value="since_year">Año de registro</option>
                 <option value="price">Precio</option>
               </select>
+              <button
+                type="button"
+                onClick={() => update('dir', (sp.get('dir') ?? 'desc') === 'desc' ? 'asc' : null)}
+                title={(sp.get('dir') ?? 'desc') === 'desc' ? 'Orden descendente (pulsa para ascendente)' : 'Orden ascendente (pulsa para descendente)'}
+                style={{ background: '#fff', color: '#555', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer', padding: '0 10px', flexShrink: 0 }}
+              >
+                {(sp.get('dir') ?? 'desc') === 'desc' ? '↓' : '↑'}
+              </button>
+              </div>
             </div>
 
             {/* PRECIO/MES (solo pago) */}
@@ -252,6 +297,19 @@ export function FilterBar({ searchParams }: FilterBarProps) {
                   style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#5b8dd9', flexShrink: 0 }}
                 />
                 Sin Reset hace<br />+6 meses
+              </label>
+            </div>
+
+            {/* SOLO VERIFICADOS */}
+            <div style={{ flexShrink: 0, marginBottom: 2, display: 'flex', alignItems: 'flex-end', paddingBottom: 4 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, userSelect: 'none', lineHeight: 1.2 }}>
+                <input
+                  type="checkbox"
+                  checked={sp.get('verified') === '1'}
+                  onChange={e => update('verified', e.target.checked ? '1' : null)}
+                  style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#5b8dd9', flexShrink: 0 }}
+                />
+                Solo<br />verificados
               </label>
             </div>
 

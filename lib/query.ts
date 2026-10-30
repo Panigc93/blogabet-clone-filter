@@ -13,9 +13,11 @@ export interface TipsterFilters {
   priceMax?: number
   conPicksFree?: boolean
   resetOlderThan?: boolean
+  verified?: boolean
 }
 
 export type SortField = 'yield' | 'profit' | 'picks' | 'followers' | 'since_year' | 'price' | 'yield6m' | 'yield12m' | 'picks6m_avg'
+export type SortDir = 'asc' | 'desc'
 
 export function buildFilters(params: TipsterFilters): SQL[] {
   const conditions: SQL[] = []
@@ -74,6 +76,10 @@ export function buildFilters(params: TipsterFilters): SQL[] {
     }
   }
 
+  if (params.verified) {
+    conditions.push(eq(tipsters.isVerified, true))
+  }
+
   return conditions
 }
 
@@ -91,9 +97,9 @@ export function sortColumn(sort: SortField) {
   }
 }
 
-export function sortOrder(sort: SortField): SQL[] {
-  return [
-    sql`${sortColumn(sort)} DESC NULLS LAST`,
-    sql`${tipsters.id} DESC`,
-  ]
+export function sortOrder(sort: SortField, dir: SortDir = 'desc'): SQL[] {
+  // Default (desc) keeps the exact legacy SQL: `<col> DESC NULLS LAST, id DESC`.
+  return dir === 'asc'
+    ? [sql`${sortColumn(sort)} ASC NULLS LAST`, sql`${tipsters.id} ASC`]
+    : [sql`${sortColumn(sort)} DESC NULLS LAST`, sql`${tipsters.id} DESC`]
 }

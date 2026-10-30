@@ -1,8 +1,8 @@
-import { TipsterFilters, SortField } from '@/lib/query'
+import { TipsterFilters, SortField, SortDir } from '@/lib/query'
 
 // Shared parsing/validation of listing params for app/page.tsx and app/api/tipsters/route.ts.
 // Rules: empty or non-numeric values are ignored (never reach SQL), sort falls back to 'yield',
-// page is clamped to a non-negative integer.
+// dir falls back to 'desc', page is clamped to a non-negative integer.
 
 const SORT_FIELDS: readonly SortField[] = [
   'yield', 'profit', 'picks', 'followers', 'since_year', 'price', 'yield6m', 'yield12m', 'picks6m_avg',
@@ -11,6 +11,7 @@ const SORT_FIELDS: readonly SortField[] = [
 export interface ParsedListParams {
   filters: TipsterFilters
   sort: SortField
+  dir: SortDir
   page: number
 }
 
@@ -26,6 +27,10 @@ function parseTipo(raw: string | undefined): TipsterFilters['tipo'] {
 
 function parseSort(raw: string | undefined): SortField {
   return (SORT_FIELDS as readonly string[]).includes(raw ?? '') ? (raw as SortField) : 'yield'
+}
+
+function parseDir(raw: string | undefined): SortDir {
+  return raw === 'asc' ? 'asc' : 'desc'
 }
 
 function parsePage(raw: string | undefined): number {
@@ -47,11 +52,13 @@ export function parseListParams(searchParams: Record<string, string | undefined>
     priceMax:       parseNumber(searchParams.priceMax),
     conPicksFree:   searchParams.conPicksFree === '1',
     resetOlderThan: searchParams.resetOlderThan === '1',
+    verified:       searchParams.verified === '1',
   }
 
   return {
     filters,
     sort: parseSort(searchParams.sort),
+    dir: parseDir(searchParams.dir),
     page: parsePage(searchParams.page),
   }
 }
