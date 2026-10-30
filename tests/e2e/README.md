@@ -17,13 +17,16 @@ test y `DATABASE_URL` apunta al mock.
 tests/e2e/run.sh
 ```
 El script:
-1. Parchea `db/index.ts` temporalmente para apuntar `fetchEndpoint` al mock
-   (`http://localhost:4400/sql`). El parche se revierte solo al salir
-   (`git checkout -- db/index.ts`). **Nunca commitees el parche.**
-2. Compila (`npm run build`) con env de test.
-3. Arranca mock + `next start` y corre `verify.mjs` (26 checks: filtros URL,
+1. **Se niega a correr si `db/index.ts` tiene cambios sin commitear** (staged o
+   no). Si los hay, haz commit o stash primero: el runner jamás pisa trabajo tuyo.
+2. Hace backup byte-exacto de `db/index.ts` y lo parchea temporalmente para
+   apuntar `fetchEndpoint` al mock (`http://localhost:4400/sql`). Al salir
+   (éxito, error o señal) restaura **desde el backup**, nunca desde git.
+   **Nunca commitees el parche.**
+3. Compila (`npm run build`) con env de test.
+4. Arranca mock + `next start` y corre `verify.mjs` (26 checks: filtros URL,
    comparador, CSV, MYS, badges).
-4. Relanza con fixtures grandes (1200 tipsters, `MOCK_BIG=1`) y corre
+5. Relanza con fixtures grandes (1200 tipsters, `MOCK_BIG=1`) y corre
    `verify2.mjs` (22 checks: paginación, LoadMore, export con límite 1000, ordenación).
 
 Variables opcionales: `MOCK_PORT` (4400), `E2E_APP_PORT` (3100), `E2E_BASE`,

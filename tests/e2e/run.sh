@@ -10,23 +10,39 @@ export DATABASE_URL="postgresql://user:pass@localhost:${MOCK_PORT}/fake"
 export SITE_PASSWORD=${SITE_PASSWORD:-test}
 export AUTH_SECRET=${AUTH_SECRET:-test}
 
+TARGET=db/index.ts
+
+# Safety: refuse to run if the target has ANY uncommitted state (staged or unstaged).
+# We patch this file temporarily and restore it; we must never clobber user work.
+if [ -n "$(git status --porcelain -- "$TARGET")" ]; then
+  echo "ERROR: $TARGET tiene cambios sin commitear (staged o no)." >&2
+  echo "El runner lo parchea temporalmente y no puede arriesgar tu trabajo." >&2
+  echo "Haz commit o stash de esos cambios y vuelve a intentarlo." >&2
+  exit 1
+fi
+
+# Backup the exact original bytes BEFORE any mutation; the trap only restores
+# from this backup, never from git, so restoration is byte-exact.
+BACKUP=$(mktemp /tmp/e2e-dbindex-backup.XXXXXX)
+cp "$TARGET" "$BACKUP"
+
 PIDS=()
 cleanup() {
   kill "${PIDS[@]}" 2>/dev/null || true
-  git checkout -- db/index.ts 2>/dev/null || true
+  cat "$BACKUP" > "$TARGET"   # restore exact original bytes, keep inode/perms
+  rm -f "$BACKUP"
 }
 trap cleanup EXIT
 
-# 1) Temporary patch: db/index.ts fetchEndpoint override (reverted on exit, never commit)
+# 1) Temporary patch: db/index.ts fetchEndpoint override (restored on exit, never commit)
 python3 - <<PYEOF
-import re
-s = open('db/index.ts').read()
+s = open('$TARGET').read()
 patched = s.replace(
   "import { neon } from '@neondatabase/serverless'",
   "import { neon, neonConfig } from '@neondatabase/serverless'\nneonConfig.fetchEndpoint = 'http://localhost:${MOCK_PORT}/sql'")
 if patched == s:
-    raise SystemExit('ERROR: db/index.ts anchor not found; update tests/e2e/run.sh patch')
-open('db/index.ts','w').write(patched)
+    raise SystemExit('ERROR: $TARGET anchor not found; update tests/e2e/run.sh patch')
+open('$TARGET','w').write(patched)
 PYEOF
 
 # 2) Build once with the patch
