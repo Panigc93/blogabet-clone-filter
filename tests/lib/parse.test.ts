@@ -81,3 +81,58 @@ describe('parseListParams', () => {
     expect(parseListParams({ search: 'faro' }).filters.search).toBe('faro')
   })
 })
+
+describe('parseListParams - compatibilidad con URLs legacy válidas', () => {
+  it('URL completa legacy: tipo pago + precio + picks free + orden precio', () => {
+    // URL que FilterBar genera hoy: /?tipo=paid&conPicksFree=1&priceMin=5&priceMax=20&sort=price
+    const { filters, sort, page } = parseListParams({ tipo: 'paid', conPicksFree: '1', priceMin: '5', priceMax: '20', sort: 'price' })
+    expect(filters.tipo).toBe('paid')
+    expect(filters.conPicksFree).toBe(true)
+    expect(filters.priceMin).toBe(5)
+    expect(filters.priceMax).toBe(20)
+    expect(sort).toBe('price')
+    expect(page).toBe(0)
+  })
+
+  it('URL legacy: búsqueda con espacios y acentos se conserva tal cual', () => {
+    const { filters } = parseListParams({ search: 'faro león' })
+    expect(filters.search).toBe('faro león')
+  })
+
+  it('URL legacy: actividad/años/picks/reset exactamente como antes', () => {
+    const { filters } = parseListParams({ activity: '3', minYears: '2', minPicks: '500', resetOlderThan: '1' })
+    expect(filters.activityMonths).toBe(3)
+    expect(filters.minYears).toBe(2)
+    expect(filters.minPicks).toBe(500)
+    expect(filters.resetOlderThan).toBe(true)
+  })
+
+  it('minYield=0 sigue siendo un filtro real (como en la página legacy)', () => {
+    // La página SSR legacy trataba '0' como valor (string truthy -> Number('0') = 0)
+    const { filters } = parseListParams({ minYield: '0' })
+    expect(filters.minYield).toBe(0)
+  })
+
+  it('notación científica válida se comporta como el Number() legacy', () => {
+    expect(parseListParams({ minYield: '1e1' }).filters.minYield).toBe(10)
+  })
+
+  it('page legacy válido se conserva', () => {
+    expect(parseListParams({ page: '4' }).page).toBe(4)
+  })
+
+  it('números con decimales europeos (coma) se ignoran, igual que Number() legacy daba NaN', () => {
+    // '10,5' nunca fue válido: antes llegaba NaN a SQL, ahora se ignora limpiamente
+    expect(parseListParams({ minYield: '10,5' }).filters.minYield).toBeUndefined()
+  })
+
+  it('Infinity no llega a SQL', () => {
+    expect(parseListParams({ minYield: 'Infinity' }).filters.minYield).toBeUndefined()
+    expect(parseListParams({ page: 'Infinity' }).page).toBe(0)
+  })
+
+  it('páginas muy grandes se acotan a entero sin desbordar', () => {
+    expect(parseListParams({ page: '999999999999' }).page).toBe(999999999999)
+    expect(Number.isSafeInteger(parseListParams({ page: '999999999999' }).page)).toBe(true)
+  })
+})

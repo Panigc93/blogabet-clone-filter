@@ -35,7 +35,7 @@ Open `http://localhost:3000`; unauthenticated requests redirect to `/login`.
 
 - `npm run lint` completes with warnings.
 - `npx tsc --noEmit` passes.
-- `npm test` passes on Linux/Node 20-22 (31 tests). It could not start in the documented Windows/Node 26 checkout because of a missing rolldown native binding.
+- `npm test` passes on Linux/Node 20-22 (40 tests). It could not start in the documented Windows/Node 26 checkout because of a missing rolldown native binding.
 - `.github/workflows/ci.yml` runs lint, typecheck, and tests on pushes and PRs to `master`. The crawler workflows still do not run these checks.
 
 See `docs/OPERATIONS.md` for the exact current status and troubleshooting.

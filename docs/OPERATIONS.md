@@ -47,11 +47,11 @@ Run these before claiming a change is verified.
 |---|---|---|
 | `npm run lint` | Next.js ESLint | Exit 0; 7 warnings (5 exhaustive-deps in `FilterBar`, 2 `<img>` warnings in `TipsterRow`). |
 | `npx tsc --noEmit` | TypeScript strict check | Exit 0. |
-| `npm test` | Vitest unit tests | Passes on Linux/Node 22 (31 tests, verified 2026-10-30). Cannot start in the documented Windows/Node 26 checkout: missing `@rolldown/binding-win32-x64-msvc`. |
+| `npm test` | Vitest unit tests | Passes on Linux/Node 22 (40 tests, verified 2026-10-30). Cannot start in the documented Windows/Node 26 checkout: missing `@rolldown/binding-win32-x64-msvc`. |
 | `npm run build` | Production build | Identified, not executed. |
 | `npm run start` | Serve a production build | Identified, not executed; requires `npm run build`. |
 
-Do not report "tests pass" unless `npm test` actually completes. The current checkout has 31 test cases across `tests/lib/auth.test.ts`, `tests/lib/query.test.ts`, `tests/lib/parse.test.ts`, and `tests/crawler/transform.test.ts`; the historical plan in `docs/superpowers/` says 17.
+Do not report "tests pass" unless `npm test` actually completes. The current checkout has 40 test cases across `tests/lib/auth.test.ts`, `tests/lib/query.test.ts`, `tests/lib/parse.test.ts`, and `tests/crawler/transform.test.ts`; the historical plan in `docs/superpowers/` says 17.
 
 ### Fixing the validation failures (when explicitly asked)
 
