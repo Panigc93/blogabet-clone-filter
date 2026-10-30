@@ -56,6 +56,7 @@ node tests/e2e/mock-neon.mjs & PIDS+=($!)
 npm run start -- -p ${APP_PORT} >/tmp/e2e-server.log 2>&1 & PIDS+=($!)
 wait_port ${MOCK_PORT}; wait_port ${APP_PORT}
 node tests/e2e/verify.mjs
+node tests/e2e/verify3.mjs
 
 # 4) Suite 2: big fixtures (1200 tipsters)
 kill "${PIDS[@]}" 2>/dev/null; wait "${PIDS[@]}" 2>/dev/null || true; PIDS=()
