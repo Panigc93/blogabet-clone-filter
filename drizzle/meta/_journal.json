@@ -8,6 +8,27 @@
       "when": 1774021549853,
       "tag": "0000_sudden_jazinda",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774029714000,
+      "tag": "0001_add_last_reset_at",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793004304000,
+      "tag": "0002_add_is_verified",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793331536142,
+      "tag": "0003_naive_dormammu",
+      "breakpoints": true
     }
   ]
 }
