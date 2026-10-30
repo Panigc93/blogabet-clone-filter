@@ -118,6 +118,18 @@ const cAcc = await page.evaluate(() => {
 })
 ok('comparar: contenedor con tabindex/role/aria-label', cAcc.ok && cAcc.tab === '0' && !!cAcc.aria, JSON.stringify(cAcc))
 ok('comparar: tabla desplazable a 390px y última columna alcanzable', cAcc.ok && cAcc.ox === 'auto' && cAcc.sw > cAcc.cw && cAcc.after <= cAcc.w + 1 && cAcc.before > cAcc.w, JSON.stringify(cAcc))
+const cNote = await page.evaluate(() => {
+  const region = document.querySelector('div[role="region"]')
+  const ps = [...document.querySelectorAll('p')]
+  const note = ps.find(p => p.textContent.includes('El valor más alto de cada métrica'))
+  if (!region || !note) return { ok: false }
+  region.scrollLeft = region.scrollWidth
+  const r = note.getBoundingClientRect()
+  const inside = region.contains(note)
+  region.scrollLeft = 0
+  return { ok: true, inside, left: Math.round(r.left), right: Math.round(r.right), w: innerWidth }
+})
+ok('comparar: nota al pie fuera del scroll, visible al desplazar la tabla', cNote.ok && !cNote.inside && cNote.left >= 0 && cNote.right <= cNote.w, JSON.stringify(cNote))
 await page.setViewportSize({ width: 1280, height: 900 })
 // slugs desconocidos
 await page.goto(BASE + '/comparar?slugs=alpha-free,no-existe,bad%20slug!', { waitUntil: 'networkidle' })

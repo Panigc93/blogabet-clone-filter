@@ -145,10 +145,10 @@ export default async function CompararPage({ searchParams }: PageProps) {
               })}
             </tbody>
           </table>
-          <p style={{ fontSize: 11, color: '#999', marginTop: 6 }}>
-            El valor más alto de cada métrica numérica se resalta; más alto no implica mejor. Stats mensuales sobre meses cerrados; no incluyen el mes en curso.
-          </p>
         </div>
+        <p style={{ fontSize: 11, color: '#999', marginTop: 6 }}>
+          El valor más alto de cada métrica numérica se resalta; más alto no implica mejor. Stats mensuales sobre meses cerrados; no incluyen el mes en curso.
+        </p>
         </>
       )}
     </div>
