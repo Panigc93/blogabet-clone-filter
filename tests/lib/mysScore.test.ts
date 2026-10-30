@@ -68,6 +68,12 @@ describe('mysScore', () => {
     expect(justa).toBeGreaterThan(0)
   })
 
+  it('un lastPickAt futuro no infla la recencia por encima del tope', () => {
+    const futuro = mysScore(base({ lastPickAt: daysAgo(-30) }), NOW)
+    const hoy = mysScore(base({ lastPickAt: daysAgo(0) }), NOW)
+    expect(futuro).toBeCloseTo(hoy, 10)
+  })
+
   it('la recencia del ultimo pick suma y caduca a los 90 dias', () => {
     const hoy = mysScore(base({ lastPickAt: daysAgo(0) }), NOW)
     const viejo = mysScore(base({ lastPickAt: daysAgo(90) }), NOW)

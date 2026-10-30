@@ -98,6 +98,28 @@ const highlighted = await page.$$eval('td[style*="eef3f9"]', tds => tds.length)
 ok('valor más alto resaltado (neutro)', highlighted > 0, String(highlighted))
 await page.screenshot({ path: SHOTS + '/06-compare.png', fullPage: true })
 // slugs desconocidos
+// accesibilidad móvil de la tabla comparativa (mismo patrón que /top-mys)
+await page.setViewportSize({ width: 390, height: 844 })
+await page.goto(BASE + '/comparar?slugs=alpha-free,lopez-free,epsilon-free', { waitUntil: 'networkidle' })
+await page.waitForSelector('table')
+ok('comparar: pista de deslizamiento visible', await page.locator('p:has-text("Desliza la tabla")').count() === 1)
+const cAcc = await page.evaluate(() => {
+  const region = document.querySelector('div[role="region"]')
+  if (!region) return { ok: false }
+  const cs = getComputedStyle(region)
+  const ths = [...region.querySelectorAll('thead th')]
+  const lastTh = ths[ths.length - 1]
+  const before = lastTh.getBoundingClientRect().right
+  region.scrollLeft = region.scrollWidth
+  const after = lastTh.getBoundingClientRect().right
+  region.scrollLeft = 0
+  return { ok: true, tab: region.getAttribute('tabindex'), aria: region.getAttribute('aria-label'),
+    ox: cs.overflowX, sw: region.scrollWidth, cw: region.clientWidth, before: Math.round(before), after: Math.round(after), w: innerWidth }
+})
+ok('comparar: contenedor con tabindex/role/aria-label', cAcc.ok && cAcc.tab === '0' && !!cAcc.aria, JSON.stringify(cAcc))
+ok('comparar: tabla desplazable a 390px y última columna alcanzable', cAcc.ok && cAcc.ox === 'auto' && cAcc.sw > cAcc.cw && cAcc.after <= cAcc.w + 1 && cAcc.before > cAcc.w, JSON.stringify(cAcc))
+await page.setViewportSize({ width: 1280, height: 900 })
+// slugs desconocidos
 await page.goto(BASE + '/comparar?slugs=alpha-free,no-existe,bad%20slug!', { waitUntil: 'networkidle' })
 const warn = await page.textContent('body')
 ok('comparar: avisa de no encontrados e inválidos', warn.includes('no-existe') && warn.includes('Valores ignorados'))

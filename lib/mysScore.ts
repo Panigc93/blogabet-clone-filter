@@ -71,7 +71,7 @@ export function mysScore(input: MysScoreInput, now: Date = new Date()): number {
   const volc = vol === null ? 0 : Math.min(Math.max(vol, 0), MAX_VOL_REF) / MAX_VOL_REF
   const verc = ver === null ? 0 : Math.min(Math.max(ver, 0), 100) / 100
   const age = daysSince(input.lastPickAt, now)
-  const rec = Number.isFinite(age) ? Math.max(0, 1 - age / RECENCY_DAYS) : 0
+  const rec = Number.isFinite(age) ? Math.min(1, Math.max(0, 1 - age / RECENCY_DAYS)) : 0
 
   let s = 0.20 * yh + 0.20 * y6c + 0.10 * y3c + 0.15 * sample + 0.15 * volc + 0.10 * verc + 0.10 * rec
   s *= Math.pow(RESET_FACTOR, Math.min(Math.max(input.resetCount, 0), 4))
