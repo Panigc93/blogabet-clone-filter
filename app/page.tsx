@@ -1,6 +1,7 @@
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, sortOrder, TipsterFilters, SortField } from '@/lib/query'
+import { buildFilters, sortOrder } from '@/lib/query'
+import { parseListParams } from '@/lib/parseFilters'
 import { and, count } from 'drizzle-orm'
 import { FilterBar } from '@/components/FilterBar'
 import { TipsterRow } from '@/components/TipsterRow'
@@ -9,29 +10,12 @@ import { LoadMore } from '@/components/LoadMore'
 const PAGE_SIZE = 50
 
 interface PageProps {
-  searchParams: {
-    search?: string; tipo?: string; minYield?: string; maxYield?: string; minPicks?: string
-    activity?: string; minYears?: string; priceMin?: string; priceMax?: string; sort?: string
-    conPicksFree?: string; resetOlderThan?: string
-  }
+  searchParams: Record<string, string | undefined>
 }
 
 export default async function Home({ searchParams }: PageProps) {
-  const filters: TipsterFilters = {
-    search:         searchParams.search ?? undefined,
-    tipo:           (searchParams.tipo as TipsterFilters['tipo']) ?? 'all',
-    minYield:       searchParams.minYield ? Number(searchParams.minYield) : undefined,
-    maxYield:       searchParams.maxYield ? Number(searchParams.maxYield) : undefined,
-    minPicks:       searchParams.minPicks ? Number(searchParams.minPicks) : undefined,
-    activityMonths: searchParams.activity ? Number(searchParams.activity) : undefined,
-    minYears:       searchParams.minYears ? Number(searchParams.minYears) : undefined,
-    priceMin:       searchParams.priceMin ? Number(searchParams.priceMin) : undefined,
-    priceMax:       searchParams.priceMax ? Number(searchParams.priceMax) : undefined,
-    conPicksFree:   searchParams.conPicksFree === '1',
-    resetOlderThan: searchParams.resetOlderThan === '1',
-  }
+  const { filters, sort } = parseListParams(searchParams)
 
-  const sort = (searchParams.sort as SortField) ?? 'yield'
   const where = buildFilters(filters)
   const whereClause = where.length ? and(...where) : undefined
 

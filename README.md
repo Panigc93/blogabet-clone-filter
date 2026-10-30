@@ -20,7 +20,7 @@ npm ci
 npm run dev
 ```
 
-Create `.env.local` with the required values. There is no `.env.example`; use the variable names from `docs/OPERATIONS.md`.
+Copy `.env.example` to `.env.local` and fill in the values (variable names documented in `docs/OPERATIONS.md`).
 
 Open `http://localhost:3000`; unauthenticated requests redirect to `/login`.
 
@@ -35,7 +35,7 @@ Open `http://localhost:3000`; unauthenticated requests redirect to `/login`.
 
 - `npm run lint` completes with warnings.
 - `npx tsc --noEmit` passes.
-- `npm test` could not start in the documented Windows/Node 26 checkout because of a missing rolldown native binding.
-- CI runs the crawlers only; it does not run lint, typecheck, or tests.
+- `npm test` passes on Linux/Node 20-22 (40 tests). It could not start in the documented Windows/Node 26 checkout because of a missing rolldown native binding.
+- `.github/workflows/ci.yml` runs lint, typecheck, and tests on pushes and PRs to `master`. The crawler workflows still do not run these checks.
 
 See `docs/OPERATIONS.md` for the exact current status and troubleshooting.
