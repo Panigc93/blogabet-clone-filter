@@ -115,6 +115,15 @@ export function parseBlocks(html: string, lastActive = 12): TipsterInsert[] {
   return results
 }
 
+// A healthy first page ALWAYS lists tipsters (the site has thousands). Zero
+// parsed records at start=0 means the markup changed or the cookie died: the
+// crawl must fail loudly instead of reporting a green "crawl complete" while
+// last_pick_at decays and the stats sweeper nulls recent stats. An empty LATER
+// page is the normal end of pagination.
+export function emptyPageOutcome(start: number): 'end' | 'fatal' {
+  return start === 0 ? 'fatal' : 'end'
+}
+
 // ─── Retry helper ────────────────────────────────────────────────────────────
 
 async function withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 8): Promise<T> {
@@ -264,6 +273,9 @@ async function crawl() {
     const records = await withRetry(fetch, `fetchPage(${start})`)
 
     if (records.length === 0) {
+      if (emptyPageOutcome(start) === 'fatal') {
+        throw new Error('Pagina 0 sin tipsters parseados: posible cambio de markup o cookie caducada. Revisar antes de reintentar.')
+      }
       console.log('Empty page — crawl complete')
       break
     }

@@ -35,6 +35,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# crawler run logs
+crawler/*.log
+
 # superpowers / internal tooling
 .superpowers/
 
