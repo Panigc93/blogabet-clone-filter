@@ -87,6 +87,32 @@ describe('toCsv', () => {
     expect(csv).toContain('"López, ""El"" \nMejor"')
   })
 
+  it('neutralizes spreadsheet formula injection in external text fields', () => {
+    const evil = { ...base, name: '=HYPERLINK("https://evil.example","x")', slug: '+cmd' }
+    const csv = toCsv([evil])
+    expect(csv).toContain("'=HYPERLINK")
+    expect(csv).toContain("'+cmd")
+    expect(csv).not.toContain('\r\n=HYPERLINK')
+  })
+
+  it('neutralizes leading @, tab and CR in text fields', () => {
+    const evil = { ...base, name: '@SUM(1)', slug: '\t=1+1' }
+    const csv = toCsv([evil])
+    expect(csv).toContain("'@SUM(1)")
+    expect(csv).toContain("'\t=1+1")
+  })
+
+  it('keeps genuine negative numeric fields numeric (no quote prefix)', () => {
+    const neg = { ...base, yield: '-4.00', profit: '-300.00' }
+    const csv = toCsv([neg])
+    const lines = csv.trim().split('\r\n')
+    const cells = lines[1].split(',')
+    const yi = TIPSTER_CSV_COLUMNS.findIndex(c => c.header === 'yield')
+    const pi = TIPSTER_CSV_COLUMNS.findIndex(c => c.header === 'profit')
+    expect(cells[yi]).toBe('-4.00')
+    expect(cells[pi]).toBe('-300.00')
+  })
+
   it('does not include columns not visible in the UI data model', () => {
     const headers = TIPSTER_CSV_COLUMNS.map(c => c.header)
     expect(headers).not.toContain('id')

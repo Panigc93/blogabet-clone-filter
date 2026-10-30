@@ -127,7 +127,7 @@ export default async function CompararPage({ searchParams }: PageProps) {
                         key={t.slug}
                         style={{
                           padding: '7px 12px', borderBottom: '1px solid #eee', textAlign: 'center', fontWeight: best.has(i) ? 700 : 400,
-                          color: best.has(i) ? '#1a7a4a' : '#333', background: best.has(i) ? '#f0faf4' : undefined,
+                          color: best.has(i) ? '#2b4a6f' : '#333', background: best.has(i) ? '#eef3f9' : undefined,
                         }}
                       >
                         {m.value(t)}
@@ -139,7 +139,7 @@ export default async function CompararPage({ searchParams }: PageProps) {
             </tbody>
           </table>
           <p style={{ fontSize: 11, color: '#999', marginTop: 6 }}>
-            El mejor valor de cada métrica numérica se resalta en verde. Stats mensuales sobre meses cerrados; no incluyen el mes en curso.
+            El valor más alto de cada métrica numérica se resalta; más alto no implica mejor. Stats mensuales sobre meses cerrados; no incluyen el mes en curso.
           </p>
         </div>
       )}

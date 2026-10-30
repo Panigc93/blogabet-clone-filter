@@ -6,6 +6,9 @@ import { Tipster } from '@/db/schema'
 interface CsvColumn {
   header: string
   value: (t: Tipster) => string
+  // Text columns carry external data (tipster names/slugs) and get
+  // spreadsheet-formula neutralization; numeric/date columns are left as-is.
+  text?: boolean
 }
 
 function isoOrEmpty(value: Date | string | null): string {
@@ -15,8 +18,8 @@ function isoOrEmpty(value: Date | string | null): string {
 }
 
 export const TIPSTER_CSV_COLUMNS: CsvColumn[] = [
-  { header: 'name',              value: t => t.name },
-  { header: 'slug',              value: t => t.slug },
+  { header: 'name',              value: t => t.name, text: true },
+  { header: 'slug',              value: t => t.slug, text: true },
   { header: 'url',               value: t => `https://${t.slug}.blogabet.com` },
   { header: 'tipo',              value: t => (t.isPaid ? 'paid' : 'free') },
   { header: 'price',             value: t => t.price ?? '' },
@@ -38,12 +41,22 @@ export const TIPSTER_CSV_COLUMNS: CsvColumn[] = [
   { header: 'stats_updated_at',  value: t => isoOrEmpty(t.statsUpdatedAt) },
 ]
 
+// A cell starting with = + - @ or a control char is evaluated as a formula by
+// Excel/Sheets; prefix a single quote so external text can never execute.
+// Only applied to text columns so genuine negative numbers stay numeric.
+function neutralizeText(value: string): string {
+  return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value
+}
+
 function escapeCell(value: string): string {
   return /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value
 }
 
 export function toCsv(rows: Tipster[], columns: CsvColumn[] = TIPSTER_CSV_COLUMNS): string {
   const header = columns.map(c => escapeCell(c.header)).join(',')
-  const lines = rows.map(row => columns.map(c => escapeCell(c.value(row))).join(','))
+  const lines = rows.map(row => columns.map(c => {
+    const v = c.text ? neutralizeText(c.value(row)) : c.value(row)
+    return escapeCell(v)
+  }).join(','))
   return [header, ...lines].join('\r\n') + '\r\n'
 }
