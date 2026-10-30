@@ -40,3 +40,6 @@ next-env.d.ts
 
 # crawler checkpoints
 crawler/.checkpoint-*
+
+# E2E artifacts
+tests/e2e/shots/

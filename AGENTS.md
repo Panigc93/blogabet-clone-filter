@@ -120,3 +120,9 @@ Data flow:
 - Generated or local artifacts: `.next/`, `node_modules/`, `coverage/`, `*.tsbuildinfo`, `crawler/.checkpoint-*`.
 
 Do not run crawlers, migrations, or deployments against the real services unless the user explicitly asks. Prefer reading code and using the fixture-based unit tests.
+
+## E2E offline (fixtures, sin Neon real ni Blogabet)
+`tests/e2e/run.sh` corre las dos suites E2E contra un mock del protocolo HTTP de Neon
+(`tests/e2e/mock-neon.mjs` + `verify.mjs` 26 checks + `verify2.mjs` 22 checks).
+Parchea `db/index.ts` temporalmente (se revierte solo; nunca commitear el parche).
+Detalles y requisitos en `tests/e2e/README.md`.
