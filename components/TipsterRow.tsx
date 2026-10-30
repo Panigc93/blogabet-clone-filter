@@ -1,4 +1,5 @@
 import { Tipster } from '@/db/schema'
+import { CompareToggle } from './CompareToggle'
 
 function fmtYield(v: string | null): string {
   if (!v) return '—'
@@ -183,6 +184,7 @@ export function TipsterRow({ tipster }: { tipster: Tipster }) {
             {tipster.price}€ <small style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#999' }}>/ mes</small>
           </div>
         )}
+        <CompareToggle slug={tipster.slug} name={tipster.name} />
       </div>
     </div>
   )

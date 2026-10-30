@@ -16,6 +16,7 @@ describe('parseListParams', () => {
       priceMax: undefined,
       conPicksFree: false,
       resetOlderThan: false,
+      verified: false,
     })
     expect(sort).toBe('yield')
     expect(page).toBe(0)

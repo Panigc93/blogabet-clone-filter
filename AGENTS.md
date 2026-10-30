@@ -62,7 +62,11 @@ npx drizzle-kit migrate
 - `components/FilterBar.tsx` — client filter controls; URL is the state; debounces search 400 ms and numeric fields 800 ms.
 - `components/LoadMore.tsx` — IntersectionObserver infinite scroll, page 1 onward; keyed by `searchString` so filter changes reset its state.
 - `components/TipsterRow.tsx` — row rendering, all-time stats plus period stats.
-- `lib/query.ts` — `buildFilters`, `sortColumn`, and `sortOrder`.
+- `lib/query.ts` — `buildFilters`, `sortColumn`, and `sortOrder` (with optional direction).
+- `lib/parseFilters.ts` — shared URL-param parsing/validation for the SSR page and `/api/tipsters`.
+- `lib/csv.ts` — CSV column definitions and escaping for the export.
+- `lib/compare.ts` / `lib/compareClient.ts` — `/comparar` slug validation and the localStorage compare selection.
+- `app/comparar/page.tsx` — side-by-side comparison table with best-value highlighting.
 - `db/schema.ts` / `db/index.ts` — single `tipsters` table; Neon HTTP client from `DATABASE_URL`.
 - `crawler/crawl.ts` — scrapes the `/tipsters/` HTML, upserts rows, checkpoints, retries, optional Playwright.
 - `crawler/stats.ts` — scrapes `https://{slug}.blogabet.com/blog/stats`, computes closed-month stats, clears inactive rows.
@@ -80,7 +84,11 @@ Data flow:
 
 - Page size is 50 in both `app/page.tsx` and `app/api/tipsters/route.ts`.
 - Default sort is `yield`; all sorts use `DESC NULLS LAST` plus `id DESC` as a deterministic tiebreaker.
-- Filters: `search`, `tipo`, `minYield`, `maxYield`, `minPicks`, `activity`, `minYears`, `priceMin`, `priceMax`, `sort`, `conPicksFree=1`, `resetOlderThan=1`.
+- Filters: `search`, `tipo`, `minYield`, `maxYield`, `minPicks`, `activity`, `minYears`, `priceMin`, `priceMax`, `sort`, `dir`, `conPicksFree=1`, `resetOlderThan=1`, `verified=1`.
+- `dir` is `asc` or omitted (default `desc`, the legacy behavior); ascending order uses `ASC NULLS LAST` with an `id ASC` tiebreaker.
+- `/api/tipsters` also accepts `format=csv`: same filters/sort, up to 1000 rows, with a truncation notice line and a `tipsters-N-de-M.csv` filename. It exports only columns already visible in the UI plus `stats_updated_at` freshness metadata.
+- `/comparar?slugs=a,b,c` renders a side-by-side comparison of up to 4 tipsters. Selection lives in the browser (localStorage key `cf-compare-v1`) via `components/CompareToggle.tsx` and `components/CompareTray.tsx`; slug validation is in `lib/compare.ts`.
+- The "Preselección MYS" FilterBar button is only a shortcut that applies `tipo=free&minPicks=100&minYield=11`; it is a prefilter and does not validate MYS compliance.
 - `activity` uses `lastPickAt`; `minYears` uses `sinceYear <= currentYear - N`.
 - `resetOlderThan=1` means `lastResetAt IS NULL OR lastResetAt < now - 6 months`.
 - `verifiedPct` is the percentage of verified picks from the listing; it is not account verification. The account badge uses `isVerified`, parsed from the `.icons` verified tooltip.
