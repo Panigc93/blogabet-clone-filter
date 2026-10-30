@@ -58,7 +58,14 @@ export default async function TopMys() {
         queda fuera de esta vista (la base no guarda ese desglose).
         {freshest && <> Datos actualizados por ultima vez: {freshest.toISOString().slice(0, 16).replace('T', ' ')} UTC.</>}
       </p>
-      <table className="table table-striped" style={{ background: '#fff' }}>
+      <p style={{ fontSize: 13, color: '#6c757d', margin: '0 0 6px' }}>Desliza la tabla para ver todas las metricas.</p>
+      <div
+        role="region"
+        aria-label="Tabla de candidatos MYS, desplazable horizontalmente"
+        tabIndex={0}
+        style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}
+      >
+      <table className="table table-striped" style={{ background: '#fff', minWidth: 640 }}>
         <thead>
           <tr>
             <th>#</th>
@@ -98,6 +105,7 @@ export default async function TopMys() {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }

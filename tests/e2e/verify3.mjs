@@ -58,6 +58,33 @@ await page.goto(BASE + '/top-mys', { waitUntil: 'networkidle' })
 await page.waitForSelector('table tbody tr')
 const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
 ok('sin desborde horizontal de pagina a 390px', overflow <= 1, `overflow=${overflow}px`)
+const tableScroll = await page.evaluate(() => {
+  const w = document.querySelector('table')?.parentElement
+  if (!w) return { ok: false }
+  const style = getComputedStyle(w)
+  return { ok: style.overflowX === 'auto' && w.scrollWidth > w.clientWidth, sw: w.scrollWidth, cw: w.clientWidth }
+})
+ok('tabla alcanzable a 390px (scroll en contenedor)', tableScroll.ok, JSON.stringify(tableScroll))
+const kb = await page.evaluate(async () => {
+  const w = document.querySelector('table')?.parentElement
+  if (!w) return { ok: false, why: 'no wrapper' }
+  w.focus()
+  w.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+  w.scrollLeft = w.scrollWidth // mismo destino que End en un contenedor enfocable
+  await new Promise(r => requestAnimationFrame(r))
+  const ths = [...w.querySelectorAll('th')]
+  const last = ths[ths.length - 1]
+  const wr = w.getBoundingClientRect(), tr = last.getBoundingClientRect()
+  return { ok: w.scrollLeft > 0 && tr.right <= wr.right + 1 && tr.left >= wr.left - 1, scrollLeft: w.scrollLeft, thRight: tr.right, wRight: wr.right, lastTh: last.textContent }
+})
+ok('columna final (Puntuacion) alcanzable con scroll/teclado', kb.ok, JSON.stringify(kb))
+const acc = await page.evaluate(() => {
+  const w = document.querySelector('table')?.parentElement
+  return { ok: !!w && w.getAttribute('tabindex') === '0' && w.getAttribute('role') === 'region' && !!w.getAttribute('aria-label') }
+})
+ok('contenedor con tabindex/role/aria-label para teclado y lector', acc.ok, JSON.stringify(acc))
+const hint = await page.locator('text=Desliza la tabla').count()
+ok('pista de deslizamiento visible', hint === 1, `count=${hint}`)
 await page.screenshot({ path: SHOTS + '/31-top-mys-390.png', fullPage: true })
 
 await browser.close()
