@@ -42,17 +42,20 @@ export default async function TopMys() {
       <p><Link href="/">← Volver al listado</Link></p>
       <h2 style={{ marginTop: 0 }}>Top MYS</h2>
       <p style={{ color: '#555', maxWidth: 760 }}>
-        Los {ranked.length} mejor puntuados de <strong>{rows.length}</strong> candidatos que cumplen
-        el criterio MYS en el computo global: al menos {MYS_MIN_PICKS} picks, yield de al menos
+        Los {ranked.length} candidatos preseleccionados mejor puntuados de un pool de <strong>{rows.length}</strong> que cumplen
+        los umbrales MYS en el computo global: al menos {MYS_MIN_PICKS} picks, yield de al menos
         el {MYS_MIN_YIELD}%, sin cuota de pago detectada y activos en los ultimos {MYS_ACTIVITY_MONTHS} meses.
         El orden mezcla yield historico (20%), yield 6m (20%) y 3m (10%), muestra (15%),
         volumen de picks/mes (15%), % de picks verificados (10%) y recencia (10%);
-        cada reset penaliza un 15% y los yields recientes con menos de 30 picks en 6 meses puntuan neutros.
+        cada reset penaliza un 15% y, usando la media mensual de picks de 6 meses como estimacion del
+        volumen reciente, los yields recientes puntuan neutros por debajo de unos 30 picks estimados en 6 meses.
       </p>
       <p style={{ color: '#888', fontSize: 12, maxWidth: 760 }}>
+        La puntuacion es una heuristica discrecional, sin validacion predictiva ni ajuste por riesgo.
         Cifras historicas tal como las publica Blogabet: no certifican rendimiento futuro ni son
         recomendacion de apuesta. La seguibilidad publica/gratuita conviene confirmarla en el perfil
-        de cada tipster. Verificacion por categoria o liga pendiente: la base no guarda ese desglose.
+        de cada tipster. El ambito global basta para el criterio; el desglose por categoria o liga
+        queda fuera de esta vista (la base no guarda ese desglose).
         {freshest && <> Datos actualizados por ultima vez: {freshest.toISOString().slice(0, 16).replace('T', ' ')} UTC.</>}
       </p>
       <table className="table table-striped" style={{ background: '#fff' }}>
