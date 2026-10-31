@@ -38,6 +38,30 @@ const PRIVATE_EMPTY_STATS = `
   <div id="alltimeStatsTab">${ARCHIVE_ROWS}</div>
   <div id="private-sports-StatsTabContent"><table data-stats="archive"><tbody></tbody></table></div>`
 
+
+// Estructura OBSERVADA una vez (2026-10-30) con el metodo de consulta que ya
+// usa el repo (peticion /blog/stats con la sesion del crawler, HTTP 200) en UN
+// perfil: wrapper #alltimeStatsTab como div.tab-pane[data-activate=alltime],
+// ids alltime-<seccion>-StatsTabContent dentro de div.tab-content-item.picks,
+// id de tabla repetido (no unico) por seccion. Sin wrappers PAID/PRIVATE en
+// ESE perfil. Valores sinteticos; la estructura es lo observado. Un solo
+// perfil ALL-only no demuestra nada sobre los demas.
+const OBSERVED_ALLTIME_ONLY = `
+  <div class="tab-pane active" role="tabpanel" data-activate="alltime" id="alltimeStatsTab">
+    <div class="tab-content-item picks">
+      <div id="alltime-sports-StatsTabContent">
+        <table id="alltimeStatsDatatable0"><tbody>
+          <tr><td>Futbol</td><td>100</td><td>+5%</td></tr>
+        </tbody></table>
+      </div>
+      <div id="alltime-categories-StatsTabContent">
+        <table id="alltimeStatsDatatable0"><tbody>
+          <tr><td>Futbol - Liga X</td><td>60</td><td>+4%</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>`
+
 describe('parseStatsTabs', () => {
   it('perfil sin pestañas: alltime por fallback de stats.ts, sin paid/private', () => {
     const s = parseStatsTabs(ALLTIME_ONLY_STATS)
@@ -66,6 +90,19 @@ describe('parseStatsTabs', () => {
     expect(s.hasPrivateTab).toBe(false)
     expect(s.privateArchiveRows).toBe(0)
     expect(s.hasAlltimeTab).toBe(true)
+  })
+
+  it('estructura observada (1 perfil, ALL-only): alltime detectado, sin paid/private', () => {
+    const s = parseStatsTabs(OBSERVED_ALLTIME_ONLY)
+    expect(s.hasAlltimeTab).toBe(true)
+    expect(s.hasPaidTab).toBe(false)
+    expect(s.hasPrivateTab).toBe(false)
+  })
+
+  it('estructura observada → alltime-only, acceso al perfil siempre unknown', () => {
+    const r = deriveSampleEvidence({ listingIsPaid: false, listingPrice: null, stats: parseStatsTabs(OBSERVED_ALLTIME_ONLY) })
+    expect(r.sampleVisibility).toBe('alltime-only')
+    expect(r.profileAccessStatus).toBe('unknown')
   })
 
   it('pestaña PRIVATE vacía: existe la pestaña pero 0 filas (ambiguo)', () => {

@@ -36,6 +36,13 @@ siguiente sección.
 - Las rutas externas **probadas** desde aquí (fetch directo de un perfil y
   fetch vía servicio público, una petición cada una, 2026-10-30) respondieron
   403. Solo se afirma de esas rutas probadas; no se generaliza a toda ruta.
+- El método de consulta que ya usa el repo (petición `/blog/stats` con la
+  sesión del crawler) sí respondió 200 el 2026-10-30 para un perfil,
+  estructura ALL-only observada: `#alltimeStatsTab` como
+  `div.tab-pane[data-activate=alltime]`, ids `alltime-<sección>-StatsTabContent`
+  dentro de `div.tab-content-item.picks`, id de tabla repetido por sección,
+  sin wrappers PAID/PRIVATE en ESE perfil. Es la estructura de UN perfil; no
+  se generaliza. Hay un fixture con esa estructura (valores sintéticos).
 - Conclusión honesta: los 50 candidatos MYS (y el pool de 344) permanecen
   **"seguibilidad pública/gratuita SIN VERIFICAR"**. Esta propuesta reduce el
   trabajo manual futuro sobre evidencia de muestras; no sustituye la
@@ -104,10 +111,11 @@ propuesta no cambia ese campo.
   - `TAB_EVIDENCE_CAVEAT` — texto fijo que cualquier consumidor (UI, export,
     ranking) debe mostrar: evidencia de muestras con sesión del crawler; no
     clasifica acceso al perfil ni certifica acceso anónimo/público/gratuito.
-- `tests/crawler/access.test.ts` — 14 tests con fixtures sintéticas desde la
-  documentación, incluida la garantía de que `#privateStatsTab` (inferido) NO
-  se reconoce y de que ningún camino devuelve un `profileAccessStatus` distinto
-  de `unknown`.
+- `tests/crawler/access.test.ts` — 16 tests: fixtures sintéticas desde la
+  documentación + una con la estructura observada el 2026-10-30 en un perfil
+  (valores sintéticos). Incluida la garantía de que `#privateStatsTab`
+  (inferido) NO se reconoce y de que ningún camino devuelve un
+  `profileAccessStatus` distinto de `unknown`.
 
 ## Cableado pendiente (requiere decisión de Juan)
 
@@ -127,7 +135,7 @@ propuesta no cambia ese campo.
 
 ## Verificación hecha aquí
 
-- `npx vitest run` → 36/36 (22 de master + 14 nuevos).
+- `npx vitest run` → 38/38 (22 de master + 16 nuevos).
 - `npx tsc --noEmit` limpio.
 - Cero peticiones a Blogabet; cero ejecución del crawler; cero cambios en
   schema, master, producción o auth.
