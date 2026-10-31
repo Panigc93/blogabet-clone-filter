@@ -101,7 +101,14 @@ export default async function CompararPage({ searchParams }: PageProps) {
           Selecciona al menos 2 tipsters en el listado (casilla «Comparar» de cada tarjeta) para ver la comparación.
         </p>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
+        <>
+        <p style={{ fontSize: 13, color: '#6c757d', margin: '0 0 6px' }}>Desliza la tabla para ver todas las métricas.</p>
+        <div
+          role="region"
+          aria-label="Tabla de comparación de tipsters, desplazable horizontalmente"
+          tabIndex={0}
+          style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}
+        >
           <table style={{ borderCollapse: 'collapse', width: '100%', background: '#fff', border: '1px solid #dbe1e8', fontSize: 13 }}>
             <thead>
               <tr>
@@ -138,10 +145,11 @@ export default async function CompararPage({ searchParams }: PageProps) {
               })}
             </tbody>
           </table>
-          <p style={{ fontSize: 11, color: '#999', marginTop: 6 }}>
-            El valor más alto de cada métrica numérica se resalta; más alto no implica mejor. Stats mensuales sobre meses cerrados; no incluyen el mes en curso.
-          </p>
         </div>
+        <p style={{ fontSize: 11, color: '#999', marginTop: 6 }}>
+          El valor más alto de cada métrica numérica se resalta; más alto no implica mejor. Stats mensuales sobre meses cerrados; no incluyen el mes en curso.
+        </p>
+        </>
       )}
     </div>
   )

@@ -47,11 +47,11 @@ Run these before claiming a change is verified.
 |---|---|---|
 | `npm run lint` | Next.js ESLint | Exit 0; 7 warnings (5 exhaustive-deps in `FilterBar`, 2 `<img>` warnings in `TipsterRow`). |
 | `npx tsc --noEmit` | TypeScript strict check | Exit 0. |
-| `npm test` | Vitest unit tests | Passes on Linux/Node 22 (40 tests, verified 2026-10-30). Cannot start in the documented Windows/Node 26 checkout: missing `@rolldown/binding-win32-x64-msvc`. |
+| `npm test` | Vitest unit tests | Passes on Linux/Node 22 (69 tests, verified 2026-10-30). Cannot start in the documented Windows/Node 26 checkout: missing `@rolldown/binding-win32-x64-msvc`. |
 | `npm run build` | Production build | Identified, not executed. |
 | `npm run start` | Serve a production build | Identified, not executed; requires `npm run build`. |
 
-Do not report "tests pass" unless `npm test` actually completes. The current checkout has 40 test cases across `tests/lib/auth.test.ts`, `tests/lib/query.test.ts`, `tests/lib/parse.test.ts`, and `tests/crawler/transform.test.ts`; the historical plan in `docs/superpowers/` says 17.
+Do not report "tests pass" unless `npm test` actually completes. The current checkout has 69 test cases across `tests/lib/auth.test.ts`, `tests/lib/query.test.ts`, `tests/lib/parse.test.ts`, `tests/lib/analysis.test.ts`, `tests/lib/mysScore.test.ts`, and `tests/crawler/transform.test.ts`; the historical plan in `docs/superpowers/` says 17.
 
 ### Fixing the validation failures (when explicitly asked)
 
@@ -249,11 +249,11 @@ Apply it **before** deploying code that selects `is_verified`; otherwise Drizzle
 
 ### Filter-parser regressions
 
-`app/page.tsx` and `app/api/tipsters/route.ts` parse filters independently. A filter can work on page 1 and silently stop applying on infinite scroll. To diagnose:
+`app/page.tsx` and `app/api/tipsters/route.ts` now share `lib/parseFilters.ts` (covered by `tests/lib/parse.test.ts`), so the page-1 vs infinite-scroll parser drift below cannot reappear while both keep using the shared parser. If a filter ever stops applying on scroll again, check first that neither entry point re-introduced local parsing. To diagnose:
 
 1. Call `/api/tipsters` with the same query params plus `search=<slug>` and compare it with the SSR result.
-2. Compare the filter objects in both files; a missing field means the API ignores that filter.
-3. Add the field to the API, add a `buildFilters` test, and manually verify the API parser with a request. `tests/lib/query.test.ts` does not cover either parser.
+2. Confirm both entry points call `parseListParams`; a local filter object means the API ignores new fields.
+3. Add the field to `lib/parseFilters.ts`, extend `tests/lib/parse.test.ts`, and manually verify the API with a request.
 
 This is how the `resetOlderThan` bug was found: `ditales57` had `lastResetAt = 2026-07-18` but appeared on API page 1 because the API omitted the filter.
 

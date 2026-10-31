@@ -160,6 +160,13 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontStyle: 'italic' }}>
               Prefiltro (free, ≥100 picks, yield ≥11%): no valida el cumplimiento MYS
             </span>
+            <a
+              href="/top-mys"
+              title="Ranking compuesto MYS sobre los candidatos que cumplen el prefiltro global"
+              style={{ background: '#fff', color: '#555', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 12, fontWeight: 700, padding: '5px 12px', cursor: 'pointer', whiteSpace: 'nowrap', textDecoration: 'none' }}
+            >
+              Top MYS
+            </a>
             <div style={{ flex: 1 }} />
             <a
               href={csvHref}

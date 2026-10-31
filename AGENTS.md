@@ -25,7 +25,7 @@ Read this file first. Deeper context:
 | `npm run dev` | Identified, not executed. |
 | `npm run lint` | Executed: exit 0, 7 warnings. |
 | `npx tsc --noEmit` | Executed: exit 0. |
-| `npm test` | Executed on Linux/Node 22 (2026-10-30): exit 0, 40 tests. Blocked in the documented Windows/Node 26 environment by a missing native binding. |
+| `npm test` | Executed on Linux/Node 22 (2026-10-30): exit 0, 69 tests. Blocked in the documented Windows/Node 26 environment by a missing native binding. |
 | `npm run build` / `npm start` | Identified, not executed. |
 | `npm run test:watch` | Identified, not executed. |
 
@@ -67,6 +67,7 @@ npx drizzle-kit migrate
 - `lib/csv.ts` — CSV column definitions and escaping for the export.
 - `lib/compare.ts` / `lib/compareClient.ts` — `/comparar` slug validation and the localStorage compare selection.
 - `app/comparar/page.tsx` — side-by-side comparison table with best-value highlighting.
+- `app/top-mys/page.tsx` + `lib/mysScore.ts` — Top MYS: transparent composite ranking over the global MYS pool (free, >=100 picks, yield >=11%, active 3m). Documented heuristic, not an edge claim; category/league scopes not covered by the data model.
 - `db/schema.ts` / `db/index.ts` — single `tipsters` table; Neon HTTP client from `DATABASE_URL`.
 - `crawler/crawl.ts` — scrapes the `/tipsters/` HTML, upserts rows, checkpoints, retries, optional Playwright.
 - `crawler/stats.ts` — scrapes `https://{slug}.blogabet.com/blog/stats`, computes closed-month stats, clears inactive rows.
