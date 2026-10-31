@@ -6,7 +6,11 @@
 //
 // Pesos: yield historico 20% (tope 30), yield 6m 20%, yield 3m 10%,
 // muestra (log picks) 15%, volumen picks/mes 15% (tope 25),
-// % picks verificados 10%, recencia del ultimo pick 10%.
+// % picks verificados 10%, recencia del ultimo avistamiento 10%.
+// OJO: last_pick_at NO es la fecha real del ultimo pick. El crawler diario la
+// fija a la hora de la corrida cuando el tipster aparece en el listado de
+// activos del mes (LAST_ACTIVE<=1) y COALESCE la conserva entre corridas
+// (ver ARCHITECTURE.md). Es un proxy de "visto activo por ultima vez".
 // Penalizacion: x0,85 por reset de estadisticas (max 4).
 // Yields recientes con < 30 picks en 6 meses puntuan neutros (0,30):
 // una muestra minuscula no puede inflar a nadie.
@@ -32,7 +36,7 @@ export interface MysScoreInput {
   picks6mAvg: string | null
   verifiedPct: string | null
   resetCount: number
-  lastPickAt: Date | string | null
+  lastPickAt: Date | string | null  // proxy: ultimo avistamiento en el listado mensual, no la fecha real del ultimo pick
 }
 
 function num(v: string | null): number | null {

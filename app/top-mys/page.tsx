@@ -22,7 +22,9 @@ function fmt(v: string | null, suffix = ''): string {
 
 export default async function TopMys() {
   // Pool MYS global: gratis (sin cuota detectada), >=100 picks, yield >=11%,
-  // activo en los ultimos MYS_ACTIVITY_MONTHS meses (segun last_pick_at del crawler).
+  // activo en los ultimos MYS_ACTIVITY_MONTHS meses segun last_pick_at, que es un
+  // proxy: la ultima vez que el crawler lo vio en el listado de activos del mes,
+  // no la fecha real de su ultimo pick (ver lib/mysScore.ts).
   const where = buildFilters({
     tipo: 'free',
     minPicks: MYS_MIN_PICKS,
@@ -44,7 +46,7 @@ export default async function TopMys() {
       <p style={{ color: '#555', maxWidth: 760 }}>
         Los {ranked.length} candidatos preseleccionados mejor puntuados de un pool de <strong>{rows.length}</strong> que cumplen
         los umbrales MYS en el computo global: al menos {MYS_MIN_PICKS} picks, yield de al menos
-        el {MYS_MIN_YIELD}%, sin cuota de pago detectada y activos en los ultimos {MYS_ACTIVITY_MONTHS} meses.
+        el {MYS_MIN_YIELD}%, sin cuota de pago detectada y vistos activos por el crawler en los ultimos {MYS_ACTIVITY_MONTHS} meses (ultimo avistamiento en el listado mensual, no la fecha real de su ultimo pick).
         El orden mezcla yield historico (20%), yield 6m (20%) y 3m (10%), muestra (15%),
         volumen de picks/mes (15%), % de picks verificados (10%) y recencia (10%);
         cada reset penaliza un 15% y, usando la media mensual de picks de 6 meses como estimacion del

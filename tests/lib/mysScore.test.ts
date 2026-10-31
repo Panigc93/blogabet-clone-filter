@@ -74,7 +74,7 @@ describe('mysScore', () => {
     expect(futuro).toBeCloseTo(hoy, 10)
   })
 
-  it('la recencia del ultimo pick suma y caduca a los 90 dias', () => {
+  it('la recencia del ultimo avistamiento (proxy last_pick_at) suma y caduca a los 90 dias', () => {
     const hoy = mysScore(base({ lastPickAt: daysAgo(0) }), NOW)
     const viejo = mysScore(base({ lastPickAt: daysAgo(90) }), NOW)
     const nulo = mysScore(base({ lastPickAt: null }), NOW)
