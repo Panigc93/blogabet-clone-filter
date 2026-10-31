@@ -1,10 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { parseStatsAccess, deriveAccessStatus, ACCESS_STATUS_CAVEAT } from '@/crawler/access'
+import { parseStatsTabs, deriveSampleEvidence, TAB_EVIDENCE_CAVEAT } from '@/crawler/access'
 
-// Fixtures construidas SOLO con markup documentado en blogabet-scripts
-// (BLOGABET_CONTEXT.md + los wrappers que ya usa crawler/stats.ts).
-// No provienen de una captura viva: el parser debe degradar a 'unknown'
-// ante cualquier forma no reconocida.
+// Fixtures SINTÉTICAS construidas solo desde la documentación:
+//   - los wrappers que ya usa crawler/stats.ts (#alltimeStatsTab, #paidStatsTab)
+//   - la familia documentada en blogabet-scripts/BLOGABET_CONTEXT.md
+//     (#{type}-{seccion}-StatsTabContent)
+// No son capturas vivas y NO certifican el markup real de Blogabet: si la
+// primera corrida real muestra otra forma, el parser debe degradar a
+// 'unknown', nunca adivinar.
 
 const ARCHIVE_ROWS = `
   <table data-stats="archive"><tbody>
@@ -12,101 +15,126 @@ const ARCHIVE_ROWS = `
     <tr><td><span class="hidden">1756598400</span></td><td>9</td><td></td><td></td><td><span>+3%</span></td><td></td><td><span>1.05</span></td></tr>
   </tbody></table>`
 
-// Perfil free: sin wrappers de pestañas; tabla de archivo al descubierto (fallback sin scope de stats.ts)
-const FREE_STATS = `<div id="stats">${ARCHIVE_ROWS}</div>`
+// Perfil sin wrappers de pestañas; tabla de archivo al descubierto (fallback sin scope de stats.ts)
+const ALLTIME_ONLY_STATS = `<div id="stats">${ARCHIVE_ROWS}</div>`
 
-// Perfil con pestañas ALL + PAID (wrappers que ya usa stats.ts)
+// Wrappers que ya usa stats.ts: ALL + PAID
 const PAID_STATS = `
   <div id="alltimeStatsTab">${ARCHIVE_ROWS}</div>
   <div id="paidStatsTab">${ARCHIVE_ROWS}</div>`
 
-// Perfil con pestañas ALL + PRIVATE (wrapper por simetría con paidStatsTab)
-const PRIVATE_STATS = `
-  <div id="alltimeStatsTab">${ARCHIVE_ROWS}</div>
-  <div id="privateStatsTab">${ARCHIVE_ROWS}</div>`
-
-// Variante PRIVATE con la familia de ids de BLOGABET_CONTEXT (#private-{seccion}-StatsTabContent)
+// Familia documentada en BLOGABET_CONTEXT.md: ALL + PRIVATE
 const PRIVATE_STATS_CONTENT_IDS = `
   <div id="alltime-archive-StatsTabContent">${ARCHIVE_ROWS}</div>
   <div id="private-archive-StatsTabContent">${ARCHIVE_ROWS}</div>`
 
-// Pestaña PRIVATE presente pero sin filas: ambiguo, no se puede afirmar nada
+// Id INFERIDO por simetría (#privateStatsTab): sin evidencia documentada, no se acepta
+const PRIVATE_INFERRED_WRAPPER = `
+  <div id="alltimeStatsTab">${ARCHIVE_ROWS}</div>
+  <div id="privateStatsTab">${ARCHIVE_ROWS}</div>`
+
+// Pestaña PRIVATE (familia documentada) presente pero sin filas: evidencia ambigua
 const PRIVATE_EMPTY_STATS = `
   <div id="alltimeStatsTab">${ARCHIVE_ROWS}</div>
-  <div id="privateStatsTab"><table data-stats="archive"><tbody></tbody></table></div>`
+  <div id="private-sports-StatsTabContent"><table data-stats="archive"><tbody></tbody></table></div>`
 
-describe('parseStatsAccess', () => {
-  it('perfil free: alltime sin pestañas paid/private', () => {
-    const s = parseStatsAccess(FREE_STATS)
-    expect(s.hasAlltimeScope).toBe(true)
-    expect(s.hasPaidScope).toBe(false)
-    expect(s.hasPrivateScope).toBe(false)
+describe('parseStatsTabs', () => {
+  it('perfil sin pestañas: alltime por fallback de stats.ts, sin paid/private', () => {
+    const s = parseStatsTabs(ALLTIME_ONLY_STATS)
+    expect(s.hasAlltimeTab).toBe(true)
+    expect(s.hasPaidTab).toBe(false)
+    expect(s.hasPrivateTab).toBe(false)
     expect(s.paidArchiveRows).toBe(0)
     expect(s.privateArchiveRows).toBe(0)
   })
 
-  it('detecta pestaña PAID y cuenta sus filas de archivo', () => {
-    const s = parseStatsAccess(PAID_STATS)
-    expect(s.hasPaidScope).toBe(true)
+  it('detecta pestaña PAID (wrapper de stats.ts) y cuenta sus filas de archivo', () => {
+    const s = parseStatsTabs(PAID_STATS)
+    expect(s.hasPaidTab).toBe(true)
     expect(s.paidArchiveRows).toBe(2)
-    expect(s.hasPrivateScope).toBe(false)
+    expect(s.hasPrivateTab).toBe(false)
   })
 
-  it('detecta pestaña PRIVATE (wrapper) y cuenta filas', () => {
-    const s = parseStatsAccess(PRIVATE_STATS)
-    expect(s.hasPrivateScope).toBe(true)
+  it('detecta pestaña PRIVATE por la familia documentada y cuenta filas', () => {
+    const s = parseStatsTabs(PRIVATE_STATS_CONTENT_IDS)
+    expect(s.hasPrivateTab).toBe(true)
     expect(s.privateArchiveRows).toBe(2)
   })
 
-  it('detecta PRIVATE con la familia de ids documentada en BLOGABET_CONTEXT', () => {
-    const s = parseStatsAccess(PRIVATE_STATS_CONTENT_IDS)
-    expect(s.hasPrivateScope).toBe(true)
-    expect(s.privateArchiveRows).toBe(2)
+  it('NO reconoce #privateStatsTab (id inferido sin evidencia documentada)', () => {
+    const s = parseStatsTabs(PRIVATE_INFERRED_WRAPPER)
+    expect(s.hasPrivateTab).toBe(false)
+    expect(s.privateArchiveRows).toBe(0)
+    expect(s.hasAlltimeTab).toBe(true)
   })
 
-  it('pestaña PRIVATE vacía: scope presente, cero filas', () => {
-    const s = parseStatsAccess(PRIVATE_EMPTY_STATS)
-    expect(s.hasPrivateScope).toBe(true)
+  it('pestaña PRIVATE vacía: existe la pestaña pero 0 filas (ambiguo)', () => {
+    const s = parseStatsTabs(PRIVATE_EMPTY_STATS)
+    expect(s.hasPrivateTab).toBe(true)
     expect(s.privateArchiveRows).toBe(0)
   })
 })
 
-describe('deriveAccessStatus', () => {
-  it('listado con precio → paid aunque no haya stats', () => {
-    const r = deriveAccessStatus({ listingIsPaid: true, listingPrice: '9.99', stats: null })
-    expect(r.status).toBe('paid')
+describe('deriveSampleEvidence', () => {
+  it('listado con precio → subscribe-offer (oferta del listado, no acceso)', () => {
+    const r = deriveSampleEvidence({ listingIsPaid: true, listingPrice: '9.99', stats: null })
+    expect(r.sampleVisibility).toBe('subscribe-offer')
     expect(r.reason).toContain('9.99')
+    expect(r.profileAccessStatus).toBe('unknown')
   })
 
-  it('listado free + stats limpias → free', () => {
-    const r = deriveAccessStatus({ listingIsPaid: false, listingPrice: null, stats: parseStatsAccess(FREE_STATS) })
-    expect(r.status).toBe('free')
+  it('listado con plan de pago sin precio → subscribe-offer', () => {
+    const r = deriveSampleEvidence({ listingIsPaid: true, listingPrice: null, stats: null })
+    expect(r.sampleVisibility).toBe('subscribe-offer')
+    expect(r.profileAccessStatus).toBe('unknown')
   })
 
-  it('listado free + pestaña PAID con filas → paid (contradicción señalada)', () => {
-    const r = deriveAccessStatus({ listingIsPaid: false, listingPrice: null, stats: parseStatsAccess(PAID_STATS) })
-    expect(r.status).toBe('paid')
-    expect(r.reason).toContain('pese a listado')
+  it('PRIVATE con filas → private-sample (muestra, no acceso al perfil)', () => {
+    const r = deriveSampleEvidence({ listingIsPaid: false, listingPrice: null, stats: parseStatsTabs(PRIVATE_STATS_CONTENT_IDS) })
+    expect(r.sampleVisibility).toBe('private-sample')
+    expect(r.profileAccessStatus).toBe('unknown')
   })
 
-  it('listado free + pestaña PRIVATE con filas → private', () => {
-    const r = deriveAccessStatus({ listingIsPaid: false, listingPrice: null, stats: parseStatsAccess(PRIVATE_STATS) })
-    expect(r.status).toBe('private')
+  it('PAID con filas pese a listado sin cuota → paid-sample', () => {
+    const r = deriveSampleEvidence({ listingIsPaid: false, listingPrice: null, stats: parseStatsTabs(PAID_STATS) })
+    expect(r.sampleVisibility).toBe('paid-sample')
+    expect(r.profileAccessStatus).toBe('unknown')
   })
 
-  it('pestaña PRIVATE vacía → unknown (ambiguo, no se afirma)', () => {
-    const r = deriveAccessStatus({ listingIsPaid: false, listingPrice: null, stats: parseStatsAccess(PRIVATE_EMPTY_STATS) })
-    expect(r.status).toBe('unknown')
+  it('pestaña presente pero vacía → unknown (ambigua)', () => {
+    const r = deriveSampleEvidence({ listingIsPaid: false, listingPrice: null, stats: parseStatsTabs(PRIVATE_EMPTY_STATS) })
+    expect(r.sampleVisibility).toBe('unknown')
   })
 
-  it('sin página de stats → unknown (nunca se asume free por ausencia)', () => {
-    const r = deriveAccessStatus({ listingIsPaid: false, listingPrice: null, stats: null })
-    expect(r.status).toBe('unknown')
+  it('listado sin cuota + solo ALL-TIME → alltime-only, nunca free', () => {
+    const r = deriveSampleEvidence({ listingIsPaid: false, listingPrice: null, stats: parseStatsTabs(ALLTIME_ONLY_STATS) })
+    expect(r.sampleVisibility).toBe('alltime-only')
+    expect(r.profileAccessStatus).toBe('unknown')
+  })
+
+  it('sin página de stats → unknown', () => {
+    const r = deriveSampleEvidence({ listingIsPaid: false, listingPrice: null, stats: null })
+    expect(r.sampleVisibility).toBe('unknown')
+    expect(r.profileAccessStatus).toBe('unknown')
+  })
+
+  it('ningún camino clasifica el acceso al perfil: siempre unknown', () => {
+    const inputs = [
+      { listingIsPaid: true, listingPrice: '5', stats: null },
+      { listingIsPaid: false, listingPrice: null, stats: parseStatsTabs(PRIVATE_STATS_CONTENT_IDS) },
+      { listingIsPaid: false, listingPrice: null, stats: parseStatsTabs(PAID_STATS) },
+      { listingIsPaid: false, listingPrice: null, stats: parseStatsTabs(ALLTIME_ONLY_STATS) },
+      { listingIsPaid: false, listingPrice: null, stats: null },
+    ] as const
+    for (const input of inputs) {
+      expect(deriveSampleEvidence(input).profileAccessStatus).toBe('unknown')
+    }
   })
 })
 
-describe('caveat', () => {
-  it('todo consumo del estado exige recordar que no hay verificación anónima', () => {
-    expect(ACCESS_STATUS_CAVEAT).toContain('No certifica acceso anónimo')
+describe('TAB_EVIDENCE_CAVEAT', () => {
+  it('declara que no clasifica acceso al perfil ni certifica acceso anónimo/público/gratuito', () => {
+    expect(TAB_EVIDENCE_CAVEAT).toMatch(/No clasifica el acceso al perfil/)
+    expect(TAB_EVIDENCE_CAVEAT).toMatch(/anónimo, público o gratuito/)
   })
 })
