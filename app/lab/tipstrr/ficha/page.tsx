@@ -1,4 +1,4 @@
-import { STATMIND_SNAPSHOT, FichaSnapshot } from './fixtures'
+import { STATMIND_SNAPSHOT, TLE_SNAPSHOT, FichaSnapshot } from './fixtures'
 
 // Ficha Blogabet-parity prototype fed by a REAL one-off labeled snapshot
 // (see fixtures.ts for capture metadata). Purpose: show exactly which BB
@@ -93,14 +93,35 @@ function Ficha({ s }: { s: FichaSnapshot }) {
         ))}
       </ul>
 
+      {s.periodEstimates ? (
+        <>
+          <div style={{ fontSize: 13, fontWeight: 700, margin: '12px 0 4px' }}>Periodos agregados (estimación)</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, border: '1px solid #e3e3e3', borderRadius: 4, padding: '10px 8px', background: '#fff' }}>
+            <Stat value={s.periodEstimates.yield3m !== null ? `${s.periodEstimates.yield3m}%` : '—'} label="Yield 3m" color={numColor(s.periodEstimates.yield3m)} />
+            <Stat value={s.periodEstimates.yield6m !== null ? `${s.periodEstimates.yield6m}%` : '—'} label="Yield 6m" color={numColor(s.periodEstimates.yield6m)} />
+            <Stat value={s.periodEstimates.yield12m !== null ? `${s.periodEstimates.yield12m}%` : '—'} label="Yield 12m" color={numColor(s.periodEstimates.yield12m)} />
+            <Stat value={s.periodEstimates.picks6mAvg !== null ? String(s.periodEstimates.picks6mAvg) : '—'} label="Picks/mes 6m" />
+          </div>
+          <div style={{ fontSize: 11, color: '#999', margin: '4px 0 10px' }}>{s.periodEstimates.note}</div>
+        </>
+      ) : (
+        <div style={{ fontSize: 12, color: '#888', marginTop: 10 }}>
+          Yield 3/6/12m: sin historial suficiente; se muestran los meses de la fuente en vez de inventar periodos.
+        </div>
+      )}
       <div style={{ fontSize: 12, color: '#888', borderTop: '1px solid #eee', marginTop: 12, paddingTop: 8 }}>
-        Último resultado visible: {s.lastResultVisibleLabel}. Yield 3/6/12m: sin historial suficiente (solo un mes
-        cerrado y parcial); se muestran los meses de la fuente en vez de inventar periodos.
+        {s.lastResultVisibleLabel ? `Último resultado visible: ${s.lastResultVisibleLabel}.` : ''} Captura fechada: las cifras pueden no reflejar las actuales.
       </div>
     </div>
   )
 }
 
 export default function LabTipstrrFichaPage() {
-  return <Ficha s={STATMIND_SNAPSHOT} />
+  return (
+    <>
+      <Ficha s={TLE_SNAPSHOT} />
+      <div style={{ maxWidth: 860, margin: '24px auto 0', borderTop: '2px dashed #ccc' }} />
+      <Ficha s={STATMIND_SNAPSHOT} />
+    </>
+  )
 }
