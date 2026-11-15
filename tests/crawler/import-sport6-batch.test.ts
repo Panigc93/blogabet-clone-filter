@@ -58,7 +58,7 @@ describe('planSport6Batch: lote solo-altas', () => {
   it('fila existente se salta SIEMPRE, aunque la captura sea más reciente', () => {
     const m = mappingOf('-25')
     if (!m.ok) throw new Error(m.reason)
-    const newer = { ...m.insert, capturedAt: '2999-01-01T00:00:00Z' }
+    const newer = { ...m.insert, capturedAt: new Date('2999-01-01T00:00:00Z') }
     const plan = planSport6Batch({ id: -5, capturedAt: '2020-01-01' } as TipsterInsert, { ok: true, insert: newer })
     expect(plan.action).toBe('skip-existing')
   })
