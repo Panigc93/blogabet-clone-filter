@@ -17,7 +17,10 @@
 //   under NO uniform stake mapping, and it is undetermined which basis the
 //   ROI column shows. Field names alone prove nothing about the denominator.
 // - Voids: no void in StatMind's record; treatment unverified.
-// - Per-tip odds/profit require an account; aggregates only.
+// - Per-tip detail (stake/odds/profit in units) IS embedded in /results
+//   hydration for the visible window (see per-pick.ts and captures/); the
+//   paginated completed-tips list is compact and carries no stake. No
+//   bounded full-history per-pick route has been verified.
 //
 // Therefore MYS-Y is evaluated ONLY when every per-record consistency check
 // passes (uniformity alone is necessary, not sufficient). Otherwise yield
