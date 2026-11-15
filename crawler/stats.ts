@@ -244,6 +244,7 @@ async function crawlStats() {
   let offset = cp.offset
   let done = cp.done
   let errors = cp.errors
+  let refreshed = 0 // this run only: stats parsed and written
 
   if (offset > 0) {
     console.log(`Resuming from offset=${offset} (done=${done}, errors=${errors})`)
@@ -278,6 +279,7 @@ async function crawlStats() {
           })
           .where(sql`${tipsters.id} = ${id}`)
       }, `upsert(${slug})`)
+      refreshed++
     }
 
     done++
@@ -307,6 +309,7 @@ async function crawlStats() {
     selected: allTipsters.length,
     withStats,
     done,
+    refreshed,
     errors,
     completed: true,
     clearRequested: process.env.CLEAR_INACTIVE_STATS === '1',

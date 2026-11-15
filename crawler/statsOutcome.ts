@@ -7,8 +7,10 @@ export interface StatsRunSummary {
   selected: number
   /** Tipsters that currently hold period stats (stats_updated_at not null). */
   withStats: number
-  /** Selected tipsters processed without error in this run. */
+  /** Selected tipsters processed without error in this run (includes pages with no stats data). */
   done: number
+  /** Selected tipsters whose stats were parsed and written in this run (HTTP 200 with data). */
+  refreshed: number
   /** Selected tipsters that failed in this run. */
   errors: number
   /** True only if the loop ran to the end (not cancelled or crashed). */
@@ -41,6 +43,11 @@ export function decideStatsOutcome(s: StatsRunSummary): StatsOutcome {
       messages.push(`${s.errors} of ${s.selected} stats requests failed.`)
       if (s.errors === s.selected) exitCode = 1
     }
+    if (s.errors < s.selected && s.refreshed === 0) {
+      // HTTP 200 on every page but nothing parsed: an empty or changed response, not a success.
+      messages.push(`0 of ${s.selected} selected tipsters returned parseable stats (empty or changed responses). Nothing was written.`)
+      exitCode = 1
+    }
   }
 
   let clear = false
@@ -48,6 +55,7 @@ export function decideStatsOutcome(s: StatsRunSummary): StatsOutcome {
     if (!s.completed) messages.push('Clear skipped: run did not complete.')
     else if (s.selected === 0) messages.push('Clear skipped: no activity evidence.')
     else if (s.errors > 0) messages.push('Clear skipped: some requests failed.')
+    else if (s.refreshed === 0) messages.push('Clear skipped: no stats were refreshed.')
     else clear = true
   }
   return { clear, exitCode, messages }

@@ -194,7 +194,7 @@ Flow:
 
 Reliability details:
 
-- Retries each page/upsert up to 8 attempts with linear backoff (`attempt * 2s`).
+- Retries each page/upsert up to 3 attempts (`CRAWL_MAX_ATTEMPTS`, was 8) with linear backoff (`attempt * 2s`). HTTP 401/403/429 are never retried.
 - Sleeps 300 ms between pages.
 - Optional Playwright mode launches Chromium and injects the cookie pairs into a browser context, then uses `ctx.request.get`. The default path is plain Node `fetch`.
 - `parseBlocks()` is exported for tests; a direct-execution guard prevents importing the module from starting the crawl.
@@ -222,7 +222,7 @@ Flow:
 9. Computes `picks6mAvg` as total picks divided by the number of months with data in the 6-month window (not a fixed divisor of 6).
 10. For paid tipsters, derives free stats by subtracting the paid tab from all-time rows for the last 3 closed months.
 11. Upserts the period columns and `stats_updated_at`.
-12. After the loop, reports coverage and never nulls stats unless `CLEAR_INACTIVE_STATS=1` on a complete run with no errors and at least one selected tipster. Exits 1 when no tipster is selected (no activity evidence) so the run is visible instead of a green no-op.
+12. After the loop, reports coverage, exits 1 when every selected tipster returned HTTP 200 without parseable stats, and never nulls stats unless `CLEAR_INACTIVE_STATS=1` on a complete run with no errors and at least one selected tipster. Exits 1 when no tipster is selected (no activity evidence) so the run is visible instead of a green no-op.
 
 Reliability details:
 
@@ -251,8 +251,8 @@ Reliability details:
 
 - Cron `0 3 * * *` (03:00 UTC) and manual dispatch.
 - Node 20, `npm ci`, 360-minute timeout.
-- Catalog crawl with `LAST_ACTIVE=1`, retried up to 3 times with 60-second waits; exits non-zero after the third failure.
-- Stats crawl retried up to 3 times with 30-second waits. The loop has no trailing failure check, so after three failures the step can still finish green. Inspect logs.
+- Catalog crawl with `LAST_ACTIVE=1`, a single run (no outer retry loop); requests retry inside as above. A failure fails the job.
+- Stats crawl, a single run, `if: !cancelled()` so it runs even if the catalog step failed. Its exit code reaches the job.
 
 `crawl-full.yml`:
 
