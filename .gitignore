@@ -40,3 +40,7 @@ next-env.d.ts
 
 # crawler checkpoints
 crawler/.checkpoint-*
+
+# local env / secrets
+.env*
+!.env.example

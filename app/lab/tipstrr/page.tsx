@@ -1,5 +1,8 @@
 import { DEMO_PLATFORM, DEMO_TIPSTRERS, DemoPlatformTipster } from './fixtures'
-import { evaluateMys } from '@/crawler/platforms/mys'
+
+// Note: the shared MYS helper is NOT used to label a Y pass here. Tipstrr ROI
+// (advised stakes) has no validated equivalence with Blogabet yield, so the
+// chip says 'ROI declarado' and never 'yield MYS'.
 
 // UI prototype for the multi-platform listing, rendered from FABRICATED data.
 // Tipstrr is not connected: no crawler, no permission, no real figures.
@@ -29,7 +32,8 @@ function Chip({ ok, label }: { ok: boolean | null; label: string }) {
 }
 
 function DemoRow({ t }: { t: DemoPlatformTipster }) {
-  const mys = evaluateMys({ picks: t.sample.picks, yieldPct: t.sample.roiPct })
+  const muestra = t.sample.picks === null ? null : t.sample.picks >= 100
+  const roiOk = t.sample.roiPct === null ? null : t.sample.roiPct >= 11
   return (
     <div style={{ border: '1px solid #e3e3e3', borderRadius: 4, padding: '10px 12px', marginBottom: 10, background: '#fff' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
@@ -54,8 +58,9 @@ function DemoRow({ t }: { t: DemoPlatformTipster }) {
         {t.sample.scopeLabel} · {t.sample.periodLabel} · {DEMO_PLATFORM.metricName} sobre {t.sample.roiBasis} · fuente: {DEMO_PLATFORM.label} (dato fabricado)
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
-        <Chip ok={mys.muestra} label="Muestra ≥100" />
-        <Chip ok={mys.yield} label={`${DEMO_PLATFORM.metricName} ≥11%`} />
+        <Chip ok={muestra} label="Muestra ≥100" />
+        <Chip ok={roiOk} label={`${DEMO_PLATFORM.metricName} declarado ≥11%`} />
+        <span style={{ fontSize: 10, color: '#bbb' }}>sin equivalencia validada con yield</span>
         <span style={badge('#eee', '#888')}>Seguibilidad: sin evaluar</span>
         <span style={badge('#f5f5f5', '#aaa')}>Comparabilidad con Blogabet: pendiente</span>
       </div>
@@ -82,8 +87,9 @@ export default function LabTipstrrPage() {
       <div style={{ fontSize: 12, color: '#888', borderTop: '1px solid #eee', marginTop: 12, paddingTop: 8 }}>
         <p>{DEMO_PLATFORM.metricBasisNote}</p>
         <p>
-          M y se evalúan sobre la muestra mostrada ({DEMO_PLATFORM.label}). La S (seguibilidad) no se infiere de
-          gratuidad ni de precio: requiere verificación propia. Términos de la plataforma:{' '}
+          La muestra y el {DEMO_PLATFORM.metricName} declarado se evalúan sobre los datos mostrados; el{' '}
+          {DEMO_PLATFORM.metricName} de {DEMO_PLATFORM.label} no está validado como yield MYS. La S (seguibilidad)
+          no se infiere de gratuidad ni de precio: requiere verificación propia. Términos de la plataforma:{' '}
           <a href={DEMO_PLATFORM.termsUrl}>{DEMO_PLATFORM.termsUrl}</a>
         </p>
       </div>
