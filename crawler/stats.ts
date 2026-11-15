@@ -263,6 +263,10 @@ async function crawlStats() {
       },
       sleep: ms => new Promise(r => setTimeout(r, ms)),
       log: m => console.log(m),
+      // Circuit breaker: transient errors cost up to ~20 s of backoff per tipster (5 attempts), so
+      // a mass failure must not run for hours. Isolated errors reset the streak.
+      maxConsecutiveErrors: Number(process.env.STATS_MAX_CONSECUTIVE_ERRORS ?? '25') || 25,
+      maxRuntimeMs: (Number(process.env.STATS_MAX_MINUTES ?? '180') || 180) * 60_000,
     },
     (next, d, e) => saveCheckpoint(next, d, e),
   )

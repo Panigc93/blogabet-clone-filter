@@ -15,7 +15,7 @@ export interface StatsRunSummary {
   errors: number
   /** True only if the loop ran to the end (not cancelled or crashed). */
   completed: boolean
-  /** Set when a block (401/403/429) or challenge page aborted the run. */
+  /** Set when the run was aborted: block (401/403/429), challenge page, consecutive failures or time budget. */
   blocked?: string
   /** Explicit opt-in (CLEAR_INACTIVE_STATS=1). Default false. */
   clearRequested: boolean
@@ -32,7 +32,7 @@ export function decideStatsOutcome(s: StatsRunSummary): StatsOutcome {
   let exitCode: 0 | 1 = 0
 
   if (s.blocked) {
-    messages.push(`Run aborted by block/challenge (${s.blocked}). No further requests or writes; previous stats kept.`)
+    messages.push(`Run aborted (${s.blocked}). No further requests or writes; previous stats kept.`)
     exitCode = 1
   } else if (s.selected === 0) {
     // No activity evidence at all (empty or fully stale catalog): nothing is refreshed

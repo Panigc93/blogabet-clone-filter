@@ -81,6 +81,38 @@ describe('runStatsLoop', () => {
   })
 })
 
+describe('runStatsLoop circuit breaker', () => {
+  const many = Array.from({ length: 50 }, (_, n) => ({ id: n + 1, slug: `t${n + 1}` }))
+  it('aborts after N consecutive failures: no more fetches, nothing written, previous kept', async () => {
+    const fetchHtml = vi.fn(async () => { throw new HttpError(500, 'x') })
+    const write = vi.fn()
+    const r = await runStatsLoop(many, { offset: 0, done: 0, errors: 0 },
+      { fetchHtml, parse: (h: string) => h, write, sleep: noSleep, maxConsecutiveErrors: 5 })
+    expect(fetchHtml).toHaveBeenCalledTimes(5)
+    expect(write).not.toHaveBeenCalled()
+    expect(r.blocked).toMatch(/5 consecutive/)
+    expect(r.next).toBe(5)
+  })
+  it('isolated errors do not trip it: a success resets the streak', async () => {
+    const fetchHtml = vi.fn(async (s: string) => { if (Number(s.slice(1)) % 3 === 0) throw new HttpError(500, 'x'); return 'data' })
+    const r = await runStatsLoop(many, { offset: 0, done: 0, errors: 0 },
+      { fetchHtml, parse: (h: string) => h, write: vi.fn(), sleep: noSleep, maxConsecutiveErrors: 3 })
+    expect(r.blocked).toBeUndefined()
+    expect(r.next).toBe(50)
+  })
+  it('aborts when the time budget is exceeded, keeping the resume point', async () => {
+    let t = 0
+    const fetchHtml = vi.fn(async () => 'data')
+    const write = vi.fn()
+    const r = await runStatsLoop(many, { offset: 0, done: 0, errors: 0 },
+      { fetchHtml, parse: (h: string) => h, write, sleep: async () => { t += 1000 }, now: () => t, maxRuntimeMs: 10_000 })
+    expect(r.blocked).toMatch(/time budget/)
+    expect(fetchHtml.mock.calls.length).toBeLessThan(50)
+    expect(write).toHaveBeenCalledTimes(fetchHtml.mock.calls.length)
+    expect(r.next).toBe(fetchHtml.mock.calls.length)
+  })
+})
+
 describe('outcome when blocked', () => {
   it('exits 1, never clears even with opt-in, says previous stats are kept', () => {
     const r = decideStatsOutcome({ selected: 3000, withStats: 3000, done: 10, refreshed: 10, errors: 0, completed: false, blocked: 'HTTP 429', clearRequested: true })
