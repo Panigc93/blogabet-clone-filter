@@ -1,0 +1,37 @@
+{
+  "slug": "on-the-money-tips",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 9.796884,
+      "bspAverageOdds": 9.480828,
+      "profit": 1614.46,
+      "bspProfit": -206.976775,
+      "levelStakeProfit": 1614.46,
+      "levelStakeBspProfit": -206.976775,
+      "staked": 7180,
+      "bspStaked": 6687,
+      "tips": 6742,
+      "bspTips": 6687,
+      "tipBets": 7180,
+      "bspTipBets": 6687,
+      "win": 927,
+      "winHalf": 5,
+      "bspWin": 922,
+      "lose": 5726,
+      "bspLose": 5678,
+      "loseHalf": 0,
+      "place": 84,
+      "bspPlace": 83,
+      "void": 0,
+      "winPercentage": 14,
+      "bspWinPercentage": 14,
+      "roi": 22.49,
+      "bspROI": -3.1,
+      "levelStakeROI": 22.49,
+      "levelStakeBspROI": -3.1
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "thebanker",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 10.386508,
+      "bspAverageOdds": 10.215958,
+      "profit": 837.4918,
+      "bspProfit": -114.7661,
+      "levelStakeProfit": 1718.505,
+      "levelStakeBspProfit": -801.639605,
+      "staked": 2761.1,
+      "bspStaked": 2711.2,
+      "tips": 5581,
+      "bspTips": 5556,
+      "tipBets": 5751,
+      "bspTipBets": 5556,
+      "win": 826,
+      "winHalf": 2,
+      "bspWin": 825,
+      "lose": 4710,
+      "bspLose": 4686,
+      "loseHalf": 0,
+      "place": 43,
+      "bspPlace": 43,
+      "void": 0,
+      "winPercentage": 15,
+      "bspWinPercentage": 15,
+      "roi": 30.33,
+      "bspROI": -4.23,
+      "levelStakeROI": 29.88,
+      "levelStakeBspROI": -14.43
+    }
+  ]
+}

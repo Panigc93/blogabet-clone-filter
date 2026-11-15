@@ -1,0 +1,37 @@
+{
+  "slug": "footballpunter",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 1,
+      "averageOdds": 1.967684,
+      "bspAverageOdds": 0,
+      "profit": 1.9465,
+      "bspProfit": 0,
+      "levelStakeProfit": 19.4655,
+      "levelStakeBspProfit": 0,
+      "staked": 19,
+      "bspStaked": 0,
+      "tips": 190,
+      "bspTips": 0,
+      "tipBets": 190,
+      "bspTipBets": 0,
+      "win": 95,
+      "winHalf": 2,
+      "bspWin": 0,
+      "lose": 71,
+      "bspLose": 0,
+      "loseHalf": 3,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 19,
+      "winPercentage": 56,
+      "bspWinPercentage": 0,
+      "roi": 10.24,
+      "bspROI": 0,
+      "levelStakeROI": 10.24,
+      "levelStakeBspROI": 0
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "foot-handicap",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 1,
+      "averageOdds": 1.519082,
+      "bspAverageOdds": 0,
+      "profit": 1.036,
+      "bspProfit": 0,
+      "levelStakeProfit": 1.036,
+      "levelStakeBspProfit": 0,
+      "staked": 218,
+      "bspStaked": 0,
+      "tips": 218,
+      "bspTips": 0,
+      "tipBets": 218,
+      "bspTipBets": 0,
+      "win": 99,
+      "winHalf": 30,
+      "bspWin": 0,
+      "lose": 53,
+      "bspLose": 0,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 36,
+      "winPercentage": 54,
+      "bspWinPercentage": 0,
+      "roi": 0.48,
+      "bspROI": 0,
+      "levelStakeROI": 0.48,
+      "levelStakeBspROI": 0
+    }
+  ]
+}

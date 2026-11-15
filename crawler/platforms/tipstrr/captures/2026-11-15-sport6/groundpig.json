@@ -1,0 +1,37 @@
+{
+  "slug": "groundpig",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 3.850932,
+      "bspAverageOdds": 3.49658,
+      "profit": -48.785,
+      "bspProfit": -46.31938,
+      "levelStakeProfit": -44.085,
+      "levelStakeBspProfit": -41.673975,
+      "staked": 170,
+      "bspStaked": 155.5,
+      "tips": 170,
+      "bspTips": 167,
+      "tipBets": 193,
+      "bspTipBets": 167,
+      "win": 39,
+      "winHalf": 0,
+      "bspWin": 39,
+      "lose": 126,
+      "bspLose": 123,
+      "loseHalf": 0,
+      "place": 5,
+      "bspPlace": 5,
+      "void": 0,
+      "winPercentage": 23,
+      "bspWinPercentage": 23,
+      "roi": -28.7,
+      "bspROI": -29.79,
+      "levelStakeROI": -22.84,
+      "levelStakeBspROI": -24.95
+    }
+  ]
+}

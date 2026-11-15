@@ -1,0 +1,37 @@
+{
+  "slug": "betting-master20",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 1,
+      "averageOdds": 1.907527,
+      "bspAverageOdds": 0,
+      "profit": 11.5095,
+      "bspProfit": 0,
+      "levelStakeProfit": 11.5095,
+      "levelStakeBspProfit": 0,
+      "staked": 364,
+      "bspStaked": 0,
+      "tips": 364,
+      "bspTips": 0,
+      "tipBets": 364,
+      "bspTipBets": 0,
+      "win": 143,
+      "winHalf": 68,
+      "bspWin": 0,
+      "lose": 146,
+      "bspLose": 0,
+      "loseHalf": 7,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 0,
+      "winPercentage": 39,
+      "bspWinPercentage": 0,
+      "roi": 3.16,
+      "bspROI": 0,
+      "levelStakeROI": 3.16,
+      "levelStakeBspROI": 0
+    }
+  ]
+}

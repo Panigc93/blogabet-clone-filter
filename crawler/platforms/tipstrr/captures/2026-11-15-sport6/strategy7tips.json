@@ -1,0 +1,37 @@
+{
+  "slug": "strategy7tips",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 4.479069,
+      "bspAverageOdds": 4.422383,
+      "profit": 5.9425,
+      "bspProfit": -0.01222,
+      "levelStakeProfit": 1.41,
+      "levelStakeBspProfit": -17.806045,
+      "staked": 244.4,
+      "bspStaked": 242.3,
+      "tips": 343,
+      "bspTips": 339,
+      "tipBets": 344,
+      "bspTipBets": 339,
+      "win": 91,
+      "winHalf": 0,
+      "bspWin": 89,
+      "lose": 252,
+      "bspLose": 250,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 0,
+      "winPercentage": 27,
+      "bspWinPercentage": 26,
+      "roi": 2.43,
+      "bspROI": -0.01,
+      "levelStakeROI": 0.41,
+      "levelStakeBspROI": -5.25
+    }
+  ]
+}

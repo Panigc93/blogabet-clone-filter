@@ -1,0 +1,37 @@
+{
+  "slug": "ravi-predictz",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 1,
+      "averageOdds": 1.830223,
+      "bspAverageOdds": 0,
+      "profit": -3.7145,
+      "bspProfit": 0,
+      "levelStakeProfit": -3.3275,
+      "levelStakeBspProfit": 0,
+      "staked": 129.5,
+      "bspStaked": 0,
+      "tips": 134,
+      "bspTips": 0,
+      "tipBets": 134,
+      "bspTipBets": 0,
+      "win": 61,
+      "winHalf": 4,
+      "bspWin": 0,
+      "lose": 49,
+      "bspLose": 0,
+      "loseHalf": 12,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 8,
+      "winPercentage": 48,
+      "bspWinPercentage": 0,
+      "roi": -2.87,
+      "bspROI": 0,
+      "levelStakeROI": -2.48,
+      "levelStakeBspROI": 0
+    }
+  ]
+}

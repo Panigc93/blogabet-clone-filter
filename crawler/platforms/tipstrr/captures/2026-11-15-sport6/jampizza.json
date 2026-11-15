@@ -1,0 +1,37 @@
+{
+  "slug": "jampizza",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 9.514275,
+      "bspAverageOdds": 7.53049,
+      "profit": -36.505,
+      "bspProfit": -25.49183,
+      "levelStakeProfit": -61.2,
+      "levelStakeBspProfit": -39.56324,
+      "staked": 486.5,
+      "bspStaked": 254,
+      "tips": 491,
+      "bspTips": 483,
+      "tipBets": 938,
+      "bspTipBets": 483,
+      "win": 36,
+      "winHalf": 0,
+      "bspWin": 36,
+      "lose": 334,
+      "bspLose": 329,
+      "loseHalf": 0,
+      "place": 121,
+      "bspPlace": 118,
+      "void": 0,
+      "winPercentage": 7,
+      "bspWinPercentage": 7,
+      "roi": -7.5,
+      "bspROI": -10.04,
+      "levelStakeROI": -6.52,
+      "levelStakeBspROI": -8.19
+    }
+  ]
+}

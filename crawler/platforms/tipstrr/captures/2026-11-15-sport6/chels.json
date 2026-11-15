@@ -1,0 +1,37 @@
+{
+  "slug": "chels",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 1,
+      "averageOdds": 1.993022,
+      "bspAverageOdds": 0,
+      "profit": 5.6307,
+      "bspProfit": 0,
+      "levelStakeProfit": 2.6765,
+      "levelStakeBspProfit": 0,
+      "staked": 635,
+      "bspStaked": 0,
+      "tips": 751,
+      "bspTips": 0,
+      "tipBets": 751,
+      "bspTipBets": 0,
+      "win": 314,
+      "winHalf": 44,
+      "bspWin": 0,
+      "lose": 307,
+      "bspLose": 0,
+      "loseHalf": 39,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 47,
+      "winPercentage": 45,
+      "bspWinPercentage": 0,
+      "roi": 0.89,
+      "bspROI": 0,
+      "levelStakeROI": 0.36,
+      "levelStakeBspROI": 0
+    }
+  ]
+}

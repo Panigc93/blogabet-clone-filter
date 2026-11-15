@@ -1,0 +1,37 @@
+{
+  "slug": "the-second-serve",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 16,
+      "averageOdds": 1.859867,
+      "bspAverageOdds": 0,
+      "profit": 3.8785,
+      "bspProfit": 0,
+      "levelStakeProfit": 19.474,
+      "levelStakeBspProfit": 0,
+      "staked": 32.7,
+      "bspStaked": 0,
+      "tips": 226,
+      "bspTips": 0,
+      "tipBets": 226,
+      "bspTipBets": 0,
+      "win": 132,
+      "winHalf": 0,
+      "bspWin": 0,
+      "lose": 91,
+      "bspLose": 0,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 3,
+      "winPercentage": 59,
+      "bspWinPercentage": 0,
+      "roi": 11.86,
+      "bspROI": 0,
+      "levelStakeROI": 8.62,
+      "levelStakeBspROI": 0
+    }
+  ]
+}

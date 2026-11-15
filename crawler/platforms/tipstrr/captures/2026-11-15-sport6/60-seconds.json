@@ -1,0 +1,37 @@
+{
+  "slug": "60-seconds",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 5.909379,
+      "bspAverageOdds": 5.816746,
+      "profit": 87.7507,
+      "bspProfit": -33.85599,
+      "levelStakeProfit": 154.393,
+      "levelStakeBspProfit": -65.40965,
+      "staked": 549.3,
+      "bspStaked": 540.5,
+      "tips": 1079,
+      "bspTips": 1061,
+      "tipBets": 1079,
+      "bspTipBets": 1061,
+      "win": 267,
+      "winHalf": 0,
+      "bspWin": 261,
+      "lose": 812,
+      "bspLose": 800,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 0,
+      "winPercentage": 25,
+      "bspWinPercentage": 25,
+      "roi": 15.98,
+      "bspROI": -6.26,
+      "levelStakeROI": 14.31,
+      "levelStakeBspROI": -6.16
+    }
+  ]
+}

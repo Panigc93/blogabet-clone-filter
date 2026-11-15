@@ -1,0 +1,37 @@
+{
+  "slug": "eclipse-bloodlines",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 4.047462,
+      "bspAverageOdds": 4.047462,
+      "profit": 7.7817,
+      "bspProfit": 20.297425,
+      "levelStakeProfit": 7.7817,
+      "levelStakeBspProfit": 20.297425,
+      "staked": 134,
+      "bspStaked": 134,
+      "tips": 134,
+      "bspTips": 134,
+      "tipBets": 134,
+      "bspTipBets": 134,
+      "win": 33,
+      "winHalf": 0,
+      "bspWin": 33,
+      "lose": 101,
+      "bspLose": 101,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 0,
+      "winPercentage": 25,
+      "bspWinPercentage": 25,
+      "roi": 5.81,
+      "bspROI": 15.15,
+      "levelStakeROI": 5.81,
+      "levelStakeBspROI": 15.15
+    }
+  ]
+}

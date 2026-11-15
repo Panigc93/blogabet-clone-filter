@@ -1,0 +1,37 @@
+{
+  "slug": "sharpslayer",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 1,
+      "averageOdds": 1.878392,
+      "bspAverageOdds": 0,
+      "profit": 9.0688,
+      "bspProfit": 0,
+      "levelStakeProfit": 15.329,
+      "levelStakeBspProfit": 0,
+      "staked": 69.2,
+      "bspStaked": 0,
+      "tips": 112,
+      "bspTips": 0,
+      "tipBets": 112,
+      "bspTipBets": 0,
+      "win": 67,
+      "winHalf": 0,
+      "bspWin": 0,
+      "lose": 43,
+      "bspLose": 0,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 2,
+      "winPercentage": 61,
+      "bspWinPercentage": 0,
+      "roi": 13.11,
+      "bspROI": 0,
+      "levelStakeROI": 13.69,
+      "levelStakeBspROI": 0
+    }
+  ]
+}
