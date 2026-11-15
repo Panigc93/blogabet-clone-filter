@@ -224,10 +224,26 @@ const MONTHS: Record<string, number> = {
   jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
 }
 
+// Accepts en labels ('-£1,217.01') and the es-style labels the site shows
+// with an EUR account ('3.624 €', '-412,05 €', '127,50 €'): the rightmost
+// of '.'/',' is the decimal separator; a lone separator followed by
+// exactly 3-digit groups is thousands, otherwise decimal.
 export function parseMoneyLabel(label: string): number | null {
-  const m = label.trim().match(/^([+-]?)[£$€]?([\d,]+(?:\.\d+)?)$/)
+  const m = label.trim().match(/^([+-]?)[£$€]?\s*([\d.,]+)\s*[£$€]?$/)
   if (!m) return null
-  const v = parseFloat(m[2].replace(/,/g, ''))
+  const num = m[2]
+  const lastDot = num.lastIndexOf('.')
+  const lastComma = num.lastIndexOf(',')
+  let normalized: string
+  if (lastDot > -1 && lastComma > -1) {
+    normalized = lastDot > lastComma ? num.replace(/,/g, '') : num.replace(/\./g, '').replace(',', '.')
+  } else if (lastComma > -1) {
+    normalized = /^\d{1,3}(,\d{3})+$/.test(num) ? num.replace(/,/g, '') : num.replace(',', '.')
+  } else {
+    normalized = /^\d{1,3}(\.\d{3})+$/.test(num) ? num.replace(/\./g, '') : num
+  }
+  const v = parseFloat(normalized)
+  if (!Number.isFinite(v)) return null
   return m[1] === '-' ? -v : v
 }
 

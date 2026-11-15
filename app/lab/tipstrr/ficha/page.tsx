@@ -6,7 +6,10 @@ const fmtYm = (ym: string) => {
   const [y, m] = ym.split('-').map(Number)
   return `${MES_ES[m - 1]} ${y}`
 }
-const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}£${(Math.abs(units) * 10).toFixed(2)}`
+// EUR as the source renders it with the user's account (10 units = 10 €;
+// unit normalization, not FX). See fixtures.ts capture metadata.
+const fmtEs = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}${fmtEs.format(Math.abs(units) * 10)} €`
 
 // Ficha Blogabet-parity prototype fed by a REAL one-off labeled snapshot
 // (see fixtures.ts for capture metadata). Purpose: show exactly which BB
@@ -52,7 +55,7 @@ function Ficha({ s }: { s: FichaSnapshot }) {
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, border: '1px solid #e3e3e3', borderRadius: 4, padding: '12px 8px', background: '#fff' }}>
         <Stat value={s.overview.tips !== null ? String(s.overview.tips) : '—'} label="Picks" />
-        <Stat value={s.overview.profitDisplay ?? '—'} label="Profit (10/10=£10)" color={s.overview.roiPct !== null ? numColor(s.overview.roiPct) : undefined} />
+        <Stat value={s.overview.profitDisplay ?? '—'} label="Profit (10/10=10 €)" color={s.overview.roiPct !== null ? numColor(s.overview.roiPct) : undefined} />
         <Stat value={s.overview.roiPct !== null ? `${s.overview.roiPct}%` : '—'} label="Yield (ROI)*" color={numColor(s.overview.roiPct)} />
         <Stat value={s.overview.winRatePct !== null ? `${s.overview.winRatePct}%` : '—'} label="Acierto" />
         <Stat value={s.overview.avgOdds !== null ? String(s.overview.avgOdds) : '—'} label="Cuota media" />
@@ -125,7 +128,7 @@ function Periodos({ s }: { s: FichaSnapshot }) {
       <div key={label}>{label}: sin meses cerrados en la captura.</div>
     ) : (
       <div key={label}>
-        {label}: {fmtMoney(st.profit)} beneficio / {st.staked}u apostadas ({fmtMoney(st.staked).replace('+', '')} a 10/10=£10) ·{' '}
+        {label}: {fmtMoney(st.profit)} beneficio / {st.staked}u apostadas ({fmtMoney(st.staked).replace('+', '')} a 10/10=10 €) ·{' '}
         {st.from === st.to ? fmtYm(st.from) : `${fmtYm(st.from)} – ${fmtYm(st.to)}`} · {st.months}/{asked} meses
         {st.complete ? '' : ' · VENTANA INCOMPLETA (los meses sin fila en la fuente no cuentan como 0)'}
       </div>

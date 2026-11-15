@@ -53,8 +53,13 @@ const fmtYm = (ym: string) => {
   const [y, m] = ym.split('-').map(Number)
   return `${MES_ES[m - 1]} ${y}`
 }
-const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}£${(Math.abs(units) * 10).toFixed(2)}`
-const fmtMoneyAbs = (units: number) => `£${(Math.abs(units) * 10).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+// EUR display, exactly as the source renders it with the user's account
+// (Betting currency EUR, 10 units = 10 €): unit normalization, NOT an FX
+// conversion — same numbers, € symbol, es-style format (1.234,56 €; always grouped, matching the source's own "3.624 €"). Verified live
+// figure-by-figure against the anonymous £ page on 2026-11-15.
+const fmtEs = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}${fmtEs.format(Math.abs(units) * 10)} €`
+const fmtMoneyAbs = (units: number) => `${fmtEs.format(Math.abs(units) * 10)} €`
 
 export function fromDbTipster(t: Tipster): TipsterCardData {
   const num = (v: string | null): number | null => {

@@ -40,7 +40,7 @@ export interface FichaSnapshot {
     winRatePct: number | null
     avgOdds: number | null
     stakeLabel: string | null
-    profitDisplay: string | null // source display at 10/10=£10
+    profitDisplay: string | null // source display at 10/10=10 € (cuenta del usuario: divisa EUR, stake 10 €; verificado 15-11-2026)
     roiPct: number | null
     roiPeriodLabel: string
   }
@@ -51,8 +51,8 @@ export interface FichaSnapshot {
 }
 
 export const STATMIND_SNAPSHOT: FichaSnapshot = {
-  capturedAt: '2026-11-15 12:48-12:53 UTC',
-  capturedAtDate: '2026-11-15T12:53:00Z',
+  capturedAt: '2026-11-15 13:46-13:50 UTC',
+  capturedAtDate: '2026-11-15T13:50:00Z',
   monthState: [
     { year: 2026, month: 11, tips: 193, staked: 193, profit: -41.205 },
     { year: 2026, month: 10, tips: 98, staked: 98, profit: -17.92 },
@@ -69,13 +69,13 @@ export const STATMIND_SNAPSHOT: FichaSnapshot = {
     winRatePct: 32,
     avgOdds: 2.93,
     stakeLabel: '10/10 (291/291)',
-    profitDisplay: '-£591.25',
+    profitDisplay: '-591,25 €',
     roiPct: -20.32,
     roiPeriodLabel: 'periodo overview: 3 meses; tabla deporte (todo su historial) muestra -20.3% sobre los mismos 291 tips',
   },
   months: [
-    { label: 'Nov 2026', closed: false, tips: 193, winRatePct: 32, profitLabel: '-£412.05', roiPct: -21.4, avgOdds: 3.01 },
-    { label: 'Oct 2026', closed: true, partialSinceSignup: true, tips: 98, winRatePct: 32, profitLabel: '-£179.20', roiPct: -18.3, avgOdds: 2.76 },
+    { label: 'Nov 2026', closed: false, tips: 193, winRatePct: 32, profitLabel: '-412,05 €', roiPct: -21.4, avgOdds: 3.01 },
+    { label: 'Oct 2026', closed: true, partialSinceSignup: true, tips: 98, winRatePct: 32, profitLabel: '-179,20 €', roiPct: -18.3, avgOdds: 2.76 },
   ],
   consistency: [
     { name: 'tabla de stakes: una sola banda (10/10)', passed: true },
@@ -86,28 +86,30 @@ export const STATMIND_SNAPSHOT: FichaSnapshot = {
     { name: 'roi = profit / total apostado cierra (-59.13/291 = -20.32%)', passed: true },
   ],
   yieldEquivalenceNote:
-    'ROI de Tipstrr = profit / total apostado, la fórmula del yield usada en Blogabet. Equivalencia verificada al céntimo EN ESTE REGISTRO (stake plano; advised = level). Voids: no hay en su historial; tratamiento general sin verificar. Esto reconcilia sus agregados; no es una auditoría apuesta a apuesta (detalle individual requiere cuenta).',
+    'ROI de Tipstrr = profit / total apostado, la fórmula del yield usada en Blogabet. Equivalencia verificada al céntimo EN ESTE REGISTRO (stake plano; advised = level). Voids: no hay en su historial; tratamiento general sin verificar. Esto reconcilia sus agregados; no es una auditoría apuesta a apuesta. Divisa: con la cuenta en EUR (stake 10 € = 10 units) la fuente muestra los mismos números en € — normalización de unidad (unidades × tu stake), NO conversión FX; el ROI/yield % no cambia.',
   notAvailable: [
     { field: 'yield 3m / 6m / 12m completo', reason: 'historial insuficiente: solo 1 mes cerrado (oct, parcial desde el alta 25-oct); el bloque de periodos lo muestra marcado como ventana incompleta' },
     { field: 'verifiedPct (BB)', reason: 'no existe en Tipstrr como porcentaje parcial; su claim "verificamos todo" no es una métrica mostrada' },
     { field: 'resetCount (BB)', reason: 'Tipstrr no expone resets de estadísticas' },
-    { field: 'followers', reason: 'no presente en el estado de la página pública' },
+    { field: 'followers', reason: 'no presente en el estado de la página' },
     { field: 'país / bandera', reason: 'no expuesto' },
-    { field: 'desglose free/paid (BB)', reason: 'la marca existe por tip pero el agregado requiere cuenta' },
+    { field: 'desglose free/paid agregado (BB)', reason: 'el agregado no se expone; la marca por apuesta sí es visible con cuenta gratuita (verificado 15-11-2026)' },
     { field: 'primera apuesta (since BB)', reason: 'solo consta alta de cuenta (25-oct-2026), no fecha de primera apuesta' },
-    { field: 'profit/odds por apuesta', reason: 'bloqueado tras registro de cuenta Tipstrr' },
   ],
 }
 
 // REAL one-off snapshot of The Least Expected's public Tipstrr stats,
-// captured 2026-11-15 ~13:00-13:01 UTC from
-// https://tipstrr.com/tipster/the-least-expected/stats (anonymous read).
+// captured 2026-11-15 ~13:46-13:49 UTC from
+// https://tipstrr.com/tipster/the-least-expected/stats (authenticated read
+// with the user's account, currency EUR: same numbers as anonymous GBP,
+// unit normalization 10 units = 10 €, NOT an FX conversion; verified
+// figure-by-figure against the anonymous £ page on 2026-11-15).
 // Breakdown tables on that page follow its "Show stats for" period
 // selector: in this capture they cover 282 recent tips while the monthly
 // table covers all-time (1974). Dated capture, not a sync.
 export const TLE_SNAPSHOT: FichaSnapshot = {
-  capturedAt: '2026-11-15 13:00-13:01 UTC',
-  capturedAtDate: '2026-11-15T13:01:00Z',
+  capturedAt: '2026-11-15 13:46-13:49 UTC',
+  capturedAtDate: '2026-11-15T13:49:00Z',
   // Exact monthly figures from the page's own STATS_MONTH (units; staked
   // equals tips in all 21 months: flat 1u staking, verified against the
   // capture).
@@ -139,39 +141,39 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
   platformLabel: 'Professional football tipster · Join from £39/mes (literal de la página)',
   signupDate: '2025-03-11',
   avatarUrl: 'https://cdn.tipstrr.com/central/portfolio/image/the-least-expected-xdlQ21p0.jpg',
-  activeTipsNow: 2,
+  activeTipsNow: 1,
   lastResultVisibleLabel: null,
   overview: {
     tips: 1974,
     winRatePct: 35.76,
     avgOdds: 3.34,
     stakeLabel: '10/10 · plano 1u (21/21 meses)',
-    profitDisplay: '+£3,618.15',
+    profitDisplay: '+3.618,15 €',
     roiPct: 18.33,
     roiPeriodLabel: 'overview all-time: 1974 tips; advised = level = 18.33%',
   },
   months: [
-    { label: 'Nov 2026', closed: false, tips: 37, winRatePct: 41, profitLabel: '+£138.00', roiPct: 37.3, avgOdds: 3.31 },
-    { label: 'Oct 2026', closed: true, tips: 78, winRatePct: 41, profitLabel: '+£272.50', roiPct: 34.9, avgOdds: 3.41 },
-    { label: 'Sep 2026', closed: true, tips: 106, winRatePct: 34, profitLabel: '+£191.00', roiPct: 18.0, avgOdds: 3.48 },
-    { label: 'Ago 2026', closed: true, tips: 136, winRatePct: 38, profitLabel: '+£352.50', roiPct: 25.9, avgOdds: 3.33 },
-    { label: 'Jul 2026', closed: true, tips: 121, winRatePct: 31, profitLabel: '+£49.00', roiPct: 4.1, avgOdds: 3.46 },
-    { label: 'Jun 2026', closed: true, tips: 146, winRatePct: 38, profitLabel: '+£404.50', roiPct: 27.7, avgOdds: 3.36 },
-    { label: 'May 2026', closed: true, tips: 116, winRatePct: 36, profitLabel: '+£204.50', roiPct: 17.6, avgOdds: 3.29 },
-    { label: 'Abr 2026', closed: true, tips: 77, winRatePct: 34, profitLabel: '+£63.75', roiPct: 8.3, avgOdds: 3.23 },
-    { label: 'Mar 2026', closed: true, tips: 62, winRatePct: 40, profitLabel: '+£202.00', roiPct: 32.6, avgOdds: 3.30 },
-    { label: 'Feb 2026', closed: true, tips: 47, winRatePct: 38, profitLabel: '+£127.50', roiPct: 27.1, avgOdds: 3.26 },
-    { label: 'Ene 2026', closed: true, tips: 63, winRatePct: 33, profitLabel: '+£39.00', roiPct: 6.2, avgOdds: 3.20 },
-    { label: 'Dic 2025', closed: true, tips: 48, winRatePct: 38, profitLabel: '+£84.00', roiPct: 17.5, avgOdds: 3.20 },
-    { label: 'Nov 2025', closed: true, tips: 74, winRatePct: 46, profitLabel: '+£335.50', roiPct: 45.3, avgOdds: 3.25 },
-    { label: 'Oct 2025', closed: true, tips: 118, winRatePct: 29, profitLabel: '-£48.00', roiPct: -4.1, avgOdds: 3.27 },
-    { label: 'Sep 2025', closed: true, tips: 130, winRatePct: 33, profitLabel: '+£184.50', roiPct: 14.2, avgOdds: 3.43 },
-    { label: 'Ago 2025', closed: true, tips: 136, winRatePct: 37, profitLabel: '+£312.50', roiPct: 23.0, avgOdds: 3.36 },
-    { label: 'Jul 2025', closed: true, tips: 107, winRatePct: 37, profitLabel: '+£261.80', roiPct: 24.5, avgOdds: 3.38 },
-    { label: 'Jun 2025', closed: true, tips: 135, winRatePct: 39, profitLabel: '+£385.80', roiPct: 28.6, avgOdds: 3.45 },
-    { label: 'May 2025', closed: true, tips: 112, winRatePct: 31, profitLabel: '+£42.80', roiPct: 3.8, avgOdds: 3.32 },
-    { label: 'Abr 2025', closed: true, tips: 86, winRatePct: 29, profitLabel: '-£60.50', roiPct: -7.0, avgOdds: 3.23 },
-    { label: 'Mar 2025', closed: true, partialSinceSignup: true, tips: 39, winRatePct: 36, profitLabel: '+£75.50', roiPct: 19.4, avgOdds: 3.29 },
+    { label: 'Nov 2026', closed: false, tips: 37, winRatePct: 41, profitLabel: '+138,00 €', roiPct: 37.3, avgOdds: 3.31 },
+    { label: 'Oct 2026', closed: true, tips: 78, winRatePct: 41, profitLabel: '+272,50 €', roiPct: 34.9, avgOdds: 3.41 },
+    { label: 'Sep 2026', closed: true, tips: 106, winRatePct: 34, profitLabel: '+191,00 €', roiPct: 18.0, avgOdds: 3.48 },
+    { label: 'Ago 2026', closed: true, tips: 136, winRatePct: 38, profitLabel: '+352,50 €', roiPct: 25.9, avgOdds: 3.33 },
+    { label: 'Jul 2026', closed: true, tips: 121, winRatePct: 31, profitLabel: '+49,00 €', roiPct: 4.1, avgOdds: 3.46 },
+    { label: 'Jun 2026', closed: true, tips: 146, winRatePct: 38, profitLabel: '+404,50 €', roiPct: 27.7, avgOdds: 3.36 },
+    { label: 'May 2026', closed: true, tips: 116, winRatePct: 36, profitLabel: '+204,50 €', roiPct: 17.6, avgOdds: 3.29 },
+    { label: 'Abr 2026', closed: true, tips: 77, winRatePct: 34, profitLabel: '+63,75 €', roiPct: 8.3, avgOdds: 3.23 },
+    { label: 'Mar 2026', closed: true, tips: 62, winRatePct: 40, profitLabel: '+202,00 €', roiPct: 32.6, avgOdds: 3.30 },
+    { label: 'Feb 2026', closed: true, tips: 47, winRatePct: 38, profitLabel: '+127,50 €', roiPct: 27.1, avgOdds: 3.26 },
+    { label: 'Ene 2026', closed: true, tips: 63, winRatePct: 33, profitLabel: '+39,00 €', roiPct: 6.2, avgOdds: 3.20 },
+    { label: 'Dic 2025', closed: true, tips: 48, winRatePct: 38, profitLabel: '+84,00 €', roiPct: 17.5, avgOdds: 3.20 },
+    { label: 'Nov 2025', closed: true, tips: 74, winRatePct: 46, profitLabel: '+335,50 €', roiPct: 45.3, avgOdds: 3.25 },
+    { label: 'Oct 2025', closed: true, tips: 118, winRatePct: 29, profitLabel: '-48,00 €', roiPct: -4.1, avgOdds: 3.27 },
+    { label: 'Sep 2025', closed: true, tips: 130, winRatePct: 33, profitLabel: '+184,50 €', roiPct: 14.2, avgOdds: 3.43 },
+    { label: 'Ago 2025', closed: true, tips: 136, winRatePct: 37, profitLabel: '+312,50 €', roiPct: 23.0, avgOdds: 3.36 },
+    { label: 'Jul 2025', closed: true, tips: 107, winRatePct: 37, profitLabel: '+261,80 €', roiPct: 24.5, avgOdds: 3.38 },
+    { label: 'Jun 2025', closed: true, tips: 135, winRatePct: 39, profitLabel: '+385,80 €', roiPct: 28.6, avgOdds: 3.45 },
+    { label: 'May 2025', closed: true, tips: 112, winRatePct: 31, profitLabel: '+42,80 €', roiPct: 3.8, avgOdds: 3.32 },
+    { label: 'Abr 2025', closed: true, tips: 86, winRatePct: 29, profitLabel: '-60,50 €', roiPct: -7.0, avgOdds: 3.23 },
+    { label: 'Mar 2025', closed: true, partialSinceSignup: true, tips: 39, winRatePct: 36, profitLabel: '+75,50 €', roiPct: 19.4, avgOdds: 3.29 },
   ],
   consistency: [
     { name: 'tabla de stakes: una sola banda (10/10)', passed: true },
@@ -180,16 +182,16 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
     { name: 'profit advised = level stake (361.82)', passed: true },
     { name: 'ROI advised = ROI level stake (18.33)', passed: true },
     { name: 'roi = profit / total apostado cierra (361.82/1974 = 18.33%)', passed: true },
-    { name: 'suma mensual = overview (1974 tips, £3,618.15)', passed: true },
+    { name: 'suma mensual = overview (1974 tips, 3.618,15 €)', passed: true },
   ],
   yieldEquivalenceNote:
-    'ROI de Tipstrr = profit / total apostado, la fórmula del yield usada en Blogabet. Equivalencia verificada all-time en este registro: la fuente publica apostado exacto por mes y es = tips en los 21 meses (stake plano 1u, Σ = 1974 = overview), advised = level, y profit/ROI cierran al céntimo. No se deriva nada de porcentajes redondeados.',
+    'ROI de Tipstrr = profit / total apostado, la fórmula del yield usada en Blogabet. Equivalencia verificada all-time en este registro: la fuente publica apostado exacto por mes y es = tips en los 21 meses (stake plano 1u, Σ = 1974 = overview), advised = level, y profit/ROI cierran al céntimo. No se deriva nada de porcentajes redondeados. Divisa: con la cuenta en EUR (stake 10 € = 10 units) la fuente muestra los mismos números en € — normalización de unidad, NO conversión FX; el ROI/yield % no cambia. La suscripción se cobra aparte y sigue en £ (Join from £39).',
   notAvailable: [
     { field: 'verifiedPct (BB)', reason: 'no existe en Tipstrr como porcentaje parcial' },
     { field: 'resetCount (BB)', reason: 'Tipstrr no expone resets de estadísticas' },
-    { field: 'followers', reason: 'no presente en el estado de la página pública' },
+    { field: 'followers', reason: 'no presente en el estado de la página' },
     { field: 'país / bandera', reason: 'no expuesto' },
-    { field: 'desglose free/paid (BB)', reason: 'la marca existe por tip pero el agregado requiere cuenta' },
-    { field: 'profit/odds por apuesta', reason: 'bloqueado tras registro de cuenta Tipstrr' },
+    { field: 'desglose free/paid agregado (BB)', reason: 'el agregado no se expone; la marca por apuesta sí es visible con cuenta gratuita (verificado 15-11-2026)' },
+    { field: 'línea insight de profit total', reason: 'la frase "total cumulative profit" de la página muestra 3.624 €, 5,85 € por encima de la suma mensual exacta (3.618,15 €) y del overview (361,82u): discrepancia interna de la fuente; usamos la serie mensual, que es la comprobable' },
   ],
 }

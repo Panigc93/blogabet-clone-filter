@@ -20,7 +20,7 @@ describe('lab ficha concordance (TLE real capture)', () => {
       const st = s.monthState.find((r) => r.year === Number(anio) && r.month === MES[mes])
       expect(st, `monthState row for ${m.label}`).toBeDefined()
       expect(st!.tips).toBe(m.tips)
-      // display profit is in £ at 10/10=£10; monthState profit is in units
+      // display profit is in € at 10/10=10 € (unit normalization); monthState profit is in units
       expect(st!.profit * 10).toBeCloseTo(parseMoneyLabel(m.profitLabel)!, 1)
     }
   })

@@ -259,6 +259,15 @@ describe('BB-parity extraction (fabricated fixtures)', () => {
     expect(parseMoneyLabel('n/a')).toBeNull()
   })
 
+  it('parseMoneyLabel handles the es-style EUR labels shown with an EUR account', () => {
+    expect(parseMoneyLabel('3.624 €')).toBe(3624)
+    expect(parseMoneyLabel('-412,05 €')).toBe(-412.05)
+    expect(parseMoneyLabel('127,50 €')).toBe(127.5)
+    expect(parseMoneyLabel('+3.618,15 €')).toBe(3618.15)
+    expect(parseMoneyLabel('980,00 €')).toBe(980)
+    expect(parseMoneyLabel('39 €')).toBe(39)
+  })
+
   it('computeExactPeriodStats sums exact staked/profit over closed months only', () => {
     const rows = parseMonthlyState(pageWith(MONTHS_STATE, ''))
     expect(rows).toHaveLength(4)
