@@ -40,7 +40,7 @@ export interface FichaSnapshot {
     winRatePct: number | null
     avgOdds: number | null
     stakeLabel: string | null
-    profitDisplay: string | null // source display at 10/10=10 € (cuenta del usuario: divisa EUR, stake 10 €; verificado 15-11-2026)
+    profitDisplay: string | null // source display at 10/10=10 € (cuenta con divisa EUR y stake 10 €; verificado 15-11-2026)
     roiPct: number | null
     roiPeriodLabel: string
   }

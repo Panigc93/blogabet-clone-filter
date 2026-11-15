@@ -1,8 +1,8 @@
 {
  "_meta": {
-  "source": "GET https://tipstrr.com/api/portfolio/the-least-expected/tips/completed?skip=N (ruta pública que usa la propia UI), sesión cuenta gratuita del usuario",
+  "source": "GET https://tipstrr.com/api/portfolio/the-least-expected/tips/completed?skip=N (ruta pública que usa la propia UI), sesión de cuenta gratuita (sin credenciales en este repo)",
   "executed": "2026-11-15T13:57-14:02Z",
-  "authorization": "usuario, WhatsApp 15-11-2026 14:56 CET: hasta 20 páginas, 1 consulta/15 s, una pasada, stop ante bloqueo",
+  "authorization": "autorización puntual del propietario, 15-11-2026 ~14:56 CET: techo 20 consultas, 1/15 s, una pasada, stop ante bloqueo",
   "queries": "19 (skip=10..190) + 1 control StatMind (skip=0). skip=0 de TLE reutilizado de capturas previas del mismo día.",
   "blocks": "ninguno (200 en las 20)",
   "coverage": {
@@ -11,7 +11,8 @@
    "2026-09": "parcial: 83 de 106 (desde 06-09); 01-06 sep no cubierto"
   },
   "dateField": "descendente por `date`; sin confirmar si es publicación, evento o liquidación (las horas parecen de evento)",
-  "freeFlag": "NO VALIDADO como distinción gratis/pago en historial liquidado. Control negativo: StatMind (etiqueta 'Free football tipster' en su página) da 10/10 free:false; los 200 tips comprobados de TLE también free:false. Hipótesis (NO conclusión): el flag marca visibilidad gratuita del pick activo (uso en su código: free || !hidden) y no se conserva tras liquidación. No hay evidencia de otras rutas. Consecuencia: el conteo mensual de picks free NO ES EVALUABLE con estos datos; ausencia de free:true ≠ 0 picks free."
+  "freeFlag": "NO VALIDADO como distinción gratis/pago en historial liquidado. Control negativo: StatMind (etiqueta 'Free football tipster' en su página) da 10/10 free:false; los 200 tips comprobados de TLE también free:false. Hipótesis (NO conclusión): el flag marca visibilidad gratuita del pick activo (uso en su código: free || !hidden) y no se conserva tras liquidación. No hay evidencia de otras rutas. Consecuencia: el conteo mensual de picks free NO ES EVALUABLE con estos datos; ausencia de free:true ≠ 0 picks free.",
+  "reconciliation": "200 tips verificados en total: 190 preservados aquí + 10 de skip=0 (08-15 nov, 10/10 free:false, idénticos a la primera página embebida de la propia UI a las 13:54Z) que no se conservaron como registros estructurados, solo como resumen en la conversación; recuperarlos requeriría una nueva visita"
  },
  "control_statmind_skip0": {
   "tipster": "statmind",
