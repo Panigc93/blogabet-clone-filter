@@ -202,8 +202,9 @@ describe('puerta estricta: cierre all-time independiente o cuarentena', () => {
   })
 
   it('huecos de meses sin actividad NO excluyen cuando el cierre all-time es independiente', () => {
-    // Criterio del auditor (2026-11-15): 20 de 43 cierres period=6 tienen
-    // huecos mensuales; el cierre independiente confirma el total igualmente.
+    // Verificado sobre las capturas: 20 de 43 perfiles con cierre period=6
+    // tienen huecos mensuales; el cierre independiente confirma el total
+    // igualmente, así que el hueco no es motivo de exclusión.
     const ok = mk({})
     const r = mustMap(tipstrrSnapshotToInsert(
       mk({
@@ -215,6 +216,64 @@ describe('puerta estricta: cierre all-time independiente o cuarentena', () => {
     ))
     expect(r.picks).toBe(200)
     expect(r.yield).toBe('2.50')
+  })
+
+  it('ventana rodante con tips == suma pero periodStartDate posterior al alta: cuarentena[ventana-posterior-alta]', () => {
+    // Regla exacta, sin tolerancia: la ventana debe empezar en o antes de la
+    // fecha de alta. Caso real: ventana 2026-05-08 con alta 2025-06-06 — la
+    // igualdad tips == suma no confirma el histórico.
+    const ok = mk({})
+    const r = tipstrrSnapshotToInsert(
+      mk({
+        overviewPeriod: 4,
+        signupDate: '2025-06-06',
+        overview: { ...ok.overview, tips: 200, roiPct: 2.5, profitUnits: 5, periodStartDate: '2026-05-08T00:00:00Z' },
+      }),
+      OPTS
+    )
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toContain('ventana-posterior-alta')
+  })
+
+  it('un día de desfase basta: ventana que empieza el día después del alta también cuarentena', () => {
+    // Caso real: ventana 2026-08-15 con alta 2026-08-14.
+    const ok = mk({})
+    const r = tipstrrSnapshotToInsert(
+      mk({
+        overviewPeriod: 3,
+        signupDate: '2026-08-14',
+        overview: { ...ok.overview, tips: 200, roiPct: 2.5, profitUnits: 5, periodStartDate: '2026-08-15T00:00:00Z' },
+      }),
+      OPTS
+    )
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toContain('ventana-posterior-alta')
+  })
+
+  it('ventana rodante con periodStartDate == fecha de alta (exacto) y cierres: persiste', () => {
+    const ok = mk({})
+    const r = mustMap(tipstrrSnapshotToInsert(
+      mk({
+        overviewPeriod: 4,
+        overview: { ...ok.overview, tips: 200, roiPct: 2.5, profitUnits: 5, periodStartDate: '2026-09-10T00:00:00Z' },
+      }),
+      OPTS
+    ))
+    expect(r.picks).toBe(200)
+    expect(r.yield).toBe('2.50')
+  })
+
+  it('ventana rodante con tips == suma pero periodStartDate ausente: cuarentena[ventana-posterior-alta]', () => {
+    const ok = mk({})
+    const r = tipstrrSnapshotToInsert(
+      mk({
+        overviewPeriod: 4,
+        overview: { ...ok.overview, tips: 200, roiPct: 2.5, profitUnits: 5 },
+      }),
+      OPTS
+    )
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toContain('ventana-posterior-alta')
   })
 })
 

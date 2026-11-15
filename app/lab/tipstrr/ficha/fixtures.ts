@@ -47,6 +47,10 @@ export interface FichaSnapshot {
     profitUnits?: number | null
     roiPct: number | null
     roiPeriodLabel: string
+    // Inicio de la ventana del overview tal cual lo emite el estado
+    // (overview.periodStartDate, ISO). La puerta lo exige <= fecha de alta
+    // exacta para aceptar una ventana rodante como all-time por igualdad.
+    periodStartDate?: string | null
   }
   months: FichaMonth[]
   consistency: { name: string; passed: boolean }[]
@@ -81,6 +85,7 @@ export const STATMIND_SNAPSHOT: FichaSnapshot = {
     profitDisplay: '-591,25 €',
     profitUnits: -59.13,
     roiPct: -20.32,
+    periodStartDate: '2026-08-09T00:00:00Z', // estado real: inicio de ventana anterior al alta (2026-10-25)
     roiPeriodLabel: 'periodo overview: 3 meses; tabla deporte (todo su historial) muestra -20.3% sobre los mismos 291 tips',
   },
   months: [
@@ -162,6 +167,7 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
     profitDisplay: '+3.618,15 €',
     profitUnits: 361.82,
     roiPct: 18.33,
+    periodStartDate: '2025-03-11T00:00:00Z',
     roiPeriodLabel: 'overview all-time: 1974 tips; advised = level = 18.33%',
   },
   months: [

@@ -42,7 +42,7 @@ export function tipstrrSnapshotToInsert(
   s: FichaSnapshot,
   opts: TipstrrDbMappingOptions
 ): TipstrrDbMapping {
-  // PUERTA ESTRICTA (2026-11-15, revisión independiente): el histórico
+  // PUERTA ESTRICTA (2026-11-15): el histórico
   // solo se persiste con CIERRE ALL-TIME INDEPENDIENTE verificable y base
   // aconsejada confirmada. Lo que dependa de completitud INFERIDA de la
   // serie va a CUARENTENA (no se persiste; captura y motivo conservados).
@@ -53,8 +53,12 @@ export function tipstrrSnapshotToInsert(
   //     numéricos contra la serie: tips == Σtips, roi aconsejado ==
   //     Σprofit/Σstaked (±0.05) y profit aconsejado == Σprofit (±0.01).
   //     Los huecos de meses sin actividad NO excluyen: el total queda
-  //     confirmado por el cierre independiente (criterio del auditor:
-  //     20 de 43 cierres period=6 tienen huecos y cierran). Entonces
+  //     confirmado por el cierre independiente (verificado sobre las
+  //     capturas: 20 de 43 cierres period=6 tienen huecos y cierran).
+  //     Una ventana rodante solo vale como all-time por igualdad si
+  //     periodStartDate <= fecha de alta EXACTA (sin tolerancia): si la
+  //     ventana empieza después del alta, la igualdad tips == suma no
+  //     confirma el total histórico. Entonces
   //     picks = overview.tips (== suma, verificado) y yield = roi del
   //     overview, base ACONSEJADA — evidencia 15-11-2026: Σprofit/Σstaked
   //     cierra contra overview.roi en 41 perfiles y contra levelStakeROI
@@ -69,11 +73,23 @@ export function tipstrrSnapshotToInsert(
   //       suma de una serie de completitud inferida (0 filas tips=0 no
   //       prueba omisión de meses inactivos; 67 perfiles/862 meses
   //       ausentes; joydi/nieder/trust-me discrepan incluso en period=6).
+  //     - 'ventana-posterior-alta': ventana rodante con tips == suma pero
+  //       periodStartDate posterior al alta (o ausente): la igualdad no es
+  //       cierre independiente del histórico.
   const sumTips = s.monthState.reduce((acc, m) => acc + m.tips, 0)
   const sumStaked = s.monthState.reduce((acc, m) => acc + m.staked, 0)
   const sumProfit = s.monthState.reduce((acc, m) => acc + m.profit, 0)
-  const overviewAllTime =
-    s.overviewPeriod === 6 || (s.overview.tips !== null && s.overview.tips === sumTips)
+  const equalityWindow =
+    s.overviewPeriod !== 6 && s.overview.tips !== null && s.overview.tips === sumTips
+  // Ventana rodante aceptada como all-time solo si su inicio es <= la fecha
+  // de alta exacta. periodStartDate ausente o posterior al alta => la
+  // igualdad tips == suma no es un cierre independiente del histórico.
+  const windowCoversSinceSignup =
+    equalityWindow &&
+    typeof s.overview.periodStartDate === 'string' &&
+    s.signupDate !== '' &&
+    s.overview.periodStartDate.slice(0, 10) <= s.signupDate
+  const overviewAllTime = s.overviewPeriod === 6 || windowCoversSinceSignup
   const tipsClose = s.overview.tips !== null && s.overview.tips === sumTips
   const roiCloses =
     sumStaked > 0 &&
@@ -105,6 +121,12 @@ export function tipstrrSnapshotToInsert(
       ok: false,
       reason:
         'cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados',
+    }
+  } else if (equalityWindow) {
+    return {
+      ok: false,
+      reason:
+        'cuarentena[ventana-posterior-alta]: la ventana del overview empieza después de la fecha de alta (periodStartDate > alta o ausente): la igualdad tips == suma no confirma el total histórico: registro NO persistido, captura y motivo conservados',
     }
   } else {
     return {

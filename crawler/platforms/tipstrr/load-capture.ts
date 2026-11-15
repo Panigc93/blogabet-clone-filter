@@ -230,6 +230,7 @@ export function loadTipstrrCapture(
       profitDisplay: monthRows.length > 0 ? formatMoney(sumProfit) : null,
       profitUnits: overviewProfit,
       roiPct: overviewRoi,
+      periodStartDate: str(overview.periodStartDate),
       roiPeriodLabel: opts.editorial.roiPeriodLabel,
     },
     months,
