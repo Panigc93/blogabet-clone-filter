@@ -113,6 +113,10 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
             title={t.yieldTitle ?? undefined}
           />
           <StatCell
+            // DEUDA (Blogabet, preexistente): un verifiedPct ausente se
+            // muestra como '0%', que confunde ausencia con 0 real. No se
+            // cambia ahora para no alterar la tabla BB en esta rama; las
+            // filas Tipstrr sí distinguen ausencia ('—').
             value={t.verifiedPct !== null ? `${Math.round(t.verifiedPct)}%` : t.platform === 'blogabet' ? '0%' : '—'}
             label="Verified"
             colorClass={numColorClass(t.verifiedPct)}

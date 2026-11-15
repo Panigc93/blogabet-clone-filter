@@ -54,6 +54,7 @@ const fmtYm = (ym: string) => {
   return `${MES_ES[m - 1]} ${y}`
 }
 const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}£${(Math.abs(units) * 10).toFixed(2)}`
+const fmtMoneyAbs = (units: number) => `£${(Math.abs(units) * 10).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 export function fromDbTipster(t: Tipster): TipsterCardData {
   const num = (v: string | null): number | null => {
@@ -108,12 +109,16 @@ export function fromDbTipster(t: Tipster): TipsterCardData {
 
 export function fromTipstrrSnapshot(s: FichaSnapshot): TipsterCardData {
   const p = computeExactPeriodStats(s.monthState, new Date(s.capturedAtDate))
+  // Indicators only assert a full period: an incomplete window shows '—'
+  // (valuePct null) and its partial result stays visible only in the
+  // labeled trace below the row. Traces use ONE unit (£ at the source's own
+  // 10/10=£10) so the division is directly checkable.
   const period = (st: typeof p.yield3m, asked: number): PeriodStatView =>
     st === null
       ? { valuePct: null, trace: null, complete: false }
       : {
-          valuePct: st.yieldPct,
-          trace: `${fmtMoney(st.profit)} beneficio / ${st.staked}u apostadas · ${st.from === st.to ? fmtYm(st.from) : `${fmtYm(st.from)} – ${fmtYm(st.to)}`} · ${st.months}/${asked} meses${st.complete ? '' : ' · ventana incompleta'}`,
+          valuePct: st.complete ? st.yieldPct : null,
+          trace: `${fmtMoney(st.profit)} beneficio / ${fmtMoneyAbs(st.staked)} apostadas · ${st.from === st.to ? fmtYm(st.from) : `${fmtYm(st.from)} – ${fmtYm(st.to)}`} · ${st.months}/${asked} meses${st.complete ? '' : ' · ventana incompleta (resultado parcial, no es el periodo)'}`,
           complete: st.complete,
         }
   return {
@@ -142,8 +147,11 @@ export function fromTipstrrSnapshot(s: FichaSnapshot): TipsterCardData {
     yield3m: period(p.yield3m, 3),
     yield6m: period(p.yield6m, 6),
     yield12m: period(p.yield12m, 12),
-    picks6mAvg: p.picks6mAvg,
-    picks6mTrace: p.picks6mAvg !== null && p.yield6m !== null ? `${p.yield6m.tips} tips / ${p.yield6m.months} meses` : null,
+    picks6mAvg: p.yield6m !== null && p.yield6m.complete ? p.picks6mAvg : null,
+    picks6mTrace:
+      p.picks6mAvg !== null && p.yield6m !== null
+        ? `${p.yield6m.tips} tips / ${p.yield6m.months} meses${p.yield6m.complete ? '' : ' · ventana incompleta (no es media de 6 meses)'}`
+        : null,
     picksFree3mAvg: null, // split free/paid requiere cuenta Tipstrr
     yieldFree3m: null,
     showPeriodRow: p.yield3m !== null || p.yield6m !== null || p.yield12m !== null,
