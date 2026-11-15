@@ -110,7 +110,14 @@ for (const f of files) {
     nullReasons[why] = (nullReasons[why] ?? 0) + 1
   }
   await db.insert(tipsters).values(m.insert)
-  okRows.push({ slug, picks: m.insert.picks!, yield: m.insert.yield ?? null, paid: m.insert.isPaid! })
+  // TipsterInsert marca los campos opcionales (tipo de inserción parcial);
+  // la puerta garantiza picks e isPaid — se estrecha con guarda explícita,
+  // no con aserción.
+  const { picks: mappedPicks, isPaid: mappedPaid, yield: mappedYield } = m.insert
+  if (mappedPicks === undefined || mappedPaid === undefined) {
+    throw new Error(`seed: mapeo sin picks/isPaid para ${slug} (no debería ocurrir tras la puerta)`)
+  }
+  okRows.push({ slug, picks: mappedPicks, yield: mappedYield ?? null, paid: mappedPaid })
 }
 
 const byPlatform = await pg.query<{ platform: string; n: string }>(
