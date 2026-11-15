@@ -15,7 +15,7 @@ export interface ExternalTipsterRecord {
   accountType?: 'free' | 'premium'
   sportName?: string
   followers?: number
-  stats: {
+  stats?: {
     picks?: number
     profitUnits?: number
     yieldPct?: number // the source's own figure (yield, ROI, ...), not translated
@@ -37,7 +37,7 @@ export interface ImportInput {
 
 export class ManualImportError extends Error {}
 
-function normalizeSample(stats: ExternalTipsterRecord['stats']): StatSample {
+function normalizeSample(stats: NonNullable<ExternalTipsterRecord['stats']>): StatSample {
   return {
     picks: stats.picks ?? null,
     profitUnits: stats.profitUnits ?? null,
@@ -79,4 +79,88 @@ export function normalizeImport(input: ImportInput): NormalizedTipster[] {
     })
   }
   return out
+}
+
+const PLATFORMS: PlatformId[] = ['blogabet', 'golazobets', 'tipstrr']
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
+
+function optNumber(v: unknown, path: string): number | undefined {
+  if (v === undefined || v === null) return undefined
+  if (typeof v !== 'number' || !Number.isFinite(v)) {
+    throw new ManualImportError(`${path} must be a finite number, got ${JSON.stringify(v)}`)
+  }
+  return v
+}
+
+function optString(v: unknown, path: string): string | undefined {
+  if (v === undefined || v === null) return undefined
+  if (typeof v !== 'string') {
+    throw new ManualImportError(`${path} must be a string, got ${JSON.stringify(v)}`)
+  }
+  return v
+}
+
+// Validates an untrusted parsed-JSON file into ImportInput. Strict on
+// numeric fields: a string like "12.5" is rejected, never coerced, so a
+// hand-made file fails loudly instead of silently corrupting stats.
+export function parseImportFile(raw: unknown): ImportInput {
+  if (!isPlainObject(raw)) {
+    throw new ManualImportError('import file must be a JSON object with sourceNote and records')
+  }
+  const sourceNote = optString(raw.sourceNote, 'sourceNote')
+  if (!sourceNote || sourceNote.trim().length < 10) {
+    throw new ManualImportError('sourceNote must say where the data came from and why we may hold it')
+  }
+  if (!Array.isArray(raw.records)) {
+    throw new ManualImportError('records must be an array')
+  }
+  const records: ExternalTipsterRecord[] = []
+  for (let i = 0; i < raw.records.length; i++) {
+    const path = `record ${i}`
+    const r = raw.records[i]
+    if (!isPlainObject(r)) throw new ManualImportError(`${path} must be an object`)
+    const platform = optString(r.platform, `${path}.platform`) as PlatformId | undefined
+    if (!platform || !PLATFORMS.includes(platform)) {
+      throw new ManualImportError(`${path}.platform must be one of ${PLATFORMS.join(', ')}`)
+    }
+    const username = optString(r.username, `${path}.username`)
+    if (!username || username.trim() === '') {
+      throw new ManualImportError(`${path}.username is required`)
+    }
+    const accountType = optString(r.accountType, `${path}.accountType`)
+    if (accountType !== undefined && accountType !== 'free' && accountType !== 'premium') {
+      throw new ManualImportError(`${path}.accountType must be 'free' or 'premium'`)
+    }
+    let stats: ExternalTipsterRecord['stats'] | undefined
+    if (r.stats !== undefined && r.stats !== null) {
+      if (!isPlainObject(r.stats)) throw new ManualImportError(`${path}.stats must be an object`)
+      const s = r.stats
+      const sp = `${path}.stats`
+      const yieldBasis = optString(s.yieldBasis, `${sp}.yieldBasis`) as StakeBasis | undefined
+      stats = {
+        picks: optNumber(s.picks, `${sp}.picks`),
+        profitUnits: optNumber(s.profitUnits, `${sp}.profitUnits`),
+        yieldPct: optNumber(s.yieldPct, `${sp}.yieldPct`),
+        yieldBasis,
+        winRatePct: optNumber(s.winRatePct, `${sp}.winRatePct`),
+        avgOdds: optNumber(s.avgOdds, `${sp}.avgOdds`),
+        periodLabel: optString(s.periodLabel, `${sp}.periodLabel`),
+        scope: optString(s.scope, `${sp}.scope`),
+        scopeKey: optString(s.scopeKey, `${sp}.scopeKey`),
+      }
+    }
+    records.push({
+      platform,
+      username,
+      profileUrl: optString(r.profileUrl, `${path}.profileUrl`),
+      accountType,
+      sportName: optString(r.sportName, `${path}.sportName`),
+      followers: optNumber(r.followers, `${path}.followers`),
+      stats,
+    })
+  }
+  return { sourceNote, records }
 }

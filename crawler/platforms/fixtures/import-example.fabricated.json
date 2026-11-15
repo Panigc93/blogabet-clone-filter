@@ -1,0 +1,46 @@
+{
+  "_note": "FABRICATED example input for the import CLI. Every name, figure and URL is invented; no real tipster data. Replace with a real lawfully-held dataset and an honest sourceNote before real use.",
+  "sourceNote": "FABRICATED demo dataset created 2026-11-15 to exercise the import CLI; not real data",
+  "records": [
+    {
+      "platform": "tipstrr",
+      "username": "Ejemplo Uno",
+      "profileUrl": "https://example.invalid/tipster/ejemplo-uno",
+      "accountType": "free",
+      "sportName": "Fútbol",
+      "stats": {
+        "picks": 412,
+        "profitUnits": 58.2,
+        "yieldPct": 12.4,
+        "yieldBasis": "advised-stakes",
+        "winRatePct": 44.1,
+        "avgOdds": 2.1,
+        "periodLabel": "last 12 months",
+        "scope": "all_time"
+      }
+    },
+    {
+      "platform": "tipstrr",
+      "username": "Ejemplo Dos",
+      "accountType": "premium",
+      "sportName": "Tenis",
+      "stats": {
+        "picks": 230,
+        "yieldBasis": "level-stakes",
+        "periodLabel": "last 6 months",
+        "scope": "all_time"
+      }
+    },
+    {
+      "platform": "blogabet",
+      "username": "Ejemplo Tres",
+      "stats": {
+        "picks": 88,
+        "yieldPct": 15.0,
+        "yieldBasis": "platform-total-bet",
+        "scope": "sport",
+        "scopeKey": "Baloncesto"
+      }
+    }
+  ]
+}

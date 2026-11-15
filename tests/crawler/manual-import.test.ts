@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeImport, ManualImportError } from '@/crawler/platforms/manual-import'
+import { normalizeImport, parseImportFile, ManualImportError } from '@/crawler/platforms/manual-import'
+import { evaluateMys } from '@/crawler/platforms/mys'
 
 // FABRICATED input: invented tipsters standing in for a dataset the owner
 // lawfully holds (e.g. sent by a tipster). Not real platform data.
@@ -65,5 +66,67 @@ describe('normalizeImport', () => {
     expect(() =>
       normalizeImport({ ...VALID, records: [{ username: 'X' } as never] }),
     ).toThrow(ManualImportError)
+  })
+})
+
+describe('parseImportFile', () => {
+  const valid = {
+    sourceNote: 'exported file provided by tipster on 2026-11-15',
+    records: [{ platform: 'tipstrr', username: 'Alguien', stats: { picks: 120, yieldPct: 11.2 } }],
+  }
+
+  it('accepts a minimal valid file', () => {
+    const parsed = parseImportFile(valid)
+    expect(parsed.records).toHaveLength(1)
+    expect(parsed.records[0].stats?.picks).toBe(120)
+  })
+
+  it('rejects a short or missing sourceNote', () => {
+    expect(() => parseImportFile({ records: [] })).toThrow(ManualImportError)
+    expect(() => parseImportFile({ sourceNote: 'short', records: [] })).toThrow(ManualImportError)
+  })
+
+  it('rejects string numbers instead of coercing them', () => {
+    expect(() =>
+      parseImportFile({
+        sourceNote: valid.sourceNote,
+        records: [{ platform: 'tipstrr', username: 'X', stats: { yieldPct: '12.5' } }],
+      }),
+    ).toThrow(/record 0\.stats\.yieldPct must be a finite number/)
+  })
+
+  it('rejects an unknown platform', () => {
+    expect(() =>
+      parseImportFile({
+        sourceNote: valid.sourceNote,
+        records: [{ platform: 'betfair', username: 'X' }],
+      }),
+    ).toThrow(/platform must be one of/)
+  })
+
+  it('rejects non-object records with their index', () => {
+    expect(() =>
+      parseImportFile({ sourceNote: valid.sourceNote, records: [null, 'nope'] }),
+    ).toThrow(/record 0 must be an object/)
+  })
+
+  it('treats null stats fields as absent', () => {
+    const parsed = parseImportFile({
+      sourceNote: valid.sourceNote,
+      records: [{ platform: 'tipstrr', username: 'X', stats: { picks: null, yieldPct: null } }],
+    })
+    expect(parsed.records[0].stats?.picks).toBeUndefined()
+  })
+
+  it('end to end: parse then normalize keeps absent metrics null', () => {
+    const out = normalizeImport(
+      parseImportFile({
+        sourceNote: valid.sourceNote,
+        records: [{ platform: 'golazobets', username: 'Y', stats: { picks: 150 } }],
+      }),
+    )
+    expect(out[0].samples[0].picks).toBe(150)
+    expect(out[0].samples[0].yieldPct).toBeNull()
+    expect(evaluateMys(out[0].samples[0]).passesMY).toBeNull()
   })
 })
