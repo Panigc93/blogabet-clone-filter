@@ -47,10 +47,20 @@ describe('buildFilters', () => {
     expect(filters).toHaveLength(0)
   })
 
-  it('adds price range with isPaid=true when priceMin/priceMax set', () => {
+  it('adds price range with isPaid=true and currency scope when priceMin/priceMax set', () => {
     const filters = buildFilters({ priceMin: 5, priceMax: 20 })
-    // enforces is_paid=true + price >= + price <=
-    expect(filters).toHaveLength(3)
+    // is_paid=true + price_currency='eur' (EUR/GBP never mixed) + price >= + price <=
+    expect(filters).toHaveLength(4)
+  })
+
+  it('scopes by platform only when requested', () => {
+    expect(buildFilters({ platform: 'tipstrr' })).toHaveLength(1)
+    expect(buildFilters({ platform: 'blogabet' })).toHaveLength(1)
+    expect(buildFilters({})).toHaveLength(0) // undefined = no platform clause
+  })
+
+  it('combines platform with other filters additively', () => {
+    expect(buildFilters({ platform: 'tipstrr', minYield: 11 })).toHaveLength(2)
   })
 })
 

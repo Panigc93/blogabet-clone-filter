@@ -2,6 +2,7 @@ import { eq, gt, gte, ilike, isNotNull, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
 export interface TipsterFilters {
+  platform?: 'blogabet' | 'tipstrr' // undefined = all platforms (callers: default to 'blogabet' until multi-source UI lands)
   search?: string
   tipo?: 'all' | 'free' | 'paid'
   minYield?: number
@@ -23,6 +24,10 @@ export function buildFilters(params: TipsterFilters): SQL[] {
   if (params.search) {
     const term = `%${params.search}%`
     conditions.push(or(ilike(tipsters.name, term), ilike(tipsters.slug, term))!)
+  }
+
+  if (params.platform) {
+    conditions.push(eq(tipsters.platform, params.platform))
   }
 
   if (params.tipo === 'free') {
@@ -66,6 +71,9 @@ export function buildFilters(params: TipsterFilters): SQL[] {
 
   if (params.priceMin !== undefined || params.priceMax !== undefined) {
     conditions.push(eq(tipsters.isPaid, true))
+    // Prices are only comparable within one currency (BB EUR vs Tipstrr GBP).
+    // The filter is scoped to EUR until a currency-aware price UI exists.
+    conditions.push(eq(tipsters.priceCurrency, 'eur'))
     if (params.priceMin !== undefined) {
       conditions.push(gte(tipsters.price, String(params.priceMin)))
     }

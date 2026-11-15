@@ -6,8 +6,13 @@ import type { Tipster } from '@/db/schema'
 // FABRICATED Blogabet DB row: only the shape matters, figures invented.
 const BB_ROW: Tipster = {
   id: 7,
+  platform: 'blogabet',
   slug: 'demo-bb',
   name: 'Demo BB',
+  profitUnit: 'eur',
+  priceCurrency: 'eur',
+  signupAt: null,
+  capturedAt: null,
   avatarUrl: null,
   flagUrl: null,
   countryCode: null,

@@ -10,6 +10,9 @@ export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams
 
   const filters: TipsterFilters = {
+    // Default stays Blogabet-only: zero change for the current UI until a
+    // multi-source listing is explicitly decided. platform=tipstrr opts in.
+    platform:       (p.get('platform') as TipsterFilters['platform']) ?? 'blogabet',
     search:         p.get('search') ?? undefined,
     tipo:           (p.get('tipo') as TipsterFilters['tipo']) ?? 'all',
     minYield:       p.has('minYield')  ? Number(p.get('minYield'))  : undefined,
