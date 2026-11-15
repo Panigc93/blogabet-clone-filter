@@ -274,46 +274,108 @@ export function parseMonthlyBreakdown(html: string): TipstrrMonthRow[] {
   return rows
 }
 
-function isClosedMonth(row: TipstrrMonthRow, now: Date): boolean {
+function isClosedMonth(row: { year: number; month: number }, now: Date): boolean {
   return row.year < now.getUTCFullYear() || (row.year === now.getUTCFullYear() && row.month < now.getUTCMonth() + 1)
 }
 
-// Blogabet-parity period stats from monthly rows. Only CLOSED months count
-// (same rule as the BB card: "Solo meses cerrados"). Monthly staked is
-// DERIVED as profit/roi from the source's ROUNDED display figures, so the
-// result is an estimate, not an exact denominator (and undefined when a
-// month's roi or profit is 0). Percentages are never averaged directly.
-// A period with zero usable closed months yields null, never 0.
-export function computePeriodStats(rows: TipstrrMonthRow[], now: Date): {
-  yield3m: number | null
-  yield6m: number | null
-  yield12m: number | null
-  picks6mAvg: number | null
-} {
+// ─── Exact monthly figures from the hydration state ─────────────────────────
+// STATS_MONTH carries the source's own EXACT per-month figures, including
+// `staked` (total units staked that month). This is what makes period yields
+// exact: never derive a denominator as profit/roi from the ROUNDED display
+// percentages when this field exists. Verified 2026-11-15 on
+// the-least-expected: staked == tips every month (flat 1u), sum of staked and
+// profit over all months closes exactly with the all-time overview.
+
+export interface TipstrrMonthStateRow {
+  year: number
+  month: number // 1-12
+  tips: number
+  staked: number // exact units staked, from the source
+  profit: number // exact units profit, from the source
+  roiPct: number | null // display value, NOT used as a denominator source
+  winPct: number | null
+  avgOdds: number | null
+  voidTips: number
+}
+
+export function parseMonthlyState(html: string): TipstrrMonthStateRow[] {
+  const state = decodeTipstrrState(html)
+  const sm = state?.STATS_MONTH
+  if (!sm || typeof sm !== 'object') return []
+  const rows: TipstrrMonthStateRow[] = []
+  for (const list of Object.values(sm as Record<string, unknown>)) {
+    if (!Array.isArray(list)) continue
+    for (const m of list) {
+      if (!m || typeof m !== 'object') continue
+      const r = m as Record<string, unknown>
+      const d = typeof r.date === 'string' ? new Date(r.date) : null
+      if (!d || !Number.isFinite(d.getTime())) continue
+      const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null)
+      const tips = num(r.tips)
+      const staked = num(r.staked)
+      const profit = num(r.profit)
+      if (tips === null || staked === null || profit === null) continue
+      rows.push({
+        year: d.getUTCFullYear(),
+        month: d.getUTCMonth() + 1,
+        tips,
+        staked,
+        profit,
+        roiPct: num(r.roi),
+        winPct: num(r.winPercentage),
+        avgOdds: num(r.averageOdds),
+        voidTips: num(r.void) ?? 0,
+      })
+    }
+  }
+  rows.sort((a, b) => b.year - a.year || b.month - a.month)
+  return rows
+}
+
+export interface TipstrrPeriodStat {
+  yieldPct: number
+  tips: number
+  staked: number
+  months: number
+  from: string // 'YYYY-MM' oldest closed month included
+  to: string // 'YYYY-MM' newest closed month included
+}
+
+// Blogabet-parity period stats, EXACT: yield = total profit / total staked
+// over the last N CLOSED months (same closed-month rule as the BB card),
+// both figures summed from the source's exact monthly values. Zero-profit
+// months count normally (the denominator does not depend on them).
+// Percentages are never averaged. A period with no closed months is null.
+export function computeExactPeriodStats(
+  rows: TipstrrMonthStateRow[],
+  now: Date,
+): { yield3m: TipstrrPeriodStat | null; yield6m: TipstrrPeriodStat | null; yield12m: TipstrrPeriodStat | null; picks6mAvg: number | null } {
   const closed = rows
     .filter((r) => isClosedMonth(r, now))
     .sort((a, b) => b.year - a.year || b.month - a.month)
-  const yieldOver = (n: number): number | null => {
+  const ym = (r: TipstrrMonthStateRow) => `${r.year}-${String(r.month).padStart(2, '0')}`
+  const over = (n: number): TipstrrPeriodStat | null => {
     const sel = closed.slice(0, n)
     if (sel.length === 0) return null
-    let profit = 0
-    let staked = 0
-    let usable = 0
-    for (const r of sel) {
-      if (r.profitAmount === null || r.roiPct === null || r.roiPct === 0) continue
-      profit += r.profitAmount
-      staked += r.profitAmount / (r.roiPct / 100)
-      usable++
+    const tips = sel.reduce((s, r) => s + r.tips, 0)
+    const staked = sel.reduce((s, r) => s + r.staked, 0)
+    const profit = sel.reduce((s, r) => s + r.profit, 0)
+    if (staked === 0) return null
+    return {
+      yieldPct: (profit / staked) * 100,
+      tips,
+      staked,
+      months: sel.length,
+      from: ym(sel[sel.length - 1]),
+      to: ym(sel[0]),
     }
-    if (usable === 0 || staked === 0) return null
-    return (profit / staked) * 100
   }
-  const picksSel = closed.slice(0, 6).filter((r) => r.tips !== null)
+  const picksSel = closed.slice(0, 6)
   return {
-    yield3m: yieldOver(3),
-    yield6m: yieldOver(6),
-    yield12m: yieldOver(12),
-    picks6mAvg: picksSel.length > 0 ? picksSel.reduce((s, r) => s + (r.tips ?? 0), 0) / picksSel.length : null,
+    yield3m: over(3),
+    yield6m: over(6),
+    yield12m: over(12),
+    picks6mAvg: picksSel.length > 0 ? picksSel.reduce((s, r) => s + r.tips, 0) / picksSel.length : null,
   }
 }
 

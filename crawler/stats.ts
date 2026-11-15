@@ -233,7 +233,7 @@ async function crawlStats() {
   console.log(`Found ${allTipsters.length} tipsters to process`)
 
   const cp = readCheckpoint()
-  let offset = cp.offset
+  const offset = cp.offset
   let done = cp.done
   let errors = cp.errors
   let refreshed = 0 // this run only: stats parsed and written

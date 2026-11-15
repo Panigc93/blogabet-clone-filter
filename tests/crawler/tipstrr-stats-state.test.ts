@@ -6,7 +6,8 @@ import {
   stakeUniformity,
   assessTipstrrMys,
   parseMonthlyBreakdown,
-  computePeriodStats,
+  parseMonthlyState,
+  computeExactPeriodStats,
   parseMoneyLabel,
   parseProfileHeader,
 } from '@/crawler/platforms/tipstrr/stats-state'
@@ -52,6 +53,30 @@ const UNIFORM_STATE = {
         dateGenerated: '2026-11-09T03:35:50Z',
       },
     },
+  },
+}
+
+// Monthly state shaped like the verified the-least-expected case: exact
+// staked per month, flat 1u staking (staked == tips).
+const MONTHS_STATE = {
+  STATS_MONTH: {
+    'demo-flat_6': [
+      { date: '2026-11-01T00:00:00Z', tips: 37, staked: 37, profit: 13.8, roi: 37.3, winPercentage: 41, averageOdds: 3.31, void: 0 },
+      { date: '2026-10-01T00:00:00Z', tips: 78, staked: 78, profit: 27.25, roi: 34.94, winPercentage: 41, averageOdds: 3.41, void: 0 },
+      { date: '2026-09-01T00:00:00Z', tips: 106, staked: 106, profit: 19.1, roi: 18.02, winPercentage: 34, averageOdds: 3.48, void: 0 },
+      { date: '2026-08-01T00:00:00Z', tips: 136, staked: 136, profit: 35.25, roi: 25.92, winPercentage: 38, averageOdds: 3.33, void: 0 },
+    ],
+  },
+}
+
+// A zero-profit month: the exact-staked path must keep it in the period.
+const ZERO_PROFIT_STATE = {
+  STATS_MONTH: {
+    'demo-flat_6': [
+      { date: '2026-11-01T00:00:00Z', tips: 10, staked: 10, profit: 5, roi: 50, winPercentage: 60, averageOdds: 2.5, void: 0 },
+      { date: '2026-10-01T00:00:00Z', tips: 50, staked: 50, profit: 10, roi: 20, winPercentage: 55, averageOdds: 2.4, void: 0 },
+      { date: '2026-09-01T00:00:00Z', tips: 50, staked: 50, profit: 0, roi: 0, winPercentage: 50, averageOdds: 2.3, void: 0 },
+    ],
   },
 }
 
@@ -211,19 +236,35 @@ describe('BB-parity extraction (fabricated fixtures)', () => {
     expect(parseMoneyLabel('n/a')).toBeNull()
   })
 
-  it('computePeriodStats uses only closed months, never invents zeros', () => {
-    const rows = parseMonthlyBreakdown(`<html><body>${monthTable}</body></html>`)
-    const p = computePeriodStats(rows, new Date('2026-11-15T12:00:00Z'))
-    // closed: Oct + Sep. stakedOct = 179.20/0.183, stakedSep = 100/0.067
-    const staked = 179.2 / 0.183 + 100 / 0.067
-    const expected = ((-179.2 + 100) / staked) * 100
-    expect(p.yield3m).toBeCloseTo(expected, 6)
-    expect(p.picks6mAvg).toBeCloseTo((98 + 150) / 2, 6)
-    // with Nov excluded; if only the current month exists -> nulls
-    const onlyCurrent = rows.filter((r) => r.label === 'Nov 2026')
-    const p2 = computePeriodStats(onlyCurrent, new Date('2026-11-15T12:00:00Z'))
+  it('computeExactPeriodStats sums exact staked/profit over closed months only', () => {
+    const rows = parseMonthlyState(pageWith(MONTHS_STATE, ''))
+    expect(rows).toHaveLength(4)
+    const p = computeExactPeriodStats(rows, new Date('2026-11-15T12:00:00Z'))
+    // closed: Oct + Sep + Aug (Nov in progress excluded)
+    expect(p.yield3m).not.toBeNull()
+    expect(p.yield3m!.tips).toBe(78 + 106 + 136)
+    expect(p.yield3m!.staked).toBe(78 + 106 + 136)
+    expect(p.yield3m!.yieldPct).toBeCloseTo(((27.25 + 19.1 + 35.25) / 320) * 100, 6)
+    expect(p.yield3m!.from).toBe('2026-08')
+    expect(p.yield3m!.to).toBe('2026-10')
+    expect(p.picks6mAvg).toBeCloseTo((78 + 106 + 136) / 3, 6)
+    // 12m asked with only 3 closed months: uses what exists, never invents
+    expect(p.yield12m!.months).toBe(3)
+    // only the current month -> nulls, never zero
+    const onlyCurrent = rows.filter((r) => r.year === 2026 && r.month === 11)
+    const p2 = computeExactPeriodStats(onlyCurrent, new Date('2026-11-15T12:00:00Z'))
     expect(p2.yield3m).toBeNull()
     expect(p2.picks6mAvg).toBeNull()
+  })
+
+  it('regression: exact staked is used, never a denominator derived from rounded roi', () => {
+    // Aug has profit 0: profit/roi would make the month vanish or divide by
+    // zero in the old estimator. With exact staked it must count normally.
+    const rows = parseMonthlyState(pageWith(ZERO_PROFIT_STATE, ''))
+    const p = computeExactPeriodStats(rows, new Date('2026-11-15T12:00:00Z'))
+    expect(p.yield3m!.tips).toBe(50 + 50)
+    expect(p.yield3m!.staked).toBe(100)
+    expect(p.yield3m!.yieldPct).toBeCloseTo((10 / 100) * 100, 6)
   })
 
   it('parseProfileHeader reads portfolio facts from state', () => {
