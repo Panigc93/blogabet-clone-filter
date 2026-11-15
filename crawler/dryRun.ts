@@ -1,6 +1,7 @@
 // DRY_RUN of the catalog listing: bounded read-only probe of the real crawler client.
 // No database, no writes, no retries. Stops at the first error or challenge.
 import { parseBlocks, blogabetUrl, COMMON_HEADERS } from './listing'
+import type { ListingOrder } from './listing'
 
 export const DRY_RUN_HARD_MAX_PAGES = 3
 export const DRY_RUN_MIN_DELAY_MS = 1000
@@ -21,6 +22,8 @@ export interface DryRunReport {
   firstFollowers?: number
   lastFollowers?: number
   ids?: number[]
+  order?: string
+  url0?: string
 }
 
 export async function runListingDryRun(opts: {
@@ -30,10 +33,12 @@ export async function runListingDryRun(opts: {
   maxPages: number
   delayMs: number
   startOffset?: number
+  order?: ListingOrder
 }): Promise<DryRunReport> {
   const report: DryRunReport = {
     pagesRequested: 0, pagesOk: 0, parsed: 0, uniqueIds: 0, duplicateIds: 0,
     followersNonIncreasing: false, stopReason: 'completed', statuses: [],
+    order: opts.order ?? 'default', url0: blogabetUrl(opts.lastActive, Math.max(0, Math.floor(opts.startOffset ?? 0)), opts.order),
   }
   if (!Number.isFinite(opts.delayMs) || opts.delayMs < DRY_RUN_MIN_DELAY_MS) {
     return { ...report, stopReason: 'invalid_config', detail: `delay must be >= ${DRY_RUN_MIN_DELAY_MS} ms` }
@@ -50,7 +55,7 @@ export async function runListingDryRun(opts: {
     report.pagesRequested++
     let res: PageResponse
     try {
-      res = await opts.fetchPage(blogabetUrl(opts.lastActive, start))
+      res = await opts.fetchPage(blogabetUrl(opts.lastActive, start, opts.order))
     } catch (err) {
       return { ...report, stopReason: 'network_error', detail: (err as Error).message }
     }

@@ -10,7 +10,7 @@ describe('CoverageTracker', () => {
     t.addPage([{ id: 3, followers: 7 }], 0)
     t.finish('empty_page')
     const s = t.summary()
-    expect(s).toMatchObject({ pages: 2, rows: 3, uniqueIds: 3, duplicateIds: 0, orderViolations: 0, newIds: 1, reachedEnd: true, endLooksValid: null })
+    expect(s).toMatchObject({ pages: 2, rows: 3, uniqueIds: 3, duplicateIds: 0, orderViolations: 0, newIds: 1, reachedEnd: true, endSanityCheck: null })
     expect(s.note).toMatch(/not proof/)
   })
   it('duplicates mean the listing shifted: complete but flagged', () => {
@@ -53,14 +53,14 @@ describe('CoverageTracker', () => {
     t.addPage(rows(3, 2))
     t.finish('empty_page')
     const s = t.summary()
-    expect(s.endLooksValid).toBe(false)
+    expect(s.endSanityCheck).toBe(false)
     expect(s.note).toMatch(/failure/)
   })
   it('an empty end above the expected row count is verified', () => {
     const t = new CoverageTracker(2)
     t.addPage(rows(3, 2))
     t.finish('empty_page')
-    expect(t.summary().endLooksValid).toBe(true)
+    expect(t.summary().endSanityCheck).toBe(true)
   })
   it('formats a markdown summary', () => {
     const t = new CoverageTracker()

@@ -1,6 +1,8 @@
 // CLI: bounded dry run of the catalog listing. Reads nothing from the database and writes nothing.
 // Required env: BLOGABET_COOKIE, DRY_RUN_DELAY_MS (>= 1000, no default on purpose).
 // Optional: LAST_ACTIVE (default 1), DRY_RUN_MAX_PAGES (capped at 3).
+import { OFFICIAL_ORDERS } from './listing'
+import type { ListingOrder } from './listing'
 import { runListingDryRun, nodeFetchPage, DRY_RUN_HARD_MAX_PAGES } from './dryRun'
 
 async function main() {
@@ -8,12 +10,15 @@ async function main() {
   if (!cookie) throw new Error('BLOGABET_COOKIE is not set')
   const delayMs = Number(process.env.DRY_RUN_DELAY_MS)
   if (!process.env.DRY_RUN_DELAY_MS || !Number.isFinite(delayMs)) throw new Error('DRY_RUN_DELAY_MS is required (>= 1000)')
+  const order = process.env.DRY_RUN_ORDER as ListingOrder | undefined
+  if (order && !OFFICIAL_ORDERS.includes(order)) throw new Error(`DRY_RUN_ORDER must be one of ${OFFICIAL_ORDERS.join(', ')}`)
   const report = await runListingDryRun({
     lastActive: Number(process.env.LAST_ACTIVE ?? '1'),
     fetchPage: nodeFetchPage(cookie),
     sleep: ms => new Promise(r => setTimeout(r, ms)),
     maxPages: Number(process.env.DRY_RUN_MAX_PAGES ?? String(DRY_RUN_HARD_MAX_PAGES)),
     delayMs,
+    order,
     startOffset: Number(process.env.DRY_RUN_START ?? '0'),
   })
   console.log(JSON.stringify(report, null, 2))

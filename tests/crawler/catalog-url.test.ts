@@ -18,3 +18,15 @@ describe('blogabetUrl', () => {
     expect(now.searchParams.get('f[leagues]')).toBe('all')
   })
 })
+
+import { blogabetUrl as _u, OFFICIAL_ORDERS } from '../../crawler/listing'
+describe('test-only order override', () => {
+  it('default order is unchanged and override only changes f[order]', () => {
+    const base = new URL(_u(1, 0)), prof = new URL(_u(1, 0, 'profit'))
+    expect(base.searchParams.get('f[order]')).toBe('followers')
+    expect(prof.searchParams.get('f[order]')).toBe('profit')
+    prof.searchParams.set('f[order]', 'followers')
+    expect(prof.toString()).toBe(base.toString())
+    expect(OFFICIAL_ORDERS).toContain('profit')
+  })
+})

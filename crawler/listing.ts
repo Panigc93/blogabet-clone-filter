@@ -120,7 +120,11 @@ export function parseBlocks(html: string, lastActive = 12): TipsterInsert[] {
 // Only changes traversal order, not the filter set (lastActive and the rest are unchanged).
 export const CATALOG_ORDER = 'followers'
 
-export function blogabetUrl(lastActive: number, start: number): string {
+export const OFFICIAL_ORDERS = ['since', 'followers', 'picks', 'profit', 'yield'] as const
+export type ListingOrder = (typeof OFFICIAL_ORDERS)[number]
+
+// `order` is only for bounded tests; the crawler default stays CATALOG_ORDER.
+export function blogabetUrl(lastActive: number, start: number, order: ListingOrder = CATALOG_ORDER): string {
   const url = new URL('https://blogabet.com/tipsters/')
   url.searchParams.set('f[language]', 'all')
   url.searchParams.set('f[pickType]', 'all')
@@ -129,7 +133,7 @@ export function blogabetUrl(lastActive: number, start: number): string {
   url.searchParams.set('f[picksOver]', '0')
   url.searchParams.set('f[lastActive]', String(lastActive))
   url.searchParams.set('f[bookiesUsed]', 'null')
-  url.searchParams.set('f[order]', CATALOG_ORDER)
+  url.searchParams.set('f[order]', order)
   url.searchParams.set('f[start]', String(start))
   return url.toString()
 }
