@@ -196,3 +196,12 @@ Antes de proponer 209 lecturas, resolver la semántica con 2-3 lecturas acotadas
 1. Elegir 2 perfiles del catálogo: uno con activeTips > 0 y otro con activeTips = 0 (ambos datos ya en las capturas /stats).
 2. Leer /tipster/<slug>/results de cada uno (mismo ritmo 10-16 s) y extraer PORTFOLIO_TIP_CACHED: comprobar (a) que la primera página está ordenada por dateAdded descendente, (b) qué estados incluye (abiertos vs liquidados), (c) si dateAdded es fecha de publicación o de evento.
 3. Solo si (a)-(c) se verifican: max(dateAdded) de la primera página = última publicación, y la pasada completa (209 lecturas, 35-55 min) tendría semántica defendible. Si la página no ordena por publicación, haría falta paginar y el coste cambia — se reportaría antes de seguir.
+
+### Estado de validación 17:36 — NO ENTREGAR 191 como validados
+
+Revisión independiente en curso. Abierto y declarado:
+- Base del yield: la comprobación offline muestra que Σprofit/Σstaked de la serie cierra contra overview.roi (advised) en 41 perfiles, contra levelStakeROI en 0, contra ambos en 64 (stake plano, indistinguible) y contra ninguno en 104 (ventanas no all-time, esperado). La base aconsejada es la candidata con evidencia, pero el yield aconsejado exige denominador aconsejado correcto perfil a perfil; mientras tanto, los 142 yields calculados de la serie (96 COBERTURA + 46 stake variable reclasificados) quedan marcados PENDIENTES de base y completitud — no validados.
+- Completitud de la serie: 67 perfiles tienen 862 meses ausentes en total; 0 filas con tips=0 NO prueba que los meses inactivos se omitan (puede ser truncamiento/faltantes). La suma de la serie no es verdad completa por defecto (3 discrepancias tips en period=6: joydi, nieder, trust-me). periodStartDate acota: 151/156 conteos dentro de ventana, 5 fuera (10-streak, baby-cash, hola-tips, venecash, xgoal-over-pro); no es prueba de completitud histórica.
+- 150/208 perfiles con Σstaked ≠ Σtips: la descripción global "level stake" queda descartada.
+- Upsert que preserva valores válidos ante ausencias: SOLO comentario en código, NO implementado. No declarado cerrado.
+- tsc limpio y `next build` compila desde checkout limpio en el head actual (7714a52); el aviso final de "patch lockfile" es del entorno de verificación (node_modules enlazado), no del código.
