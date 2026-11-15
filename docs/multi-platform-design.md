@@ -1,0 +1,203 @@
+# Multi-platform design: Tipstrr and Golazobets
+
+Status: design + isolated prototype. Nothing here touches master data, Neon
+production, or GitHub Actions. Base: master `932c36e` (post PR #9).
+
+Goal: Superblogabet gathers tipsters from several platforms (not only
+Blogabet) so they can be searched and compared with the MYS method in one
+site. First platforms: Tipstrr and Golazobets.
+
+## Non-negotiable data rules
+
+- Absent fields are `null`, never `0`.
+- Every stored metric keeps its provenance: source platform, source field,
+  period, units, and stake basis. No cross-platform equivalence is claimed
+  unless a platform's own documentation states it.
+- MYS is evaluated per sample: muestra (>= 100 picks) and yield (>= 11%) must
+  come from the SAME sample (global, or one sport/category/league). Paid vs
+  free does not decide seguibilidad; access cost is data, not a verdict.
+- Personal data minimization: Golazobets payloads embed tipster emails. The
+  parser never reads them; they are never stored, logged, or used in fixtures.
+
+## Platform assessment (verified 2026-11-15)
+
+### Golazobets (golazobets.com)
+
+- Spanish platform (Laravel + Inertia; operator named on /legal). Public
+  pages embed the full JSON payload in the `data-page` attribute. No login,
+  no bot wall observed from a sandbox datacenter IP for single GETs.
+- Catalog: `/tipsters?page=N` (observed snapshot: 28 pages x 36 = 1,001
+  tipsters; a snapshot, not a completeness guarantee). Each item: free/
+  premium type, sport, picks count, and aggregate stats (`number_bets`,
+  `total_bet`, `profit`, `yield`, `average_stake`, `average_odds`,
+  `win_rate`). Note `picks_count` and `number_bets` can differ slightly;
+  both are kept with their source name.
+- Profile: `/tipster/<username>`: monthly stats (year/month with picks and
+  yield), breakdowns by sport, bookmaker, stake and odds band, paginated
+  individual picks with competition names. Enough for MYS globally and per
+  sport, and for period tracking.
+- Terms: /legal section 13 prohibits "uso automatizado no autorizado".
+  robots.txt allows crawling of these paths. Reading: small-scale manual
+  validation is fine; any recurring or full-catalog automated run needs the
+  platform's authorization first (info@golazobets.com). GATE.
+- Hypothesis (unverified): a plain GET from GitHub Actions would work
+  technically. Not tested there; no remote workflow will be launched to test
+  it without the authorization above.
+
+### Tipstrr (tipstrr.com)
+
+- UK platform (Tipstrr Ltd). Verified in a normal browser session: sport
+  pages (`/football`, `/horse-racing`, ...) with discovery filters
+  (order: rating/profit/ROI; type: Premium/Free; period: 1/3/6/12 months or
+  all time) and "Load more" pagination. Profiles `/tipster/<slug>` with a
+  `/stats` page: monthly profit by year, breakdowns by sport, market,
+  bookmaker and league (Tips, Win rate, Profit, ROI, Avg odds).
+- Metric semantics, VERIFIED live 2026-11-15 (anonymous one-off reads):
+  each /stats page embeds its data as hydration JSON in
+  <script id="tipstrr-state"> ('"' encoded as &q;). PORTFOLIO overview
+  carries BOTH bases: profit/roi (advised) and levelStakeProfit/
+  levelStakeROI. ROI = profit / total staked, exactly the yield formula
+  used for Blogabet. StatMind (uniform 10/10 staking): every figure
+  reconciles to the decimal (-59.13/291 = -20.32%; Oct -£179.20/98 tips;
+  advised == level). VB TIPS (variable stakes): live tables reconcile
+  with each other but per-band figures close under NO uniform stake
+  mapping -> which basis the ROI column shows is undetermined there.
+  Caveats: voids treatment unverified; per-tip odds/profit need an
+  account; web_fetch may serve stale cached snapshots (it showed StatMind
+  at 129 tips when live was 291) — live reads for current figures.
+  Older verbatim capture: "Numbers in these statistics are based on a
+  staking plan of 1 to 10 units, where 10/10 units is equivalent to £10...
+  Stats are updated every 24 hours." Whether the level-stakes toggle
+  recomputes the displayed tables could not be confirmed (state flipped,
+  figures unchanged); treat as unverified.
+- Access limits:
+  - Cloudflare managed challenge from datacenter IPs (observed on homepage
+    and sitemap via curl). A GitHub Actions crawler would very likely be
+    blocked; not attempted and not evaded.
+  - The `/stats` tables load via JavaScript after render; plain HTML fetches
+    miss them. Their robots.txt disallows `/api`, so the JSON feeding those
+    tables is not a legitimate route.
+  - Terms (tipstrr.com/legal/terms-and-conditions, "Last updated: 4th August
+    2018"). Acceptable Use: "You agree that you will not provide Content on
+    the Site, or use the Site, or use information from the Site that: ...
+    uses manual or automated techniques to monitor or replicate the Site, or
+    any content it contains." Plus the IP clause: all rights to the site's
+    "data, content, technology" remain Tipstrr Ltd property, and "We own
+    any data generated by your use of the site (excluding your Content)".
+    No exception for affiliates or partners appears in these terms.
+- Permission status: UNKNOWN. No Tipstrr account exists in the owner's
+  vault, no grant is recorded, and no official public API or data-feed
+  documentation was found (searched 2026-11-15; absence not proven).
+  Their affiliate program (tipstrr.com/affiliates, partners.tipstrr.com)
+  is a referral commission scheme; nothing public says it grants data
+  extraction or republication rights. Official contact per their terms:
+  support@tipstrr.com. Contacting them is the owner's decision.
+
+### Reformatting vs monitoring: what the clause actually covers
+
+The owner asked whether simply reformatting existing stats falls outside
+the clause, since nothing would be "monitored". An honest reading, not a
+legal verdict:
+
+- The clause is not limited to monitoring or to automation: it covers
+  "manual or automated techniques to monitor OR replicate the Site, or any
+  content it contains", applied to use of the Site AND to use of
+  information from the Site. Periodicity is not the deciding factor; a
+  one-off manual copy of their stats into Superblogabet is arguably still
+  "replicating" their content, and their computed stats are data they
+  claim to own.
+- Raw tips/picks are the tipster's own Content (tipsters warrant ownership
+  of it). Tipstrr's computed figures (verified ROI, breakdowns) are
+  "data generated by your use of the site", which Tipstrr claims. Data
+  supplied BY a tipster about themselves arrives with a different,
+  stronger basis than data lifted from Tipstrr's pages.
+- Individual facts (one tipster's ROI figure) may not be protectable by
+  themselves in some jurisdictions, but systematic republication of their
+  verified stats database is exactly what the clause and EU/UK database
+  rights target. This needs either Tipstrr's answer or a professional
+  read; this doc takes no position on enforceability.
+
+Practical consequence: three different uses, three different standings.
+  a) Reformat data the owner lawfully holds (tipster-supplied, exported,
+     or permission-granted): buildable NOW — see manual-import below.
+  b) Extracting stats from tipstrr.com pages (even once, even by hand, at
+     catalog scale): within the clause's plain wording. Needs permission.
+  c) Republishing Tipstrr-computed figures as if comparable to Blogabet
+     yield: also a provenance problem, not only a legal one.
+
+## Proposed data model (design only; no migration yet)
+
+New tables, nothing changes in the existing `tipsters` table:
+
+```text
+platform_tipsters
+  id            serial PK
+  platform      text          -- 'golazobets' | 'tipstrr'
+  platform_id   text          -- their id or slug
+  username      text
+  profile_url   text
+  account_type  text          -- 'free' | 'premium' | 'unknown'
+  sport_name    text          -- primary sport label, as reported
+  followers     integer
+  UNIQUE (platform, platform_id)
+
+platform_tipster_stats
+  id            serial PK
+  platform_tipster_id  FK
+  scope         text          -- 'all_time' | 'month' | 'sport' | 'bookie' | ...
+  scope_key     text          -- e.g. '2026-05', 'Fútbol'
+  period_label  text          -- as shown by the source, e.g. 'last 12 months'
+  picks         integer
+  profit_units  numeric
+  yield_pct     numeric       -- source's own yield/ROI figure
+  yield_basis   text          -- e.g. 'advised stakes' | 'level stakes' | 'platform total_bet'
+  avg_stake     numeric
+  avg_odds      numeric
+  win_rate_pct  numeric
+  captured_at   timestamptz
+```
+
+## Prototype in this branch
+
+- `crawler/platforms/golazobets/parse.ts` — pure parser (Inertia `data-page`
+  -> normalized records). No HTTP, no DB, no email field ever read.
+- `crawler/platforms/golazobets/fetch.ts` — LOCAL, small-scale prototype
+  fetcher (max 5 pages, 3 s delay, JSONL out). Not for Actions; see the
+  authorization gate above.
+- `crawler/platforms/tipstrr/parse.ts` — pure parser for their HTML shape,
+  NO fetcher (terms + Cloudflare gates), validated with FABRICATED fixtures.
+- `crawler/platforms/tipstrr/stats-state.ts` — parser for the REAL /stats
+  structure (tipstrr-state JSON + rendered tables): overview with both
+  stake bases, stake-band uniformity, monthly breakdown, Blogabet-parity
+  period stats (yield 3/6/12m, picks avg; closed months only, nulls never
+  zeros) and profile header. Validated end-to-end against a live StatMind
+  capture; fixtures in tests remain fabricated.
+  MYS gate: yield is evaluable ONLY when every per-record consistency
+  check passes (single stake band, band total == overview tips,
+  averageStake matches band, advised == level, roi = profit/staked
+  closes). Otherwise yield/MYS stay null and the source ROI is preserved
+  labelled as source-only. Uniformity alone is necessary, not sufficient.
+- `crawler/platforms/manual-import.ts` — normalizes tipster records the
+  owner LAWFULLY holds (tipster-supplied, exported, permission-granted)
+  into the shared shape; requires a source note per dataset; never fetches.
+- `crawler/platforms/mys.ts` + `types.ts` — shared MYS evaluation (muestra
+  + yield over the same sample; unknown inputs yield `null`, not `false`)
+  and normalized record types with provenance.
+- `app/lab/tipstrr/` — isolated UI prototype with FABRICATED data (nothing
+  links to it; permanent "not connected" banner).
+- Tests: fixtures with fictional identities, no embedded emails.
+
+## Phasing
+
+1. This PR: design + parser prototype + tests. No production effect.
+2. Golazobets: owner asks the platform for authorization -> then production
+   crawler design (cadence, rate limits, block policy reuse from PR #9).
+3. Tipstrr: the manual/authorized import pipeline comes first (use case
+   (a) above). Site extraction (b) waits on Tipstrr's answer to a
+   permission question, or on a professional read of the clause — both the
+   owner's call (support@tipstrr.com). A datacenter crawler is not viable
+   anyway (Cloudflare). Structure and parser are already mapped and tested
+   with fabricated fixtures, so integration can move fast if permission
+   arrives.
+4. Unified UI: platform filter and per-metric provenance badges in the
+   listing, only once at least one platform writes real rows.

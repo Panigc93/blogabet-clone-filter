@@ -1,6 +1,6 @@
 import { db } from './db'
 import { tipsters } from './db/schema'
-import { and, gte, isNotNull, eq, sql, count } from 'drizzle-orm'
+import { and, gte, isNotNull, eq, count } from 'drizzle-orm'
 const now = new Date()
 const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
 

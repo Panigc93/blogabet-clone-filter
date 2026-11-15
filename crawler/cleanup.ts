@@ -1,7 +1,7 @@
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { tipsters } from '../db/schema'
-import { lt, or, isNull } from 'drizzle-orm'
+import { inactiveWhere } from './bb-scope'
 import { readFileSync, existsSync } from 'fs'
 
 const envPath = new URL('../.env.local', import.meta.url).pathname
@@ -25,7 +25,7 @@ async function run() {
   await db.update(tipsters)
     .set({ yield3m: null, yield6m: null, yield12m: null, picks6mAvg: null,
            picksFree3mAvg: null, yieldFree3m: null, statsUpdatedAt: null })
-    .where(or(isNull(tipsters.lastPickAt), lt(tipsters.lastPickAt, oneMonthAgo)))
+    .where(inactiveWhere(oneMonthAgo))
 
   console.log('Done.')
 }

@@ -2,6 +2,7 @@ import { eq, gt, gte, ilike, isNotNull, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
 export interface TipsterFilters {
+  platform?: 'blogabet' | 'tipstrr' // undefined = all platforms (callers: default to 'blogabet' until multi-source UI lands)
   search?: string
   tipo?: 'all' | 'free' | 'paid'
   minYield?: number
@@ -23,6 +24,10 @@ export function buildFilters(params: TipsterFilters): SQL[] {
   if (params.search) {
     const term = `%${params.search}%`
     conditions.push(or(ilike(tipsters.name, term), ilike(tipsters.slug, term))!)
+  }
+
+  if (params.platform) {
+    conditions.push(eq(tipsters.platform, params.platform))
   }
 
   if (params.tipo === 'free') {
@@ -64,8 +69,14 @@ export function buildFilters(params: TipsterFilters): SQL[] {
     conditions.push(gt(tipsters.picksFree3mAvg, '0'))
   }
 
-  if (params.priceMin !== undefined || params.priceMax !== undefined) {
+  // Prices are only comparable within one currency (BB EUR vs Tipstrr GBP;
+  // no FX conversion is invented). When the caller explicitly asks for a
+  // non-EUR platform, the price filter is NOT applied — the caller signals
+  // that to the user (route warning + disabled UI) instead of silently
+  // returning zero rows as if no tipster existed.
+  if ((params.priceMin !== undefined || params.priceMax !== undefined) && params.platform !== 'tipstrr') {
     conditions.push(eq(tipsters.isPaid, true))
+    conditions.push(eq(tipsters.priceCurrency, 'eur'))
     if (params.priceMin !== undefined) {
       conditions.push(gte(tipsters.price, String(params.priceMin)))
     }
@@ -75,6 +86,15 @@ export function buildFilters(params: TipsterFilters): SQL[] {
   }
 
   return conditions
+}
+
+// True when a price filter was requested but not applied because the
+// platform's currency is not comparable (GBP vs EUR, no FX).
+export function priceFilterIgnored(params: TipsterFilters): boolean {
+  return (
+    (params.priceMin !== undefined || params.priceMax !== undefined) &&
+    params.platform === 'tipstrr'
+  )
 }
 
 export function sortColumn(sort: SortField) {

@@ -1,10 +1,16 @@
-import { pgTable, integer, text, boolean, numeric, smallint, timestamp, index } from 'drizzle-orm/pg-core'
+import { pgTable, integer, bigserial, text, boolean, numeric, smallint, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core'
 import { sql } from 'drizzle-orm'
 
 export const tipsters = pgTable('tipsters', {
   id:          integer('id').primaryKey(),
-  slug:        text('slug').notNull().unique(),
+  platform:    text('platform').notNull().default('blogabet'), // 'blogabet' | 'tipstrr' | ...
+  slug:        text('slug').notNull(), // unique PER PLATFORM (ux_tipsters_platform_slug); a Tipstrr slug may collide with a BB one
   name:        text('name').notNull(),
+  // Money semantics: `profit`/`price` are only comparable within the same
+  // unit. BB stores EUR; Tipstrr stores UNITS (its "10/10" scale) and its
+  // subscription price is GBP. Queries must not mix units (lib/query.ts).
+  profitUnit:  text('profit_unit').notNull().default('eur'), // 'eur' | 'units'
+  priceCurrency: text('price_currency').notNull().default('eur'), // 'eur' | 'gbp'
   avatarUrl:   text('avatar_url'),
   flagUrl:     text('flag_url'),
   countryCode: text('country_code'),
@@ -12,12 +18,14 @@ export const tipsters = pgTable('tipsters', {
   price:       numeric('price', { precision: 8, scale: 2 }),
   sinceYear:   smallint('since_year'),
   picks:       integer('picks').notNull().default(0),
-  profit:      numeric('profit', { precision: 10, scale: 2 }),
+  profit:      numeric('profit', { precision: 12, scale: 3 }), // scale 3: Tipstrr units carry 3 decimals (361.815); widening is lossless for BB EUR
   yield:       numeric('yield', { precision: 6, scale: 2 }),
   verifiedPct: numeric('verified_pct', { precision: 5, scale: 2 }),
   isVerified:  boolean('is_verified').notNull().default(false),
-  followers:   integer('followers').notNull().default(0),
+  followers:   integer('followers'), // null when the source does not expose it (never 0-as-absence)
   lastPickAt:     timestamp('last_pick_at', { withTimezone: true }),
+  signupAt:       timestamp('signup_at', { withTimezone: true }), // account creation when the source exposes it (Tipstrr); BB keeps sinceYear
+  capturedAt:     timestamp('captured_at', { withTimezone: true }), // snapshot instant for capture-based sources; null for live-crawled BB
   resetCount:     smallint('reset_count').notNull().default(0),
   lastResetAt:    timestamp('last_reset_at', { withTimezone: true }),
   updatedAt:      timestamp('updated_at', { withTimezone: true }).notNull().default(sql`NOW()`),
@@ -30,7 +38,14 @@ export const tipsters = pgTable('tipsters', {
   picksFree3mAvg:  numeric('picks_free_3m_avg', { precision: 7, scale: 2 }),
   yieldFree3m:     numeric('yield_free_3m', { precision: 6, scale: 2 }),
   statsUpdatedAt:  timestamp('stats_updated_at', { withTimezone: true }),
+  // Provenance opcional: portfolioId del origen cuando una lectura lo expone
+  // (p. ej. /results). La identidad operativa es (platform, slug); el id
+  // numérico Tipstrr es surrogate interno (secuencia tipsters_internal_id_seq,
+  // asignada por la ruta de import en su transacción).
+  sourcePortfolioId: integer('source_portfolio_id'),
 }, (t) => ({
+  platformSlugUnique: uniqueIndex('ux_tipsters_platform_slug').on(t.platform, t.slug),
+  platformIdx:   index('idx_tipsters_platform').on(t.platform),
   yieldIdx:      index('idx_tipsters_yield').on(t.yield),
   yield6mIdx:    index('idx_tipsters_yield_6m').on(t.yield6m),
   picks6mAvgIdx: index('idx_tipsters_picks_6m_avg').on(t.picks6mAvg),
@@ -44,3 +59,24 @@ export const tipsters = pgTable('tipsters', {
 
 export type Tipster = typeof tipsters.$inferSelect
 export type TipsterInsert = typeof tipsters.$inferInsert
+
+// Registro de validaciones fallidas FUERA de la fila de tipsters: una
+// cuarentena nunca escribe la fila, así que sin este log un yield antiguo
+// parecería re-confirmado por la última captura. La ruta de import real lo
+// escribe en la misma transacción del plan (planTipstrrUpsert), una fila por
+// captura rechazada/skipeada. Es un registro de revisión, no oculta datos.
+export const importValidationLog = pgTable('import_validation_log', {
+  id:         bigserial('id', { mode: 'number' }).primaryKey(),
+  platform:   text('platform').notNull(),
+  slug:       text('slug').notNull(),
+  capturedAt: timestamp('captured_at', { withTimezone: true }), // instante de la captura evaluada
+  klass:      text('class').notNull(),      // 'cuarentena[<clase>]' | 'skip[<motivo>]'
+  reason:     text('reason').notNull(),     // motivo completo de la validación fallida
+  runId:      text('run_id').notNull(),     // identificador de la pasada de import
+  createdAt:  timestamp('created_at', { withTimezone: true }).notNull().default(sql`NOW()`),
+}, (t) => ({
+  platformSlugIdx: index('idx_import_validation_log_platform_slug').on(t.platform, t.slug),
+}))
+
+export type ImportValidationLog = typeof importValidationLog.$inferSelect
+export type ImportValidationLogInsert = typeof importValidationLog.$inferInsert

@@ -1,0 +1,512 @@
+{
+ "startedAt": "2026-11-15T15:12:30.069Z",
+ "pace": "min 10 s (aprobado usuario 16:11 CET tras aviso expreso de riesgo de marcado/bloqueo)",
+ "priorCounts": {
+  "pageLoad": 7,
+  "listing": 22,
+  "note": "tramo 1 jsjob-2 a 15-23s (16:01-16:12 CET), combos completados: 14/38"
+ },
+ "verifiedParams": {
+  "order": 2,
+  "period": 3,
+  "portfolioType": {
+   "free": 1,
+   "premium": 2
+  },
+  "source": "selects discover-order/discover-type/discover-period + URLs generadas por la propia UI 2026-11-15"
+ },
+ "fixedParams": "filterType=0&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000",
+ "counts": {
+  "pageLoad": 12,
+  "listing": 22
+ },
+ "requests": [
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/cricket",
+   "status": 200,
+   "ms": 8863,
+   "len": 415900,
+   "at": "2026-11-15T15:12:53.515Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=9&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 816,
+   "len": 2,
+   "at": "2026-11-15T15:13:08.748Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=9&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 318,
+   "len": 2,
+   "at": "2026-11-15T15:13:23.438Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/darts",
+   "status": 200,
+   "ms": 7787,
+   "len": 416161,
+   "at": "2026-11-15T15:13:44.246Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=17&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 815,
+   "len": 2,
+   "at": "2026-11-15T15:13:58.910Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=17&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 535,
+   "len": 2,
+   "at": "2026-11-15T15:14:12.052Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/e-sports",
+   "status": 200,
+   "ms": 6941,
+   "len": 416514,
+   "at": "2026-11-15T15:14:32.023Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=6&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 756,
+   "len": 2,
+   "at": "2026-11-15T15:14:44.996Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=6&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 379,
+   "len": 2,
+   "at": "2026-11-15T15:15:01.054Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/golf",
+   "status": 200,
+   "ms": 13459,
+   "len": 423758,
+   "at": "2026-11-15T15:15:27.666Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=19&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 457,
+   "len": 2,
+   "at": "2026-11-15T15:15:41.627Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=19&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 1002,
+   "len": 19,
+   "at": "2026-11-15T15:15:53.444Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/greyhounds",
+   "status": 200,
+   "ms": 14682,
+   "len": 416037,
+   "at": "2026-11-15T15:16:18.778Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=20&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 535,
+   "len": 2,
+   "at": "2026-11-15T15:16:33.457Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=20&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 549,
+   "len": 2,
+   "at": "2026-11-15T15:16:48.865Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/handball",
+   "status": 200,
+   "ms": 9051,
+   "len": 417223,
+   "at": "2026-11-15T15:17:07.941Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=10&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 446,
+   "len": 2,
+   "at": "2026-11-15T15:17:19.616Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=10&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 279,
+   "len": 2,
+   "at": "2026-11-15T15:17:33.753Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/ice-hockey",
+   "status": 200,
+   "ms": 6990,
+   "len": 428646,
+   "at": "2026-11-15T15:17:51.783Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=12&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 659,
+   "len": 26,
+   "at": "2026-11-15T15:18:05.891Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=12&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 346,
+   "len": 26,
+   "at": "2026-11-15T15:18:18.848Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/mixed-martial-arts",
+   "status": 200,
+   "ms": 11152,
+   "len": 306119,
+   "at": "2026-11-15T15:18:41.426Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/rugby-league",
+   "status": 200,
+   "ms": 12101,
+   "len": 415238,
+   "at": "2026-11-15T15:19:04.618Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=13&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 336,
+   "len": 2,
+   "at": "2026-11-15T15:19:19.099Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=13&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 789,
+   "len": 2,
+   "at": "2026-11-15T15:19:30.763Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/rugby-union",
+   "status": 200,
+   "ms": 11104,
+   "len": 416340,
+   "at": "2026-11-15T15:19:57.418Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=14&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 435,
+   "len": 2,
+   "at": "2026-11-15T15:20:10.559Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=14&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 700,
+   "len": 2,
+   "at": "2026-11-15T15:20:24.580Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/snooker",
+   "status": 200,
+   "ms": 11008,
+   "len": 416665,
+   "at": "2026-11-15T15:20:46.287Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=15&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 382,
+   "len": 2,
+   "at": "2026-11-15T15:20:59.755Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=15&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 1233,
+   "len": 2,
+   "at": "2026-11-15T15:21:15.837Z"
+  },
+  {
+   "kind": "pageLoad",
+   "url": "https://tipstrr.com/volleyball",
+   "status": 200,
+   "ms": 15939,
+   "len": 418306,
+   "at": "2026-11-15T15:21:42.449Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=21&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=1&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 906,
+   "len": 2,
+   "at": "2026-11-15T15:21:59.325Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?filterType=0&sportId=21&profit=0&roi=0&tips=45&minOdds=1.2&maxOdds=1000&portfolioType=2&order=2&period=3&page=1",
+   "status": 200,
+   "ms": 386,
+   "len": 2,
+   "at": "2026-11-15T15:22:14.818Z"
+  }
+ ],
+ "combos": {
+  "cricket:free": {
+   "sportId": 9,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:13:08.748Z",
+   "reanudado": false
+  },
+  "cricket:premium": {
+   "sportId": 9,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:13:23.438Z",
+   "reanudado": false
+  },
+  "darts:free": {
+   "sportId": 17,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:13:58.910Z",
+   "reanudado": false
+  },
+  "darts:premium": {
+   "sportId": 17,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:14:12.052Z",
+   "reanudado": false
+  },
+  "e-sports:free": {
+   "sportId": 6,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:14:44.996Z",
+   "reanudado": false
+  },
+  "e-sports:premium": {
+   "sportId": 6,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:15:01.054Z",
+   "reanudado": false
+  },
+  "golf:free": {
+   "sportId": 19,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:15:41.627Z",
+   "reanudado": false
+  },
+  "golf:premium": {
+   "sportId": 19,
+   "pages": {
+    "1": [
+     "golf-master-pro"
+    ]
+   },
+   "endReason": "página parcial (1)",
+   "completedAt": "2026-11-15T15:15:53.444Z",
+   "reanudado": false
+  },
+  "greyhounds:free": {
+   "sportId": 20,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:16:33.457Z",
+   "reanudado": false
+  },
+  "greyhounds:premium": {
+   "sportId": 20,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:16:48.865Z",
+   "reanudado": false
+  },
+  "handball:free": {
+   "sportId": 10,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:17:19.616Z",
+   "reanudado": false
+  },
+  "handball:premium": {
+   "sportId": 10,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:17:33.753Z",
+   "reanudado": false
+  },
+  "ice-hockey:free": {
+   "sportId": 12,
+   "pages": {
+    "1": [
+     "dario",
+     "michaels-world"
+    ]
+   },
+   "endReason": "página parcial (2)",
+   "completedAt": "2026-11-15T15:18:05.891Z",
+   "reanudado": false
+  },
+  "ice-hockey:premium": {
+   "sportId": 12,
+   "pages": {
+    "1": [
+     "redondo",
+     "alexbaseball"
+    ]
+   },
+   "endReason": "página parcial (2)",
+   "completedAt": "2026-11-15T15:18:18.848Z",
+   "reanudado": false
+  },
+  "mixed-martial-arts": {
+   "error": "sportId no resuelto"
+  },
+  "rugby-league:free": {
+   "sportId": 13,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:19:19.099Z",
+   "reanudado": false
+  },
+  "rugby-league:premium": {
+   "sportId": 13,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:19:30.763Z",
+   "reanudado": false
+  },
+  "rugby-union:free": {
+   "sportId": 14,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:20:10.559Z",
+   "reanudado": false
+  },
+  "rugby-union:premium": {
+   "sportId": 14,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:20:24.580Z",
+   "reanudado": false
+  },
+  "snooker:free": {
+   "sportId": 15,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:20:59.755Z",
+   "reanudado": false
+  },
+  "snooker:premium": {
+   "sportId": 15,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:21:15.837Z",
+   "reanudado": false
+  },
+  "volleyball:free": {
+   "sportId": 21,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:21:59.325Z",
+   "reanudado": false
+  },
+  "volleyball:premium": {
+   "sportId": 21,
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía",
+   "completedAt": "2026-11-15T15:22:14.818Z",
+   "reanudado": false
+  }
+ },
+ "stopped": null,
+ "finished": true,
+ "phase": "done",
+ "finishedAt": "2026-11-15T15:22:14.818Z"
+}

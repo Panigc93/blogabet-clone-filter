@@ -1,0 +1,69 @@
+{
+ "_meta": {
+  "source": "objeto real embebido por la propia página https://tipstrr.com/tipster/the-least-expected/results en su estado de hidratación (PORTFOLIO_TIP_CACHED)",
+  "captured": "2026-11-15T14:05Z",
+  "note": "ventana visible de la página; la lista paginada ?skip= NO incluye stake (forma compacta de 6 campos). Stake/profit en UNIDADES Tipstrr (1 = '10/10' = stake configurado de la cuenta), nunca dinero. Flag free: semántica NO validada (control 15-11-2026); no leer como 'de pago'. Result codes verificados por aritmética: 1=ganado, 3=perdido; void/medio sin verificar."
+ },
+ "tip": {
+  "bookmaker": null,
+  "bookmakerId": 17,
+  "bspProfit": null,
+  "dateAdded": "2026-11-13T07:05:04Z",
+  "description": null,
+  "eachWay": false,
+  "free": false,
+  "hidden": false,
+  "id": 9362525,
+  "live": false,
+  "liveOdds": [],
+  "pinnacleOnly": false,
+  "portfolioId": 221629,
+  "profit": 2.8,
+  "reference": "2026-11-14-teplice-v-karvina-02ocv",
+  "result": 1,
+  "tipBet": [
+   {
+    "bspProfit": null,
+    "finalOdds": 3.8,
+    "id": 12228311,
+    "liveOdds": [],
+    "odds": 3.8,
+    "profit": 2.8,
+    "result": 1,
+    "stake": 1,
+    "tipBetTipBetItem": []
+   }
+  ],
+  "tipBetItem": [
+   {
+    "bestOddsGuaranteed": false,
+    "betText": "No",
+    "betType": 6,
+    "bsp": null,
+    "createdOdds": 3.8,
+    "finalOdds": 3.8,
+    "fixtureId": 90067921,
+    "fixtureReference": "2026-11-14-teplice-vs-karvina-73824",
+    "id": 11498758,
+    "imageUrl": null,
+    "line": "0",
+    "lineType": 6,
+    "liveOdds": null,
+    "marketText": "Both teams to score",
+    "oddsReduction": 0,
+    "participant": null,
+    "result": 1,
+    "rule4": false,
+    "team": null,
+    "teamType": 0,
+    "tip": null
+   }
+  ],
+  "tipDate": "2026-11-14T12:30:00Z",
+  "tipOfTheDay": false,
+  "tipScore": null,
+  "tipType": 0,
+  "title": "Teplice v karvina",
+  "totalStake": 1
+ }
+}

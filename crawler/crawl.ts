@@ -2,7 +2,8 @@ import * as cheerio from 'cheerio'
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { tipsters, TipsterInsert } from '../db/schema'
-import { sql, inArray, notInArray, and } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
+import { staleRecordWhere } from './bb-scope'
 import type { BrowserContext, Browser } from 'playwright'
 import { HttpError, BlockedError, looksLikeChallenge, retryWithPolicy, REQUEST_TIMEOUT_MS } from './blockPolicy'
 
@@ -274,7 +275,7 @@ async function crawl() {
       // Remove stale records: same slug but different id (tipster reset their account)
       const slugs = records.map(r => r.slug)
       const ids = records.map(r => r.id!)
-      await db.delete(tipsters).where(and(inArray(tipsters.slug, slugs), notInArray(tipsters.id, ids)))
+      await db.delete(tipsters).where(staleRecordWhere(slugs, ids))
 
       await db
         .insert(tipsters)

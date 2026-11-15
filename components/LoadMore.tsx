@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Tipster } from '@/db/schema'
 import { TipsterRow } from './TipsterRow'
+import { fromDbTipster } from './tipster-card-model'
 
 export function LoadMore({ initialHasMore, searchString }: { initialHasMore: boolean; searchString: string }) {
   const [rows, setRows] = useState<Tipster[]>([])
@@ -38,7 +39,7 @@ export function LoadMore({ initialHasMore, searchString }: { initialHasMore: boo
 
   return (
     <>
-      {rows.map(t => <TipsterRow key={t.id} tipster={t} />)}
+      {rows.map(t => <TipsterRow key={t.id} tipster={fromDbTipster(t)} />)}
       <div ref={sentinelRef} style={{ textAlign: 'center', padding: '14px 0', color: '#999', fontSize: 13 }}>
         {loading && 'Cargando...'}
         {!loading && !hasMore && rows.length > 0 && 'No hay más tipsters'}
