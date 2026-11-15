@@ -4,6 +4,7 @@ import { buildFilters, sortOrder, TipsterFilters, SortField } from '@/lib/query'
 import { and, count } from 'drizzle-orm'
 import { FilterBar } from '@/components/FilterBar'
 import { TipsterRow } from '@/components/TipsterRow'
+import { fromDbTipster } from '@/components/tipster-card-model'
 import { LoadMore } from '@/components/LoadMore'
 
 const PAGE_SIZE = 50
@@ -55,7 +56,7 @@ export default async function Home({ searchParams }: PageProps) {
           <span style={{ fontStyle: 'italic', color: '#bbb', fontSize: 11 }}>stats mensuales calculados sobre meses cerrados</span>
         </div>
         <div>
-          {rows.map(t => <TipsterRow key={t.id} tipster={t} />)}
+          {rows.map(t => <TipsterRow key={t.id} tipster={fromDbTipster(t)} />)}
           <LoadMore key={searchString} initialHasMore={hasMore} searchString={searchString} />
         </div>
       </div>
