@@ -280,8 +280,10 @@ function isClosedMonth(row: TipstrrMonthRow, now: Date): boolean {
 
 // Blogabet-parity period stats from monthly rows. Only CLOSED months count
 // (same rule as the BB card: "Solo meses cerrados"). Monthly staked is
-// derived as profit/roi; months without a usable pair are skipped. A period
-// with zero usable closed months yields null, never 0.
+// DERIVED as profit/roi from the source's ROUNDED display figures, so the
+// result is an estimate, not an exact denominator (and undefined when a
+// month's roi or profit is 0). Percentages are never averaged directly.
+// A period with zero usable closed months yields null, never 0.
 export function computePeriodStats(rows: TipstrrMonthRow[], now: Date): {
   yield3m: number | null
   yield6m: number | null
