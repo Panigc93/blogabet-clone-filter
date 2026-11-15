@@ -160,16 +160,21 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               </>
             )}
           </div>
-          <span style={{ display: 'block', textAlign: 'center', fontSize: 9, lineHeight: 1.2, color: '#999', paddingBottom: 4 }}>
-            Solo meses cerrados; no incluye el mes en curso
-          </span>
-          {traces.length > 0 && (
-            <span style={{ display: 'block', textAlign: 'center', fontSize: 9, lineHeight: 1.4, color: '#999', paddingBottom: 4 }}>
+          {t.platform === 'tipstrr' && (
+            <span style={{ display: 'block', textAlign: 'center', fontSize: 9, lineHeight: 1.2, color: '#999', paddingBottom: 4 }}>
+              El yield total incluye el mes en curso; los periodos solo meses cerrados
+            </span>
+          )}
+          {(traces.length > 0 || t.picks6mTrace !== null) && (
+            <details style={{ textAlign: 'center', fontSize: 9, lineHeight: 1.4, color: '#999', paddingBottom: 6 }}>
+              <summary style={{ cursor: 'pointer', color: '#4dbfa2', fontWeight: 700, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.3px', padding: '3px 0 5px' }}>
+                Ver cálculo
+              </summary>
               {traces.map((tr, i) => (
                 <span key={i} style={{ display: 'block' }}>{tr}</span>
               ))}
               {t.picks6mTrace && <span style={{ display: 'block' }}>Picks/mes 6m: {t.picks6mTrace}</span>}
-            </span>
+            </details>
           )}
           </div>
         )}
