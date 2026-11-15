@@ -54,7 +54,7 @@ Browser ── Next.js middleware ── app/page.tsx ──┘
 | `db/schema.ts` | Drizzle table definition and inferred types. |
 | `db/index.ts` | Neon HTTP connection from `DATABASE_URL`; exports `db`. |
 | `crawler/crawl.ts` | Catalog crawler: HTML parser, upsert, checkpoints, retries, optional Playwright. |
-| `crawler/stats.ts` | Stats crawler: archive parser, period calculations, stale-stat cleanup. |
+| `crawler/stats.ts` | Stats crawler: archive parser, period calculations. Does not null stats by default (see `statsOutcome.ts`). |
 | `crawler/cleanup.ts` | Nulls period stats for inactive tipsters. |
 | `crawler/check-stats.ts` | Diagnostic counts of active/inactive tipsters with/without stats. |
 | `crawler/check-tipster.ts` | Prints the DB row(s) matching a slug. |
@@ -134,7 +134,7 @@ Single table: `tipsters` (`db/schema.ts`). No history table; only current values
 | `yield_12m` | numeric(6,2) | Weighted yield over closed months in the 12-month window. |
 | `picks_free_3m_avg` | numeric(7,2) | Free-pick average for paid tipsters, 3 closed months. |
 | `yield_free_3m` | numeric(6,2) | Free-pick yield for paid tipsters, 3 closed months. |
-| `stats_updated_at` | timestamptz | Last stats update; nulled when stats are cleared. |
+| `stats_updated_at` | timestamptz | Last stats update. Not refreshed for rows outside the activity window, so it shows how old their stats are. Nulled only by `cleanup.ts` or `CLEAR_INACTIVE_STATS=1`. |
 
 Indexes are defined for yield, yield6m, picks6mAvg, profit, picks, followers, sinceYear, lastPickAt, and isPaid.
 
@@ -194,7 +194,7 @@ Flow:
 
 Reliability details:
 
-- Retries each page/upsert up to 8 attempts with linear backoff (`attempt * 2s`).
+- Retries each page/upsert up to 5 total attempts (`CRAWL_MAX_ATTEMPTS`, was 8) with linear backoff (`attempt * 2s`). HTTP 401/403/429 are never retried and abort the whole run (`crawler/blockPolicy.ts`). A 200 page with no tipsters and explicit challenge markers also aborts; a challenge page without those markers is not detected.
 - Sleeps 300 ms between pages.
 - Optional Playwright mode launches Chromium and injects the cookie pairs into a browser context, then uses `ctx.request.get`. The default path is plain Node `fetch`.
 - `parseBlocks()` is exported for tests; a direct-execution guard prevents importing the module from starting the crawl.
@@ -222,11 +222,11 @@ Flow:
 9. Computes `picks6mAvg` as total picks divided by the number of months with data in the 6-month window (not a fixed divisor of 6).
 10. For paid tipsters, derives free stats by subtracting the paid tab from all-time rows for the last 3 closed months.
 11. Upserts the period columns and `stats_updated_at`.
-12. After the loop, nulls period stats for tipsters with `last_pick_at` null or older than one month.
+12. After the loop, reports coverage, exits 1 when every selected tipster returned HTTP 200 without parseable stats, and never nulls stats unless `CLEAR_INACTIVE_STATS=1` on a complete run with no errors and at least one selected tipster. Exits 1 when no tipster is selected (no activity evidence) so the run is visible instead of a green no-op.
 
 Reliability details:
 
-- Retries each fetch/update up to 3 attempts with linear backoff (`attempt * 2s`).
+- Retries each fetch/update up to 5 total attempts with linear backoff (`attempt * 2s`). HTTP 401/403/429 abort the whole run: no further requests or writes, previous stats kept, exit 1. A 200 with no parseable data and explicit challenge markers aborts too; a 200 with no data and no markers is treated as "no data" (not written, not counted as refreshed). Challenge pages without those markers are not detected. Operational protections against a mass failure (limits are not measured estimates; override by env): abort after 25 consecutive failed tipsters (`STATS_MAX_CONSECUTIVE_ERRORS`), after 100 consecutive tipsters not refreshed for any reason including empty 200s (`STATS_MAX_UNREFRESHED`), or after 180 min of stats (`STATS_MAX_MINUTES`, checked before every attempt and backoff). Each request has a 60 s network timeout. Only a refreshed tipster resets the streaks. An abort keeps all previous stats and the checkpoint, exits 1 and never clears. False abort: if Blogabet really has 100 tipsters in a row without data, the run stops early and the remaining tipsters keep their old `stats_updated_at`; rerun with a higher `STATS_MAX_UNREFRESHED`.
 - Sleeps 300 ms between tipsters.
 - Saves the checkpoint every 100 tipsters and at the end.
 - The checkpoint is deleted only when `errors === 0`. If any error occurred, it is saved at `allTipsters.length`; a later run resumes at the end and does not retry the failed tipsters. Delete `crawler/.checkpoint-stats` to force a full retry (ask before doing this in a real environment).
@@ -251,8 +251,8 @@ Reliability details:
 
 - Cron `0 3 * * *` (03:00 UTC) and manual dispatch.
 - Node 20, `npm ci`, 360-minute timeout.
-- Catalog crawl with `LAST_ACTIVE=1`, retried up to 3 times with 60-second waits; exits non-zero after the third failure.
-- Stats crawl retried up to 3 times with 30-second waits. The loop has no trailing failure check, so after three failures the step can still finish green. Inspect logs.
+- Catalog crawl with `LAST_ACTIVE=1`, a single run (no outer retry loop); requests retry inside as above. A failure fails the job.
+- Stats crawl, a single run, `if: !cancelled()` so it runs even if the catalog step failed. Its exit code reaches the job.
 
 `crawl-full.yml`:
 

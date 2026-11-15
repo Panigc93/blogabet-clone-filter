@@ -25,27 +25,14 @@ jobs:
           BLOGABET_COOKIE: ${{ secrets.BLOGABET_COOKIE }}
           LAST_ACTIVE: '1'
         run: |
-          for i in 1 2 3; do
-            if npx tsx crawler/crawl.ts; then
-              exit 0
-            fi
-
-            if [ "$i" -lt 3 ]; then
-              echo "Intento $i fallo; reintentando en 60 segundos..."
-              sleep 60
-            fi
-          done
-
-          echo "El crawler fallo despues de 3 intentos."
-          exit 1
+          # One run, no outer retry loop (requests already retry inside, see CRAWL_MAX_ATTEMPTS).
+          npx tsx crawler/crawl.ts
 
       - name: Run stats crawler
+        if: ${{ !cancelled() }}  # stats are public per blog and use stored slugs: run even if the catalog step failed
         env:
           DATABASE_URL_DIRECT: ${{ secrets.DATABASE_URL_DIRECT }}
           BLOGABET_COOKIE: ${{ secrets.BLOGABET_COOKIE }}
         run: |
-          for i in 1 2 3; do
-            npx tsx crawler/stats.ts && break
-            echo "Intento $i fallo, reintentando en 30s..."
-            sleep 30
-          done
+          # One run: the exit code must reach the job (the old loop ended in sleep and hid failures).
+          npx tsx crawler/stats.ts
