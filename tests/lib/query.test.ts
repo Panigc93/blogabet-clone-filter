@@ -47,10 +47,15 @@ describe('buildFilters', () => {
     expect(filters).toHaveLength(0)
   })
 
-  it('adds price range with isPaid=true and currency scope when priceMin/priceMax set', () => {
-    const filters = buildFilters({ priceMin: 5, priceMax: 20 })
+  it('adds price range with isPaid=true and currency scope when priceMin/priceMax set in Blogabet view', () => {
+    const filters = buildFilters({ priceMin: 5, priceMax: 20, platform: 'blogabet' })
     // is_paid=true + price_currency='eur' (EUR/GBP never mixed) + price >= + price <=
-    expect(filters).toHaveLength(4)
+    expect(filters).toHaveLength(5)
+  })
+
+  it('ignores price range outside the Blogabet-only view (Tipstrr GBP / combined view) instead of silently hiding rows', () => {
+    expect(buildFilters({ priceMin: 5, priceMax: 20, platform: 'tipstrr' })).toHaveLength(1) // platform only
+    expect(buildFilters({ priceMin: 5, priceMax: 20 })).toHaveLength(0) // all-platforms view: no price clause
   })
 
   it('scopes by platform only when requested', () => {

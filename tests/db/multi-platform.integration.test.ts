@@ -133,15 +133,22 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
     expect(all500.map((r) => `${r.platform}:${r.slug}`).sort()).toEqual(['blogabet:the-least-expected', 'tipstrr:the-least-expected'].sort())
   })
 
-  it('price filter compares EUR only and never matches GBP rows as if absent', async () => {
-    const eur = await runQuery({ priceMin: 5, priceMax: 50 })
-    expect(eur.map((r) => r.platform)).toEqual(['blogabet']) // GBP TLE not matched by an EUR range
-    // explicit Tipstrr scope: filter not applied, caller must signal it
+  it('price filter applies only in the Blogabet view; elsewhere it is ignored and signalled, never silently hiding rows', async () => {
+    // Blogabet-only view: EUR range applies with currency scope
+    const eur = await runQuery({ platform: 'blogabet', priceMin: 5, priceMax: 50 })
+    expect(eur.map((r) => r.platform)).toEqual(['blogabet'])
+    expect(priceFilterIgnored({ platform: 'blogabet', priceMin: 5 })).toBe(false)
+    // Combined all-platforms view (platform undefined): a price range would
+    // silently hide every GBP row as if no tipster existed, so it is NOT
+    // applied and the caller must signal it
+    expect(priceFilterIgnored({ priceMin: 5, priceMax: 50 })).toBe(true)
+    const all = await runQuery({ priceMin: 5, priceMax: 50 })
+    expect(all).toHaveLength(3) // BB + 2 Tipstrr: nothing hidden
+    // explicit Tipstrr scope: same rule
     const params = { platform: 'tipstrr' as const, priceMin: 5, priceMax: 50 }
     expect(priceFilterIgnored(params)).toBe(true)
     const tt = await runQuery(params)
     expect(tt).toHaveLength(2) // NOT silently zero
-    expect(priceFilterIgnored({ platform: 'blogabet', priceMin: 5 })).toBe(false)
   })
 
   it('pagination (LoadMore path) returns stable pages with negative ids', async () => {

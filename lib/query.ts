@@ -70,11 +70,12 @@ export function buildFilters(params: TipsterFilters): SQL[] {
   }
 
   // Prices are only comparable within one currency (BB EUR vs Tipstrr GBP;
-  // no FX conversion is invented). When the caller explicitly asks for a
-  // non-EUR platform, the price filter is NOT applied — the caller signals
-  // that to the user (route warning + disabled UI) instead of silently
-  // returning zero rows as if no tipster existed.
-  if ((params.priceMin !== undefined || params.priceMax !== undefined) && params.platform !== 'tipstrr') {
+  // no FX conversion is invented). The price filter is applied ONLY in the
+  // Blogabet-only view: in the Tipstrr view or the combined all-platforms
+  // view (platform undefined) applying it would silently hide every
+  // non-EUR row as if no tipster existed — the caller signals the ignored
+  // filter to the user instead (route warning + disabled UI).
+  if ((params.priceMin !== undefined || params.priceMax !== undefined) && params.platform === 'blogabet') {
     conditions.push(eq(tipsters.isPaid, true))
     conditions.push(eq(tipsters.priceCurrency, 'eur'))
     if (params.priceMin !== undefined) {
@@ -89,11 +90,12 @@ export function buildFilters(params: TipsterFilters): SQL[] {
 }
 
 // True when a price filter was requested but not applied because the
-// platform's currency is not comparable (GBP vs EUR, no FX).
+// view's currency is not comparable (Tipstrr GBP, or the combined
+// all-platforms view mixing EUR and GBP — no FX invented).
 export function priceFilterIgnored(params: TipsterFilters): boolean {
   return (
     (params.priceMin !== undefined || params.priceMax !== undefined) &&
-    params.platform === 'tipstrr'
+    params.platform !== 'blogabet'
   )
 }
 

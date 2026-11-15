@@ -101,7 +101,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
 
   const tipo = sp.get('tipo') ?? 'all'
   const platform = sp.get('platform') ?? 'blogabet'
-  const isTipstrr = platform === 'tipstrr'
+  const nonBB = platform !== 'blogabet' // tipstrr o vista combinada: filtros solo-BB desactivados
 
   return (
     <>
@@ -135,6 +135,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             >
               <option value="blogabet">Blogabet</option>
               <option value="tipstrr">Tipstrr</option>
+              <option value="all">Todas</option>
             </select>
             <div style={{ display: 'flex', flexShrink: 0 }}>
               {(['all','free','paid'] as const).map((t, i) => (
@@ -207,8 +208,8 @@ export function FilterBar({ searchParams }: FilterBarProps) {
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Años en BB</label>
               <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('minYears') ?? ''}
-                disabled={isTipstrr}
-                title={isTipstrr ? 'Filtro propio de Blogabet: no aplica a Tipstrr' : undefined}
+                disabled={nonBB}
+                title={nonBB ? 'Filtro propio de Blogabet: no aplica a esta vista' : undefined}
                 onChange={e => update('minYears', e.target.value || null)}>
                 <option value="">Todos</option>
                 <option value="1">Al menos 1 año</option>
@@ -240,12 +241,12 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             {/* PRECIO/MES (solo pago) — en Tipstrr no aplica: cobra en GBP, no comparable con € */}
             {tipo === 'paid' && (
               <div style={{ flex: 1, minWidth: 110, maxWidth: 130, marginBottom: 2 }}>
-                <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }} title={isTipstrr ? 'Tipstrr cobra en £ (GBP): el filtro de precio compara solo € y no se aplica a esta fuente' : undefined}>Precio/mes (€){isTipstrr ? ' · no aplica (GBP)' : ''}</label>
+                <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }} title={nonBB ? 'El filtro de precio compara solo €: no se aplica cuando la vista incluye fuentes en £ (GBP)' : undefined}>Precio/mes (€){nonBB ? ' · no aplica (solo €)' : ''}</label>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  <input type="number" placeholder="Mín" min={0} disabled={isTipstrr} style={{ background: '#fff', color: '#333', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '6px 6px', fontSize: 13, width: '100%' }}
+                  <input type="number" placeholder="Mín" min={0} disabled={nonBB} style={{ background: '#fff', color: '#333', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '6px 6px', fontSize: 13, width: '100%' }}
                     value={priceMin}
                     onChange={e => setPriceMin(e.target.value)} />
-                  <input type="number" placeholder="Máx" min={0} disabled={isTipstrr} style={{ background: '#fff', color: '#333', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '6px 6px', fontSize: 13, width: '100%' }}
+                  <input type="number" placeholder="Máx" min={0} disabled={nonBB} style={{ background: '#fff', color: '#333', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '6px 6px', fontSize: 13, width: '100%' }}
                     value={priceMax}
                     onChange={e => setPriceMax(e.target.value)} />
                 </div>
@@ -259,8 +260,8 @@ export function FilterBar({ searchParams }: FilterBarProps) {
                   <input
                     type="checkbox"
                     checked={sp.get('conPicksFree') === '1'}
-                    disabled={isTipstrr}
-                    title={isTipstrr ? 'No evaluable en Tipstrr: la web no distingue picks free/paid' : undefined}
+                    disabled={nonBB}
+                    title={nonBB ? 'No evaluable fuera de Blogabet: la fuente no distingue picks free/paid' : undefined}
                     onChange={e => update('conPicksFree', e.target.checked ? '1' : null)}
                     style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#5b8dd9', flexShrink: 0 }}
                   />
@@ -275,8 +276,8 @@ export function FilterBar({ searchParams }: FilterBarProps) {
                 <input
                   type="checkbox"
                   checked={sp.get('resetOlderThan') === '1'}
-                  disabled={isTipstrr}
-                  title={isTipstrr ? 'Tipstrr no expone resets de estadísticas' : undefined}
+                  disabled={nonBB}
+                  title={nonBB ? 'Tipstrr no expone resets de estadísticas' : undefined}
                   onChange={e => update('resetOlderThan', e.target.checked ? '1' : null)}
                   style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#5b8dd9', flexShrink: 0 }}
                 />
