@@ -263,7 +263,10 @@ export function planTipstrrUpsert(
   return { action: 'update', merged: mergeTipstrrUpdate(existing, mapping.insert) }
 }
 
-export type Sport6BatchPlan = TipstrrUpsertPlan | { action: 'skip-existing' }
+export type Sport6BatchPlan =
+  | { action: 'insert'; insert: TipsterInsert }
+  | { action: 'skip'; reason: string }
+  | { action: 'skip-existing' }
 
 // Regla del lote de recuperación sport/6 (2026-11-15), fijada en revisión:
 // SOLO ALTAS. Una fila existente se preserva intacta y se salta SIEMPRE, sin
@@ -274,7 +277,9 @@ export function planSport6Batch(
   mapping: TipstrrDbMapping
 ): Sport6BatchPlan {
   if (existing) return { action: 'skip-existing' }
-  return planTipstrrUpsert(null, mapping)
+  const plan = planTipstrrUpsert(null, mapping)
+  if (plan.action === 'update') throw new Error('update sin fila existente: imposible')
+  return plan
 }
 
 // Fecha de captura ordenable o null. Acepta Date o string; una cadena

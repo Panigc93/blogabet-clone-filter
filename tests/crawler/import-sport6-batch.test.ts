@@ -59,7 +59,7 @@ describe('planSport6Batch: lote solo-altas', () => {
     const m = mappingOf('-25')
     if (!m.ok) throw new Error(m.reason)
     const newer = { ...m.insert, capturedAt: new Date('2999-01-01T00:00:00Z') }
-    const plan = planSport6Batch({ id: -5, capturedAt: '2020-01-01' } as TipsterInsert, { ok: true, insert: newer })
+    const plan = planSport6Batch({ id: -5, capturedAt: new Date('2020-01-01') } as unknown as TipsterInsert, { ok: true, insert: newer })
     expect(plan.action).toBe('skip-existing')
   })
 
