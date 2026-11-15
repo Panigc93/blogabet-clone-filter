@@ -1,0 +1,64 @@
+{
+ "_meta": {
+  "source": "Sonda selector all-time UI: navegaci\u00f3n https://tipstrr.com/tipster/1086/stats + selecci\u00f3n nativa 'All time' (select#portfolio-stats-period value 6) + relectura; sesi\u00f3n con login (navegador nube)",
+  "captured": "2026-11-15T16:53-16:56Z",
+  "purpose": "certificar si la v\u00eda nativa all-time existe para perfiles con overview rodante (cobertura-sin-cierre)",
+  "requests": "1 navegaci\u00f3n + r\u00e1faga derivada de la selecci\u00f3n (medida: 50 recursos nuevos, 11 llamadas API /6 + month-overview + portfolio) + 3 GET de verificaci\u00f3n en rutas OBSERVADAS llamadas por la propia UI (month/6, portfolio, month-overview, sport/6), espaciados 11-12 s",
+  "findings": [
+   "El script de hidrataci\u00f3n NO se muta con la selecci\u00f3n (sigue period 3): el estado cliente se actualiza por fetch",
+   "La selecci\u00f3n dispara /api/portfolio/<slug>/stats/{month,sport,bet-type,bookmaker,hour,time-before,odds-total,stake,league}/6 + month-overview/ (rutas p\u00fablicas que usa la propia UI)",
+   "La serie mensual /6 es ID\u00c9NTICA a la capturada embebida esta ma\u00f1ana (tips/staked/profit por mes)",
+   "La p\u00e1gina muestra por defecto cifras LEVEL STAKE (toggle 'Level stakes'): el desfase con la serie advised era de visualizaci\u00f3n, no de datos",
+   "El overview de /api/portfolio/<slug> sigue period 3 tras la selecci\u00f3n: los totales advised all-time salen de stats/sport/6",
+   "stats/sport/6 lleva totales ADVISED all-time: tips/staked/profit/roi + level/bsp por deporte (suma de filas si multi-deporte)",
+   "month-overview difiere de month/6 en nov (5.8081 vs 6.3081, 0.5u): ciclos de actualizaci\u00f3n distintos ('stats updated every 24 hours')"
+  ],
+  "closure_1086": "tips 563==\u03a3563; profit -33.6674 vs \u03a3 -33.667 (diff 0.0004); roi -7.36 vs \u03a3profit/\u03a3staked -7.359 (diff 0.001): 3/3 VERDE"
+ },
+ "sport6": {
+  "averageOdds": 5.668915,
+  "levelStakeProfit": -49.4215,
+  "levelStakeROI": -6.62,
+  "profit": -33.6674,
+  "roi": -7.36,
+  "sportId": 2,
+  "staked": 457.5,
+  "tips": 563,
+  "winPercentage": 26
+ },
+ "selectorOptions": [
+  {
+   "text": "Last month",
+   "value": "2"
+  },
+  {
+   "text": "Last 3 months",
+   "value": "3"
+  },
+  {
+   "text": "Last 6 months",
+   "value": "4"
+  },
+  {
+   "text": "Last 12 months",
+   "value": "5"
+  },
+  {
+   "text": "All time",
+   "value": "6"
+  }
+ ],
+ "fetchRequestsObserved": [
+  "/api/portfolio/1086",
+  "/api/portfolio/1086/stats/month-overview/",
+  "/api/portfolio/1086/stats/month/6",
+  "/api/portfolio/1086/stats/bet-type/6",
+  "/api/portfolio/1086/stats/bookmaker/6",
+  "/api/portfolio/1086/stats/hour/6",
+  "/api/portfolio/1086/stats/time-before/6",
+  "/api/portfolio/1086/stats/odds-total/6",
+  "/api/portfolio/1086/stats/sport/6",
+  "/api/portfolio/1086/stats/stake/6",
+  "/api/portfolio/1086/stats/league/6"
+ ]
+}

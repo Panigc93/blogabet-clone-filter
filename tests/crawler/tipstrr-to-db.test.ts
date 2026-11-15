@@ -412,6 +412,39 @@ describe('planTipstrrUpsert: guardas de cuarentena y frescura', () => {
     if (plan.action === 'skip') expect(plan.reason).toContain('no más reciente')
   })
 
+  it('captura con la MISMA fecha que la almacenada: skip — no hay nada nuevo', () => {
+    const plan = planTipstrrUpsert(base, okMapping)
+    expect(plan.action).toBe('skip')
+    if (plan.action === 'skip') expect(plan.reason).toContain('no más reciente')
+  })
+
+  it('captura nueva sin capturedAt: skip — política conservadora, no se escribe sin frescura verificable', () => {
+    expect(okMapping.ok).toBe(true)
+    if (!okMapping.ok) return
+    const noDate: TipstrrDbMapping = { ok: true, insert: { ...okMapping.insert, capturedAt: null } }
+    const plan = planTipstrrUpsert(base, noDate)
+    expect(plan.action).toBe('skip')
+    if (plan.action === 'skip') expect(plan.reason).toContain('sin capturedAt parseable')
+  })
+
+  it('captura nueva con capturedAt inválido: skip — un NaN no gana la comparación', () => {
+    expect(okMapping.ok).toBe(true)
+    if (!okMapping.ok) return
+    const badDate: TipstrrDbMapping = {
+      ok: true,
+      insert: { ...okMapping.insert, capturedAt: 'no-es-una-fecha' as unknown as Date },
+    }
+    const plan = planTipstrrUpsert(base, badDate)
+    expect(plan.action).toBe('skip')
+    if (plan.action === 'skip') expect(plan.reason).toContain('sin capturedAt parseable')
+  })
+
+  it('fila existente sin capturedAt: skip — no se puede ordenar, política conservadora', () => {
+    const plan = planTipstrrUpsert({ ...base, capturedAt: null }, okMapping)
+    expect(plan.action).toBe('skip')
+    if (plan.action === 'skip') expect(plan.reason).toContain('fila existente sin capturedAt')
+  })
+
   it('captura más reciente: update con merge preserva-ausentes', () => {
     const newerMapping = tipstrrSnapshotToInsert(
       { ...TLE_SNAPSHOT, capturedAtDate: '2026-11-16T00:00:00Z' },
@@ -432,5 +465,8 @@ describe('assertRealImportProvenance: rechazo de fixtures antes del write', () =
   })
   it('un id capturado del origen pasa', () => {
     expect(() => assertRealImportProvenance('source-captured', 'the-least-expected')).not.toThrow()
+  })
+  it('un id interno generado transaccionalmente por la ruta real pasa', () => {
+    expect(() => assertRealImportProvenance('internal-transactional', 'the-least-expected')).not.toThrow()
   })
 })

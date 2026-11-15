@@ -1,0 +1,459 @@
+{
+ "_meta": {
+  "purpose": "motivo de la última validación fallida por slug, fuera de la fila persistida",
+  "run": "seed-tipstrr-catalog (aislado PGlite)",
+  "captured": "2026-11-15"
+ },
+ "rejected": 111,
+ "quarantineClasses": {
+  "cobertura-sin-cierre": 100,
+  "contradiccion-numerica": 9,
+  "ventana-posterior-alta": 2
+ },
+ "detail": [
+  {
+   "slug": "-25",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "10-streak",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "1086",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "60-seconds",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "acca4life-m6aay",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "alexbaseball",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "alpheratz",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "alucard-bgxpo",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "argentina-horse",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "baby-cash",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "basket-ligas",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "betsmartsports",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "betsmasher",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "betting-master20",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "bill444",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "blue-fire",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "brekky-movers",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "broncoxl",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "chels",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "chicken-dinner",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "chris1",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "chrisbestbets",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "closing-line-journal",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "combined",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "correctscore-9k0lv",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "crown-form-ratings",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "dario",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "docjw",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "draw-magic-picks",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "drev",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "ea-picks",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "eclipse-bloodlines",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "edgefooty",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "eplcorrectscores-8ugml",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "erniegolds",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "foot-handicap",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "football-profit-tips",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "footballpunter",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "futeblog-tips",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "golf-master-pro",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "groundpig",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "hola-tips",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "honest-jim",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "honeybadgerbets",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "indianbet",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "isonemybet-kthpl",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "iverius",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "ixmael",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "jampizza",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "jeandeniss",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "jelenius",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "joydi",
+   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "kalibasa",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "kingfisher-sports-hub",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "lucra",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "mameibet",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "marshalbasketbet",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "match-score-analytics",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "matchmind-gold",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "mb-sports-tips",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "michaels-world",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "mihaib",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "moth-tips",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "neon-track",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "nieder",
+   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "niin-betting",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "niin-tennis",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "on-target-tips",
+   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "on-the-bob",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "on-the-money-tips",
+   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "one3q",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "out-bank",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "parabola-bets",
+   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "penkofan22",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "predzone",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "profitgr",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "qweetix",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "racing-edge-uk",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "ravi-predictz",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "redondo",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "revenue-faq",
+   "reason": "cuarentena[ventana-posterior-alta]: la ventana del overview empieza después de la fecha de alta (periodStartDate > alta o ausente): la igualdad tips == suma no confirma el total histórico: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "rogue-excellence",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "rorschachs-bet",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "rosenstein",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "sangarjvbasket",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "sgtipster",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "sharpsh0t",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "sharpslayer",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "shrewd-tips",
+   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "sniiperman",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "spain-football",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "stitch-betting-lab",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "straight-sets",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "strategy7tips",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "svb-tips",
+   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "tennisexplorer",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "the-acca-blueprint",
+   "reason": "cuarentena[ventana-posterior-alta]: la ventana del overview empieza después de la fecha de alta (periodStartDate > alta o ausente): la igualdad tips == suma no confirma el total histórico: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "the-second-serve",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "thebanker",
+   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "thebestbets",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "thunderbirdsrgo1",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "trust-me",
+   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "ultimate-draw",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "value-wins",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "venecash",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "victor-binotti",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "weightshift-pro",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "xgoal-over-pro",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "xvalue-edge-pro",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "zambrano",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  },
+  {
+   "slug": "zenyatta",
+   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
+  }
+ ]
+}

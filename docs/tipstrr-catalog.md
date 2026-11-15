@@ -204,12 +204,16 @@ Antes de proponer 209 lecturas, resolver la semántica con 2-3 lecturas acotadas
 - 142 pendientes con yield de la clasificación anterior: NINGUNO persiste con la puerta estricta; quedan en cuarentena con clase y captura conservada.
 - tsc limpio, 175/175 tests y `next build` compila desde checkout limpio; el aviso final de "patch lockfile" es del entorno de verificación (node_modules enlazado), no del código.
 
-### Guardas de import (implementadas 2026-11-15 17:52 CET, con regresiones)
+### Guardas de import (implementadas 2026-11-15 17:52 CET, endurecidas 18:00 CET, con regresiones)
 
-1. Rechazo de fixtures ANTES de escribir: assertRealImportProvenance lanza si idSource no es 'source-captured'. La ruta de import real debe llamarla antes del write; el seed aislado no la llama (su entorno es el fixture).
-2. Frescura: planTipstrrUpsert devuelve skip si la captura no es más reciente que la fila guardada (capturedAt nuevo <= almacenado): una captura antigua no retrocede valores ni marcas.
-3. Cuarentena vs frescura: planTipstrrUpsert devuelve skip para todo mapeo rechazado: una cuarentena NUNCA escribe, y la fila existente conserva valores y marcas — un yield viejo no puede parecer fresco por un capturedAt nuevo.
+1. Rechazo de fixtures ANTES de escribir: assertRealImportProvenance lanza si idSource es 'isolated-fixture'; acepta 'source-captured' (id del origen) o 'internal-transactional' (surrogate generado por la propia ruta real en su transacción — alinea el contrato con la clave natural, ver sección de identidad). ESTADO: sin callers reales (solo tests); NO es efectiva antes del write hasta que la única ruta de import real la invoque; el seed aislado no la llama (su entorno es el fixture).
+2. Frescura estricta y conservadora: planTipstrrUpsert devuelve skip si la captura no es más reciente que la fila guardada (capturedAt nuevo <= almacenado, igualdad incluida). Política explícita ante fechas dudosas: captura nueva SIN capturedAt parseable (ausente o inválida — un NaN no puede ganar la comparación) → skip; fila existente SIN capturedAt → skip (no se puede ordenar, no se sobrescribe). Regresiones: igual/ausente/inválida/existente-sin-fecha.
+3. Cuarentena vs frescura: planTipstrrUpsert devuelve skip para todo mapeo rechazado: una cuarentena NUNCA escribe, y la fila existente conserva valores y marcas — un yield viejo no puede parecer fresco por un capturedAt nuevo. El motivo de la última validación fallida se registra FUERA de la fila (ver siguiente sección), para que un yield antiguo no aparente estar re-confirmado.
 4. mergeTipstrrUpdate queda como pieza interna del plan (ausente nunca pisa válido; identidad inmutable), no para uso directo.
+
+### Registro de validaciones fallidas (diseño; artefacto aislado ya implementado)
+
+Una cuarentena no toca la fila, así que el consumidor no puede saber si la última captura validó o falló. Diseño: registro del motivo de la última validación fallida FUERA de la fila — en el entorno aislado, el seed escribe crawler/platforms/tipstrr/captures/2026-11-15-quarantine-log.json (slug, clase, motivo); para la ruta real, tabla import_validation_log (platform, slug, captured_at, clase, motivo) escrita en la misma transacción del plan. Es un registro de revisión, no oculta datos al consumidor.
 
 ### Identidad por clave natural (recomendación de arquitectura, borrador 0005 NO ejecutado)
 
@@ -219,9 +223,17 @@ Antes de proponer 209 lecturas, resolver la semántica con 2-3 lecturas acotadas
 
 El filtro "activos el último mes" NO se cierra con un timestamp exacto de publicación: (a) la serie mensual solo da el MES con picks (granularidad mensual), (b) activeTips cuenta tips abiertos, que pueden haberse publicado hace más de 30 días, (c) dateAdded por tip existe en /results pero la primera página ordena por fecha de EVENTO (observación de muestra, no contrato), así que max() de página 1 no certifica la última publicación global, y (d) el render puede venir cacheado horas (SERVER_DATE 14:39Z en lectura 16:48Z). Política: dos métricas separadas y honestas — "último mes con picks observado" (de la serie /stats, con fecha de captura) y "tips abiertos ahora" (activeTips) — declarando que el negativo es "sin actividad observada", no "inactivo probado". lastPickAt exacto queda null; nunca se fabrica desde el bucket mensual.
 
-### Sonda selector all-time de /stats (PREPARADA, NO ejecutada, alcance real)
+### Sonda selector all-time de /stats (EJECUTADA 2026-11-15 ~16:53-16:56 UTC sobre perfil 1086, cobertura-sin-cierre)
 
-Objetivo: certificar si el selector de periodo de la UI cambia el overview a all-time (el parámetro ?period= de URL fue ignorado, pero eso no agota la vía nativa). Alcance REAL: no es "1 petición" — es (1) navegar a /tipster/<slug>/stats de un perfil con period=3 (p. ej. alpheratz o cualquier cobertura-sin-cierre), (2) localizar y pulsar el selector "All time", (3) esperar la actualización (puede ser fetch cliente adicional: contar y registrar TODAS las peticiones de red disparadas), (4) releer el estado embebido y comprobar overview.period == 6 con cifras nuevas, (5) guardar la captura. Criterio de éxito: el overview cambia a period 6 tras la selección. Criterio de fallo: no cambia, o requiere login de pago, o dispara un muro. Coste: 1 navegación + 1 selección + fetches que la UI dispare (medidos, no asumidos). Solo si pasa: pasada acotada de ~111 perfiles cuarentenados a 10-16 s, con la misma puerta estricta sobre el overview all-time obtenido.
+Resultado: la vía nativa EXISTE, con matices. El selector nativo <select id="portfolio-stats-period"> con value 6 (All time) dispara los fetches cliente de la propia UI; el script de hidratación NO se muta (sigue period 3) — el estado actualizado vive en las respuestas API, no en el HTML. Contabilizado: 1 navegación + ráfaga derivada (50 recursos nuevos; 11 llamadas /stats/{month,sport,bet-type,bookmaker,hour,time-before,odds-total,stake,league}/6 + month-overview/ + /api/portfolio/<slug>) + 3 GET de verificación en rutas observadas (espaciados 11-12 s). Hallazgos:
+
+1. /api/portfolio/<slug>/stats/sport/6 devuelve los TOTALES ADVISED ALL-TIME (tips 563, staked 457.5, profit −33.6674, roi −7.36 para 1086; con variantes level/bsp; suma de filas si multi-deporte). CIERRE 3/3 VERDE contra la serie capturada: tips 563==Σ563, profit −33.6674≈Σ−33.667 (diff 0.0004), roi −7.36≈Σprofit/Σstaked (diff 0.001).
+2. /stats/month/6 devuelve la serie mensual ADVISED IDÉNTICA a la capturada embebida esa misma mañana (sin re-scope ni obsolescencia).
+3. El overview de /api/portfolio/<slug> sigue period 3 tras la selección: los totales advised all-time salen de sport/6, no del overview.
+4. La página MUESTRA por defecto cifras level-stake (toggle): el texto del DOM no es la base advised — leer campos, no € renderizados.
+5. month-overview difiere de month/6 en el mes en curso (5.8081 vs 6.3081, 0.5u): ciclos de actualización distintos ("stats updated every 24 hours").
+
+Consecuencia: para los 111 cuarentenados hay una ruta de cierre — GET /api/portfolio/<slug>/stats/sport/6 (ruta pública observada llamada por la propia UI; NO adivinada) — a ~1 petición por perfil. DECISIÓN PENDIENTE (semántica de la puerta, no auto-aplicada): si la puerta estricta acepta sport/6 como cierre all-time independiente, y si la pasada de ~111 perfiles se autoriza (red, ~20-30 min a 10-16 s). Captura: crawler/platforms/tipstrr/captures/2026-11-15-alltime-selector-probe-1086.json. Sonda PAUSADA por nueva prioridad de despliegue (17:57): respuesta conservada, red no expandida.
 
 ### Preview seguro (requisitos ANTES de configurar nada)
 

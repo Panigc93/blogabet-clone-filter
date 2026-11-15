@@ -25,14 +25,25 @@ export interface TipstrrDbMappingOptions {
   // collide. portfolioId comes from the source's own data (e.g. captured
   // per-tip objects); never invent one.
   id: number
-  // Procedencia del id, declarada por el llamador: 'source-captured' =
-  // portfolioId real del origen (único importable); 'isolated-fixture' =
-  // provisional para entorno aislado, NUNCA payload de producción.
-  idSource: 'source-captured' | 'isolated-fixture'
+  // Procedencia del id, declarada por el llamador:
+  // - 'source-captured': portfolioId real del origen (importable).
+  // - 'internal-transactional': surrogate interno generado por la única ruta
+  //   de import real en su transacción (secuencia interna del borrador 0005,
+  //   NO aplicado). Válido solo cuando la propia ruta lo genera; ningún
+  //   llamador externo lo declara.
+  // - 'isolated-fixture': provisional para entorno aislado, NUNCA payload
+  //   de producción. La guarda assertRealImportProvenance lo rechaza.
+  idSource: TipstrrIdSource
   slug: string
   subscriptionPriceGbp?: number | null // e.g. 39; null when unknown/free
   isPaid: boolean
 }
+
+// Procedencia del id numérico de una fila Tipstrr. Con la clave natural
+// (platform, slug) como identidad operativa, el id es un surrogate interno;
+// el contrato alineado: o viene capturado del origen, o lo genera
+// transaccionalmente la única ruta de import real — nunca un fixture.
+export type TipstrrIdSource = 'source-captured' | 'internal-transactional' | 'isolated-fixture'
 
 export type TipstrrDbMapping =
   | { ok: true; insert: TipsterInsert }
@@ -226,9 +237,24 @@ export function planTipstrrUpsert(
     }
   }
   if (!existing) return { action: 'insert', insert: mapping.insert }
-  const nextAt = mapping.insert.capturedAt ? new Date(mapping.insert.capturedAt).getTime() : null
-  const curAt = existing.capturedAt ? new Date(existing.capturedAt).getTime() : null
-  if (nextAt !== null && curAt !== null && nextAt <= curAt) {
+  const nextAt = parseCapturedAt(mapping.insert.capturedAt)
+  const curAt = parseCapturedAt(existing.capturedAt)
+  // Política conservadora explícita: sin orden temporal fiable NO se
+  // escribe. Una fecha ausente o no parseable (NaN) no puede "ganar" la
+  // comparación por accidente: la escritura queda skippeada con motivo.
+  if (nextAt === null) {
+    return {
+      action: 'skip',
+      reason: `captura nueva sin capturedAt parseable (${String(mapping.insert.capturedAt)}): no se escribe sin frescura verificable`,
+    }
+  }
+  if (curAt === null) {
+    return {
+      action: 'skip',
+      reason: 'fila existente sin capturedAt: no se puede ordenar la captura; política conservadora, no se sobrescribe',
+    }
+  }
+  if (nextAt <= curAt) {
     return {
       action: 'skip',
       reason: `captura no más reciente que la almacenada (${mapping.insert.capturedAt} <= ${existing.capturedAt}): no se retroceden valores ni marcas`,
@@ -237,16 +263,26 @@ export function planTipstrrUpsert(
   return { action: 'update', merged: mergeTipstrrUpdate(existing, mapping.insert) }
 }
 
+// Fecha de captura ordenable o null. Acepta Date o string; una cadena
+// inválida produce NaN, que se trata como ausente (conservador).
+function parseCapturedAt(v: unknown): number | null {
+  if (v === null || v === undefined) return null
+  const t = v instanceof Date ? v.getTime() : new Date(v as string).getTime()
+  return Number.isFinite(t) ? t : null
+}
+
 // Guarda de la ruta de import REAL: los ids provisionales del entorno
 // aislado (-900000-i, idSource 'isolated-fixture') son fixtures de
 // validación y deben rechazarse ANTES de cualquier escritura real, no solo
-// etiquetarse. La ruta real debe llamar a esta guarda con el idSource
-// declarado por el llamador; el seed aislado NO la llama (su entorno es el
-// fixture). Con la clave natural (platform, slug) como identidad operativa,
-// el id numérico es un surrogate interno transaccional: ningún id de
-// fixture puede llegar a producción por esta vía.
-export function assertRealImportProvenance(idSource: 'source-captured' | 'isolated-fixture', slug: string): void {
-  if (idSource !== 'source-captured') {
+// etiquetarse. El contrato alineado con la clave natural (platform, slug):
+// la ruta real declara 'source-captured' (id capturado del origen) o
+// 'internal-transactional' (surrogate generado por la propia ruta en su
+// transacción, secuencia interna del borrador 0005 — NO aplicado).
+// ESTADO: función sin callers reales (solo tests). NO es efectiva antes
+// del write hasta que la única ruta de import real la invoque; el seed
+// aislado NO la llama (su entorno es el fixture).
+export function assertRealImportProvenance(idSource: TipstrrIdSource, slug: string): void {
+  if (idSource === 'isolated-fixture') {
     throw new Error(
       `import real rechazado para ${slug}: idSource '${idSource}' — los ids provisionales del entorno aislado no son payload importable`
     )

@@ -6,7 +6,7 @@
 // real capturado): el estado /stats no expone portfolioId y la convención
 // prohíbe inventarlo para producción. Uso:
 //   PGLITE_DIR=/tmp/pglite-catalog npx tsx scripts/seed-tipstrr-catalog.ts
-import { readFileSync, readdirSync, rmSync } from 'node:fs'
+import { readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
@@ -139,6 +139,27 @@ for (const f of files) {
   }
   okRows.push({ slug, picks: mappedPicks, yield: mappedYield ?? null, paid: mappedPaid })
 }
+
+// Registro de validaciones fallidas FUERA de la fila: una cuarentena no
+// toca la fila guardada, así que sin este artefacto un yield antiguo
+// parecería re-confirmado por la última captura. El log deja constancia
+// por slug del motivo de la última validación fallida. Diseño para la ruta
+// real: tabla import_validation_log (platform, slug, captured_at, clase,
+// motivo) escrita en la misma transacción del plan — ver
+// docs/multi-platform-db.md. Es un REGISTRO, no oculta datos.
+writeFileSync(
+  'crawler/platforms/tipstrr/captures/2026-11-15-quarantine-log.json',
+  JSON.stringify({
+    _meta: {
+      purpose: 'motivo de la última validación fallida por slug, fuera de la fila persistida',
+      run: 'seed-tipstrr-catalog (aislado PGlite)',
+      captured: '2026-11-15',
+    },
+    rejected: rejected.length,
+    quarantineClasses,
+    detail: rejected,
+  }, null, 1)
+)
 
 const byPlatform = await pg.query<{ platform: string; n: string }>(
   `SELECT platform, count(*)::text AS n FROM tipsters GROUP BY platform`
