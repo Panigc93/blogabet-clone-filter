@@ -1,0 +1,32 @@
+name: Diag listing profit (one GET, no DB)
+
+# Diagnostic only. One GET of the catalog listing (order=profit, lastActive=3, picksOver=500, start=0)
+# from the Actions runner. No database, no upserts, no retries, no artifacts, no schedule.
+# It runs once when the diag/listing-profit-once branch is pushed. Do not merge.
+on:
+  push:
+    branches: ['diag/listing-profit-once']
+    paths:
+      - '.github/workflows/diag-listing-profit.yml'
+      - '.github/diag/listing-profit.mjs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: diag-listing-profit
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Single listing GET
+        env:
+          BLOGABET_COOKIE: ${{ secrets.BLOGABET_COOKIE }}
+        run: node .github/diag/listing-profit.mjs
