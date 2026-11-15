@@ -1,4 +1,4 @@
-import { pgTable, integer, text, boolean, numeric, smallint, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core'
+import { pgTable, integer, bigserial, text, boolean, numeric, smallint, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core'
 import { sql } from 'drizzle-orm'
 
 export const tipsters = pgTable('tipsters', {
@@ -38,6 +38,11 @@ export const tipsters = pgTable('tipsters', {
   picksFree3mAvg:  numeric('picks_free_3m_avg', { precision: 7, scale: 2 }),
   yieldFree3m:     numeric('yield_free_3m', { precision: 6, scale: 2 }),
   statsUpdatedAt:  timestamp('stats_updated_at', { withTimezone: true }),
+  // Provenance opcional: portfolioId del origen cuando una lectura lo expone
+  // (p. ej. /results). La identidad operativa es (platform, slug); el id
+  // numérico Tipstrr es surrogate interno (secuencia tipsters_internal_id_seq,
+  // asignada por la ruta de import en su transacción).
+  sourcePortfolioId: integer('source_portfolio_id'),
 }, (t) => ({
   platformSlugUnique: uniqueIndex('ux_tipsters_platform_slug').on(t.platform, t.slug),
   platformIdx:   index('idx_tipsters_platform').on(t.platform),
@@ -54,3 +59,24 @@ export const tipsters = pgTable('tipsters', {
 
 export type Tipster = typeof tipsters.$inferSelect
 export type TipsterInsert = typeof tipsters.$inferInsert
+
+// Registro de validaciones fallidas FUERA de la fila de tipsters: una
+// cuarentena nunca escribe la fila, así que sin este log un yield antiguo
+// parecería re-confirmado por la última captura. La ruta de import real lo
+// escribe en la misma transacción del plan (planTipstrrUpsert), una fila por
+// captura rechazada/skipeada. Es un registro de revisión, no oculta datos.
+export const importValidationLog = pgTable('import_validation_log', {
+  id:         bigserial('id', { mode: 'number' }).primaryKey(),
+  platform:   text('platform').notNull(),
+  slug:       text('slug').notNull(),
+  capturedAt: timestamp('captured_at', { withTimezone: true }), // instante de la captura evaluada
+  klass:      text('class').notNull(),      // 'cuarentena[<clase>]' | 'skip[<motivo>]'
+  reason:     text('reason').notNull(),     // motivo completo de la validación fallida
+  runId:      text('run_id').notNull(),     // identificador de la pasada de import
+  createdAt:  timestamp('created_at', { withTimezone: true }).notNull().default(sql`NOW()`),
+}, (t) => ({
+  platformSlugIdx: index('idx_import_validation_log_platform_slug').on(t.platform, t.slug),
+}))
+
+export type ImportValidationLog = typeof importValidationLog.$inferSelect
+export type ImportValidationLogInsert = typeof importValidationLog.$inferInsert

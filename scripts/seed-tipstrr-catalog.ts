@@ -22,6 +22,7 @@ const MIGRATIONS = [
   '0002_add_is_verified.sql',
   '0003_naive_dormammu.sql',
   '0004_multi_platform.sql',
+  '0005_tipstrr_internal_pk.sql',
 ]
 
 // Pertenencia free/premium medida en la pasada de catálogo (combos).
