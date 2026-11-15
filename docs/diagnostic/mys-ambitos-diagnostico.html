@@ -1,0 +1,91 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagnóstico: muestra, yield e indicios de seguibilidad por ámbito</title>
+<style>
+body{font:15px/1.45 system-ui,sans-serif;max-width:980px;margin:0 auto;padding:16px;color:#1c1f23;background:#f6f7f9}
+h1{font-size:22px;margin:0 0 6px}h2{font-size:19px;margin:0}h3{font-size:16px;margin:18px 0 4px}
+.banner{background:#fff3cd;border:1px solid #e0c36a;padding:10px 12px;border-radius:6px;margin:10px 0}
+article{background:#fff;border:1px solid #dde1e6;border-radius:8px;padding:14px 16px;margin:16px 0}
+.chip{display:inline-block;background:#eef1f5;border-radius:12px;padding:2px 10px;margin:4px 6px 0 0;font-size:13px}
+.src,.muted{color:#5b6570;font-size:13px}.denom{margin:4px 0 8px}
+table{border-collapse:collapse;width:100%;margin:6px 0;background:#fff}th,td{border-bottom:1px solid #e6e9ed;padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#f1f3f6;font-size:13px}.r{text-align:right;white-space:nowrap}
+tr.hit{background:#eaf6ee}.ok{color:#17692f;font-weight:600}.no{color:#8a4b00}
+.kind{font-size:12px;color:#5b6570}.kind.live_aggregate,.kind.combo_aggregate{color:#9a3412}
+.signals{background:#f6f8fb;border-left:3px solid #7d8da1;padding:8px 12px;margin-top:10px}.signals ul{margin:6px 0 0 18px;padding:0}
+.limits li{margin:3px 0}
+</style></head><body>
+<h1>Cómo acotamos muestra, yield y seguibilidad por ámbito</h1>
+<div class="banner"><b>Vista diagnóstica aislada, no integrada.</b> Usa 3 páginas públicas de estadísticas descargadas el 15-nov-2026. No toca la base de datos ni la app, y no es una selección de tipsters ni una recomendación de apuesta.</div>
+<p>Para cada tipster se muestra, por pestaña y ámbito, si <b>muestra (≥ 100 picks)</b> y <b>yield (≥ 11%)</b> se cumplen en la propia fila. Eso es solo M e Y, no el MYS completo: la seguibilidad queda como «sin comprobar», con indicios aparte. El tipo de acceso (gratis o de pago) se muestra como dato, no como filtro.</p>
+<article><h2>greimancook</h2>
+  <div class="meta"><span class="chip">De pago, 99 €/mes (catálogo Neon, lectura)</span><span class="chip">Verificado (catálogo)</span></div>
+  <p class="src">Fuente: https://greimancook.blogabet.com/blog/stats · lectura pública sin sesión · 2026-11-15 12:14 CET · huella e0eb0e40a8589052 · pestañas presentes: alltime, paid, private</p><section class="tab"><h3>Todos los picks (alltime)</h3>
+  <p class="denom">Denominador de esta pestaña: <b>18.108</b> picks (deportes, categorías y antelación cuadran). No se suma con otras pestañas.</p>
+  <table><thead><tr><th>Deporte</th><th class="r">Picks</th><th class="r">Yield</th><th>Resultado</th></tr></thead><tbody><tr class="hit"><td>Football</td><td class="r">14.475</td><td class="r">13%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class="hit"><td>Basketball</td><td class="r">2.675</td><td class="r">13%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class=""><td>Combo pick</td><td class="r">558</td><td class="r">8%</td><td><span class="no">Yield &lt; 11%</span></td></tr><tr class=""><td>Tennis</td><td class="r">101</td><td class="r">2%</td><td><span class="no">Yield &lt; 11%</span></td></tr></tbody></table><p class="muted">Además 14 con menos de 100 picks: no evaluables como ámbito.</p><table><thead><tr><th>Categoría</th><th class="r">Picks</th><th class="r">Yield</th><th>Resultado</th></tr></thead><tbody><tr class="hit"><td>Football - Livebet<div class="kind live_aggregate">Agregado de apuestas en directo (no es una liga)</div></td><td class="r">13.336</td><td class="r">14%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class=""><td>Basketball - Livebet<div class="kind live_aggregate">Agregado de apuestas en directo (no es una liga)</div></td><td class="r">2.088</td><td class="r">10%</td><td><span class="no">Yield &lt; 11%</span></td></tr><tr class=""><td>Combo pick - Combo pick<div class="kind combo_aggregate">Agregado de combinadas (no es una liga)</div></td><td class="r">558</td><td class="r">8%</td><td><span class="no">Yield &lt; 11%</span></td></tr><tr class="hit"><td>Football - Greece<div class="kind unclassified">Categoría original de Blogabet: país o competición, sin verificar</div></td><td class="r">117</td><td class="r">13%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr></tbody></table><p class="muted">Además 235 con menos de 100 picks: no evaluables como ámbito.</p>
+  <div class="signals"><b>Indicios de seguibilidad</b> (no es una comprobación)
+  <ul>
+   <li>Picks en directo: <b>15.034 de 18.108 (83%)</b>. Un seguidor no recibe un pick en directo con la misma ventana que uno previo al partido.</li>
+   <li>Tramo de antelación más frecuente: <b>LIVE</b> (83% de los picks).</li>
+   <li>Casas publicadas (picks): Bet365 10.862 · PINNACLE 2.603 · vip-ibc 1.629 · GG.BET 788.</li>
+   <li class="muted">Estado: <b>seguibilidad sin comprobar</b>. Casa y antelación son datos autodeclarados: no prueban cuota disponible, liquidez ni que el pick llegara a tiempo.</li>
+  </ul></div></section><section class="tab"><h3>Solo picks de pago (paid)</h3>
+  <p class="denom">Denominador de esta pestaña: <b>15.305</b> picks (deportes, categorías y antelación cuadran). No se suma con otras pestañas.</p>
+  <table><thead><tr><th>Deporte</th><th class="r">Picks</th><th class="r">Yield</th><th>Resultado</th></tr></thead><tbody><tr class="hit"><td>Football</td><td class="r">12.516</td><td class="r">13%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class="hit"><td>Basketball</td><td class="r">1.917</td><td class="r">11%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class=""><td>Combo pick</td><td class="r">522</td><td class="r">9%</td><td><span class="no">Yield &lt; 11%</span></td></tr></tbody></table><p class="muted">Además 13 con menos de 100 picks: no evaluables como ámbito.</p><table><thead><tr><th>Categoría</th><th class="r">Picks</th><th class="r">Yield</th><th>Resultado</th></tr></thead><tbody><tr class="hit"><td>Football - Livebet<div class="kind live_aggregate">Agregado de apuestas en directo (no es una liga)</div></td><td class="r">11.535</td><td class="r">14%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class=""><td>Basketball - Livebet<div class="kind live_aggregate">Agregado de apuestas en directo (no es una liga)</div></td><td class="r">1.605</td><td class="r">10%</td><td><span class="no">Yield &lt; 11%</span></td></tr><tr class=""><td>Combo pick - Combo pick<div class="kind combo_aggregate">Agregado de combinadas (no es una liga)</div></td><td class="r">522</td><td class="r">9%</td><td><span class="no">Yield &lt; 11%</span></td></tr><tr class="hit"><td>Football - Greece<div class="kind unclassified">Categoría original de Blogabet: país o competición, sin verificar</div></td><td class="r">110</td><td class="r">13%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr></tbody></table><p class="muted">Además 206 con menos de 100 picks: no evaluables como ámbito.</p>
+  <div class="signals"><b>Indicios de seguibilidad</b> (no es una comprobación)
+  <ul>
+   <li>Picks en directo: <b>12.807 de 15.305 (83,7%)</b>. Un seguidor no recibe un pick en directo con la misma ventana que uno previo al partido.</li>
+   <li>Tramo de antelación más frecuente: <b>LIVE</b> (83,7% de los picks).</li>
+   <li>Casas publicadas (picks): Bet365 9.277 · PINNACLE 2.283 · vip-ibc 1.585 · GG.BET 735.</li>
+   <li class="muted">Estado: <b>seguibilidad sin comprobar</b>. Casa y antelación son datos autodeclarados: no prueban cuota disponible, liquidez ni que el pick llegara a tiempo.</li>
+  </ul></div></section><section class="tab"><h3>Solo picks privados (private)</h3>
+  <p class="denom">Denominador de esta pestaña: <b>56</b> picks (deportes, categorías y antelación cuadran). No se suma con otras pestañas.</p>
+  <p class="muted">Deporte: ningún ámbito llega a 100 picks por sí solo (4 con menos de 100; no se suman entre sí).</p><p class="muted">Categoría: ningún ámbito llega a 100 picks por sí solo (17 con menos de 100; no se suman entre sí).</p>
+  <div class="signals"><b>Indicios de seguibilidad</b> (no es una comprobación)
+  <ul>
+   <li>Picks en directo: <b>37 de 56 (66,1%)</b>. Un seguidor no recibe un pick en directo con la misma ventana que uno previo al partido.</li>
+   <li>Tramo de antelación más frecuente: <b>LIVE</b> (66,1% de los picks).</li>
+   <li>Casas publicadas (picks): Bet365 31 · 188bet 5 · PINNACLE 4 · Betfred 3.</li>
+   <li class="muted">Estado: <b>seguibilidad sin comprobar</b>. Casa y antelación son datos autodeclarados: no prueban cuota disponible, liquidez ni que el pick llegara a tiempo.</li>
+  </ul></div></section></article>
+<article><h2>yugovalue</h2>
+  <div class="meta"><span class="chip">Gratis (catálogo Neon, lectura)</span><span class="chip">Verificado (catálogo)</span></div>
+  <p class="src">Fuente: https://yugovalue.blogabet.com/blog/stats · lectura pública sin sesión · 2026-11-15 12:14 CET · huella 86373297be330a9b · pestañas presentes: alltime, private (no hay: paid)</p><section class="tab"><h3>Todos los picks (alltime)</h3>
+  <p class="denom">Denominador de esta pestaña: <b>2.316</b> picks (deportes, categorías y antelación cuadran). No se suma con otras pestañas.</p>
+  <table><thead><tr><th>Deporte</th><th class="r">Picks</th><th class="r">Yield</th><th>Resultado</th></tr></thead><tbody><tr class="hit"><td>Football</td><td class="r">1.957</td><td class="r">15%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class="hit"><td>Basketball</td><td class="r">334</td><td class="r">44%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr></tbody></table><p class="muted">Además 4 con menos de 100 picks: no evaluables como ámbito.</p><table><thead><tr><th>Categoría</th><th class="r">Picks</th><th class="r">Yield</th><th>Resultado</th></tr></thead><tbody><tr class=""><td>Football-Livebet<div class="kind live_aggregate">Agregado de apuestas en directo (no es una liga)</div></td><td class="r">1.432</td><td class="r">9%</td><td><span class="no">Yield &lt; 11%</span></td></tr><tr class="hit"><td>Football-Bosnia &amp; Herz.<div class="kind unclassified">Categoría original de Blogabet: país o competición, sin verificar</div></td><td class="r">167</td><td class="r">39%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class="hit"><td>Basketball-Livebet<div class="kind live_aggregate">Agregado de apuestas en directo (no es una liga)</div></td><td class="r">145</td><td class="r">53%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class=""><td>Football-Croatia<div class="kind unclassified">Categoría original de Blogabet: país o competición, sin verificar</div></td><td class="r">141</td><td class="r">-9%</td><td><span class="no">Yield &lt; 11%</span></td></tr></tbody></table><p class="muted">Además 45 con menos de 100 picks: no evaluables como ámbito.</p>
+  <div class="signals"><b>Indicios de seguibilidad</b> (no es una comprobación)
+  <ul>
+   <li>Picks en directo: <b>1.567 de 2.316 (67,7%)</b>. Un seguidor no recibe un pick en directo con la misma ventana que uno previo al partido.</li>
+   <li>Tramo de antelación más frecuente: <b>LIVE</b> (67,7% de los picks).</li>
+   <li>Casas publicadas (picks): PINNACLE 969 · Bet365 769 · vip-ibc 332 · ISN 87.</li>
+   <li class="muted">Estado: <b>seguibilidad sin comprobar</b>. Casa y antelación son datos autodeclarados: no prueban cuota disponible, liquidez ni que el pick llegara a tiempo.</li>
+  </ul></div></section><section class="tab"><h3>Solo picks privados (private)</h3>
+  <p class="denom">Denominador de esta pestaña: <b>759</b> picks (deportes, categorías y antelación cuadran). No se suma con otras pestañas.</p>
+  <table><thead><tr><th>Deporte</th><th class="r">Picks</th><th class="r">Yield</th><th>Resultado</th></tr></thead><tbody><tr class="hit"><td>Football</td><td class="r">470</td><td class="r">30%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class="hit"><td>Basketball</td><td class="r">267</td><td class="r">48%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr></tbody></table><p class="muted">Además 4 con menos de 100 picks: no evaluables como ámbito.</p><table><thead><tr><th>Categoría</th><th class="r">Picks</th><th class="r">Yield</th><th>Resultado</th></tr></thead><tbody><tr class="hit"><td>Football-Bosnia &amp; Herz.<div class="kind unclassified">Categoría original de Blogabet: país o competición, sin verificar</div></td><td class="r">151</td><td class="r">40%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class="hit"><td>Football-Livebet<div class="kind live_aggregate">Agregado de apuestas en directo (no es una liga)</div></td><td class="r">121</td><td class="r">23%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr><tr class="hit"><td>Basketball-Livebet<div class="kind live_aggregate">Agregado de apuestas en directo (no es una liga)</div></td><td class="r">101</td><td class="r">58%</td><td><span class="ok">Muestra y yield cumplen</span></td></tr></tbody></table><p class="muted">Además 37 con menos de 100 picks: no evaluables como ámbito.</p>
+  <div class="signals"><b>Indicios de seguibilidad</b> (no es una comprobación)
+  <ul>
+   <li>Picks en directo: <b>214 de 759 (28,2%)</b>. Un seguidor no recibe un pick en directo con la misma ventana que uno previo al partido.</li>
+   <li>Tramo de antelación más frecuente: <b>LIVE</b> (28,2% de los picks).</li>
+   <li>Casas publicadas (picks): Bet365 565 · PINNACLE 132 · 1xBet 19 · vip-ibc 13.</li>
+   <li class="muted">Estado: <b>seguibilidad sin comprobar</b>. Casa y antelación son datos autodeclarados: no prueban cuota disponible, liquidez ni que el pick llegara a tiempo.</li>
+  </ul></div></section></article>
+<article><h2>criteriofutbol</h2>
+  <div class="meta"><span class="chip">Gratis (según la propia página)</span><span class="chip">No verificado (según la propia página)</span></div>
+  <p class="src">Fuente: https://criteriofutbol.blogabet.com/blog/stats · lectura pública sin sesión · 2026-11-15 12:11 CET · huella 1a90d3a20c63f268 · pestañas presentes: alltime (no hay: paid, private)</p><section class="tab"><h3>Todos los picks (alltime)</h3>
+  <p class="denom">Denominador de esta pestaña: <b>50</b> picks (deportes, categorías y antelación cuadran). No se suma con otras pestañas.</p>
+  <p class="muted">Deporte: ningún ámbito llega a 100 picks por sí solo (1 con menos de 100; no se suman entre sí).</p><p class="muted">Categoría: ningún ámbito llega a 100 picks por sí solo (12 con menos de 100; no se suman entre sí).</p>
+  <div class="signals"><b>Indicios de seguibilidad</b> (no es una comprobación)
+  <ul>
+   <li>Picks en directo: <b>0 de 50 (0%)</b>. Un seguidor no recibe un pick en directo con la misma ventana que uno previo al partido.</li>
+   <li>Tramo de antelación más frecuente: <b>1-3</b> (70% de los picks).</li>
+   <li>Casas publicadas (picks): Bet365 49 · BETWAY 1.</li>
+   <li class="muted">Estado: <b>seguibilidad sin comprobar</b>. Casa y antelación son datos autodeclarados: no prueban cuota disponible, liquidez ni que el pick llegara a tiempo.</li>
+  </ul></div></section></article>
+<article class="limits"><h2>Límites</h2><ul>
+<li>Las pestañas alltime, paid y private son conjuntos de picks distintos: no se suman ni se atribuyen entre sí.</li>
+<li>«Livebet» y «Combo pick» son agregados por tipo de apuesta, no ligas: cumplir M e Y ahí no acredita ninguna competición.</li>
+<li>Una categoría original (por ejemplo «Greece» o «Spa. Primera») puede ser un país o una competición; no se ha verificado.</li>
+<li>No hay cruce categoría × directo en estos datos: solo el porcentaje en directo de toda la pestaña.</li>
+<li>Una categoría solo cuenta con sus propios picks: no se suman categorías pequeñas para llegar a 100.</li>
+<li>Cifras publicadas por Blogabet y autograduadas salvo blogs verificados; antelación y casas no prueban liquidez ni rentabilidad ejecutable.</li>
+<li>Solo 3 blogs: no es una muestra del catálogo.</li></ul></article>
+</body></html>
