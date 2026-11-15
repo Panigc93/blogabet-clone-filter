@@ -104,10 +104,10 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
     tips: 1974,
     winRatePct: 35.76,
     avgOdds: 3.34,
-    stakeLabel: '10/10 (ventana desgloses: 282/282)',
+    stakeLabel: '10/10 · plano 1u (21/21 meses)',
     profitDisplay: '+£3,618.15',
     roiPct: 18.33,
-    roiPeriodLabel: 'overview all-time: 1974 tips; advised = level = 18.33%; desgloses no-mensuales limitados a una ventana de 282 tips por el selector de periodo de la página',
+    roiPeriodLabel: 'overview all-time: 1974 tips; advised = level = 18.33%',
   },
   months: [
     { label: 'Nov 2026', closed: false, tips: 37, winRatePct: 41, profitLabel: '+£138.00', roiPct: 37.3, avgOdds: 3.31 },
@@ -134,7 +134,7 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
   ],
   consistency: [
     { name: 'tabla de stakes: una sola banda (10/10)', passed: true },
-    { name: 'tips tabla stakes (282) != tips all-time (1974): desgloses limitados a ventana del selector de periodo', passed: false },
+    { name: 'stake plano all-time: apostado = tips en los 21 meses (Σ apostado = 1974 = overview tips)', passed: true },
     { name: 'stake medio (1.0) = banda uniforme', passed: true },
     { name: 'profit advised = level stake (361.82)', passed: true },
     { name: 'ROI advised = ROI level stake (18.33)', passed: true },
@@ -142,10 +142,10 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
     { name: 'suma mensual = overview (1974 tips, £3,618.15)', passed: true },
   ],
   yieldEquivalenceNote:
-    'ROI de Tipstrr = profit / total apostado. Aritmética all-time cierra y advised = level, PERO la uniformidad de stake solo está confirmada en la ventana de desgloses (282 tips recientes, 14% del historial): no se afirma equivalencia all-time. Los ROI mensuales mostrados son cifras literales de la fuente.',
+    'ROI de Tipstrr = profit / total apostado, la fórmula del yield usada en Blogabet. Equivalencia verificada all-time en este registro: la fuente publica apostado exacto por mes y es = tips en los 21 meses (stake plano 1u, Σ = 1974 = overview), advised = level, y profit/ROI cierran al céntimo. No se deriva nada de porcentajes redondeados.',
   periodEstimates: {
     yield3m: 25.5, yield6m: 21.0, yield12m: 21.7, picks6mAvg: 117,
-    note: 'Estimaciones agregando meses cerrados con apostado derivado de profit/ROI redondeados de la fuente (ROI 0 o profit 0 dejarían un mes fuera). No son denominadores exactos.',
+    note: 'Calculado como Σprofit/Σapostado de meses cerrados con cifras exactas de la fuente (no derivado de ROI redondeado). Cobertura: 3m = ago–oct 2026 · 6m = may–oct 2026 · 12m = nov 2025–oct 2026. Picks/mes = media exacta (703 tips / 6 meses).',
   },
   notAvailable: [
     { field: 'verifiedPct (BB)', reason: 'no existe en Tipstrr como porcentaje parcial' },
@@ -153,8 +153,6 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
     { field: 'followers', reason: 'no presente en el estado de la página pública' },
     { field: 'país / bandera', reason: 'no expuesto' },
     { field: 'desglose free/paid (BB)', reason: 'la marca existe por tip pero el agregado requiere cuenta' },
-    { field: 'stake medio por mes', reason: 'la tabla de stakes es agregada, sin corte mensual' },
     { field: 'profit/odds por apuesta', reason: 'bloqueado tras registro de cuenta Tipstrr' },
-    { field: 'uniformidad de stake all-time', reason: 'la tabla de stakes solo cubre la ventana del selector (282 tips)' },
   ],
 }

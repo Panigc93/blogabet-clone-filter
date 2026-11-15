@@ -1,4 +1,4 @@
-import { STATMIND_SNAPSHOT, TLE_SNAPSHOT, FichaSnapshot } from './fixtures'
+import { TLE_SNAPSHOT, FichaSnapshot } from './fixtures'
 
 // Ficha Blogabet-parity prototype fed by a REAL one-off labeled snapshot
 // (see fixtures.ts for capture metadata). Purpose: show exactly which BB
@@ -21,6 +21,7 @@ function Stat({ value, label, color }: { value: string; label: string; color?: s
 function Ficha({ s }: { s: FichaSnapshot }) {
   return (
     <div style={{ maxWidth: 860, margin: '0 auto', padding: 12, fontFamily: 'Roboto, Arial, sans-serif' }}>
+      <div id="crop-cabecera">
       <div style={{ background: '#d9edf7', border: '1px solid #bce8f1', color: '#31708f', padding: '8px 12px', borderRadius: 4, fontSize: 13, marginBottom: 12 }}>
         <strong>Captura real puntual</strong> de {s.sourceUrl} · {s.capturedAt} · cifras agregadas fechadas;
         pueden no reflejar las actuales. No es una sincronización ni una integración desplegada.
@@ -44,7 +45,7 @@ function Ficha({ s }: { s: FichaSnapshot }) {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, border: '1px solid #e3e3e3', borderRadius: 4, padding: '12px 8px', background: '#fff' }}>
         <Stat value={s.overview.tips !== null ? String(s.overview.tips) : '—'} label="Picks" />
         <Stat value={s.overview.profitDisplay ?? '—'} label="Profit (10/10=£10)" color={s.overview.roiPct !== null ? numColor(s.overview.roiPct) : undefined} />
-        <Stat value={s.overview.roiPct !== null ? `${s.overview.roiPct}%` : '—'} label="ROI / yield*" color={numColor(s.overview.roiPct)} />
+        <Stat value={s.overview.roiPct !== null ? `${s.overview.roiPct}%` : '—'} label="Yield (ROI)*" color={numColor(s.overview.roiPct)} />
         <Stat value={s.overview.winRatePct !== null ? `${s.overview.winRatePct}%` : '—'} label="Acierto" />
         <Stat value={s.overview.avgOdds !== null ? String(s.overview.avgOdds) : '—'} label="Cuota media" />
         <div style={cell}>
@@ -53,7 +54,9 @@ function Ficha({ s }: { s: FichaSnapshot }) {
         </div>
       </div>
       <div style={{ fontSize: 11, color: '#999', margin: '4px 0 10px' }}>* {s.yieldEquivalenceNote} ({s.overview.roiPeriodLabel})</div>
+      </div>
 
+      <div id="crop-meses">
       <div style={{ fontSize: 13, fontWeight: 700, margin: '10px 0 4px' }}>Desglose mensual (cifras de la fuente, sin derivar)</div>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: '#fff' }}>
         <thead>
@@ -78,24 +81,12 @@ function Ficha({ s }: { s: FichaSnapshot }) {
           ))}
         </tbody>
       </table>
-
-      <div style={{ fontSize: 13, fontWeight: 700, margin: '12px 0 4px' }}>Chequeos de consistencia de este registro</div>
-      <ul style={{ fontSize: 12, color: '#555', margin: 0, paddingLeft: 18 }}>
-        {s.consistency.map((c) => (
-          <li key={c.name} style={{ color: c.passed ? '#3c763d' : '#a94442' }}>{c.passed ? '✓' : '✗'} {c.name}</li>
-        ))}
-      </ul>
-
-      <div style={{ fontSize: 13, fontWeight: 700, margin: '12px 0 4px' }}>Campos de la ficha BB no disponibles aquí</div>
-      <ul style={{ fontSize: 12, color: '#777', margin: 0, paddingLeft: 18 }}>
-        {s.notAvailable.map((n) => (
-          <li key={n.field}><strong>{n.field}:</strong> {n.reason}</li>
-        ))}
-      </ul>
+      </div>
 
       {s.periodEstimates ? (
         <>
-          <div style={{ fontSize: 13, fontWeight: 700, margin: '12px 0 4px' }}>Periodos agregados (estimación)</div>
+          <div id="crop-periodos">
+          <div style={{ fontSize: 13, fontWeight: 700, margin: '12px 0 4px' }}>Yield por periodo (meses cerrados)</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, border: '1px solid #e3e3e3', borderRadius: 4, padding: '10px 8px', background: '#fff' }}>
             <Stat value={s.periodEstimates.yield3m !== null ? `${s.periodEstimates.yield3m}%` : '—'} label="Yield 3m" color={numColor(s.periodEstimates.yield3m)} />
             <Stat value={s.periodEstimates.yield6m !== null ? `${s.periodEstimates.yield6m}%` : '—'} label="Yield 6m" color={numColor(s.periodEstimates.yield6m)} />
@@ -103,12 +94,29 @@ function Ficha({ s }: { s: FichaSnapshot }) {
             <Stat value={s.periodEstimates.picks6mAvg !== null ? String(s.periodEstimates.picks6mAvg) : '—'} label="Picks/mes 6m" />
           </div>
           <div style={{ fontSize: 11, color: '#999', margin: '4px 0 10px' }}>{s.periodEstimates.note}</div>
+          </div>
         </>
       ) : (
         <div style={{ fontSize: 12, color: '#888', marginTop: 10 }}>
           Yield 3/6/12m: sin historial suficiente; se muestran los meses de la fuente en vez de inventar periodos.
         </div>
       )}
+
+      <details style={{ marginTop: 14, fontSize: 12, color: '#666' }}>
+        <summary style={{ cursor: 'pointer', color: '#999' }}>Diagnóstico interno (chequeos y campos no disponibles)</summary>
+        <div style={{ fontSize: 13, fontWeight: 700, margin: '12px 0 4px' }}>Chequeos de consistencia de este registro</div>
+        <ul style={{ fontSize: 12, color: '#555', margin: 0, paddingLeft: 18 }}>
+          {s.consistency.map((c) => (
+            <li key={c.name} style={{ color: c.passed ? '#3c763d' : '#a94442' }}>{c.passed ? '✓' : '✗'} {c.name}</li>
+          ))}
+        </ul>
+        <div style={{ fontSize: 13, fontWeight: 700, margin: '12px 0 4px' }}>Campos de la ficha BB no disponibles aquí</div>
+        <ul style={{ fontSize: 12, color: '#777', margin: 0, paddingLeft: 18 }}>
+          {s.notAvailable.map((n) => (
+            <li key={n.field}><strong>{n.field}:</strong> {n.reason}</li>
+          ))}
+        </ul>
+      </details>
       <div style={{ fontSize: 12, color: '#888', borderTop: '1px solid #eee', marginTop: 12, paddingTop: 8 }}>
         {s.lastResultVisibleLabel ? `Último resultado visible: ${s.lastResultVisibleLabel}.` : ''} Captura fechada: las cifras pueden no reflejar las actuales.
       </div>
@@ -117,11 +125,5 @@ function Ficha({ s }: { s: FichaSnapshot }) {
 }
 
 export default function LabTipstrrFichaPage() {
-  return (
-    <>
-      <Ficha s={TLE_SNAPSHOT} />
-      <div style={{ maxWidth: 860, margin: '24px auto 0', borderTop: '2px dashed #ccc' }} />
-      <Ficha s={STATMIND_SNAPSHOT} />
-    </>
-  )
+  return <Ficha s={TLE_SNAPSHOT} />
 }
