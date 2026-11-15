@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
-import { parseStatsBreakdown, checkMuestraYield, dominantLeadBucket } from '@/crawler/statsBreakdown'
+import { parseStatsBreakdown, checkMuestraYield, dominantLeadBucket, liveShare } from '@/crawler/statsBreakdown'
 
 // Fixture: pagina publica /blog/stats de un blog gratuito no verificado (50 picks),
 // descargada el 2026-11-15 sin cookie. Es un caso extremo (yield muy alto, autograduado).
@@ -39,6 +39,14 @@ describe('parseStatsBreakdown', () => {
     expect(checks.filter(c => c.muestraYYieldCumplen)).toHaveLength(0)
   })
 
+  it('un scope inexistente devuelve vacio, no toda la pagina', () => {
+    expect(parseStatsBreakdown(html, '#paidStatsTab')).toEqual({})
+  })
+
+  it('liveShare es 0 cuando no hay picks LIVE', () => {
+    expect(liveShare(b)).toBe(0)
+  })
+
   it('pagina sin desgloses devuelve objeto vacio', () => {
     expect(parseStatsBreakdown('<html><body></body></html>')).toEqual({})
   })
@@ -49,5 +57,16 @@ describe('checkMuestraYield', () => {
     const r = (key: string, picks: number, yieldPct: number | null) => ({ key, picks, winRate: null, profit: null, yieldPct, oddsAvg: null, stakeAvg: null })
     const out = checkMuestraYield({ categories: [r('Football-A', 100, 11), r('Football-B', 99, 30), r('Football-C', 500, 10.99), r('Football-D', 120, null)] })
     expect(out.map(c => c.muestraYYieldCumplen)).toEqual([true, false, false, false])
+  })
+})
+
+describe('categorias con separador " - "', () => {
+  it('recorta espacios en deporte y liga', () => {
+    const cell = (c: string) => `<td>${c}</td>`
+    const html = `<div id="alltimeStatsTab"><div data-stats="categories"><table><tbody><tr>` +
+      `<td><span class="hidden">Football - Livebet</span>Livebet</td>${['120', '60%', '+10', '+14%', '1.9', '3'].map(cell).join('')}` +
+      `</tr></tbody></table></div></div>`
+    const row = parseStatsBreakdown(html).categories![0]
+    expect(row).toMatchObject({ key: 'Football - Livebet', sport: 'Football', category: 'Livebet', picks: 120, yieldPct: 14 })
   })
 })

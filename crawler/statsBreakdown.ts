@@ -41,10 +41,13 @@ function clean(text: string): string {
   return text.replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
-// scope: '#alltimeStatsTab' (por defecto), '#paidStatsTab', o '' si la pagina no usa pestanas.
+// scope: '#alltimeStatsTab' (por defecto), '#paidStatsTab', '#privateStatsTab', o ''
+// para leer toda la pagina. Ojo: '' mezcla pestanas y duplica picks. Si el scope
+// pedido no existe en la pagina devuelve {} (nunca cae a toda la pagina).
 export function parseStatsBreakdown(html: string, scope = '#alltimeStatsTab'): StatsBreakdown {
   const $ = cheerio.load(html)
-  const root = scope && $(scope).length > 0 ? $(scope) : $.root()
+  if (scope && $(scope).length === 0) return {}
+  const root = scope ? $(scope) : $.root()
   const out: StatsBreakdown = {}
 
   for (const section of BREAKDOWN_SECTIONS) {
@@ -84,8 +87,8 @@ export function parseStatsBreakdown(html: string, scope = '#alltimeStatsTab'): S
       if (section === 'categories') {
         const dash = key.indexOf('-')
         if (dash > 0) {
-          row.sport = key.slice(0, dash)
-          row.category = key.slice(dash + 1)
+          row.sport = key.slice(0, dash).trim()
+          row.category = key.slice(dash + 1).trim()
         }
       }
       rows.push(row)
@@ -132,4 +135,16 @@ export function dominantLeadBucket(b: StatsBreakdown): { bucket: string; sharePc
   if (total === 0) return null
   const top = rows.reduce((a, r) => (r.picks > a.picks ? r : a))
   return { bucket: top.key, sharePct: Math.round((top.picks / total) * 1000) / 10 }
+}
+
+// Parte de picks publicada como LIVE (apuestas en directo). Un seguidor no puede
+// replicarlas con la misma ventana que un pick prepartido. Distribucion historica
+// autodeclarada: orienta, no demuestra nada sobre ejecucion.
+export function liveShare(b: StatsBreakdown): number | null {
+  const rows = b.hours_to_event
+  if (!rows || rows.length === 0) return null
+  const total = rows.reduce((s, r) => s + r.picks, 0)
+  if (total === 0) return null
+  const live = rows.filter(r => r.key.trim().toUpperCase() === 'LIVE').reduce((s, r) => s + r.picks, 0)
+  return Math.round((live / total) * 1000) / 10
 }
