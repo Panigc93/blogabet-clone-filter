@@ -3,11 +3,9 @@
 // tocar Neon. Uso: PGLITE_DIR=/tmp/pglite-data npx tsx scripts/seed-isolated-db.ts
 // La app se sirve después con USE_PGLITE=1 apuntando al mismo directorio.
 //
-// Aplica las migraciones 0000→0003 en orden. Las 7 columnas de stats que el
-// journal obsoleto nunca migró (brecha preexistente conocida, no cubierta
-// por ninguna migración) se añaden explícitamente, igual que en el test de
-// integración: por eso esta cadena NO demuestra 0000→0003 limpia sobre una
-// base real ya parcheada a mano.
+// Aplica la cadena COMPLETA del journal real (0000→0004): el baseline de
+// PR1 (0003_naive_dormammu, ya registrado en producción) + nuestro delta
+// 0004 generado por drizzle-kit. Sin parches fuera de migración.
 import { readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
@@ -22,18 +20,9 @@ const MIGRATIONS = [
   '0000_sudden_jazinda.sql',
   '0001_add_last_reset_at.sql',
   '0002_add_is_verified.sql',
-  '0003_multi_platform.sql',
+  '0003_naive_dormammu.sql',
+  '0004_multi_platform.sql',
 ]
-
-const UNMIGRATED_COLUMNS = `
-  ALTER TABLE tipsters ADD COLUMN IF NOT EXISTS picks_6m_avg numeric(7,2);
-  ALTER TABLE tipsters ADD COLUMN IF NOT EXISTS yield_3m numeric(6,2);
-  ALTER TABLE tipsters ADD COLUMN IF NOT EXISTS yield_6m numeric(6,2);
-  ALTER TABLE tipsters ADD COLUMN IF NOT EXISTS yield_12m numeric(6,2);
-  ALTER TABLE tipsters ADD COLUMN IF NOT EXISTS picks_free_3m_avg numeric(7,2);
-  ALTER TABLE tipsters ADD COLUMN IF NOT EXISTS yield_free_3m numeric(6,2);
-  ALTER TABLE tipsters ADD COLUMN IF NOT EXISTS stats_updated_at timestamp with time zone;
-`
 
 // Filas Blogabet FABRICADAS (cifras inventadas, nombres "BB Demo") solo para
 // ejercitar tabla, filtros, orden y LoadMore (PAGE_SIZE=50) en local.
@@ -85,7 +74,6 @@ async function main() {
       if (s) await pg.exec(s)
     }
   }
-  await pg.exec(UNMIGRATED_COLUMNS)
 
   const bbRows = Array.from({ length: 56 }, (_, i) => bbDemoRow(i + 1))
   await db.insert(tipsters).values(bbRows)

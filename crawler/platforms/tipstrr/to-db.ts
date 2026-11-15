@@ -66,7 +66,12 @@ export function tipstrrSnapshotToInsert(
     lastPickAt: null, // month granularity only; not a pick date
     resetCount: 0,
     lastResetAt: null,
-    picks6mAvg: periods.picks6mAvg !== null ? periods.picks6mAvg.toFixed(2) : null,
+    // Misma política que la ficha del laboratorio: la media de picks/mes
+    // solo se guarda si la ventana de 6 meses cerrados está completa; con
+    // ventana incompleta sería una media sobre menos meses aparentando 6.
+    picks6mAvg: periods.yield6m !== null && periods.yield6m.complete && periods.picks6mAvg !== null
+      ? periods.picks6mAvg.toFixed(2)
+      : null,
     yield3m: periodOrNull(periods.yield3m),
     yield6m: periodOrNull(periods.yield6m),
     yield12m: periodOrNull(periods.yield12m),

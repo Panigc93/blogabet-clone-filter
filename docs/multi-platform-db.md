@@ -1,7 +1,7 @@
 # Persistencia multiplataforma (Blogabet + Tipstrr)
 
 Estado 2026-11-15: **implementado en rama, NO ejecutado**. La migración
-`drizzle/0003_multi_platform.sql` existe como archivo; no se ha aplicado a
+`drizzle/0004_multi_platform.sql` existe como archivo; no se ha aplicado a
 ninguna base de datos. Aplicarla, escribir en Neon y mergear son decisiones
 separadas del propietario.
 
@@ -51,9 +51,11 @@ NO evaluable: control fallido 15-11-2026).
 ## Prueba de integración (15-11-2026, rama, sin tocar Neon)
 
 `tests/db/multi-platform.integration.test.ts` levanta Postgres real en
-proceso (PGlite, devDependency) y aplica 0000→0003 en orden + las 7
-columnas de stats que el journal obsoleto nunca migró (brecha
-preexistente, explícita en el test). Con datos fabricados verifica 8/8:
+proceso (PGlite, devDependency) y aplica la cadena COMPLETA del journal
+0000→0004 sin parches: el baseline de PR1 (0003_naive_dormammu, las 7
+columnas de stats, ya registrado en producción) + nuestro delta 0004
+generado por drizzle-kit con snapshot/journal reales. Con datos fabricados
+verifica 8/8:
 migración limpia y filas BB intactas, coexistencia de slug entre fuentes,
 scope default BB / opt-in Tipstrr, orden por yield con ids negativos y
 profits de unidades distintas sin mezclar, filtro de precio solo EUR +
@@ -69,13 +71,21 @@ reales de Neon: eso sigue pendiente de aprobación.
 - `lib/query.ts`: filtro `platform` aditivo; guarda de divisa en precio.
 - Load more / paginación: sin cambios (page + PAGE_SIZE existentes).
 
+## Alcance del crawler Blogabet
+
+Toda consulta del crawler BB lleva filtro `platform='blogabet'`
+(`crawler/bb-scope.ts`): el borrado de obsoletos por slug, la cohorte de
+stats y la limpieza de inactivos no tocan filas Tipstrr aunque compartan
+slug. Regresión: `tests/db/crawler-scope.integration.test.ts` (4/4).
+
 ## Rollback
 
 La migración es aditiva + dos relajaciones. Vuelta atrás (documentada, no
 ejecutada): borrar filas `platform='tipstrr'`, `DROP INDEX
 ux_tipsters_platform_slug`, `DROP INDEX idx_tipsters_platform`, `ALTER TABLE
 tipsters DROP COLUMN platform, profit_unit, price_currency, signup_at,
-captured_at`, restaurar `followers` DEFAULT 0 NOT NULL y el unique de
+captured_at` (0004 solo; el baseline 0003 de PR1 ya está en producción y
+no se toca), restaurar `followers` DEFAULT 0 NOT NULL y el unique de
 `slug`. El ensanche de `profit` a (12,3) NO se revierte: es sin pérdida y
 revertirlo truncaría decimales si ya hubiera filas con 3. Las filas BB no
 se tocan en ningún otro sentido.

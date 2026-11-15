@@ -14,25 +14,17 @@ import { TLE_SNAPSHOT, STATMIND_SNAPSHOT } from '@/app/lab/tipstrr/ficha/fixture
 // and the REAL query layer (filters, sort, pagination) exercised against it.
 // No shared database is touched.
 
+// Cadena COMPLETA del journal real (0000→0004): la brecha preexistente de
+// las 7 columnas de stats quedó cerrada por el baseline de PR1
+// (0003_naive_dormammu, ya registrado en producción) y nuestro delta es
+// 0004 generado por drizzle-kit con snapshot/journal reales.
 const MIGRATIONS = [
   '0000_sudden_jazinda.sql',
   '0001_add_last_reset_at.sql',
   '0002_add_is_verified.sql',
-  '0003_multi_platform.sql',
+  '0003_naive_dormammu.sql',
+  '0004_multi_platform.sql',
 ]
-
-// schema.ts columns with NO migration file (pre-existing journal gap, known
-// todo). The test DB adds them explicitly so the gap is documented and
-// checked here instead of hidden.
-const UNMIGRATED_COLUMNS = `
-  ALTER TABLE tipsters ADD COLUMN picks_6m_avg numeric(7,2);
-  ALTER TABLE tipsters ADD COLUMN yield_3m numeric(6,2);
-  ALTER TABLE tipsters ADD COLUMN yield_6m numeric(6,2);
-  ALTER TABLE tipsters ADD COLUMN yield_12m numeric(6,2);
-  ALTER TABLE tipsters ADD COLUMN picks_free_3m_avg numeric(7,2);
-  ALTER TABLE tipsters ADD COLUMN yield_free_3m numeric(6,2);
-  ALTER TABLE tipsters ADD COLUMN stats_updated_at timestamp with time zone;
-`
 
 const pg = new PGlite()
 const db = drizzle(pg, { schema: { tipsters } })
@@ -64,7 +56,6 @@ beforeAll(async () => {
       if (s) await pg.exec(s)
     }
   }
-  await pg.exec(UNMIGRATED_COLUMNS)
   await db.insert(tipsters).values(BB_ROW)
   await db.insert(tipsters).values([
     tipstrrSnapshotToInsert(TLE_SNAPSHOT, { id: -221629, slug: 'the-least-expected', subscriptionPriceGbp: 39, isPaid: true }),

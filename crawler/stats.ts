@@ -3,7 +3,8 @@ import type { CheerioAPI } from 'cheerio'
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { tipsters } from '../db/schema'
-import { sql, gt, and, gte, lt, or, isNull } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
+import { blogabetOnly, activeCohortWhere, inactiveWhere } from './bb-scope'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { decideStatsOutcome } from './statsOutcome'
 import { HttpError, retryWithPolicy, REQUEST_TIMEOUT_MS } from './blockPolicy'
@@ -219,15 +220,10 @@ async function crawlStats() {
   const oneMonthAgo = new Date()
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
 
-  const conditions = [
-    gte(tipsters.lastPickAt, oneMonthAgo),
-    ...(minPicks > 0 ? [gt(tipsters.picks, minPicks)] : []),
-  ]
-
   console.log(`Loading active tipsters from DB (minPicks=${minPicks})...`)
   const allTipsters = await db.select({ id: tipsters.id, slug: tipsters.slug })
     .from(tipsters)
-    .where(and(...conditions))
+    .where(activeCohortWhere(oneMonthAgo, minPicks))
     .orderBy(tipsters.id)
 
   console.log(`Found ${allTipsters.length} tipsters to process`)
@@ -292,7 +288,7 @@ async function crawlStats() {
   // stats_updated_at. Clearing needs CLEAR_INACTIVE_STATS=1 and a complete clean run.
   const [{ withStats }] = await db.select({
     withStats: sql<number>`count(*) filter (where ${tipsters.statsUpdatedAt} is not null)`.mapWith(Number),
-  }).from(tipsters)
+  }).from(tipsters).where(blogabetOnly)
   const outcome = decideStatsOutcome({
     selected: allTipsters.length,
     withStats,
@@ -308,7 +304,7 @@ async function crawlStats() {
     await db.update(tipsters)
       .set({ yield3m: null, yield6m: null, yield12m: null, picks6mAvg: null,
              picksFree3mAvg: null, yieldFree3m: null, statsUpdatedAt: null })
-      .where(or(isNull(tipsters.lastPickAt), lt(tipsters.lastPickAt, oneMonthAgo)))
+      .where(inactiveWhere(oneMonthAgo))
     console.log('Cleared stale stats for inactive tipsters (explicit opt-in).')
   }
   if (outcome.exitCode !== 0) process.exitCode = outcome.exitCode
