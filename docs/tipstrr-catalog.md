@@ -12,7 +12,8 @@ endpoint del listado:
 
 - Confirmadas (9): page=1 (200, 15), page=20 (200, 0), y en lotes con 5 s
   entre peticiones: pages 5/10/13/16 (200: 15/0/0/0) y pages 6/7/8
-  (200: 15/4/0).
+  (200: 15/4/0). La UI pidió page=2 (click "Load more") pero NO registré
+  su tamaño. Páginas 3 y 4: NUNCA observadas.
 - Inciertas (0-3): un intento a las 15:45:38 con tres fetch en un script
   falló sin salida capturable; el fallo fue muy probablemente de parseo
   ANTES de ejecutar (varios intentos idénticos fallaron así: "SyntaxError"
@@ -63,12 +64,19 @@ footer). Portada: 8.950.620+ tips procesados, "thousands of tipsters".
    opciones sin marcar por defecto, lo que sugiere que el default incluye
    ambos. NO resuelto: requiere una comparación dirigida en una pasada
    futura autorizada (1 petición con el filtro Free aplicado).
-4. El conteo 94 (6 páginas × 15 + 4) asume que las páginas no se solapan:
-   los arrays de slugs NO se conservaron (solo se guardaron longitudes y
-   los nombres visibles de la página 1). Deduplicación NO verificada.
+4. Conteo: RETIRADO el "94". Lo medido es: page=1 → 15, page=5 → 15,
+   page=6 → 15, page=7 → 4, y vacío en pages 8, 10, 13, 16 y 20. Page=2
+   la cargó la UI sin registrar tamaño; pages 3 y 4 nunca se observaron.
+   El 94 era suma que ASUMÍA pages 2-4 completas (15 c/u) y sin solapes:
+   ambas cosas inferidas, no medidas. Lo sostenible: al menos 49 entradas
+   observadas en páginas sueltas, límite del listado entre page=7 (con
+   datos) y page=8 (vacía), deduplicación NO verificada (los arrays de
+   slugs no se conservaron; solo nombres visibles de la página 1).
+5. "19 deportes" sí es verbatim: lista del footer en la captura guardada.
 
-Conclusión honesta: "94 tipsters de fútbol bajo la configuración por
-defecto observada del listado" con las cuatro salvedades anteriores.
+Conclusión honesta: el listado de fútbol por defecto tiene entre 49
+(observado mínimo) y ~94 (si pages 2-4 van llenas y sin solape) entradas;
+el número exacto exige una pasada autorizada que guarde los slugs.
 
 ## Actividad vs resultados (corrección del usuario 15-11-2026 16:49 CET)
 
@@ -87,11 +95,13 @@ por RESULTADOS (yield histórico). Evidencia de las capturas existentes:
   - Estado del perfil (/stats): sin campo de última actividad (verificado:
     no existe lastTip*); sí dateCreated exacto y buckets STATS_MONTH
     (último mes con actividad, precisión mensual).
-  - Detalle por apuesta: dateAdded (publicación exacta, p. ej.
-    2026-11-13T07:05:04Z) y tipDate (evento, 2026-11-14T12:30:00Z). La
-    fecha exacta de ÚLTIMA PUBLICACIÓN existe, pero solo en el detalle
-    por apuesta; las filas de la lista de completadas traen una fecha tipo
-    evento.
+  - Detalle por apuesta: existe el campo dateAdded (fecha de publicación,
+    p. ej. 2026-11-13T07:05:04Z) junto a tipDate (evento,
+    2026-11-14T12:30:00Z). OJO: una captura prueba que el campo EXISTE;
+    no prueba que la apuesta capturada sea la más reciente publicada ni
+    que la lista de completadas venga ordenada por publicación (sus
+    filas traen fecha tipo evento). Obtener la última publicación real
+    por tipster sigue siendo un hueco abierto.
 - Huecos exactos para una pasada futura autorizada (sin consultas ahora):
   1. Si tips=0 es aceptado por el endpoint (quitar el mínimo oculto de 45)
      — 1 petición de validación.
@@ -111,9 +121,10 @@ los umbrales los decide el usuario en la UI.
 
 1. **Pasada acotada de fútbol primero**, con alcance exacto ANTES de
    ejecutar: páginas 1-8 del endpoint observado (techo 10 peticiones,
-   incluyendo 1-2 de validación del filtro de tipo), guardando arrays de
-   slugs completos (deduplicación verificable) + métricas de tarjeta
-   (ROI, profit, win rate, cuota media, tips/semana, precio, "since").
+   incluyendo 1-2 de validación del filtro de tipo y el hueco tips=0),
+   guardando arrays de slugs completos (así el conteo y la deduplicación
+   quedan medidos, no asumidos) + métricas de tarjeta (ROI, profit,
+   win rate, cuota media, tips/semana, precio, "since").
    Ritmo a acordar explícitamente con el usuario, explicando el riesgo de
    marcado/bloqueo de la cuenta por frecuencia.
    Con la corrección actividad/resultados: la pasada guarda también
