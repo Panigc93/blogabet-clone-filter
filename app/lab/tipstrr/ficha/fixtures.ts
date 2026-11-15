@@ -46,6 +46,11 @@ export interface FichaSnapshot {
   }
   months: FichaMonth[]
   consistency: { name: string; passed: boolean }[]
+  // Codigo de periodo del overview tal cual lo emite el estado (3/4/5/6
+  // observados 2026-11-15; 6 = all-time). 3/4/5 son ventanas rodantes:
+  // NO reproducibles desde buckets mensuales (verificado contra 209
+  // capturas: ninguna ventana de meses naturales cuadra de forma general).
+  overviewPeriod: number | null
   yieldEquivalenceNote: string
   notAvailable: { field: string; reason: string }[]
 }
@@ -85,6 +90,7 @@ export const STATMIND_SNAPSHOT: FichaSnapshot = {
     { name: 'ROI advised = ROI level stake', passed: true },
     { name: 'roi = profit / total apostado cierra (-59.13/291 = -20.32%)', passed: true },
   ],
+  overviewPeriod: 3,
   yieldEquivalenceNote:
     'ROI de Tipstrr = profit / total apostado, la fórmula del yield usada en Blogabet. Equivalencia verificada al céntimo EN ESTE REGISTRO (stake plano; advised = level). Voids: no hay en su historial; tratamiento general sin verificar. Esto reconcilia sus agregados; no es una auditoría apuesta a apuesta. Divisa: con la cuenta en EUR (stake 10 € = 10 units) la fuente muestra los mismos números en € — normalización de unidad (unidades × tu stake), NO conversión FX; el ROI/yield % no cambia.',
   notAvailable: [
@@ -184,6 +190,7 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
     { name: 'roi = profit / total apostado cierra (361.82/1974 = 18.33%)', passed: true },
     { name: 'suma mensual = overview (1974 tips, 3.618,15 €)', passed: true },
   ],
+  overviewPeriod: 6,
   yieldEquivalenceNote:
     'ROI de Tipstrr = profit / total apostado, la fórmula del yield usada en Blogabet. Equivalencia verificada all-time en este registro: la fuente publica apostado exacto por mes y es = tips en los 21 meses (stake plano 1u, Σ = 1974 = overview), advised = level, y profit/ROI cierran al céntimo. No se deriva nada de porcentajes redondeados. Divisa: con la cuenta en EUR (stake 10 € = 10 units) la fuente muestra los mismos números en € — normalización de unidad, NO conversión FX; el ROI/yield % no cambia. La suscripción se cobra aparte y sigue en £ (Join from £39).',
   notAvailable: [

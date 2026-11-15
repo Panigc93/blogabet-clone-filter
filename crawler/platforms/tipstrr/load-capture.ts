@@ -150,6 +150,15 @@ export function loadTipstrrCapture(
   const uniformBand = nonZeroBands.length === 1 ? nonZeroBands[0] : null
   const bandLabel = uniformBand ? `${uniformBand.stake * 10}/10` : null
 
+  const overviewPeriod = num(overview.period)
+  // El overview viene acotado al periodo seleccionado (3/4/5 = ventanas
+  // rodantes; 6 = all-time). Las comprobaciones que cruzan la serie
+  // mensual COMPLETA contra el overview solo son validas cuando el
+  // overview es all-time: codigo 6 o igualdad exacta de tips con la serie
+  // (ventana que cubre toda la vida del perfil, p.ej. perfil joven).
+  const overviewAllTime =
+    overviewPeriod === 6 || (overviewTips !== null && overviewTips === sumTips)
+
   // ── consistency checks (same names the reviewed ficha records) ────────
   const consistency: { name: string; passed: boolean }[] = []
   if (uniformBand && bandLabel) {
@@ -186,14 +195,14 @@ export function loadTipstrrCapture(
       passed: Math.abs(overviewRoi - levelRoi) < 0.01,
     })
   }
-  if (overviewProfit !== null && overviewTips && overviewRoi !== null && sumStaked > 0) {
+  if (overviewAllTime && overviewProfit !== null && overviewTips && overviewRoi !== null && sumStaked > 0) {
     const derived = (overviewProfit / sumStaked) * 100
     consistency.push({
       name: `roi = profit / total apostado cierra (${round2(overviewProfit)}/${overviewTips} = ${overviewRoi}%)`,
       passed: Math.abs(derived - overviewRoi) < 0.05,
     })
   }
-  if (monthRows.length >= 3 && overviewTips !== null) {
+  if (overviewAllTime && monthRows.length >= 3 && overviewTips !== null) {
     consistency.push({
       name: `suma mensual = overview (${sumTips} tips, ${formatEsEur(sumProfit * 10, false)})`,
       passed: sumTips === overviewTips && overviewProfit !== null && Math.abs(sumProfit - overviewProfit) < 0.01,
@@ -224,6 +233,7 @@ export function loadTipstrrCapture(
     },
     months,
     consistency,
+    overviewPeriod,
     yieldEquivalenceNote: opts.editorial.yieldEquivalenceNote,
     notAvailable: opts.editorial.notAvailable,
   }

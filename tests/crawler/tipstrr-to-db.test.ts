@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { tipstrrSnapshotToInsert, type TipstrrDbMapping } from '@/crawler/platforms/tipstrr/to-db'
+import type { FichaSnapshot } from '@/app/lab/tipstrr/ficha/fixtures'
 
 const mustMap = (m: TipstrrDbMapping) => {
   if (!m.ok) throw new Error(m.reason)
@@ -63,19 +64,28 @@ describe('tipstrrSnapshotToInsert', () => {
     expect(statmind.yield12m).toBeNull()
   })
 
-  it('missing historical pick total rejects the record; a real 0 is kept', () => {
+  it('missing overview total: measured series total persists; absent without series rejects; a real 0 is kept', () => {
     // 2026-11-15: the pick-count filter needs the real historical total and
-    // the column is NOT NULL, so an absent total must NOT become a
-    // fabricated 0 — the record is rejected with an explicit reason and the
-    // capture kept for review. A genuine 0 (new profile, no tips) persists.
-    const absent = tipstrrSnapshotToInsert(
+    // the column is NOT NULL, so a total that cannot be established must NOT
+    // become a fabricated 0 — the record is rejected with an explicit reason
+    // and the capture kept for review. But when the overview figure is
+    // absent and the complete monthly series measures the total exactly,
+    // that measured total persists (it is not fabricated). A genuine 0 (new
+    // profile, no tips) also persists.
+    const absent = mustMap(tipstrrSnapshotToInsert(
       { ...TLE_SNAPSHOT, overview: { ...TLE_SNAPSHOT.overview, tips: null } },
       { id: -2, slug: 'x', isPaid: true }
+    ))
+    expect(absent.picks).toBe(1974) // suma exacta de la serie, no fabricado
+    expect(absent.yield).toBeNull() // overview all-time ausente: sin yield verificado
+    const absentNoSeries = tipstrrSnapshotToInsert(
+      { ...TLE_SNAPSHOT, monthState: [], overview: { ...TLE_SNAPSHOT.overview, tips: null } },
+      { id: -4, slug: 'x2', isPaid: true }
     )
-    expect(absent.ok).toBe(false)
-    if (!absent.ok) expect(absent.reason).toContain('picks')
+    expect(absentNoSeries.ok).toBe(false)
+    if (!absentNoSeries.ok) expect(absentNoSeries.reason).toContain('picks')
     const realZero = tipstrrSnapshotToInsert(
-      { ...TLE_SNAPSHOT, overview: { ...TLE_SNAPSHOT.overview, tips: 0 } },
+      { ...TLE_SNAPSHOT, monthState: [], overview: { ...TLE_SNAPSHOT.overview, tips: 0 } },
       { id: -3, slug: 'y', isPaid: true }
     )
     expect(realZero.ok).toBe(true)
@@ -95,5 +105,93 @@ describe('tipstrrSnapshotToInsert', () => {
     expect(tle.signupAt?.toISOString().slice(0, 10)).toBe('2025-03-11')
     expect(tle.capturedAt?.toISOString()).toBe('2026-11-15T13:49:00.000Z')
     expect(tle.statsUpdatedAt?.toISOString()).toBe('2026-11-15T13:49:00.000Z')
+  })
+})
+
+// Puerta por niveles (hallazgo 2026-11-15 sobre 209 capturas reales): el
+// overview de /stats viene acotado al periodo seleccionado; 3/4/5 son
+// ventanas rodantes no reproducibles desde buckets mensuales y 6 es
+// all-time. El total histórico y el yield se resuelven por verificación,
+// no por fe en el overview.
+describe('puerta por niveles: overview rodante vs all-time', () => {
+  const mk = (over: Partial<FichaSnapshot>): FichaSnapshot => ({
+    capturedAt: '2026-11-15',
+    capturedAtDate: '2026-11-15T16:00:00Z',
+    monthState: [
+      { year: 2026, month: 10, tips: 100, staked: 100, profit: 10 },
+      { year: 2026, month: 9, tips: 100, staked: 100, profit: -5 },
+    ],
+    sourceUrl: 'https://tipstrr.com/tipster/x/stats',
+    name: 'X',
+    platformLabel: 'Free',
+    signupDate: '2026-09-10',
+    avatarUrl: null,
+    activeTipsNow: null,
+    lastResultVisibleLabel: null,
+    overview: {
+      tips: 50, // ventana rodante: NO es el total histórico
+      winRatePct: null,
+      avgOdds: null,
+      stakeLabel: null,
+      profitDisplay: null,
+      roiPct: 3,
+      roiPeriodLabel: 'period=3',
+    },
+    months: [],
+    consistency: [{ name: 'misma ventana', passed: true }],
+    overviewPeriod: 3,
+    yieldEquivalenceNote: '',
+    notAvailable: [],
+    ...over,
+  })
+  const OPTS = { id: -700001, slug: 'x', isPaid: false }
+
+  it('overview rodante + serie desde el alta: picks = suma exacta de la serie, yield calculado de cifras exactas', () => {
+    const r = mustMap(tipstrrSnapshotToInsert(mk({}), OPTS))
+    expect(r.picks).toBe(200) // 100+100 de la serie, no los 50 del overview rodante
+    expect(parseFloat(r.yield!)).toBeCloseTo((5 / 200) * 100, 2) // 2.50
+  })
+
+  it('overview all-time contradictorio con la serie: picks de la serie, yield null', () => {
+    const r = mustMap(tipstrrSnapshotToInsert(
+      mk({ overviewPeriod: 6, overview: { ...mk({}).overview, tips: 999 }, consistency: [{ name: 'suma mensual = overview', passed: false }] }),
+      OPTS
+    ))
+    expect(r.picks).toBe(200)
+    expect(r.yield).toBeNull()
+  })
+
+  it('overview all-time verificado (period=6 y tips == suma y todo en verde): yield del overview', () => {
+    const ok = mk({})
+    const r = mustMap(tipstrrSnapshotToInsert(
+      mk({ overviewPeriod: 6, overview: { ...ok.overview, tips: 200, roiPct: 2.5 } }),
+      OPTS
+    ))
+    expect(r.picks).toBe(200)
+    expect(r.yield).toBe('2.50')
+  })
+
+  it('serie que empieza después del mes de alta (silencio ambiguo): rechazo con motivo', () => {
+    const r = tipstrrSnapshotToInsert(mk({ signupDate: '2026-08-01' }), OPTS)
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toContain('no llega al mes de alta')
+  })
+
+  it('overview.tips ausente con serie completa: el total sale de la serie (no se fabrica, se mide)', () => {
+    const r = mustMap(tipstrrSnapshotToInsert(
+      mk({ overview: { ...mk({}).overview, tips: null, roiPct: null } }),
+      OPTS
+    ))
+    expect(r.picks).toBe(200)
+    expect(r.yield).not.toBeNull() // calculado de la serie exacta
+  })
+
+  it('sin serie y total ausente: rechazo', () => {
+    const r = tipstrrSnapshotToInsert(
+      mk({ monthState: [], overview: { ...mk({}).overview, tips: null } }),
+      OPTS
+    )
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toContain('no llega al mes de alta')
   })
 })
