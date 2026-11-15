@@ -24,9 +24,11 @@ DESPUÉS de que el despliegue nuevo esté verde.
 0. Head de rama revisado; `DATABASE_URL` presente solo en el entorno del
    ejecutor; todo dry-run primero. Sin cron Tipstrr y sin run manual del
    crawler BB en todo el proceso.
-1. BACKUP verificable:
+1. BACKUP verificable (registrar la hora UTC de la copia):
+   `SELECT now() AT TIME ZONE 'UTC' AS backup_started_utc;`
    `CREATE TABLE tipsters_backup_20261115 AS SELECT * FROM tipsters;`
-   Comprobar: `SELECT count(*) FROM tipsters_backup_20261115;` = 11167.
+   Comprobar: `SELECT count(*) FROM tipsters_backup_20261115;` = conteo
+   vivo actual (leerlo de nuevo; no asumir 11167 fijo).
 2. HUELLA PRE (variante A, toda la tabla: aún no existe platform) — guardar
    el valor (ver §Huella).
 3. Aplicar migraciones 0004 y 0005 EN ORDEN:
@@ -91,14 +93,31 @@ SELECT count(*) AS n, md5(string_agg(h, '' ORDER BY id)) AS fp FROM (
   `DELETE FROM tipsters WHERE platform = 'tipstrr';`
   `DELETE FROM import_validation_log WHERE run_id LIKE 'tipstrr-prod-20261115%';`
   No toca filas BB. La secuencia queda con gaps: inofensivo (surrogate).
-- Migraciones (solo si 0004/0005 rompen algo y la huella lo confirma):
-  `BEGIN; TRUNCATE tipsters; INSERT INTO tipsters SELECT * FROM
-  tipsters_backup_20261115; COMMIT;` (el backup es pre-0004: tiene todas
-  las columnas originales; las nuevas vuelven a su estado al re-aplicar o
-  se eliminan), después `ALTER TABLE tipsters DROP COLUMN
-  source_portfolio_id;` (y las de 0004 si se revierte también 0004),
-  `DROP TABLE import_validation_log; DROP SEQUENCE
-  tipsters_internal_id_seq;`, revert del despliegue Vercel asociado, y
-  limpiar el journal de drizzle para 0004/0005.
+- Migraciones (solo si 0004/0005 rompen algo y la huella lo confirma).
+  El backup es pre-0004 (esquema viejo): NUNCA `INSERT ... SELECT *`
+  contra la tabla ya migrada; restaurar con columnas ORIGINALES
+  explícitas:
+  ```sql
+  BEGIN;
+  TRUNCATE tipsters;
+  INSERT INTO tipsters (id, slug, name, avatar_url, flag_url, country_code,
+    is_paid, price, since_year, picks, profit, yield, verified_pct,
+    followers, last_pick_at, reset_count, updated_at, last_reset_at,
+    picks_6m_avg, yield_3m, yield_6m, yield_12m, stats_updated_at,
+    picks_free_3m_avg, yield_free_3m, is_verified)
+  SELECT id, slug, name, avatar_url, flag_url, country_code,
+    is_paid, price, since_year, picks, profit, yield, verified_pct,
+    followers, last_pick_at, reset_count, updated_at, last_reset_at,
+    picks_6m_avg, yield_3m, yield_6m, yield_12m, stats_updated_at,
+    picks_free_3m_avg, yield_free_3m, is_verified
+  FROM tipsters_backup_20261115;
+  COMMIT;
+  ```
+  después `ALTER TABLE tipsters DROP COLUMN source_portfolio_id;` (y las
+  de 0004 si se revierte también 0004), `DROP TABLE import_validation_log;
+  DROP SEQUENCE tipsters_internal_id_seq;`, revert del despliegue Vercel
+  asociado, y limpiar el journal de drizzle para 0004/0005.
+  NOTA: no asumir PITR ni plan de backups de Neon sin verificarlo; la
+  ruta de recuperación verificable es esta tabla de backup.
 - Nunca restaurar filas BB viejas salvo huella rota confirmada; nunca
   inyectar fixtures.

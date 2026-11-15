@@ -39,7 +39,9 @@ import {
 import type { TipsterInsert } from '../db/schema'
 
 const APPLY = process.argv.includes('--apply')
-const RUN_ID = `tipstrr-prod-20261115-${APPLY ? 'apply' : 'dryrun'}`
+// run_id único por ejecución: un reintento no mezcla filas de log con la
+// pasada anterior (cuenta por clase/run, nunca log==111 asumido).
+const RUN_ID = `tipstrr-prod-20261115-${APPLY ? 'apply' : 'dryrun'}-${Date.now()}`
 const CAP_DIR = 'crawler/platforms/tipstrr/captures/2026-11-15-stats'
 const TLE_CAPTURE = 'crawler/platforms/tipstrr/captures/2026-11-15-tle-stats-state.json'
 // portfolioId real capturado del origen (PORTFOLIO_TIP_CACHED /results,
@@ -73,10 +75,17 @@ for (const [k, c] of Object.entries(catalog.combos)) {
   for (const p of c.pages) for (const s of p.slugs) if (k.endsWith(':premium')) premium.add(s)
 }
 
+// PG devuelve numeric como string: al camelizar una fila existente hay que
+// devolver esos campos a number o un update los reescribiría como texto.
+const NUMERIC_KEYS = new Set([
+  'price', 'profit', 'yield', 'verifiedPct',
+  'picks6mAvg', 'yield3m', 'yield6m', 'yield12m', 'picksFree3mAvg', 'yieldFree3m',
+])
 const camelize = (row: Record<string, unknown>): Record<string, unknown> => {
   const out: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(row)) {
-    out[k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())] = v
+    const key = k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())
+    out[key] = NUMERIC_KEYS.has(key) && typeof v === 'string' ? Number(v) : v
   }
   return out
 }
