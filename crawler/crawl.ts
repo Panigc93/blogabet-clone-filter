@@ -4,7 +4,7 @@ import { drizzle } from 'drizzle-orm/neon-http'
 import { tipsters, TipsterInsert } from '../db/schema'
 import { sql, inArray, notInArray, and } from 'drizzle-orm'
 import type { BrowserContext, Browser } from 'playwright'
-import { HttpError, BlockedError, looksLikeChallenge, retryWithPolicy } from './blockPolicy'
+import { HttpError, BlockedError, looksLikeChallenge, retryWithPolicy, REQUEST_TIMEOUT_MS } from './blockPolicy'
 
 // ─── HTML parser ─────────────────────────────────────────────────────────────
 
@@ -169,6 +169,7 @@ function parseOrChallenge(html: string, lastActive: number): TipsterInsert[] {
 async function fetchPage(lastActive: number, start: number, cookie: string): Promise<TipsterInsert[]> {
   const res = await fetch(blogabetUrl(lastActive, start), {
     headers: { ...COMMON_HEADERS, Cookie: cookie },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   })
 
   if (!res.ok) throw new HttpError(res.status, res.statusText)

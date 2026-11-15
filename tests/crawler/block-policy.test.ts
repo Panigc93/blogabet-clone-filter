@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { HttpError, BlockedError, retryWithPolicy, looksLikeChallenge } from '@/crawler/blockPolicy'
+import { HttpError, BlockedError, BudgetExceededError, retryWithPolicy, looksLikeChallenge } from '@/crawler/blockPolicy'
 import { runStatsLoop } from '@/crawler/statsLoop'
 import { decideStatsOutcome } from '@/crawler/statsOutcome'
 
@@ -93,7 +93,28 @@ describe('runStatsLoop circuit breaker', () => {
     expect(r.blocked).toMatch(/5 consecutive/)
     expect(r.next).toBe(5)
   })
-  it('isolated errors do not trip it: a success resets the streak', async () => {
+  it('200 without parseable data does NOT reset the failure streak and trips the unrefreshed limit', async () => {
+    const fetchHtml = vi.fn(async () => '<html>no archive</html>')
+    const write = vi.fn()
+    const r = await runStatsLoop(many, { offset: 0, done: 0, errors: 0 },
+      { fetchHtml, parse: () => null, write, sleep: noSleep, maxConsecutiveUnrefreshed: 6 })
+    expect(fetchHtml).toHaveBeenCalledTimes(6)
+    expect(write).not.toHaveBeenCalled()
+    expect(r.blocked).toMatch(/6 consecutive tipsters not refreshed/)
+  })
+  it('errors interleaved with empty 200s still count as one streak; a refreshed tipster resets it', async () => {
+    const fetchHtml = vi.fn(async (s: string) => {
+      const n = Number(s.slice(1))
+      if (n === 4) return 'data'
+      if (n % 2) throw new HttpError(500, 'x')
+      return '<html>no archive</html>'
+    })
+    const r = await runStatsLoop(many, { offset: 0, done: 0, errors: 0 },
+      { fetchHtml, parse: (h: string) => (h === 'data' ? h : null), write: vi.fn(), sleep: noSleep, maxConsecutiveErrors: 3, maxConsecutiveUnrefreshed: 5 })
+    expect(r.blocked).toMatch(/consecutive/)
+    expect(r.refreshed).toBe(1)
+  })
+  it('isolated errors do not trip it: a refreshed tipster resets the streak', async () => {
     const fetchHtml = vi.fn(async (s: string) => { if (Number(s.slice(1)) % 3 === 0) throw new HttpError(500, 'x'); return 'data' })
     const r = await runStatsLoop(many, { offset: 0, done: 0, errors: 0 },
       { fetchHtml, parse: (h: string) => h, write: vi.fn(), sleep: noSleep, maxConsecutiveErrors: 3 })
@@ -110,6 +131,23 @@ describe('runStatsLoop circuit breaker', () => {
     expect(fetchHtml.mock.calls.length).toBeLessThan(50)
     expect(write).toHaveBeenCalledTimes(fetchHtml.mock.calls.length)
     expect(r.next).toBe(fetchHtml.mock.calls.length)
+  })
+})
+
+describe('time budget inside retries', () => {
+  it('stops between attempts when the deadline passes, without more attempts or sleeps', async () => {
+    let t = 0
+    const fn = vi.fn(async () => { t += 30_000; throw new HttpError(500, 'x') })
+    const sleep = vi.fn(async (ms: number) => { t += ms })
+    await expect(retryWithPolicy(fn, 't', 5, sleep, 50_000, () => t)).rejects.toBeInstanceOf(BudgetExceededError)
+    expect(fn.mock.calls.length).toBeLessThan(5)
+  })
+  it('budget error from a request aborts the whole stats run (no more fetch)', async () => {
+    const fetchHtml = vi.fn(async () => { throw new BudgetExceededError('time budget exceeded between attempts') })
+    const r = await runStatsLoop([{ id: 1, slug: 'a' }, { id: 2, slug: 'b' }], { offset: 0, done: 0, errors: 0 },
+      { fetchHtml, parse: (h: string) => h, write: vi.fn(), sleep: noSleep })
+    expect(fetchHtml).toHaveBeenCalledTimes(1)
+    expect(r.blocked).toMatch(/time budget/)
   })
 })
 

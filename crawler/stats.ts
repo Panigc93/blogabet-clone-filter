@@ -6,7 +6,7 @@ import { tipsters } from '../db/schema'
 import { sql, gt, and, gte, lt, or, isNull } from 'drizzle-orm'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { decideStatsOutcome } from './statsOutcome'
-import { HttpError, retryWithPolicy } from './blockPolicy'
+import { HttpError, retryWithPolicy, REQUEST_TIMEOUT_MS } from './blockPolicy'
 import { runStatsLoop } from './statsLoop'
 
 // Load .env.local if vars aren't already set (avoids shell $ expansion issues)
@@ -175,6 +175,7 @@ const STATS_HEADERS = {
 async function fetchStats(slug: string, cookie: string): Promise<string> {
   const res = await fetch(statsUrl(slug), {
     headers: { ...STATS_HEADERS, 'referer': `https://${slug}.blogabet.com/blog`, 'Cookie': cookie },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   })
   if (!res.ok) throw new HttpError(res.status, res.statusText, 'HTTP')
   return res.text()
@@ -182,7 +183,8 @@ async function fetchStats(slug: string, cookie: string): Promise<string> {
 
 // ─── Retry ────────────────────────────────────────────────────────────────────
 
-const withRetry = <T>(fn: () => Promise<T>, label: string) => retryWithPolicy(fn, label, 5)
+let deadlineAt: number | undefined // set at run start from STATS_MAX_MINUTES
+const withRetry = <T>(fn: () => Promise<T>, label: string) => retryWithPolicy(fn, label, 5, undefined, deadlineAt)
 
 // ─── Checkpoint ───────────────────────────────────────────────────────────────
 
@@ -240,6 +242,8 @@ async function crawlStats() {
     console.log(`Resuming from offset=${offset} (done=${done}, errors=${errors})`)
   }
 
+  const STATS_MAX_RUNTIME_MS = (Number(process.env.STATS_MAX_MINUTES ?? '180') || 180) * 60_000
+  deadlineAt = Date.now() + STATS_MAX_RUNTIME_MS
   const loop = await runStatsLoop(
     allTipsters,
     { offset, done, errors },
@@ -263,10 +267,12 @@ async function crawlStats() {
       },
       sleep: ms => new Promise(r => setTimeout(r, ms)),
       log: m => console.log(m),
-      // Circuit breaker: transient errors cost up to ~20 s of backoff per tipster (5 attempts), so
-      // a mass failure must not run for hours. Isolated errors reset the streak.
+      // Operational protections (limits are not measured estimates): bound a mass failure,
+      // including HTTP 200 with nothing parseable. Only a refreshed tipster resets the streaks.
+      // The time budget is also checked before every attempt and backoff, and each request has a timeout.
       maxConsecutiveErrors: Number(process.env.STATS_MAX_CONSECUTIVE_ERRORS ?? '25') || 25,
-      maxRuntimeMs: (Number(process.env.STATS_MAX_MINUTES ?? '180') || 180) * 60_000,
+      maxConsecutiveUnrefreshed: Number(process.env.STATS_MAX_UNREFRESHED ?? '100') || 100,
+      maxRuntimeMs: STATS_MAX_RUNTIME_MS,
     },
     (next, d, e) => saveCheckpoint(next, d, e),
   )

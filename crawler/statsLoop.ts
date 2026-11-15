@@ -6,8 +6,10 @@ export interface StatsLoopDeps<R> {
   write: (id: number, result: R) => Promise<void>
   sleep: (ms: number) => Promise<void>
   log?: (msg: string) => void
-  /** Abort after this many consecutive tipsters failed (each already after its retries). */
+  /** Abort after this many consecutive FAILED tipsters (each already after its retries). Reset only by a refreshed tipster. */
   maxConsecutiveErrors?: number
+  /** Abort after this many consecutive tipsters NOT refreshed for any reason (errors or 200 without data). Reset only by a refreshed tipster. */
+  maxConsecutiveUnrefreshed?: number
   /** Abort when the run has lasted longer than this many ms. */
   maxRuntimeMs?: number
   now?: () => number
@@ -31,7 +33,8 @@ export async function runStatsLoop<R>(
 ): Promise<StatsLoopResult> {
   let { done, errors } = start
   let refreshed = 0
-  let consecutive = 0
+  let consecutive = 0 // failed tipsters in a row
+  let unrefreshed = 0 // not-refreshed tipsters in a row (errors + 200 without data)
   const now = d.now ?? Date.now
   const t0 = now()
   const log = d.log ?? (() => {})
@@ -55,20 +58,34 @@ export async function runStatsLoop<R>(
       }
       errors++
       consecutive++
+      unrefreshed++
       log(`[${i + 1}/${items.length}] ERROR ${slug}: ${(err as Error).message}`)
       onProgress?.(i + 1, done, errors)
-      if (d.maxConsecutiveErrors !== undefined && consecutive >= d.maxConsecutiveErrors) {
-        const reason = `${consecutive} consecutive failed tipsters`
+      const tooManyUnrefreshed = d.maxConsecutiveUnrefreshed !== undefined && unrefreshed >= d.maxConsecutiveUnrefreshed
+      if ((d.maxConsecutiveErrors !== undefined && consecutive >= d.maxConsecutiveErrors) || tooManyUnrefreshed) {
+        const reason = tooManyUnrefreshed && !(d.maxConsecutiveErrors !== undefined && consecutive >= d.maxConsecutiveErrors)
+          ? `${unrefreshed} consecutive tipsters not refreshed`
+          : `${consecutive} consecutive failed tipsters`
         log(`STOP: ${reason}. Previous stats kept; checkpoint kept.`)
         return { done, refreshed, errors, blocked: reason, next: i + 1 }
       }
       await d.sleep(500)
       continue
     }
-    consecutive = 0 // any HTTP-level success (even a page with no data) ends a failure streak
     if (result) {
       await d.write(id, result)
       refreshed++
+      consecutive = 0
+      unrefreshed = 0
+    } else {
+      // 200 without parseable data is NOT a refresh: it counts toward the unrefreshed streak.
+      unrefreshed++
+      if (d.maxConsecutiveUnrefreshed !== undefined && unrefreshed >= d.maxConsecutiveUnrefreshed) {
+        const reason = `${unrefreshed} consecutive tipsters not refreshed`
+        log(`STOP: ${reason}. Previous stats kept; checkpoint kept.`)
+        done++
+        return { done, refreshed, errors, blocked: reason, next: i + 1 }
+      }
     }
     done++
     if ((i + 1) % 100 === 0) onProgress?.(i + 1, done, errors)
