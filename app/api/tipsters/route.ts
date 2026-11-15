@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, sortOrder, priceFilterIgnored, TipsterFilters, SortField } from '@/lib/query'
+import { buildFilters, sortOrder, ignoredWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and } from 'drizzle-orm'
 
 const PAGE_SIZE = 50
@@ -10,9 +10,10 @@ export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams
 
   const filters: TipsterFilters = {
-    // Default stays Blogabet-only: zero change for the current UI until a
-    // multi-source listing is explicitly decided. platform=tipstrr opts in.
-    platform:       (p.get('platform') as TipsterFilters['platform']) ?? 'blogabet',
+    // Default stays Blogabet-only: zero change for the current UI unless a
+    // platform is explicitly chosen. platform=tipstrr opts in; platform=all
+    // lists every platform (combined view).
+    platform:       p.get('platform') === 'all' ? undefined : ((p.get('platform') as TipsterFilters['platform']) ?? 'blogabet'),
     search:         p.get('search') ?? undefined,
     tipo:           (p.get('tipo') as TipsterFilters['tipo']) ?? 'all',
     minYield:       p.has('minYield')  ? Number(p.get('minYield'))  : undefined,
@@ -40,8 +41,9 @@ export async function GET(req: NextRequest) {
     .offset(page * PAGE_SIZE)
 
   const warnings: string[] = []
-  if (priceFilterIgnored(filters)) {
-    warnings.push('Filtro de precio no aplicado: Tipstrr cobra en GBP y no es comparable con EUR sin conversión (no inventamos FX).')
+  const ignored = ignoredWarning(filters)
+  if (ignored) {
+    warnings.push(ignored)
   }
 
   return NextResponse.json({ data: rows, page, hasMore: rows.length === PAGE_SIZE, ...(warnings.length ? { warnings } : {}) })
