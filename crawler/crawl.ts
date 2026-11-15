@@ -133,21 +133,20 @@ async function withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 8
 
 // ─── Build Blogabet URL ───────────────────────────────────────────────────────
 
-function blogabetUrl(lastActive: number, start: number): string {
-  const url = new URL('https://blogabet.com/tipsters/')
-  url.searchParams.set('f[language]', 'all')
-  url.searchParams.set('f[pickType]', 'all')
-  url.searchParams.set('f[sport]', 'all')
-  url.searchParams.set('f[leagues]', 'all')
-  url.searchParams.set('f[picksOver]', '0')
-  url.searchParams.set('f[lastActive]', String(lastActive))
-  url.searchParams.set('f[bookiesUsed]', 'null')
-  url.searchParams.set('f[order]', 'yield')
-  url.searchParams.set('f[start]', String(start))
-  return url.toString()
+export type ListingOrder = 'since' | 'followers' | 'picks' | 'profit' | 'yield'
+
+// Same query the official /tipsters page sends: literal brackets, same parameter order,
+// including the empty sportPercent and bookiePercent. Default order stays yield.
+export function blogabetUrl(lastActive: number, start: number, order: ListingOrder = 'yield'): string {
+  const q: [string, string][] = [
+    ['language', 'all'], ['pickType', 'all'], ['sport', 'all'], ['sportPercent', ''],
+    ['leagues', 'all'], ['picksOver', '0'], ['lastActive', String(lastActive)],
+    ['bookiesUsed', 'null'], ['bookiePercent', ''], ['order', order], ['start', String(start)],
+  ]
+  return 'https://blogabet.com/tipsters/?' + q.map(([k, v]) => `f[${k}]=${v}`).join('&')
 }
 
-const COMMON_HEADERS = {
+export const COMMON_HEADERS = {
   'accept': '*/*',
   'accept-language': 'en,es-ES;q=0.9,es;q=0.8',
   'cache-control': 'no-cache',
