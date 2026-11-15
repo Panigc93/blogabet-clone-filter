@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { tipstrrSnapshotToInsert, type TipstrrDbMapping } from '@/crawler/platforms/tipstrr/to-db'
+import { describe, expect, it } from 'vitest'
+import { tipstrrSnapshotToInsert, mergeTipstrrUpdate, type TipstrrDbMapping } from '@/crawler/platforms/tipstrr/to-db'
 import type { FichaSnapshot } from '@/app/lab/tipstrr/ficha/fixtures'
+import type { TipsterInsert } from '@/db/schema'
 
 const mustMap = (m: TipstrrDbMapping) => {
   if (!m.ok) throw new Error(m.reason)
@@ -13,12 +14,14 @@ describe('tipstrrSnapshotToInsert', () => {
   // (2026-11-15). Negative-space convention keeps BB and Tipstrr ids apart.
   const tle = mustMap(tipstrrSnapshotToInsert(TLE_SNAPSHOT, {
     id: -221629,
+    idSource: 'source-captured',
     slug: 'the-least-expected',
     subscriptionPriceGbp: 39,
     isPaid: true,
   }))
   const statmind = mustMap(tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, {
-    id: -999999, // fabricated for the test only; StatMind's portfolioId not captured
+    id: -999999, // provisional para el aislado; portfolioId de StatMind no capturado
+    idSource: 'isolated-fixture',
     slug: 'statmind',
     subscriptionPriceGbp: null,
     isPaid: false,
@@ -29,33 +32,32 @@ describe('tipstrrSnapshotToInsert', () => {
     expect(tle.platform).toBe('tipstrr')
     expect(tle.slug).toBe('the-least-expected')
     expect(tle.profitUnit).toBe('units')
-    expect(tle.priceCurrency).toBe('gbp')
     expect(tle.price).toBe('39.00')
-    expect(statmind.isPaid).toBe(false)
+    expect(tle.priceCurrency).toBe('gbp')
+    expect(tle.isPaid).toBe(true)
     expect(statmind.price).toBeNull()
+    expect(statmind.isPaid).toBe(false)
   })
 
-  it('stores units, never money', () => {
-    // TLE: 1974 tips, exact monthly profit sum 361.815 units
+  it('maps the verified all-time totals', () => {
     expect(tle.picks).toBe(1974)
     expect(parseFloat(tle.profit!)).toBeCloseTo(361.815, 3)
     expect(statmind.picks).toBe(291)
     expect(parseFloat(statmind.profit!)).toBeCloseTo(-59.125, 3)
   })
 
-  it('verified tier stores the overview yield; a battery failure without numeric contradiction falls back to the exact-series yield', () => {
+  it('all-time yield comes from the overview (advised basis) once the three numeric closures pass', () => {
     expect(tle.yield).toBe('18.33')
     expect(statmind.yield).toBe('-20.32')
-    // 2026-11-15 (revisión): un fallo de la batería que NO contradice las
-    // cifras (p.ej. advised != level en stake variable) ya no anula el
-    // yield: con tips/roi/profit cerrando contra la serie, el yield se
-    // calcula de la serie exacta (misma base level-stake). Solo una
-    // contradicción numérica real lo deja null.
+    // La puerta estricta NO exige la batería de consistencia: con tips/roi/
+    // profit cerrando contra la serie, un fallo de batería (p.ej. advised !=
+    // level, estructural en stake variable) no anula el dato.
     const broken = mustMap(tipstrrSnapshotToInsert(
       { ...TLE_SNAPSHOT, consistency: [{ name: 'x', passed: false }] },
-      { id: -1, slug: 'x', isPaid: true }
+      { id: -1, idSource: 'isolated-fixture', slug: 'x', isPaid: true }
     ))
-    expect(broken.yield).toBe('18.33') // calculado: 361.82/1974 cierra con 18.33
+    expect(broken.yield).toBe('18.33')
+    expect(broken.picks).toBe(1974)
   })
 
   it('computes period yields from exact monthly figures; incomplete windows are null', () => {
@@ -69,32 +71,28 @@ describe('tipstrrSnapshotToInsert', () => {
     expect(statmind.yield12m).toBeNull()
   })
 
-  it('missing overview total: measured series total persists; absent without series rejects; a real 0 is kept', () => {
-    // 2026-11-15: the pick-count filter needs the real historical total and
-    // the column is NOT NULL, so a total that cannot be established must NOT
-    // become a fabricated 0 — the record is rejected with an explicit reason
-    // and the capture kept for review. But when the overview figure is
-    // absent and the complete monthly series measures the total exactly,
-    // that measured total persists (it is not fabricated). A genuine 0 (new
-    // profile, no tips) also persists.
-    const absent = mustMap(tipstrrSnapshotToInsert(
+  it('total ausente en overview all-time: cuarentena con clase total-ausente (nunca fabricar)', () => {
+    const absent = tipstrrSnapshotToInsert(
       { ...TLE_SNAPSHOT, overview: { ...TLE_SNAPSHOT.overview, tips: null } },
-      { id: -2, slug: 'x', isPaid: true }
-    ))
-    expect(absent.picks).toBe(1974) // suma exacta de la serie, no fabricado
-    expect(absent.yield).toBeNull() // overview all-time ausente: sin yield verificado
+      { id: -2, idSource: 'isolated-fixture', slug: 'x', isPaid: true }
+    )
+    expect(absent.ok).toBe(false)
+    if (!absent.ok) expect(absent.reason).toContain('total-ausente')
     const absentNoSeries = tipstrrSnapshotToInsert(
       { ...TLE_SNAPSHOT, monthState: [], overview: { ...TLE_SNAPSHOT.overview, tips: null } },
-      { id: -4, slug: 'x2', isPaid: true }
+      { id: -4, idSource: 'isolated-fixture', slug: 'x2', isPaid: true }
     )
     expect(absentNoSeries.ok).toBe(false)
-    if (!absentNoSeries.ok) expect(absentNoSeries.reason).toContain('picks')
+    if (!absentNoSeries.ok) expect(absentNoSeries.reason).toContain('total-ausente')
     const realZero = tipstrrSnapshotToInsert(
       { ...TLE_SNAPSHOT, monthState: [], overview: { ...TLE_SNAPSHOT.overview, tips: 0 } },
-      { id: -3, slug: 'y', isPaid: true }
+      { id: -3, idSource: 'isolated-fixture', slug: 'y', isPaid: true }
     )
     expect(realZero.ok).toBe(true)
-    if (realZero.ok) expect(realZero.insert.picks).toBe(0)
+    if (realZero.ok) {
+      expect(realZero.insert.picks).toBe(0) // 0 real: perfil nuevo sin tips
+      expect(realZero.insert.yield).toBeNull()
+    }
   })
 
   it('absence stays null, never 0', () => {
@@ -113,12 +111,12 @@ describe('tipstrrSnapshotToInsert', () => {
   })
 })
 
-// Puerta por niveles (hallazgo 2026-11-15 sobre 209 capturas reales): el
-// overview de /stats viene acotado al periodo seleccionado; 3/4/5 son
-// ventanas rodantes no reproducibles desde buckets mensuales y 6 es
-// all-time. El total histórico y el yield se resuelven por verificación,
-// no por fe en el overview.
-describe('puerta por niveles: overview rodante vs all-time', () => {
+// PUERTA ESTRICTA (2026-11-15): el histórico solo se persiste con cierre
+// all-time independiente (period 6, o tips == Σtips de la serie cuando la
+// ventana cubre toda la vida del perfil) Y tres cierres numéricos
+// (tips/roi/profit contra la serie). Lo que dependa de completitud inferida
+// va a cuarentena: no se persiste, captura y motivo conservados.
+describe('puerta estricta: cierre all-time independiente o cuarentena', () => {
   const mk = (over: Partial<FichaSnapshot>): FichaSnapshot => ({
     capturedAt: '2026-11-15',
     capturedAtDate: '2026-11-15T16:00:00Z',
@@ -139,6 +137,7 @@ describe('puerta por niveles: overview rodante vs all-time', () => {
       avgOdds: null,
       stakeLabel: null,
       profitDisplay: null,
+      profitUnits: 3,
       roiPct: 3,
       roiPeriodLabel: 'period=3',
     },
@@ -149,59 +148,77 @@ describe('puerta por niveles: overview rodante vs all-time', () => {
     notAvailable: [],
     ...over,
   })
-  const OPTS = { id: -700001, slug: 'x', isPaid: false }
+  const OPTS = { id: -700001, idSource: 'isolated-fixture' as const, slug: 'x', isPaid: false }
 
-  it('overview rodante + serie desde el alta: picks = suma exacta de la serie, yield calculado de cifras exactas', () => {
-    const r = mustMap(tipstrrSnapshotToInsert(mk({}), OPTS))
-    expect(r.picks).toBe(200) // 100+100 de la serie, no los 50 del overview rodante
-    expect(parseFloat(r.yield!)).toBeCloseTo((5 / 200) * 100, 2) // 2.50
+  it('overview rodante aunque la serie llegue al alta: cuarentena[cobertura-sin-cierre], nada persiste', () => {
+    // Los 96 perfiles COBERTURA de la clasificación anterior dependían de
+    // completitud INFERIDA de la serie: la puerta estricta los cuarentena.
+    const r = tipstrrSnapshotToInsert(mk({}), OPTS)
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toContain('cobertura-sin-cierre')
   })
 
-  it('overview all-time contradictorio con la serie: picks de la serie, yield null', () => {
-    const r = mustMap(tipstrrSnapshotToInsert(
-      mk({ overviewPeriod: 6, overview: { ...mk({}).overview, tips: 999 }, consistency: [{ name: 'suma mensual = overview', passed: false }] }),
+  it('overview all-time contradictorio con la serie: cuarentena[contradiccion-numerica]', () => {
+    const r = tipstrrSnapshotToInsert(
+      mk({ overviewPeriod: 6, overview: { ...mk({}).overview, tips: 999, profitUnits: 5 } }),
       OPTS
-    ))
-    expect(r.picks).toBe(200)
-    expect(r.yield).toBeNull()
+    )
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toContain('contradiccion-numerica')
   })
 
-  it('overview all-time verificado (period=6 y tips == suma y todo en verde): yield del overview', () => {
+  it('overview all-time verificado (period=6, 3 cierres): persiste con yield del overview (base aconsejada)', () => {
     const ok = mk({})
     const r = mustMap(tipstrrSnapshotToInsert(
-      mk({ overviewPeriod: 6, overview: { ...ok.overview, tips: 200, roiPct: 2.5 } }),
+      mk({ overviewPeriod: 6, overview: { ...ok.overview, tips: 200, roiPct: 2.5, profitUnits: 5 } }),
       OPTS
     ))
     expect(r.picks).toBe(200)
     expect(r.yield).toBe('2.50')
   })
 
-  it('serie que empieza después del mes de alta (silencio ambiguo): rechazo con motivo', () => {
+  it('serie que empieza después del mes de alta: misma clase cobertura-sin-cierre', () => {
     const r = tipstrrSnapshotToInsert(mk({ signupDate: '2026-08-01' }), OPTS)
     expect(r.ok).toBe(false)
-    if (!r.ok) expect(r.reason).toContain('no llega al mes de alta')
+    if (!r.ok) expect(r.reason).toContain('cobertura-sin-cierre')
   })
 
-  it('overview.tips ausente con serie completa: el total sale de la serie (no se fabrica, se mide)', () => {
-    const r = mustMap(tipstrrSnapshotToInsert(
-      mk({ overview: { ...mk({}).overview, tips: null, roiPct: null } }),
-      OPTS
-    ))
-    expect(r.picks).toBe(200)
-    expect(r.yield).not.toBeNull() // calculado de la serie exacta
-  })
-
-  it('sin serie y total ausente: rechazo', () => {
+  it('overview.tips ausente: cuarentena[total-ausente] aunque la serie esté completa', () => {
     const r = tipstrrSnapshotToInsert(
-      mk({ monthState: [], overview: { ...mk({}).overview, tips: null } }),
+      mk({ overviewPeriod: 6, overview: { ...mk({}).overview, tips: null, roiPct: null, profitUnits: null } }),
       OPTS
     )
     expect(r.ok).toBe(false)
-    if (!r.ok) expect(r.reason).toContain('no llega al mes de alta')
+    if (!r.ok) expect(r.reason).toContain('total-ausente')
+  })
+
+  it('sin serie y total ausente: cuarentena[total-ausente]', () => {
+    const r = tipstrrSnapshotToInsert(
+      mk({ monthState: [], overview: { ...mk({}).overview, tips: null, roiPct: null, profitUnits: null } }),
+      OPTS
+    )
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toContain('total-ausente')
+  })
+
+  it('huecos de meses sin actividad NO excluyen cuando el cierre all-time es independiente', () => {
+    // Criterio del auditor (2026-11-15): 20 de 43 cierres period=6 tienen
+    // huecos mensuales; el cierre independiente confirma el total igualmente.
+    const ok = mk({})
+    const r = mustMap(tipstrrSnapshotToInsert(
+      mk({
+        overviewPeriod: 6,
+        monthState: [{ year: 2026, month: 10, tips: 200, staked: 200, profit: 5 }], // hueco: falta sep
+        overview: { ...ok.overview, tips: 200, roiPct: 2.5, profitUnits: 5 },
+      }),
+      OPTS
+    ))
+    expect(r.picks).toBe(200)
+    expect(r.yield).toBe('2.50')
   })
 })
 
-describe('stake variable vs contradicción numérica', () => {
+describe('stake variable vs contradicción numérica (clases separadas)', () => {
   const mk = (over: Partial<FichaSnapshot>): FichaSnapshot => ({
     capturedAt: '2026-11-15',
     capturedAtDate: '2026-11-15T16:00:00Z',
@@ -216,12 +233,11 @@ describe('stake variable vs contradicción numérica', () => {
     months: [], consistency: [{ name: 'misma ventana', passed: true }],
     overviewPeriod: 3, yieldEquivalenceNote: '', notAvailable: [], ...over,
   })
-  const OPTS = { id: -700002, slug: 'x', isPaid: false }
+  const OPTS = { id: -700002, idSource: 'isolated-fixture' as const, slug: 'x', isPaid: false }
 
-  it('stake variable (advised != level) con cierres numéricos en verde NO es contradicción: yield calculado de la serie', () => {
-    // 2026-11-15: 51 perfiles all-time reales fallaban solo el chequeo
-    // advised == level (estructural en stake variable) y la puerta anterior
-    // les anulaba el yield pese a cerrar tips/roi/profit contra la serie.
+  it('stake variable (advised != level) con cierres numéricos en verde PERSISTE con yield aconsejado', () => {
+    // advised != level es estructural en stake variable (150/208 con
+    // Σstaked ≠ Σtips), no una contradicción de datos: no va a cuarentena.
     const ok = mk({})
     const r = mustMap(tipstrrSnapshotToInsert(
       mk({
@@ -232,20 +248,70 @@ describe('stake variable vs contradicción numérica', () => {
       OPTS
     ))
     expect(r.picks).toBe(200)
-    expect(r.yield).toBe('2.50') // Σprofit/Σstaked = 5/200, base level-stake
+    expect(r.yield).toBe('2.50') // roi del overview (base aconsejada)
   })
 
-  it('contradicción numérica real (roi del overview no cierra contra la serie): yield null', () => {
+  it('contradicción numérica real (roi del overview no cierra): cuarentena[contradiccion-numerica]', () => {
     const ok = mk({})
-    const r = mustMap(tipstrrSnapshotToInsert(
+    const r = tipstrrSnapshotToInsert(
       mk({
         overviewPeriod: 6,
         overview: { ...ok.overview, tips: 200, roiPct: 9.99, profitUnits: 5 },
         consistency: [{ name: 'roi = profit / total apostado cierra', passed: false }],
       }),
       OPTS
-    ))
-    expect(r.picks).toBe(200)
-    expect(r.yield).toBeNull()
+    )
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toContain('contradiccion-numerica')
+  })
+})
+
+describe('mergeTipstrrUpdate: upsert que preserva ausentes', () => {
+  const base = mustMap(tipstrrSnapshotToInsert(TLE_SNAPSHOT, {
+    id: -221629, idSource: 'source-captured', slug: 'the-least-expected',
+    subscriptionPriceGbp: 39, isPaid: true,
+  }))
+
+  it('un ausente en la captura nueva nunca sobrescribe un valor guardado', () => {
+    const next: TipsterInsert = {
+      ...base,
+      yield: null, // captura nueva sin yield verificado
+      price: null,
+      profit: null,
+      capturedAt: new Date('2026-11-16T10:00:00Z'),
+      statsUpdatedAt: new Date('2026-11-16T10:00:00Z'),
+    }
+    const merged = mergeTipstrrUpdate(base, next)
+    expect(merged.yield).toBe('18.33') // preservado
+    expect(merged.price).toBe('39.00') // preservado
+    expect(merged.profit).toBe(base.profit) // preservado
+  })
+
+  it('los valores presentes sí actualizan y las marcas de tiempo avanzan', () => {
+    const next: TipsterInsert = {
+      ...base,
+      yield: '19.01',
+      picks: 2000,
+      capturedAt: new Date('2026-11-16T10:00:00Z'),
+      statsUpdatedAt: new Date('2026-11-16T10:00:00Z'),
+    }
+    const merged = mergeTipstrrUpdate(base, next)
+    expect(merged.yield).toBe('19.01')
+    expect(merged.picks).toBe(2000)
+    expect(merged.capturedAt?.toISOString()).toBe('2026-11-16T10:00:00.000Z')
+    expect(merged.statsUpdatedAt?.toISOString()).toBe('2026-11-16T10:00:00.000Z')
+  })
+
+  it('la identidad (id/platform/slug) es inmutable', () => {
+    const next: TipsterInsert = {
+      ...base,
+      id: -1,
+      platform: 'blogabet',
+      slug: 'otro',
+    }
+    const merged = mergeTipstrrUpdate(base, next)
+    expect(merged.id).toBe(-221629)
+    expect(merged.platform).toBe('tipstrr')
+    expect(merged.slug).toBe('the-least-expected')
   })
 })

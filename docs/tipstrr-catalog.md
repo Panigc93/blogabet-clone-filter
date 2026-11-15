@@ -78,11 +78,12 @@ Conclusión honesta: el listado de fútbol por defecto tiene entre 49
 (observado mínimo) y ~94 (si pages 2-4 van llenas y sin solape) entradas;
 el número exacto exige una pasada autorizada que guarde los slugs.
 
-## Actividad vs resultados (corrección del usuario 15-11-2026 16:49 CET)
+## Actividad vs resultados (15-11-2026)
 
-El usuario separó dos cosas que el ranking por defecto mezcla: filtrar por
-ACTIVIDAD (último pick publicado, p. ej. activos el último mes) y ordenar
-por RESULTADOS (yield histórico). Evidencia de las capturas existentes:
+Criterio de diseño: separar dos cosas que el ranking por defecto mezcla —
+filtrar por ACTIVIDAD (último pick publicado, p. ej. activos el último
+mes) y ordenar por RESULTADOS (yield histórico). Evidencia de las
+capturas existentes:
 
 - Las métricas del listado están calculadas sobre el PERIOD elegido
   (period=3 en la URL observada): no son yield histórico. El yield
@@ -117,7 +118,7 @@ por RESULTADOS (yield histórico). Evidencia de las capturas existentes:
 Objetivo: indexar para filtrar/comparar, no seleccionar apuestas. Sin
 criterios de exclusión por defecto (ni yield, ni antigüedad): se indexa lo
 que el listado devuelve y la antigüedad/actividad se guardan como datos;
-los umbrales los decide el usuario en la UI.
+los umbrales se deciden en la UI.
 
 1. **Pasada acotada de fútbol primero**, con alcance exacto ANTES de
    ejecutar: páginas 1-8 del endpoint observado (techo 10 peticiones,
@@ -125,8 +126,9 @@ los umbrales los decide el usuario en la UI.
    guardando arrays de slugs completos (así el conteo y la deduplicación
    quedan medidos, no asumidos) + métricas de tarjeta (ROI, profit,
    win rate, cuota media, tips/semana, precio, "since").
-   Ritmo a acordar explícitamente con el usuario, explicando el riesgo de
-   marcado/bloqueo de la cuenta por frecuencia.
+   Ritmo: cualquier extracción recurrente requiere consentimiento explícito
+   del propietario, con el riesgo de marcado/bloqueo de la cuenta por
+   frecuencia explicado antes de ejecutar.
    Con la corrección actividad/resultados: la pasada guarda también
    "Active tips" de cada tarjeta; la fecha exacta de última publicación y
    el yield histórico son datos de perfil (paso 3), no del listado.
@@ -144,12 +146,12 @@ términos de Tipstrr pendientes para cualquier extracción recurrente.
 
 ## Pasada de selección ejecutada (2026-11-15 15:02-15:25 UTC)
 
-Selección del usuario: orden **ROI** (`order=2`), período **3 meses** (`period=3`), free (`portfolioType=1`) y premium (`portfolioType=2`) por separado, hasta **3 páginas** por tipo y deporte, los 19 deportes del menú. Parada por rama: página vacía o parcial. Ritmo: 15-23 s (tramo 1) y 10-16 s (tramo 2, aprobado por el usuario a las 16:11 CET). Condición de parada global (401/403/429/reto): **no se activó** — 0 respuestas no-200 en toda la pasada.
+Parámetros de la pasada: orden **ROI** (`order=2`), período **3 meses** (`period=3`), free (`portfolioType=1`) y premium (`portfolioType=2`) por separado, hasta **3 páginas** por tipo y deporte, los 19 deportes del menú. Parada por rama: página vacía o parcial. Ritmo: 15-23 s (tramo 1) y 10-16 s (tramo 2). Condición de parada global (401/403/429/reto): **no se activó** — 0 respuestas no-200 en toda la pasada.
 
 - Peticiones: 29 (leg1) + 34 (leg2) + 2 (MMA) = **65** (44 listing + 21 pageLoad), más 0-1 del intento descartado jsjob-1 (respuesta perdida con recarga).
 - Resultado: **209 slugs únicos** (86 free + 123 premium, solape free∩premium = 0; 11 tipsters aparecen en más de un deporte).
 - Combinaciones con resultados: 16 de 38; 22 vacías (0 tipsters con ≥45 tips bajo este filtro: cricket, darts, e-sports, greyhounds, handball, rugby-league, rugby-union, snooker, volleyball, golf free, MMA ambos, boxing ambos).
-- Topes de 3 páginas alcanzados (cobertura truncada por decisión del usuario): football free y premium, horse-racing premium.
+- Topes de 3 páginas alcanzados (cobertura truncada por ese tope): football free y premium, horse-racing premium.
 - MMA: el slug del listado del pie (`/mixed-martial-arts`) es un soft-404 (HTTP 200, título "Error | 404"); el real es `/mma` (sportId 11). Ambos tipos vacíos.
 - Captura: `captures/2026-11-15-catalog-selection.json` (38 combinaciones con arrays de slugs por página y timestamp por petición). Validación: las 38 combinaciones pasan `validateCatalogCapture` sin issues.
 - `tips=45` (mínimo oculto por defecto del sitio) se mantuvo tal cual: los vacíos significan "0 bajo este filtro", no "0 tipsters del deporte".
@@ -162,27 +164,23 @@ Selección del usuario: orden **ROI** (`order=2`), período **3 meses** (`period
 
 `overview.period` varía por perfil: 3 (70 perfiles), 4 (60), 5 (26), 6 (53). Verificado contra las 209 capturas: los periodos 3/4/5 NO son reproducibles desde buckets mensuales (ninguna de las ventanas de meses naturales ensayadas cuadra de forma general — últimos N cerrados por calendario, últimos N presentes en la serie, ni incluyendo el mes en curso). Esto descarta esas comparaciones; la semántica real (rodante de N días u otra) queda SIN VERIFICAR. El código 6 sí es all-time: 50 de 53 cierran al tip contra la suma de la serie mensual. El parámetro `?period=` de la URL es ignorado (sonda en vivo, 2 peticiones).
 
-### Puerta por niveles (to-db.ts)
+### Puerta estricta (to-db.ts) — estado final 2026-11-15 17:40 CET
 
-- VERIFICADO: overview all-time (period 6 o tips == suma de la serie) con todas las comprobaciones en verde → picks del overview, yield = roi del overview (cierra contra denominadores exactos).
-- COBERTURA: overview rodante pero serie mensual desde el mes de alta → picks = suma exacta de la serie (los meses sin actividad no tienen fila y aportan 0; no-truncamiento probado por los 44 cierres exactos y series de 184 filas), yield all-time = Σprofit/Σstaked de la serie.
-- CONTRADICCIÓN: overview all-time que no cierra contra la serie → picks de la serie si hay cobertura, yield null.
-- RECHAZO: serie que empieza después del mes de alta (silencio ambiguo), o total ausente sin serie.
+El histórico solo se persiste con CIERRE ALL-TIME INDEPENDIENTE verificable y base aconsejada confirmada; lo que dependa de completitud inferida de la serie va a cuarentena (no se persiste; captura y motivo conservados). Nada de esto fabrica datos: es criterio de calidad.
 
-### Resultado de la ingesta aislada (PGlite, nunca Neon)
+- PERSISTE: overview all-time (period 6, o tips == Σtips cuando la ventana cubre toda la vida del perfil) Y tres cierres numéricos contra la serie: tips == Σtips, roi aconsejado == Σprofit/Σstaked (±0.05), profit aconsejado == Σprofit (±0.01). Los huecos de meses sin actividad NO excluyen: el cierre independiente confirma el total (criterio de la revisión independiente: 20 de 43 cierres period=6 tienen huecos y cierran). picks = overview.tips, yield = roi del overview (base ACONSEJADA: Σprofit/Σstaked cierra contra overview.roi en 41 perfiles y contra levelStakeROI en 0; 150/208 con Σstaked ≠ Σtips descartan base level). La batería de consistencia NO se exige: advised != level es estructural en stake variable, no contradicción.
+- CERO REAL: overview all-time con tips = 0 y serie vacía → picks 0, yield null.
+- CUARENTENA (clases separadas, sin amalgamar): [contradiccion-numerica] overview all-time sin cierre tips/roi/profit; [cobertura-sin-cierre] overview no all-time (el total sería suma de serie de completitud inferida); [total-ausente] overview sin total de picks.
+- Métricas de periodo (yield3m/6m/12m, picks6mAvg): ventanas exactas de periods.ts, separadas del all-time; ventana incompleta = null.
+- Upsert preserva-ausentes: mergeTipstrrUpdate (ausente en captura nueva nunca pisa valor válido guardado; id/platform/slug inmutables; marcas de tiempo avanzan), cableado en la ruta aislada del seed con regresiones en tests/crawler/tipstrr-to-db.test.ts.
 
-200 persistidos (84 free / 116 premium) en la base AISLADA con ids PROVISIONALES -900000-i (salvo TLE -221629 real): son FIXTURES de validación, NO payload importable a producción — el estado /stats no expone portfolioId en ningún campo (búsqueda exhaustiva sobre las capturas) y la convención exige PK = -portfolioId real. La identidad real se resuelve con los objetos por-tip de /results (como el 221629 de TLE), misma pasada acotada que la actividad. 9 rechazados por silencio ambiguo (alpheratz, beat-365, celtic-racing-tipster, chrisbestbets, forrest-jump, kensflat, ravi-predictz, steviebetscom, the-second-serve — capturas conservadas). 191 con yield all-time, 9 null (solo contradicciones numéricas reales). Script: `scripts/seed-tipstrr-catalog.ts`.
+### Resultado de la ingesta aislada con puerta estricta (PGlite, nunca Neon)
 
-### Revisión 17:35 — desglose por nivel (instrumentado en el script)
+100 persistidos de 209 (todos con yield aconsejado) en la base AISLADA con ids PROVISIONALES -900000-i (salvo TLE -221629 real): FIXTURES de validación, NO payload importable — el estado /stats no expone portfolioId y la convención exige PK = -portfolioId real. 109 en cuarentena: 100 cobertura-sin-cierre + 9 contradiccion-numerica (joydi, nieder, on-target-tips, on-the-money-tips, parabola-bets, shrewd-tips, svb-tips, thebanker, trust-me; capturas y motivos conservados). Composición de los 100: 43 con period=6 y cierres (coincide con el conteo de la revisión independiente sobre las 208 capturas) + TLE (44) + 56 all-time por igualdad (period 3/4/5 con ventana que cubre toda la vida del perfil y los 3 cierres). Re-seed idempotente: la segunda ejecución ejercita la ruta upsert sin error y conserva los valores.
 
-- VERIFICADO 49: overview all-time + batería completa en verde → picks y yield del overview.
-- COBERTURA 96: overview no all-time + serie desde el alta → picks = suma exacta, yield = Σprofit/Σstaked.
-- CONTRADICCION 55 → reclasificada: 46 eran stake variable (advised != level, estructural, con tips/roi/profit cerrando contra la serie) → ahora yield calculado de la serie; 9 contradicciones numéricas reales (joydi, nieder, on-target-tips, on-the-money-tips, parabola-bets, shrewd-tips, svb-tips, thebanker, trust-me) → yield null, picks de la serie.
-- RECHAZO 9: serie empieza tras el mes de alta y overview no all-time verificado.
+Relación con conteos anteriores: el nivel antiguo "VERIFICADO 49" exigía además la batería completa en verde: eran 44 period=6 (incl. TLE) + 5 all-time por igualdad con batería verde. La revisión independiente contaba 43 cierres period=6 sobre el directorio de 208 (sin TLE): la diferencia de 6 es TLE + esos 5 perfiles por igualdad. La puerta estricta NO exige la batería, por eso persiste 100 y no 49: los 56 all-time por igualdad tienen los tres cierres numéricos independientes.
 
-Controles de cobertura aplicados: (1) primera fila mensual <= mes de alta; (2) igualdad exacta tips serie vs overview cuando el overview es all-time; (3) cierre roi = Σprofit/Σstaked ±0.05 y profit ±0.01 contra la serie; (4) meses sin actividad no generan fila (0 filas tips=0 en 4.271) y aportan 0 a la suma, así que los huecos intermedios NO corruptan el total — sí anulan ventanas de periodo vía periods.ts (complete=false); (5) sin truncamiento observado: series de hasta 184 filas y 44+ cierres exactos. Límite honesto: para perfiles con overview no all-time, la completitud es evidencia de mecanismo (mismo estado, misma serie), no prueba registro a registro.
-
-Precio: las tarjetas guardadas del listado (football default) contienen ROI/odds/tips/winrate/profit pero NINGÚN precio de suscripción ("Join from £X" no aparece en el material capturado) → hueco confirmado sin red nueva.
+Controles aplicados: (1) igualdad exacta tips serie vs overview cuando el overview es all-time; (2) cierre roi = Σprofit/Σstaked ±0.05 y profit ±0.01; (3) meses sin actividad no generan fila y los huecos intermedios no corrompen la suma — sí anulan ventanas de periodo vía periods.ts (complete=false); (4) ausente es null, nunca 0.
 
 ### Huecos conocidos
 
@@ -197,11 +195,11 @@ Antes de proponer 209 lecturas, resolver la semántica con 2-3 lecturas acotadas
 2. Leer /tipster/<slug>/results de cada uno (mismo ritmo 10-16 s) y extraer PORTFOLIO_TIP_CACHED: comprobar (a) que la primera página está ordenada por dateAdded descendente, (b) qué estados incluye (abiertos vs liquidados), (c) si dateAdded es fecha de publicación o de evento.
 3. Solo si (a)-(c) se verifican: max(dateAdded) de la primera página = última publicación, y la pasada completa (209 lecturas, 35-55 min) tendría semántica defendible. Si la página no ordena por publicación, haría falta paginar y el coste cambia — se reportaría antes de seguir.
 
-### Estado de validación 17:36 — NO ENTREGAR 191 como validados
+### Estado de validación — 2026-11-15 17:40 CET
 
-Revisión independiente en curso. Abierto y declarado:
-- Base del yield: la comprobación offline muestra que Σprofit/Σstaked de la serie cierra contra overview.roi (advised) en 41 perfiles, contra levelStakeROI en 0, contra ambos en 64 (stake plano, indistinguible) y contra ninguno en 104 (ventanas no all-time, esperado). La base aconsejada es la candidata con evidencia, pero el yield aconsejado exige denominador aconsejado correcto perfil a perfil; mientras tanto, los 142 yields calculados de la serie (96 COBERTURA + 46 stake variable reclasificados) quedan marcados PENDIENTES de base y completitud — no validados.
-- Completitud de la serie: 67 perfiles tienen 862 meses ausentes en total; 0 filas con tips=0 NO prueba que los meses inactivos se omitan (puede ser truncamiento/faltantes). La suma de la serie no es verdad completa por defecto (3 discrepancias tips en period=6: joydi, nieder, trust-me). periodStartDate acota: 151/156 conteos dentro de ventana, 5 fuera (10-streak, baby-cash, hola-tips, venecash, xgoal-over-pro); no es prueba de completitud histórica.
-- 150/208 perfiles con Σstaked ≠ Σtips: la descripción global "level stake" queda descartada.
-- Upsert que preserva valores válidos ante ausencias: SOLO comentario en código, NO implementado. No declarado cerrado.
-- tsc limpio y `next build` compila desde checkout limpio en el head actual (7714a52); el aviso final de "patch lockfile" es del entorno de verificación (node_modules enlazado), no del código.
+- Base del yield CONFIRMADA como aconsejada: Σprofit/Σstaked cierra contra overview.roi (advised) en 41 perfiles, contra levelStakeROI en 0, contra ambos en 64 (stake plano, indistinguible) y contra ninguno en 104 (ventanas no all-time, esperado). El yield persistido es roi del overview (base aconsejada) solo cuando los tres cierres numéricos pasan.
+- Completitud de la serie NO se asume: 67 perfiles tienen 862 meses ausentes en total; 0 filas con tips=0 no prueba omisión de meses inactivos. Por eso la puerta estricta cuarentena todo total que dependa de la suma de la serie sin cierre all-time independiente (100 perfiles en [cobertura-sin-cierre]).
+- 150/208 perfiles con Σstaked ≠ Σtips: la descripción global "level stake" queda descartada; advised != level es estructural en stake variable y NO es clase de cuarentena.
+- Upsert preserva-ausentes: IMPLEMENTADO (mergeTipstrrUpdate), cableado en la ruta aislada del seed y con regresiones en tests/crawler/tipstrr-to-db.test.ts.
+- 142 pendientes con yield de la clasificación anterior: NINGUNO persiste con la puerta estricta; quedan en cuarentena con clase y captura conservada.
+- tsc limpio, 171/171 tests y `next build` compila desde checkout limpio; el aviso final de "patch lockfile" es del entorno de verificación (node_modules enlazado), no del código.

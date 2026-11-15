@@ -25,6 +25,10 @@ export interface TipstrrDbMappingOptions {
   // collide. portfolioId comes from the source's own data (e.g. captured
   // per-tip objects); never invent one.
   id: number
+  // Procedencia del id, declarada por el llamador: 'source-captured' =
+  // portfolioId real del origen (único importable); 'isolated-fixture' =
+  // provisional para entorno aislado, NUNCA payload de producción.
+  idSource: 'source-captured' | 'isolated-fixture'
   slug: string
   subscriptionPriceGbp?: number | null // e.g. 39; null when unknown/free
   isPaid: boolean
@@ -38,97 +42,75 @@ export function tipstrrSnapshotToInsert(
   s: FichaSnapshot,
   opts: TipstrrDbMappingOptions
 ): TipstrrDbMapping {
-  // Requisito 2026-11-15: el total histórico de picks es el dato del filtro
-  // "nº de picks" y la columna es NOT NULL, así que un total ausente o no
-  // verificable RECHAZA el registro con motivo explícito (la captura se
-  // conserva para revisión); nunca se fabrica un 0. Un 0 REAL (perfil
-  // nuevo sin tips) sí se persiste como 0.
+  // PUERTA ESTRICTA (2026-11-15, revisión independiente): el histórico
+  // solo se persiste con CIERRE ALL-TIME INDEPENDIENTE verificable y base
+  // aconsejada confirmada. Lo que dependa de completitud INFERIDA de la
+  // serie va a CUARENTENA (no se persiste; captura y motivo conservados).
+  // No se fabrican datos: es criterio de calidad.
   //
-  // Alcance del overview (hallazgo 2026-11-15, 209 capturas): el overview
-  // del estado /stats viene acotado al periodo seleccionado (3/4/5 =
-  // ventanas rodantes no reproducibles desde buckets mensuales; 6 =
-  // all-time). Por tanto el total histórico se resuelve por niveles:
-  //   VERIFICADO: overview all-time (period 6 o tips == suma de la serie)
-  //     con TODAS las comprobaciones en verde -> picks = overview.tips,
-  //     yield = roi del overview (cierra contra denominadores exactos).
-  //   COBERTURA: overview rodante/no verificable pero la serie mensual
-  //     llega al mes de alta -> picks = suma exacta de la serie (los meses
-  //     sin actividad no tienen fila y aportan 0: no corrompen la suma;
-  //     la ausencia de truncamiento está probada por los 44 cierres
-  //     exactos period=6 y series de 184 filas), yield all-time =
-  //     Σprofit/Σstaked de la serie (misma fórmula que los yields de
-  //     periodo ya aprobados), null si Σstaked = 0.
-  //   CONTRADICCION: overview all-time que NO cierra contra la serie ->
-  //     si hay cobertura se conserva picks = suma pero yield = null (los
-  //     datos se contradicen a nivel de unidad; no defendemos ninguno).
-  //   RECHAZO: sin serie y sin total, o serie que empieza después del mes
-  //     de alta (posible truncamiento o primera actividad tardía: silencio
-  //     ambiguo), o total ausente en un overview all-time consistente.
-  // Política para la futura vía de actualización: una captura con un dato
-  // ausente nunca sobrescribe con null un valor ya guardado válido.
+  //   PERSISTE: overview all-time (period 6, o tips == suma de la serie
+  //     cuando la ventana cubre toda la vida del perfil) Y tres cierres
+  //     numéricos contra la serie: tips == Σtips, roi aconsejado ==
+  //     Σprofit/Σstaked (±0.05) y profit aconsejado == Σprofit (±0.01).
+  //     Los huecos de meses sin actividad NO excluyen: el total queda
+  //     confirmado por el cierre independiente (criterio del auditor:
+  //     20 de 43 cierres period=6 tienen huecos y cierran). Entonces
+  //     picks = overview.tips (== suma, verificado) y yield = roi del
+  //     overview, base ACONSEJADA — evidencia 15-11-2026: Σprofit/Σstaked
+  //     cierra contra overview.roi en 41 perfiles y contra levelStakeROI
+  //     en 0; 150/208 con Σstaked ≠ Σtips descartan base level.
+  //     advised != level NO invalida: es estructural en stake variable.
+  //   CERO REAL: overview all-time con tips = 0 y serie vacía → picks 0,
+  //     yield null.
+  //   CUARENTENA (clases de motivo separadas):
+  //     - 'contradiccion-numerica': overview all-time pero alguno de los
+  //       tres cierres falla (tips/roi/profit vs serie).
+  //     - 'cobertura-sin-cierre': overview no all-time — el total sería la
+  //       suma de una serie de completitud inferida (0 filas tips=0 no
+  //       prueba omisión de meses inactivos; 67 perfiles/862 meses
+  //       ausentes; joydi/nieder/trust-me discrepan incluso en period=6).
   const sumTips = s.monthState.reduce((acc, m) => acc + m.tips, 0)
   const sumStaked = s.monthState.reduce((acc, m) => acc + m.staked, 0)
   const sumProfit = s.monthState.reduce((acc, m) => acc + m.profit, 0)
-  const firstMonth = s.monthState.length
-    ? s.monthState.reduce((a, b) => (a.year * 12 + a.month <= b.year * 12 + b.month ? a : b))
-    : null
-  const signupYm = s.signupDate ? s.signupDate.slice(0, 7) : null
-  const coverage =
-    firstMonth !== null &&
-    signupYm !== null &&
-    `${firstMonth.year}-${String(firstMonth.month).padStart(2, '0')}` <= signupYm
   const overviewAllTime =
     s.overviewPeriod === 6 || (s.overview.tips !== null && s.overview.tips === sumTips)
-  const allConsistent = s.consistency.length > 0 && s.consistency.every((c) => c.passed)
+  const tipsClose = s.overview.tips !== null && s.overview.tips === sumTips
+  const roiCloses =
+    sumStaked > 0 &&
+    s.overview.roiPct !== null &&
+    Math.abs((sumProfit / sumStaked) * 100 - s.overview.roiPct) < 0.05
+  const profitCloses =
+    s.overview.profitUnits !== null &&
+    s.overview.profitUnits !== undefined &&
+    Math.abs(sumProfit - s.overview.profitUnits) < 0.01
 
   let picks: number
   let yieldAll: string | null
-  const verified =
-    overviewAllTime &&
-    allConsistent &&
-    (s.monthState.length === 0 || s.overview.tips === sumTips)
-  if (verified) {
-    if (s.overview.tips === null || s.overview.tips === undefined) {
-      return {
-        ok: false,
-        reason:
-          'falta el total histórico de picks (overview.tips ausente en overview all-time consistente): registro omitido, captura conservada para revisión',
-      }
+  if (s.overview.tips === null || s.overview.tips === undefined) {
+    // Sin total no hay ni siquiera candidato a verificar: clase propia.
+    return {
+      ok: false,
+      reason:
+        'cuarentena[total-ausente]: overview sin total de picks (tips ausente): registro NO persistido, captura y motivo conservados',
     }
-    picks = s.overview.tips
-    yieldAll = s.overview.roiPct !== null ? s.overview.roiPct.toFixed(2) : null
-  } else if (s.monthState.length === 0 && s.overview.tips === 0) {
+  }
+  if (overviewAllTime && tipsClose && roiCloses && profitCloses) {
+    picks = s.overview.tips as number // !== null garantizado por tipsClose
+    yieldAll = (s.overview.roiPct as number).toFixed(2) // !== null por roiCloses
+  } else if (overviewAllTime && s.overview.tips === 0 && s.monthState.length === 0) {
     picks = 0 // 0 real: perfil sin tips; no un ausente maquillado
     yieldAll = null
-  } else if (coverage) {
-    picks = sumTips
-    // Yield all-time = Σprofit/Σstaked de la serie (base level-stake, la
-    // definición de yield acordada), EXCEPTO contradicción numérica real
-    // overview-vs-serie (tips/roi/profit no cierran): ahí no defendemos
-    // ninguna cifra. OJO: advised != level NO es contradicción — es lo
-    // estructural en tipsters de stake variable (2026-11-15: 51 perfiles
-    // all-time con cierres numéricos en verde fallaban solo ese chequeo
-    // heredado de los fixtures de stake plano).
-    const roiCloses =
-      sumStaked > 0 &&
-      s.overview.roiPct !== null &&
-      Math.abs((sumProfit / sumStaked) * 100 - s.overview.roiPct) < 0.05
-    const profitCloses =
-      s.overview.profitUnits === null || s.overview.profitUnits === undefined
-        ? true // cierre no computable (fixture antiguo): no se usa en contra
-        : Math.abs(sumProfit - s.overview.profitUnits) < 0.01
-    const numericContradiction =
-      overviewAllTime && !(s.overview.tips === sumTips && roiCloses && profitCloses)
-    yieldAll = numericContradiction
-      ? null
-      : sumStaked > 0
-        ? (Math.round((sumProfit / sumStaked) * 10000) / 100).toFixed(2)
-        : null
+  } else if (overviewAllTime) {
+    return {
+      ok: false,
+      reason:
+        'cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados',
+    }
   } else {
     return {
       ok: false,
       reason:
-        'total histórico de picks no verificable: la serie mensual no llega al mes de alta (posible truncamiento o silencio ambiguo) y el overview no es all-time: registro omitido, captura conservada para revisión',
+        'cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados',
     }
   }
   const periods = computeExactPeriodStats(s.monthState, new Date(s.capturedAtDate))
@@ -173,4 +155,25 @@ export function tipstrrSnapshotToInsert(
     yieldFree3m: null,
     statsUpdatedAt: new Date(s.capturedAtDate),
   } }
+}
+
+// Mezcla upsert preserva-ausentes: un valor ausente (null/undefined) en la
+// captura nueva NUNCA sobrescribe un valor válido ya guardado; los valores
+// presentes sí actualizan. Marcas de tiempo siempre avanzan. Pura: no toca
+// la DB. Política requerida para la futura vía de actualización (regresión
+// en tests/crawler/tipstrr-to-db.test.ts).
+export function mergeTipstrrUpdate(existing: TipsterInsert, next: TipsterInsert): TipsterInsert {
+  const merged: Record<string, unknown> = { ...existing }
+  for (const [key, value] of Object.entries(next)) {
+    if (key === 'capturedAt' || key === 'statsUpdatedAt') {
+      merged[key] = value // las marcas de tiempo siempre avanzan
+    } else if (value !== null && value !== undefined) {
+      merged[key] = value
+    }
+  }
+  // Identidad inmutable: nunca la toma la captura nueva.
+  merged.id = existing.id
+  merged.platform = existing.platform
+  merged.slug = existing.slug
+  return merged as TipsterInsert
 }

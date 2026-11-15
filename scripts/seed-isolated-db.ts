@@ -91,8 +91,8 @@ async function main() {
   })
   // Filas Tipstrr desde las capturas reales fechadas del repo.
   await db.insert(tipsters).values([
-    mustMap(tipstrrSnapshotToInsert(TLE_SNAPSHOT, { id: -221629, slug: 'the-least-expected', subscriptionPriceGbp: 39, isPaid: true })),
-    mustMap(tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, { id: -999999, slug: 'statmind', subscriptionPriceGbp: null, isPaid: false })),
+    mustMap(tipstrrSnapshotToInsert(TLE_SNAPSHOT, { id: -221629, idSource: 'source-captured', slug: 'the-least-expected', subscriptionPriceGbp: 39, isPaid: true })),
+    mustMap(tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, { id: -999999, idSource: 'isolated-fixture', slug: 'statmind', subscriptionPriceGbp: null, isPaid: false })),
   ])
 
   const n = await pg.query<{ n: string }>('SELECT count(*)::text AS n FROM tipsters')

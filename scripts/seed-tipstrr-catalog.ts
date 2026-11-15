@@ -12,7 +12,7 @@ import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
 import { tipsters } from '../db/schema'
 import { loadTipstrrCapture, type TipstrrStatsCapture } from '../crawler/platforms/tipstrr/load-capture'
-import { tipstrrSnapshotToInsert } from '../crawler/platforms/tipstrr/to-db'
+import { tipstrrSnapshotToInsert, mergeTipstrrUpdate } from '../crawler/platforms/tipstrr/to-db'
 
 const DIR = process.env.PGLITE_DIR || '/tmp/pglite-catalog'
 const CAP_DIR = 'crawler/platforms/tipstrr/captures/2026-11-15-stats'
@@ -46,8 +46,8 @@ const files = [
   ...readdirSync(CAP_DIR).map((f) => join(CAP_DIR, f)),
   'crawler/platforms/tipstrr/captures/2026-11-15-tle-stats-state.json',
 ]
-const tiers: Record<string, number> = {}
-const nullReasons: Record<string, number> = {}
+const quarantineClasses: Record<string, number> = {}
+const persistedClasses: Record<string, number> = {}
 
 let i = 0
 const okRows: { slug: string; picks: number; yield: string | null; paid: boolean }[] = []
@@ -81,35 +81,49 @@ for (const f of files) {
     },
   })
   const id = slug === 'the-least-expected' ? -221629 : -900000 - i
+  const idSource =
+    slug === 'the-least-expected' ? 'source-captured' as const : 'isolated-fixture' as const
   i++
   const m = tipstrrSnapshotToInsert(snap, {
     id,
+    idSource,
     slug,
     subscriptionPriceGbp: null,
     isPaid: premium.has(slug), // free y premium son disjuntos en la pasada (solape 0)
   })
   if (!m.ok) {
+    const cls = (m.reason.match(/cuarentena\[([^\]]+)\]/) ?? [null, 'sin-clase'])[1]
+    quarantineClasses[cls!] = (quarantineClasses[cls!] ?? 0) + 1
     rejected.push({ slug, reason: m.reason })
     continue
   }
-  // Nivel de la puerta (misma lógica de ramas que to-db.ts, para auditoría):
-  const sumTipsT = snap.monthState.reduce((a, r) => a + r.tips, 0)
-  const overviewAllTimeT =
-    snap.overviewPeriod === 6 || (snap.overview.tips !== null && snap.overview.tips === sumTipsT)
-  const allConsistentT = snap.consistency.length > 0 && snap.consistency.every((c) => c.passed)
-  const verifiedT =
-    overviewAllTimeT && allConsistentT && (snap.monthState.length === 0 || snap.overview.tips === sumTipsT)
-  const tier = verifiedT ? 'VERIFICADO' : overviewAllTimeT ? 'CONTRADICCION' : 'COBERTURA'
-  tiers[tier] = (tiers[tier] ?? 0) + 1
-  if (m.insert.yield === null) {
-    const why = verifiedT
-      ? 'verificado_sin_roi'
-      : overviewAllTimeT
-        ? 'contradiccion_overview_vs_serie'
-        : 'cobertura_sin_denominador'
-    nullReasons[why] = (nullReasons[why] ?? 0) + 1
+  // Clase de persistencia para auditoría (la decisión real vive en to-db.ts):
+  const cls = m.insert.picks === 0 ? 'cero-real' : 'cierre-alltime-independiente'
+  persistedClasses[cls] = (persistedClasses[cls] ?? 0) + 1
+  // Upsert preserva-ausentes: si la fila ya existe (re-seed), la ausencia en
+  // la captura nueva NUNCA pisa un valor válido guardado (mergeTipstrrUpdate).
+  const existing = await pg.query<{ id: number }>(
+    `SELECT id FROM tipsters WHERE platform = 'tipstrr' AND slug = $1`, [slug]
+  )
+  if (existing.rows.length > 0) {
+    const cur = await pg.query('SELECT * FROM tipsters WHERE id = $1', [existing.rows[0].id])
+    const row = cur.rows[0] as Record<string, unknown>
+    const camel: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(row)) {
+      camel[k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())] = v
+    }
+    const merged = mergeTipstrrUpdate(camel as never, m.insert)
+    await pg.query(
+      `UPDATE tipsters SET picks = $2, profit = $3, yield = $4, price = $5, captured_at = $6,
+         stats_updated_at = $7, yield3m = $8, yield6m = $9, yield12m = $10, picks6m_avg = $11
+       WHERE id = $1`,
+      [existing.rows[0].id, merged.picks, merged.profit, merged.yield, merged.price,
+       merged.capturedAt, merged.statsUpdatedAt, merged.yield3m, merged.yield6m,
+       merged.yield12m, merged.picks6mAvg]
+    )
+  } else {
+    await db.insert(tipsters).values(m.insert)
   }
-  await db.insert(tipsters).values(m.insert)
   // TipsterInsert marca los campos opcionales (tipo de inserción parcial);
   // la puerta garantiza picks e isPaid — se estrecha con guarda explícita,
   // no con aserción.
@@ -127,8 +141,8 @@ console.log(JSON.stringify({
   persisted: okRows.length,
   rejected: rejected.length,
   rejectedDetail: rejected,
-  tiers,
-  nullReasons,
+  persistedClasses,
+  quarantineClasses,
   withYield: okRows.filter((r) => r.yield !== null).length,
   yieldNull: okRows.filter((r) => r.yield === null).length,
   byPlatform,
