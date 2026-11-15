@@ -69,6 +69,29 @@ const MONTHS_STATE = {
   },
 }
 
+// Sep missing entirely: the window Oct-Aug has a calendar gap.
+const GAP_STATE = {
+  STATS_MONTH: {
+    'demo-flat_6': [
+      { date: '2026-11-01T00:00:00Z', tips: 10, staked: 10, profit: 5, roi: 50, winPercentage: 60, averageOdds: 2.5, void: 0 },
+      { date: '2026-10-01T00:00:00Z', tips: 50, staked: 50, profit: 10, roi: 20, winPercentage: 55, averageOdds: 2.4, void: 0 },
+      { date: '2026-08-01T00:00:00Z', tips: 60, staked: 60, profit: 12, roi: 20, winPercentage: 50, averageOdds: 2.3, void: 0 },
+    ],
+  },
+}
+
+// Sep present with an explicit 0 tips / 0 staked row (a month with no bets).
+const ZERO_TIPS_STATE = {
+  STATS_MONTH: {
+    'demo-flat_6': [
+      { date: '2026-11-01T00:00:00Z', tips: 10, staked: 10, profit: 5, roi: 50, winPercentage: 60, averageOdds: 2.5, void: 0 },
+      { date: '2026-10-01T00:00:00Z', tips: 50, staked: 50, profit: 10, roi: 20, winPercentage: 55, averageOdds: 2.4, void: 0 },
+      { date: '2026-09-01T00:00:00Z', tips: 0, staked: 0, profit: 0, roi: 0, winPercentage: 0, averageOdds: 0, void: 0 },
+      { date: '2026-08-01T00:00:00Z', tips: 60, staked: 60, profit: 12, roi: 20, winPercentage: 50, averageOdds: 2.3, void: 0 },
+    ],
+  },
+}
+
 // A zero-profit month: the exact-staked path must keep it in the period.
 const ZERO_PROFIT_STATE = {
   STATS_MONTH: {
@@ -247,14 +270,40 @@ describe('BB-parity extraction (fabricated fixtures)', () => {
     expect(p.yield3m!.yieldPct).toBeCloseTo(((27.25 + 19.1 + 35.25) / 320) * 100, 6)
     expect(p.yield3m!.from).toBe('2026-08')
     expect(p.yield3m!.to).toBe('2026-10')
+    expect(p.yield3m!.complete).toBe(true)
     expect(p.picks6mAvg).toBeCloseTo((78 + 106 + 136) / 3, 6)
-    // 12m asked with only 3 closed months: uses what exists, never invents
+    // 12m asked with only 3 closed months: uses what exists, never invents,
+    // and is flagged NOT complete (absence is not zero)
     expect(p.yield12m!.months).toBe(3)
+    expect(p.yield12m!.complete).toBe(false)
     // only the current month -> nulls, never zero
     const onlyCurrent = rows.filter((r) => r.year === 2026 && r.month === 11)
     const p2 = computeExactPeriodStats(onlyCurrent, new Date('2026-11-15T12:00:00Z'))
     expect(p2.yield3m).toBeNull()
     expect(p2.picks6mAvg).toBeNull()
+  })
+
+  it('a calendar gap (missing month row) marks the window incomplete without zero-filling', () => {
+    const rows = parseMonthlyState(pageWith(GAP_STATE, ''))
+    const p = computeExactPeriodStats(rows, new Date('2026-11-15T12:00:00Z'))
+    // Oct + Aug present, Sep absent: yield sums only real rows
+    expect(p.yield3m!.months).toBe(2)
+    expect(p.yield3m!.complete).toBe(false)
+    expect(p.yield3m!.from).toBe('2026-08')
+    expect(p.yield3m!.to).toBe('2026-10')
+    expect(p.yield3m!.tips).toBe(50 + 60)
+    expect(p.yield3m!.yieldPct).toBeCloseTo(((10 + 12) / 110) * 100, 6)
+  })
+
+  it('an explicit 0-tips/0-staked month counts as covered, distinct from absent', () => {
+    const rows = parseMonthlyState(pageWith(ZERO_TIPS_STATE, ''))
+    const p = computeExactPeriodStats(rows, new Date('2026-11-15T12:00:00Z'))
+    // Sep has an explicit row with 0/0: real coverage, complete window
+    expect(p.yield3m!.months).toBe(3)
+    expect(p.yield3m!.complete).toBe(true)
+    expect(p.yield3m!.tips).toBe(50 + 0 + 60)
+    expect(p.yield3m!.staked).toBe(110)
+    expect(p.yield3m!.yieldPct).toBeCloseTo(((10 + 0 + 12) / 110) * 100, 6)
   })
 
   it('regression: exact staked is used, never a denominator derived from rounded roi', () => {

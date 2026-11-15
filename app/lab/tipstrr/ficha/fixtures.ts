@@ -16,8 +16,18 @@ export interface FichaMonth {
   avgOdds: number | null
 }
 
+export interface FichaMonthState {
+  year: number
+  month: number // 1-12
+  tips: number
+  staked: number // exact units staked, from the source's own monthly figures
+  profit: number // exact units profit, from the source's own monthly figures
+}
+
 export interface FichaSnapshot {
   capturedAt: string
+  capturedAtDate: string // ISO instant: closed-month cutoff for period computation
+  monthState: FichaMonthState[]
   sourceUrl: string
   name: string
   platformLabel: string // verbatim account-type label from the page
@@ -37,12 +47,16 @@ export interface FichaSnapshot {
   months: FichaMonth[]
   consistency: { name: string; passed: boolean }[]
   yieldEquivalenceNote: string
-  periodEstimates?: { yield3m: number | null; yield6m: number | null; yield12m: number | null; picks6mAvg: number | null; note: string }
   notAvailable: { field: string; reason: string }[]
 }
 
 export const STATMIND_SNAPSHOT: FichaSnapshot = {
   capturedAt: '2026-11-15 12:48-12:53 UTC',
+  capturedAtDate: '2026-11-15T12:53:00Z',
+  monthState: [
+    { year: 2026, month: 11, tips: 193, staked: 193, profit: -41.205 },
+    { year: 2026, month: 10, tips: 98, staked: 98, profit: -17.92 },
+  ],
   sourceUrl: 'https://tipstrr.com/tipster/statmind/stats',
   name: 'StatMind',
   platformLabel: 'Free football tipster',
@@ -74,7 +88,7 @@ export const STATMIND_SNAPSHOT: FichaSnapshot = {
   yieldEquivalenceNote:
     'ROI de Tipstrr = profit / total apostado, la fórmula del yield usada en Blogabet. Equivalencia verificada al céntimo EN ESTE REGISTRO (stake plano; advised = level). Voids: no hay en su historial; tratamiento general sin verificar. Esto reconcilia sus agregados; no es una auditoría apuesta a apuesta (detalle individual requiere cuenta).',
   notAvailable: [
-    { field: 'yield 3m / 6m / 12m', reason: 'historial insuficiente: solo 1 mes cerrado (oct, parcial desde el alta 25-oct). No se agregan porcentajes redondeados ni se deriva apostado de ROI redondeado.' },
+    { field: 'yield 3m / 6m / 12m completo', reason: 'historial insuficiente: solo 1 mes cerrado (oct, parcial desde el alta 25-oct); el bloque de periodos lo muestra marcado como ventana incompleta' },
     { field: 'verifiedPct (BB)', reason: 'no existe en Tipstrr como porcentaje parcial; su claim "verificamos todo" no es una métrica mostrada' },
     { field: 'resetCount (BB)', reason: 'Tipstrr no expone resets de estadísticas' },
     { field: 'followers', reason: 'no presente en el estado de la página pública' },
@@ -93,6 +107,33 @@ export const STATMIND_SNAPSHOT: FichaSnapshot = {
 // table covers all-time (1974). Dated capture, not a sync.
 export const TLE_SNAPSHOT: FichaSnapshot = {
   capturedAt: '2026-11-15 13:00-13:01 UTC',
+  capturedAtDate: '2026-11-15T13:01:00Z',
+  // Exact monthly figures from the page's own STATS_MONTH (units; staked
+  // equals tips in all 21 months: flat 1u staking, verified against the
+  // capture).
+  monthState: [
+    { year: 2026, month: 11, tips: 37, staked: 37, profit: 13.8 },
+    { year: 2026, month: 10, tips: 78, staked: 78, profit: 27.25 },
+    { year: 2026, month: 9, tips: 106, staked: 106, profit: 19.1 },
+    { year: 2026, month: 8, tips: 136, staked: 136, profit: 35.25 },
+    { year: 2026, month: 7, tips: 121, staked: 121, profit: 4.9 },
+    { year: 2026, month: 6, tips: 146, staked: 146, profit: 40.45 },
+    { year: 2026, month: 5, tips: 116, staked: 116, profit: 20.45 },
+    { year: 2026, month: 4, tips: 77, staked: 77, profit: 6.375 },
+    { year: 2026, month: 3, tips: 62, staked: 62, profit: 20.2 },
+    { year: 2026, month: 2, tips: 47, staked: 47, profit: 12.75 },
+    { year: 2026, month: 1, tips: 63, staked: 63, profit: 3.9 },
+    { year: 2025, month: 12, tips: 48, staked: 48, profit: 8.4 },
+    { year: 2025, month: 11, tips: 74, staked: 74, profit: 33.55 },
+    { year: 2025, month: 10, tips: 118, staked: 118, profit: -4.8 },
+    { year: 2025, month: 9, tips: 130, staked: 130, profit: 18.45 },
+    { year: 2025, month: 8, tips: 136, staked: 136, profit: 31.25 },
+    { year: 2025, month: 7, tips: 107, staked: 107, profit: 26.18 },
+    { year: 2025, month: 6, tips: 135, staked: 135, profit: 38.58 },
+    { year: 2025, month: 5, tips: 112, staked: 112, profit: 4.28 },
+    { year: 2025, month: 4, tips: 86, staked: 86, profit: -6.05 },
+    { year: 2025, month: 3, tips: 39, staked: 39, profit: 7.55 },
+  ],
   sourceUrl: 'https://tipstrr.com/tipster/the-least-expected/stats',
   name: 'The Least Expected',
   platformLabel: 'Professional football tipster · Join from £39/mes (literal de la página)',
@@ -143,10 +184,6 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
   ],
   yieldEquivalenceNote:
     'ROI de Tipstrr = profit / total apostado, la fórmula del yield usada en Blogabet. Equivalencia verificada all-time en este registro: la fuente publica apostado exacto por mes y es = tips en los 21 meses (stake plano 1u, Σ = 1974 = overview), advised = level, y profit/ROI cierran al céntimo. No se deriva nada de porcentajes redondeados.',
-  periodEstimates: {
-    yield3m: 25.5, yield6m: 21.0, yield12m: 21.7, picks6mAvg: 117,
-    note: 'Calculado como Σprofit/Σapostado de meses cerrados con cifras exactas de la fuente (no derivado de ROI redondeado). Cobertura: 3m = ago–oct 2026 · 6m = may–oct 2026 · 12m = nov 2025–oct 2026. Picks/mes = media exacta (703 tips / 6 meses).',
-  },
   notAvailable: [
     { field: 'verifiedPct (BB)', reason: 'no existe en Tipstrr como porcentaje parcial' },
     { field: 'resetCount (BB)', reason: 'Tipstrr no expone resets de estadísticas' },

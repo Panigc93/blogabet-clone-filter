@@ -1,4 +1,12 @@
 import { TLE_SNAPSHOT, FichaSnapshot } from './fixtures'
+import { computeExactPeriodStats, type TipstrrPeriodStat } from '@/crawler/platforms/tipstrr/periods'
+
+const MES_ES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+const fmtYm = (ym: string) => {
+  const [y, m] = ym.split('-').map(Number)
+  return `${MES_ES[m - 1]} ${y}`
+}
+const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}£${(Math.abs(units) * 10).toFixed(2)}`
 
 // Ficha Blogabet-parity prototype fed by a REAL one-off labeled snapshot
 // (see fixtures.ts for capture metadata). Purpose: show exactly which BB
@@ -83,24 +91,7 @@ function Ficha({ s }: { s: FichaSnapshot }) {
       </table>
       </div>
 
-      {s.periodEstimates ? (
-        <>
-          <div id="crop-periodos">
-          <div style={{ fontSize: 13, fontWeight: 700, margin: '12px 0 4px' }}>Yield por periodo (meses cerrados)</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, border: '1px solid #e3e3e3', borderRadius: 4, padding: '10px 8px', background: '#fff' }}>
-            <Stat value={s.periodEstimates.yield3m !== null ? `${s.periodEstimates.yield3m}%` : '—'} label="Yield 3m" color={numColor(s.periodEstimates.yield3m)} />
-            <Stat value={s.periodEstimates.yield6m !== null ? `${s.periodEstimates.yield6m}%` : '—'} label="Yield 6m" color={numColor(s.periodEstimates.yield6m)} />
-            <Stat value={s.periodEstimates.yield12m !== null ? `${s.periodEstimates.yield12m}%` : '—'} label="Yield 12m" color={numColor(s.periodEstimates.yield12m)} />
-            <Stat value={s.periodEstimates.picks6mAvg !== null ? String(s.periodEstimates.picks6mAvg) : '—'} label="Picks/mes 6m" />
-          </div>
-          <div style={{ fontSize: 11, color: '#999', margin: '4px 0 10px' }}>{s.periodEstimates.note}</div>
-          </div>
-        </>
-      ) : (
-        <div style={{ fontSize: 12, color: '#888', marginTop: 10 }}>
-          Yield 3/6/12m: sin historial suficiente; se muestran los meses de la fuente en vez de inventar periodos.
-        </div>
-      )}
+      <Periodos s={s} />
 
       <details style={{ marginTop: 14, fontSize: 12, color: '#666' }}>
         <summary style={{ cursor: 'pointer', color: '#999' }}>Diagnóstico interno (chequeos y campos no disponibles)</summary>
@@ -119,6 +110,50 @@ function Ficha({ s }: { s: FichaSnapshot }) {
       </details>
       <div style={{ fontSize: 12, color: '#888', borderTop: '1px solid #eee', marginTop: 12, paddingTop: 8 }}>
         {s.lastResultVisibleLabel ? `Último resultado visible: ${s.lastResultVisibleLabel}.` : ''} Captura fechada: las cifras pueden no reflejar las actuales.
+      </div>
+    </div>
+  )
+}
+
+function Periodos({ s }: { s: FichaSnapshot }) {
+  // Computed at render time from the capture's exact monthly figures; the
+  // closed-month cutoff is the capture date, and every trace line (profit
+  // sum, staked sum, months, window) comes out of the same calculation.
+  const p = computeExactPeriodStats(s.monthState, new Date(s.capturedAtDate))
+  const trace = (label: string, st: TipstrrPeriodStat | null, asked: number) =>
+    st === null ? (
+      <div key={label}>{label}: sin meses cerrados en la captura.</div>
+    ) : (
+      <div key={label}>
+        {label}: {fmtMoney(st.profit)} beneficio / {st.staked}u apostadas ({fmtMoney(st.staked).replace('+', '')} a 10/10=£10) ·{' '}
+        {st.from === st.to ? fmtYm(st.from) : `${fmtYm(st.from)} – ${fmtYm(st.to)}`} · {st.months}/{asked} meses
+        {st.complete ? '' : ' · VENTANA INCOMPLETA (los meses sin fila en la fuente no cuentan como 0)'}
+      </div>
+    )
+  if (p.yield3m === null && p.yield6m === null && p.yield12m === null) {
+    return (
+      <div style={{ fontSize: 12, color: '#888', marginTop: 10 }}>
+        Yield 3/6/12m: sin meses cerrados en la captura; se muestran los meses de la fuente en vez de inventar periodos.
+      </div>
+    )
+  }
+  return (
+    <div id="crop-periodos">
+      <div style={{ fontSize: 13, fontWeight: 700, margin: '12px 0 4px' }}>Yield por periodo (meses cerrados)</div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, border: '1px solid #e3e3e3', borderRadius: 4, padding: '10px 8px', background: '#fff' }}>
+        <Stat value={p.yield3m !== null ? `${p.yield3m.yieldPct.toFixed(1)}%` : '—'} label="Yield 3m" color={numColor(p.yield3m?.yieldPct ?? null)} />
+        <Stat value={p.yield6m !== null ? `${p.yield6m.yieldPct.toFixed(1)}%` : '—'} label="Yield 6m" color={numColor(p.yield6m?.yieldPct ?? null)} />
+        <Stat value={p.yield12m !== null ? `${p.yield12m.yieldPct.toFixed(1)}%` : '—'} label="Yield 12m" color={numColor(p.yield12m?.yieldPct ?? null)} />
+        <Stat value={p.picks6mAvg !== null ? p.picks6mAvg.toFixed(1) : '—'} label="Picks/mes 6m" />
+      </div>
+      <div style={{ fontSize: 11, color: '#999', margin: '4px 0 10px' }}>
+        <div style={{ marginBottom: 2 }}>Comprobación con cifras exactas de la fuente (corte: meses cerrados a {s.capturedAt}):</div>
+        {trace('3m', p.yield3m, 3)}
+        {trace('6m', p.yield6m, 6)}
+        {trace('12m', p.yield12m, 12)}
+        {p.picks6mAvg !== null && p.yield6m !== null && (
+          <div>Picks/mes 6m: {p.yield6m.tips} tips / {p.yield6m.months} meses = {p.picks6mAvg.toFixed(1)}</div>
+        )}
       </div>
     </div>
   )
