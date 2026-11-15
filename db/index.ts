@@ -13,8 +13,18 @@ let cached: NeonHttpDatabase<typeof schema> | null = null
 
 function getDb(): NeonHttpDatabase<typeof schema> {
   if (!cached) {
-    if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set')
-    cached = drizzle(neon(process.env.DATABASE_URL), { schema })
+    if (process.env.USE_PGLITE === '1') {
+      // Entorno aislado local: Postgres en proceso (PGlite) para validar la
+      // integración sin tocar Neon. Solo cuando USE_PGLITE=1; nunca en prod.
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { PGlite } = require('@electric-sql/pglite')
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { drizzle: drizzlePglite } = require('drizzle-orm/pglite')
+      cached = drizzlePglite(new PGlite(process.env.PGLITE_DIR || '/tmp/pglite-data'), { schema }) as unknown as NeonHttpDatabase<typeof schema>
+    } else {
+      if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set')
+      cached = drizzle(neon(process.env.DATABASE_URL), { schema })
+    }
   }
   return cached
 }

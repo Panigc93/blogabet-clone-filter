@@ -142,7 +142,7 @@ function tipstrrFromDbRow(t: Tipster): TipsterCardData {
     isVerified: t.isVerified,
     isPaid: t.isPaid,
     priceLabel: t.price !== null ? String(parseFloat(t.price)) : null,
-    priceCurrencySuffix: t.priceCurrency === 'gbp' ? '£' : (t.priceCurrency === 'eur' ? '€' : null),
+    priceCurrencySuffix: t.priceCurrency === 'gbp' ? ' £' : (t.priceCurrency === 'eur' ? ' €' : null),
     resetCount: 0,
     resetTitle: 'Tipstrr no expone resets de estadísticas',
     flagUrl: t.flagUrl,
