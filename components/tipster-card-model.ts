@@ -62,6 +62,7 @@ const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}${fmtEs.format(Math
 const fmtMoneyAbs = (units: number) => `${fmtEs.format(Math.abs(units) * 10)} €`
 
 export function fromDbTipster(t: Tipster): TipsterCardData {
+  if (t.platform === 'tipstrr') return tipstrrFromDbRow(t)
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -108,6 +109,51 @@ export function fromDbTipster(t: Tipster): TipsterCardData {
     picks6mTrace: null,
     picksFree3mAvg: num(t.picksFree3mAvg),
     yieldFree3m: num(t.yieldFree3m),
+    showPeriodRow: t.yield6m != null || t.yield12m != null || t.picks6mAvg != null,
+  }
+}
+
+// DB-backed Tipstrr row: same honesty rules as the lab snapshot path —
+// capturedAt always shown (it is a dated capture, not a sync), profit in
+// units with 'u', price labeled with its own currency (£), since = signup.
+function tipstrrFromDbRow(t: Tipster): TipsterCardData {
+  const num = (v: string | null): number | null => {
+    if (v === null) return null
+    const n = parseFloat(v)
+    return Number.isFinite(n) ? n : null
+  }
+  const profit = num(t.profit)
+  const captured = t.capturedAt ? new Date(t.capturedAt) : null
+  return {
+    platform: 'tipstrr',
+    name: t.name,
+    avatarUrl: t.avatarUrl,
+    sourceUrl: `https://tipstrr.com/tipster/${t.slug}/stats`,
+    sourceLabel: `tipstrr.com/tipster/${t.slug}`,
+    capturedAt: captured && !isNaN(captured.getTime()) ? captured.toISOString().slice(0, 10) : null,
+    sinceYear: t.signupAt ? new Date(t.signupAt).getUTCFullYear() : null,
+    sinceTitle: 'Año de alta en Tipstrr; no es fecha de primera apuesta',
+    picks: t.picks,
+    profitDisplay: profit !== null ? `${profit >= 0 ? '+' : ''}${profit} u` : null,
+    yieldPct: num(t.yield),
+    yieldTitle: 'Yield = beneficio / unidades apostadas (ROI publicado por Tipstrr, en unidades)',
+    verifiedPct: num(t.verifiedPct),
+    followers: t.followers,
+    isVerified: t.isVerified,
+    isPaid: t.isPaid,
+    priceLabel: t.price !== null ? String(parseFloat(t.price)) : null,
+    priceCurrencySuffix: t.priceCurrency === 'gbp' ? '£' : (t.priceCurrency === 'eur' ? '€' : null),
+    resetCount: 0,
+    resetTitle: 'Tipstrr no expone resets de estadísticas',
+    flagUrl: t.flagUrl,
+    countryCode: t.countryCode,
+    yield3m: { valuePct: num(t.yield3m), trace: null, complete: true },
+    yield6m: { valuePct: num(t.yield6m), trace: null, complete: true },
+    yield12m: { valuePct: num(t.yield12m), trace: null, complete: true },
+    picks6mAvg: num(t.picks6mAvg),
+    picks6mTrace: null,
+    picksFree3mAvg: null, // no evaluable en Tipstrr (control StatMind falló)
+    yieldFree3m: null,
     showPeriodRow: t.yield6m != null || t.yield12m != null || t.picks6mAvg != null,
   }
 }

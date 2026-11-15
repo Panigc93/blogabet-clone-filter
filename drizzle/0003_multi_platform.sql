@@ -5,6 +5,7 @@
 ALTER TABLE "tipsters" DROP CONSTRAINT "tipsters_slug_unique";--> statement-breakpoint
 ALTER TABLE "tipsters" ALTER COLUMN "followers" DROP DEFAULT;--> statement-breakpoint
 ALTER TABLE "tipsters" ALTER COLUMN "followers" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "tipsters" ALTER COLUMN "profit" TYPE numeric(12, 3);--> statement-breakpoint
 ALTER TABLE "tipsters" ADD COLUMN IF NOT EXISTS "platform" text DEFAULT 'blogabet' NOT NULL;--> statement-breakpoint
 ALTER TABLE "tipsters" ADD COLUMN IF NOT EXISTS "profit_unit" text DEFAULT 'eur' NOT NULL;--> statement-breakpoint
 ALTER TABLE "tipsters" ADD COLUMN IF NOT EXISTS "price_currency" text DEFAULT 'eur' NOT NULL;--> statement-breakpoint

@@ -23,6 +23,10 @@ Una sola tabla `tipsters` con discriminador:
 - `profit_unit`: `'eur'` (BB) | `'units'` (Tipstrr; su escala "10/10").
   `profit` solo es comparable dentro de la misma unidad. La vista EUR de
   Tipstrr es derivación (unidades × stake configurado), nunca se almacena.
+- `profit` se amplía de `numeric(10,2)` a `numeric(12,3)`: el test de
+  integración detectó que las unidades Tipstrr llevan 3 decimales reales
+  (361.815) y (10,2) los truncaba silenciosamente a 361.82. La ampliación
+  es sin pérdida para los datos BB existentes (2 decimales caben en 3).
 - `price_currency`: `'eur'` | `'gbp'`. El filtro de precio de la API se
   limita a `price_currency='eur'` hasta que exista UI consciente de divisa.
 - `yield*` son % sin unidad: comparables solo cuando la consistencia del
@@ -44,6 +48,20 @@ Una sola tabla `tipsters` con discriminador:
 no es fecha de pick), `picks_free_3m_avg` / `yield_free_3m` (split free/paid
 NO evaluable: control fallido 15-11-2026).
 
+## Prueba de integración (15-11-2026, rama, sin tocar Neon)
+
+`tests/db/multi-platform.integration.test.ts` levanta Postgres real en
+proceso (PGlite, devDependency) y aplica 0000→0003 en orden + las 7
+columnas de stats que el journal obsoleto nunca migró (brecha
+preexistente, explícita en el test). Con datos fabricados verifica 8/8:
+migración limpia y filas BB intactas, coexistencia de slug entre fuentes,
+scope default BB / opt-in Tipstrr, orden por yield con ids negativos y
+profits de unidades distintas sin mezclar, filtro de precio solo EUR +
+señal `priceFilterIgnored` cuando platform=tipstrr, paginación OFFSET
+estable con ids negativos, ausencias null nunca 0, y rollback documentado
+que deja la tabla en su forma BB. NO prueba la migración contra los datos
+reales de Neon: eso sigue pendiente de aprobación.
+
 ## Lecturas
 
 - API `/api/tipsters`: `platform` opcional, **default `blogabet`** — la UI
@@ -58,7 +76,9 @@ ejecutada): borrar filas `platform='tipstrr'`, `DROP INDEX
 ux_tipsters_platform_slug`, `DROP INDEX idx_tipsters_platform`, `ALTER TABLE
 tipsters DROP COLUMN platform, profit_unit, price_currency, signup_at,
 captured_at`, restaurar `followers` DEFAULT 0 NOT NULL y el unique de
-`slug`. Las filas BB no se tocan en ningún sentido.
+`slug`. El ensanche de `profit` a (12,3) NO se revierte: es sin pérdida y
+revertirlo truncaría decimales si ya hubiera filas con 3. Las filas BB no
+se tocan en ningún otro sentido.
 
 ## Captura inicial vs actualización (propuesta, ambas gated)
 

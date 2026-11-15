@@ -18,7 +18,7 @@ export const tipsters = pgTable('tipsters', {
   price:       numeric('price', { precision: 8, scale: 2 }),
   sinceYear:   smallint('since_year'),
   picks:       integer('picks').notNull().default(0),
-  profit:      numeric('profit', { precision: 10, scale: 2 }),
+  profit:      numeric('profit', { precision: 12, scale: 3 }), // scale 3: Tipstrr units carry 3 decimals (361.815); widening is lossless for BB EUR
   yield:       numeric('yield', { precision: 6, scale: 2 }),
   verifiedPct: numeric('verified_pct', { precision: 5, scale: 2 }),
   isVerified:  boolean('is_verified').notNull().default(false),
