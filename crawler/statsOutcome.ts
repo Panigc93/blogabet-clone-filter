@@ -15,6 +15,8 @@ export interface StatsRunSummary {
   errors: number
   /** True only if the loop ran to the end (not cancelled or crashed). */
   completed: boolean
+  /** Set when a block (401/403/429) or challenge page aborted the run. */
+  blocked?: string
   /** Explicit opt-in (CLEAR_INACTIVE_STATS=1). Default false. */
   clearRequested: boolean
 }
@@ -29,7 +31,10 @@ export function decideStatsOutcome(s: StatsRunSummary): StatsOutcome {
   const messages: string[] = []
   let exitCode: 0 | 1 = 0
 
-  if (s.selected === 0) {
+  if (s.blocked) {
+    messages.push(`Run aborted by block/challenge (${s.blocked}). No further requests or writes; previous stats kept.`)
+    exitCode = 1
+  } else if (s.selected === 0) {
     // No activity evidence at all (empty or fully stale catalog): nothing is refreshed
     // and nothing is deleted. Make it visible instead of a green no-op.
     messages.push(`No tipsters selected (last_pick_at has no activity inside the window). Nothing refreshed; ${s.withStats} rows keep their stats and old stats_updated_at.`)

@@ -7,8 +7,8 @@ describe('catalog retry policy', () => {
     expect(NO_RETRY_STATUSES).toEqual([401, 403, 429])
     expect(new HttpError(429, 'Too Many Requests').status).toBe(429)
   })
-  it('default attempts are bounded (was 8)', () => {
-    expect(DEFAULT_MAX_ATTEMPTS).toBe(3)
+  it('default attempts are bounded: 5 total (was 8)', () => {
+    expect(DEFAULT_MAX_ATTEMPTS).toBe(5)
   })
 })
 

@@ -6,6 +6,8 @@ import { tipsters } from '../db/schema'
 import { sql, gt, and, gte, lt, or, isNull } from 'drizzle-orm'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { decideStatsOutcome } from './statsOutcome'
+import { HttpError, retryWithPolicy } from './blockPolicy'
+import { runStatsLoop } from './statsLoop'
 
 // Load .env.local if vars aren't already set (avoids shell $ expansion issues)
 const envPath = new URL('../.env.local', import.meta.url).pathname
@@ -174,25 +176,13 @@ async function fetchStats(slug: string, cookie: string): Promise<string> {
   const res = await fetch(statsUrl(slug), {
     headers: { ...STATS_HEADERS, 'referer': `https://${slug}.blogabet.com/blog`, 'Cookie': cookie },
   })
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`)
+  if (!res.ok) throw new HttpError(res.status, res.statusText, 'HTTP')
   return res.text()
 }
 
 // ─── Retry ────────────────────────────────────────────────────────────────────
 
-async function withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 3): Promise<T> {
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await fn()
-    } catch (err) {
-      if (attempt === maxAttempts) throw err
-      const wait = attempt * 2000
-      console.warn(`${label} failed (attempt ${attempt}/${maxAttempts}), retrying in ${wait / 1000}s... ${(err as Error).message}`)
-      await new Promise(r => setTimeout(r, wait))
-    }
-  }
-  throw new Error('unreachable')
-}
+const withRetry = <T>(fn: () => Promise<T>, label: string) => retryWithPolicy(fn, label, 5)
 
 // ─── Checkpoint ───────────────────────────────────────────────────────────────
 
@@ -250,52 +240,40 @@ async function crawlStats() {
     console.log(`Resuming from offset=${offset} (done=${done}, errors=${errors})`)
   }
 
-  for (let i = offset; i < allTipsters.length; i++) {
-    const { id, slug } = allTipsters[i]
-
-    let result: StatsResult | null = null
-    try {
-      const html = await withRetry(() => fetchStats(slug, cookie), `stats(${slug})`)
-      result = parseStatsHtml(html)
-    } catch (err) {
-      errors++
-      console.error(`[${i + 1}/${allTipsters.length}] ERROR ${slug}: ${(err as Error).message}`)
-      saveCheckpoint(i + 1, done, errors)
-      await new Promise(r => setTimeout(r, 500))
-      continue
-    }
-
-    if (result) {
-      await withRetry(async () => {
-        await db.update(tipsters)
-          .set({
-            picks6mAvg:      result!.picks6mAvg,
-            yield3m:         result!.yield3m,
-            yield6m:         result!.yield6m,
-            yield12m:        result!.yield12m,
-            picksFree3mAvg:  result!.picksFree3mAvg,
-            yieldFree3m:     result!.yieldFree3m,
-            statsUpdatedAt:  new Date(),
-          })
-          .where(sql`${tipsters.id} = ${id}`)
-      }, `upsert(${slug})`)
-      refreshed++
-    }
-
-    done++
-    if ((i + 1) % 100 === 0) {
-      const last = result ? `y6m=${result.yield6m} p6m=${result.picks6mAvg}` : 'no-archive'
-      console.log(`[${i + 1}/${allTipsters.length}] done=${done}, errors=${errors} | ${slug} ${last}`)
-      saveCheckpoint(i + 1, done, errors)
-    }
-
-    await new Promise(r => setTimeout(r, 300))
-  }
-
-  saveCheckpoint(allTipsters.length, done, errors)
+  const loop = await runStatsLoop(
+    allTipsters,
+    { offset, done, errors },
+    {
+      fetchHtml: slug => withRetry(() => fetchStats(slug, cookie), `stats(${slug})`),
+      parse: parseStatsHtml,
+      write: async (id, result) => {
+        await withRetry(async () => {
+          await db.update(tipsters)
+            .set({
+              picks6mAvg:      result.picks6mAvg,
+              yield3m:         result.yield3m,
+              yield6m:         result.yield6m,
+              yield12m:        result.yield12m,
+              picksFree3mAvg:  result.picksFree3mAvg,
+              yieldFree3m:     result.yieldFree3m,
+              statsUpdatedAt:  new Date(),
+            })
+            .where(sql`${tipsters.id} = ${id}`)
+        }, `update(${id})`)
+      },
+      sleep: ms => new Promise(r => setTimeout(r, ms)),
+      log: m => console.log(m),
+    },
+    (next, d, e) => saveCheckpoint(next, d, e),
+  )
+  done = loop.done
+  errors = loop.errors
+  refreshed = loop.refreshed
+  const blocked = loop.blocked
+  saveCheckpoint(loop.next, done, errors)
   console.log(`Stats crawl finished. Total done=${done}, errors=${errors}`)
 
-  if (existsSync(CHECKPOINT_PATH) && errors === 0) {
+  if (existsSync(CHECKPOINT_PATH) && errors === 0 && !blocked) {
     const { unlinkSync } = await import('fs')
     unlinkSync(CHECKPOINT_PATH)
   }
@@ -311,7 +289,8 @@ async function crawlStats() {
     done,
     refreshed,
     errors,
-    completed: true,
+    completed: !blocked,
+    blocked,
     clearRequested: process.env.CLEAR_INACTIVE_STATS === '1',
   })
   for (const m of outcome.messages) console.warn(m)

@@ -4,6 +4,7 @@ import { drizzle } from 'drizzle-orm/neon-http'
 import { tipsters, TipsterInsert } from '../db/schema'
 import { sql, inArray, notInArray, and } from 'drizzle-orm'
 import type { BrowserContext, Browser } from 'playwright'
+import { HttpError, BlockedError, looksLikeChallenge, retryWithPolicy } from './blockPolicy'
 
 // ─── HTML parser ─────────────────────────────────────────────────────────────
 
@@ -117,32 +118,12 @@ export function parseBlocks(html: string, lastActive = 12): TipsterInsert[] {
 
 // ─── Retry helper ────────────────────────────────────────────────────────────
 
-export class HttpError extends Error {
-  constructor(public status: number, statusText: string) {
-    super(`Blogabet HTTP ${status} ${statusText}`)
-  }
-}
+export { HttpError, NO_RETRY_STATUSES, BlockedError } from './blockPolicy'
 
-// Block, auth and rate-limit statuses are never retried.
-export const NO_RETRY_STATUSES = [401, 403, 429]
+// Was 8 attempts per request (plus 3 workflow runs). Now 5 total attempts by default; CRAWL_MAX_ATTEMPTS overrides.
+export const DEFAULT_MAX_ATTEMPTS = Math.max(1, Number(process.env.CRAWL_MAX_ATTEMPTS ?? '5') || 5)
 
-// Was 8 attempts per request (plus 3 workflow runs). Now 3 by default; CRAWL_MAX_ATTEMPTS overrides.
-export const DEFAULT_MAX_ATTEMPTS = Math.max(1, Number(process.env.CRAWL_MAX_ATTEMPTS ?? '3') || 3)
-
-async function withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = DEFAULT_MAX_ATTEMPTS): Promise<T> {
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await fn()
-    } catch (err) {
-      if (err instanceof HttpError && NO_RETRY_STATUSES.includes(err.status)) throw err
-      if (attempt === maxAttempts) throw err
-      const wait = attempt * 2000
-      console.warn(`${label} failed (attempt ${attempt}/${maxAttempts}), retrying in ${wait / 1000}s... ${(err as Error).message}`)
-      await new Promise(r => setTimeout(r, wait))
-    }
-  }
-  throw new Error('unreachable')
-}
+const withRetry = <T>(fn: () => Promise<T>, label: string, maxAttempts = DEFAULT_MAX_ATTEMPTS) => retryWithPolicy(fn, label, maxAttempts)
 
 // ─── Build Blogabet URL ───────────────────────────────────────────────────────
 
@@ -176,6 +157,13 @@ const COMMON_HEADERS = {
   'x-requested-with': 'XMLHttpRequest',
 }
 
+// An empty page that carries challenge markers is a block, not the end of the crawl.
+function parseOrChallenge(html: string, lastActive: number): TipsterInsert[] {
+  const records = parseBlocks(html, lastActive)
+  if (records.length === 0 && looksLikeChallenge(html)) throw new BlockedError('challenge page (HTTP 200 without tipsters)')
+  return records
+}
+
 // ─── Fetch one page (Node fetch) ─────────────────────────────────────────────
 
 async function fetchPage(lastActive: number, start: number, cookie: string): Promise<TipsterInsert[]> {
@@ -186,7 +174,7 @@ async function fetchPage(lastActive: number, start: number, cookie: string): Pro
   if (!res.ok) throw new HttpError(res.status, res.statusText)
 
   const html = await res.text()
-  return parseBlocks(html, lastActive)
+  return parseOrChallenge(html, lastActive)
 }
 
 // ─── Fetch one page (Playwright / real Chrome) ───────────────────────────────
@@ -199,7 +187,7 @@ async function fetchPagePlaywright(lastActive: number, start: number, cookie: st
   if (!res.ok()) throw new HttpError(res.status(), res.statusText())
 
   const html = await res.text()
-  return parseBlocks(html, lastActive)
+  return parseOrChallenge(html, lastActive)
 }
 
 // ─── Checkpoint helpers ───────────────────────────────────────────────────────

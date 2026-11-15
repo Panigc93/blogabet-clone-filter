@@ -194,7 +194,7 @@ Flow:
 
 Reliability details:
 
-- Retries each page/upsert up to 3 attempts (`CRAWL_MAX_ATTEMPTS`, was 8) with linear backoff (`attempt * 2s`). HTTP 401/403/429 are never retried.
+- Retries each page/upsert up to 5 total attempts (`CRAWL_MAX_ATTEMPTS`, was 8) with linear backoff (`attempt * 2s`). HTTP 401/403/429 are never retried and abort the whole run (`crawler/blockPolicy.ts`). A 200 page with no tipsters and explicit challenge markers also aborts; a challenge page without those markers is not detected.
 - Sleeps 300 ms between pages.
 - Optional Playwright mode launches Chromium and injects the cookie pairs into a browser context, then uses `ctx.request.get`. The default path is plain Node `fetch`.
 - `parseBlocks()` is exported for tests; a direct-execution guard prevents importing the module from starting the crawl.
@@ -226,7 +226,7 @@ Flow:
 
 Reliability details:
 
-- Retries each fetch/update up to 3 attempts with linear backoff (`attempt * 2s`).
+- Retries each fetch/update up to 5 total attempts with linear backoff (`attempt * 2s`). HTTP 401/403/429 abort the whole run: no further requests or writes, previous stats kept, exit 1. A 200 with no parseable data and explicit challenge markers aborts too; a 200 with no data and no markers is treated as "no data" (not written, not counted as refreshed). Challenge pages without those markers are not detected.
 - Sleeps 300 ms between tipsters.
 - Saves the checkpoint every 100 tipsters and at the end.
 - The checkpoint is deleted only when `errors === 0`. If any error occurred, it is saved at `allTipsters.length`; a later run resumes at the end and does not retry the failed tipsters. Delete `crawler/.checkpoint-stats` to force a full retry (ask before doing this in a real environment).
