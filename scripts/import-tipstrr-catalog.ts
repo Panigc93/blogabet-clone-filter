@@ -68,7 +68,9 @@ async function main() {
   console.log(`filas tipsters antes: ${pre[0].n} | huella md5: ${pre[0].h} (debe ser invariante salvo los inserts nuevos)`)
 
   if (!existsSync(CAP_DIR)) throw new Error(`sin capturas: ${CAP_DIR} no existe`)
-  const files = readdirSync(CAP_DIR).filter((f) => f.endsWith('.json'))
+  // Solo capturas de perfil: los artefactos de metadata del job (_job-slugs.json,
+  // checkpoints, listas) llevan prefijo '_' y NUNCA se leen como captura.
+  const files = readdirSync(CAP_DIR).filter((f) => f.endsWith('.json') && !f.startsWith('_'))
   const summary = { insert: 0, skip: 0, quarantine: 0, errors: 0 }
   const skipDetail: { slug: string; klass: string }[] = []
   const insertedSlugs: string[] = []
@@ -87,6 +89,13 @@ async function main() {
     if (!capturedIso || Number.isNaN(new Date(capturedIso).getTime())) {
       summary.errors++
       skipDetail.push({ slug, klass: 'error[capturedAt-ausente]' })
+      continue
+    }
+    // El slug del nombre de archivo debe coincidir con el de la captura:
+    // un desajuste aquí importaría datos de un perfil bajo el slug de otro.
+    if (cap._meta?.slug && cap._meta.slug !== slug) {
+      summary.errors++
+      skipDetail.push({ slug, klass: 'error[slug-no-coincide]' })
       continue
     }
     const snap = apiCaptureToSnapshot(cap)
