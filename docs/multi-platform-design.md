@@ -52,13 +52,22 @@ site. First platforms: Tipstrr and Golazobets.
   all time) and "Load more" pagination. Profiles `/tipster/<slug>` with a
   `/stats` page: monthly profit by year, breakdowns by sport, market,
   bookmaker and league (Tips, Win rate, Profit, ROI, Avg odds).
-- Metric semantics, captured verbatim from the site's own stats page:
-  profit is calculated either with all tips "as if they were staked with
-  10/10 units" (level stakes enabled) or with "the tipster's advised stake"
-  (disabled, the default); "Numbers in these statistics are based on a
+- Metric semantics, VERIFIED live 2026-11-15 (anonymous one-off reads):
+  each /stats page embeds its data as hydration JSON in
+  <script id="tipstrr-state"> ('"' encoded as &q;). PORTFOLIO overview
+  carries BOTH bases: profit/roi (advised) and levelStakeProfit/
+  levelStakeROI. ROI = profit / total staked, exactly the yield formula
+  used for Blogabet. StatMind (uniform 10/10 staking): every figure
+  reconciles to the decimal (-59.13/291 = -20.32%; Oct -£179.20/98 tips;
+  advised == level). VB TIPS (variable stakes): live tables reconcile
+  with each other but per-band figures close under NO uniform stake
+  mapping -> which basis the ROI column shows is undetermined there.
+  Caveats: voids treatment unverified; per-tip odds/profit need an
+  account; web_fetch may serve stale cached snapshots (it showed StatMind
+  at 129 tips when live was 291) — live reads for current figures.
+  Older verbatim capture: "Numbers in these statistics are based on a
   staking plan of 1 to 10 units, where 10/10 units is equivalent to £10...
-  Stats are updated every 24 hours." Their headline metric is ROI on the
-  advised-stakes basis by default. Whether the level-stakes toggle
+  Stats are updated every 24 hours." Whether the level-stakes toggle
   recomputes the displayed tables could not be confirmed (state flipped,
   figures unchanged); treat as unverified.
 - Access limits:
@@ -157,6 +166,17 @@ platform_tipster_stats
   authorization gate above.
 - `crawler/platforms/tipstrr/parse.ts` — pure parser for their HTML shape,
   NO fetcher (terms + Cloudflare gates), validated with FABRICATED fixtures.
+- `crawler/platforms/tipstrr/stats-state.ts` — parser for the REAL /stats
+  structure (tipstrr-state JSON + rendered tables): overview with both
+  stake bases, stake-band uniformity, monthly breakdown, Blogabet-parity
+  period stats (yield 3/6/12m, picks avg; closed months only, nulls never
+  zeros) and profile header. Validated end-to-end against a live StatMind
+  capture; fixtures in tests remain fabricated.
+  MYS gate: yield is evaluable ONLY when every per-record consistency
+  check passes (single stake band, band total == overview tips,
+  averageStake matches band, advised == level, roi = profit/staked
+  closes). Otherwise yield/MYS stay null and the source ROI is preserved
+  labelled as source-only. Uniformity alone is necessary, not sufficient.
 - `crawler/platforms/manual-import.ts` — normalizes tipster records the
   owner LAWFULLY holds (tipster-supplied, exported, permission-granted)
   into the shared shape; requires a source note per dataset; never fetches.
