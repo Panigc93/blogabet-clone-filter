@@ -1,0 +1,117 @@
+{
+ "tipster_id": 395,
+ "type": "free",
+ "sport_id": 2,
+ "header": {
+  "number_bets": 87,
+  "total_bet": 72.75,
+  "profit": 18.25,
+  "yield": 25.08,
+  "win_rate": 66.67,
+  "average_stake": 0.84,
+  "average_odds": 1.84
+ },
+ "monthly": [
+  {
+   "year": 2026,
+   "month": 1,
+   "total_picks": 10,
+   "total_bet": 15.25,
+   "profit": 1.39,
+   "yield": 9.08,
+   "win_rate": 50,
+   "average_stake": 1.53,
+   "average_odds": 1.81
+  },
+  {
+   "year": 2026,
+   "month": 2,
+   "total_picks": 15,
+   "total_bet": 14.75,
+   "profit": 4.67,
+   "yield": 31.64,
+   "win_rate": 73.33,
+   "average_stake": 0.98,
+   "average_odds": 1.86
+  },
+  {
+   "year": 2026,
+   "month": 3,
+   "total_picks": 15,
+   "total_bet": 12.25,
+   "profit": 2.49,
+   "yield": 20.29,
+   "win_rate": 66.67,
+   "average_stake": 0.82,
+   "average_odds": 1.84
+  },
+  {
+   "year": 2026,
+   "month": 4,
+   "total_picks": 2,
+   "total_bet": 1.75,
+   "profit": 0,
+   "yield": 0,
+   "win_rate": 50,
+   "average_stake": 0.88,
+   "average_odds": 1.83
+  },
+  {
+   "year": 2026,
+   "month": 5,
+   "total_picks": 25,
+   "total_bet": 15.75,
+   "profit": 5.81,
+   "yield": 36.9,
+   "win_rate": 72,
+   "average_stake": 0.63,
+   "average_odds": 1.83
+  },
+  {
+   "year": 2026,
+   "month": 6,
+   "total_picks": 6,
+   "total_bet": 3.75,
+   "profit": 0.91,
+   "yield": 24.33,
+   "win_rate": 66.67,
+   "average_stake": 0.63,
+   "average_odds": 1.77
+  },
+  {
+   "year": 2026,
+   "month": 10,
+   "total_picks": 12,
+   "total_bet": 8.25,
+   "profit": 2.13,
+   "yield": 25.85,
+   "win_rate": 58.33,
+   "average_stake": 0.69,
+   "average_odds": 1.86
+  },
+  {
+   "year": 2026,
+   "month": 11,
+   "total_picks": 2,
+   "total_bet": 1,
+   "profit": 0.85,
+   "yield": 85,
+   "win_rate": 100,
+   "average_stake": 0.5,
+   "average_odds": 1.85
+  }
+ ],
+ "picks_total": 88,
+ "recent_results": [
+  "won",
+  "won",
+  "won",
+  "won",
+  "void",
+  "void",
+  "won",
+  "lost",
+  "lost",
+  "lost"
+ ]
+}
