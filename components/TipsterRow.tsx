@@ -49,7 +49,6 @@ function IconBadge({ icon, title }: { icon: string; title?: string }) {
 
 export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
   const initials = t.name.slice(0, 2).toUpperCase()
-  const traces = [t.yield3m.trace, t.yield6m.trace, t.yield12m.trace].filter((x): x is string => x !== null)
 
   return (
     <div
@@ -160,29 +159,15 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               </>
             )}
           </div>
-          {t.platform === 'tipstrr' && (
-            <span style={{ display: 'block', textAlign: 'center', fontSize: 9, lineHeight: 1.2, color: '#999', paddingBottom: 4 }}>
-              El yield total incluye el mes en curso; los periodos solo meses cerrados
-            </span>
-          )}
-          {(traces.length > 0 || t.picks6mTrace !== null) && (
-            <details style={{ textAlign: 'center', fontSize: 9, lineHeight: 1.4, color: '#999', paddingBottom: 6 }}>
-              <summary style={{ cursor: 'pointer', color: '#4dbfa2', fontWeight: 700, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.3px', padding: '3px 0 5px' }}>
-                Ver cálculo
-              </summary>
-              {traces.map((tr, i) => (
-                <span key={i} style={{ display: 'block' }}>{tr}</span>
-              ))}
-              {t.picks6mTrace && <span style={{ display: 'block' }}>Picks/mes 6m: {t.picks6mTrace}</span>}
-            </details>
-          )}
+          {/* Trazas de cálculo: no van en la tabla (decisión de Juan, 15-11-2026);
+              la auditabilidad vive en /lab/tipstrr/ficha (diagnóstico) */}
           </div>
         )}
       </div>
 
       {/* RIGHT: actions */}
       <div className="tipster-right" style={{ background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6 }}>
-        <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#82daca', color: '#fff', border: '1px solid #4dbfa2', borderBottomWidth: 3, borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
+        <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.platform === 'tipstrr' ? '#35444e' : '#82daca', color: '#fff', border: `1px solid ${t.platform === 'tipstrr' ? '#35444e' : '#4dbfa2'}`, borderBottomWidth: 3, borderBottomColor: t.platform === 'tipstrr' ? '#232e35' : '#4dbfa2', borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
           <i className="fa fa-external-link"></i> VER EN {t.platform === 'blogabet' ? 'BLOGABET' : 'TIPSTRR'}
         </a>
         {t.isPaid && t.priceLabel && (

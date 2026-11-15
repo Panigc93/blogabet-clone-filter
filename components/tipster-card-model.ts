@@ -133,7 +133,9 @@ export function fromTipstrrSnapshot(s: FichaSnapshot): TipsterCardData {
     picks: s.overview.tips,
     profitDisplay: s.overview.profitDisplay,
     yieldPct: s.overview.roiPct,
-    yieldTitle: s.yieldEquivalenceNote,
+    // Tooltip only (no visual block): the all-time yield includes the current
+    // month up to the capture date; 3/6/12m periods use closed months only.
+    yieldTitle: `${s.yieldEquivalenceNote} El yield total incluye el mes en curso hasta la fecha de la captura; los periodos 3/6/12m usan solo meses cerrados.`,
     verifiedPct: null, // Tipstrr no expone % parcial; nunca 0
     followers: null, // no expuesto en la página pública
     isVerified: null, // no existe como marca parcial
