@@ -273,6 +273,19 @@ async function main() {
       await sql.transaction((txn) => [txn.query(q.text, q.params)])
       summary.update++
     }
+    // Proveniencia del override sport/6 persistida en el log de validación
+    // (sin migración): fuente independiente, fecha de captura y re-verificación
+    // de la puerta quedan registradas junto al alta/actualización.
+    if (sport6Slugs.has(slug)) {
+      await sql.transaction((txn) => [
+        txn.query(
+          `INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
+          ['tipstrr', slug, capturedIso, 'importado[sport6-override]',
+           'overview all-time sustituido por totales advised de /api/portfolio/<slug>/stats/sport/6 (captura 2026-11-15); cierre de 3 cifras re-verificado por la puerta contra la serie mensual embebida',
+           RUN_ID]
+        ),
+      ])
+    }
   }
 
   console.log(JSON.stringify({ runId: RUN_ID, apply: APPLY, summary, skipDetail }, null, 1))

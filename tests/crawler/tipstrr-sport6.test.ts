@@ -7,8 +7,8 @@ import { sport6Totals, applySport6AllTime, type Sport6Capture } from '@/crawler/
 
 // Capturas reales 2026-11-15: la recuperación de los 111 en cuarentena por
 // falta de overview all-time. '-25' cierra contra su serie; chicken-dinner
-// es una de las 10 discrepancias mantenidas (sport/6 dice 556 tips, la
-// serie embebida suma 540).
+// es una de las 10 discrepancias mantenidas (sport/6 suma 1307 tips, la
+// serie embebida 1291).
 const CAP = join(__dirname, '../../crawler/platforms/tipstrr/captures')
 
 const readCap = (dir: string, slug: string) =>
@@ -89,7 +89,7 @@ describe('applySport6AllTime', () => {
     expect(parseFloat(mapped.insert.profit!)).toBeCloseTo(12.604, 3)
   })
 
-  it('la puerta estricta rechaza una discrepancia real (chicken-dinner 556 vs 540)', () => {
+  it('la puerta estricta rechaza una discrepancia real (chicken-dinner 1307 vs 1291)', () => {
     const cd = snapFromStats('chicken-dinner')
     const cdTotals = sport6Totals(readCap('2026-11-15-sport6', 'chicken-dinner') as Sport6Capture)
     const mapped = mapWith(applySport6AllTime(cd, cdTotals, 'captura 2026-11-15'), 'chicken-dinner')
