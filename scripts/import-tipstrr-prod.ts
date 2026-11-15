@@ -81,7 +81,7 @@ const camelize = (row: Record<string, unknown>): Record<string, unknown> => {
   return out
 }
 
-function buildInsert(insert: TipsterInsert, internalId: boolean): { text: string; params: unknown[] } {
+export function buildInsert(insert: TipsterInsert, internalId: boolean): { text: string; params: unknown[] } {
   const cols: string[] = ['id']
   const vals: string[] = []
   const params: unknown[] = []
@@ -106,7 +106,7 @@ function buildInsert(insert: TipsterInsert, internalId: boolean): { text: string
   }
 }
 
-function buildUpdate(id: number, merged: TipsterInsert): { text: string; params: unknown[] } {
+export function buildUpdate(id: number, merged: TipsterInsert): { text: string; params: unknown[] } {
   const sets: string[] = []
   const params: unknown[] = []
   for (const [key, col] of COLUMNS) {

@@ -15,8 +15,15 @@ sin columna platform, sin secuencia ni tabla de log.
 
 ## Secuencia (en este orden)
 
+Orden clave (corrección de revisión): ESQUEMA → CÓDIGO DESPLEGADO VERDE →
+DATOS. No se insertan filas Tipstrr mientras el master viejo (código BB
+sin scoping por plataforma) pueda ejecutarse contra la base: las
+migraciones son aditivas y seguras para el código viejo; el import va
+DESPUÉS de que el despliegue nuevo esté verde.
+
 0. Head de rama revisado; `DATABASE_URL` presente solo en el entorno del
-   ejecutor; todo dry-run primero.
+   ejecutor; todo dry-run primero. Sin cron Tipstrr y sin run manual del
+   crawler BB en todo el proceso.
 1. BACKUP verificable:
    `CREATE TABLE tipsters_backup_20261115 AS SELECT * FROM tipsters;`
    Comprobar: `SELECT count(*) FROM tipsters_backup_20261115;` = 11167.
@@ -29,22 +36,28 @@ sin columna platform, sin secuencia ni tabla de log.
    posteriores a las 4 filas existentes). Precheck: la constraint
    `tipsters_slug_unique` existe (0004 la elimina sin IF EXISTS):
    `SELECT 1 FROM pg_constraint WHERE conname='tipsters_slug_unique';`
-4. HUELLA POST-0004 (variante B, `WHERE platform='blogabet'`): debe ser
-   IGUAL a la PRE. Conteo sigue 11167. Si difiere: STOP, rollback §.
-5. Dry-run import: `DATABASE_URL=$(cat <archivo vault>) npx tsx
+4. HUELLA POST-migraciones (variante B, `WHERE platform='blogabet'`):
+   debe ser IGUAL a la PRE. Conteo sigue 11167. Si difiere: STOP,
+   rollback §. (El master viejo sigue funcionando aquí: columnas
+   aditivas con default 'blogabet'.)
+5. Merge de la rama a master → despliegue Vercel producción (las 4
+   variables de entorno ya están en Production) → VERIFICAR DESPLIEGUE
+   VERDE: endpoint prod responde, listado BB intacto con el código nuevo
+   (filtro platform), sin errores en logs. Si falla: revert del
+   despliegue/merge; la base sigue siendo compatible con el master viejo.
+6. Dry-run import: `DATABASE_URL=$(cat <archivo vault>) npx tsx
    scripts/import-tipstrr-prod.ts` — plan esperado: 98 insert, 0 update,
-   111 skip (cuarentena). Revisar skipDetail antes de aplicar.
-6. Apply: mismo comando con `--apply`. Por perfil, transacción atómica;
+   111 skip (cuarentena). Revisar skipDetail antes de aplicar. (La
+   composición SQL del insert/update ya está validada contra PGlite con
+   esquema real en tests/crawler/import-prod-sql.test.ts: nextval interno
+   atómico, update sin tocar identidad, id capturado del origen.)
+7. Apply: mismo comando con `--apply`. Por perfil, transacción atómica;
    ids internos por secuencia; cada skip deja fila en
    import_validation_log.
-7. Verificaciones POST (el propio script las imprime y aborta si hay ids
+8. Verificaciones POST (el propio script las imprime y aborta si hay ids
    de fixture): por plataforma blogabet=11167 y tipstrr=98; fixtureIds=0;
    validationLogRows=111. HUELLA BB (variante B) de nuevo = PRE.
    Spot-check 3 filas Tipstrr contra sus capturas (picks/profit/yield).
-8. Merge de la rama a master (revisión independiente previa) → despliegue
-   Vercel producción (las 4 variables de entorno ya están en Production;
-   el código actual de master sigue funcionando tras 0004: columnas
-   aditivas con default 'blogabet').
 9. Prueba visual y endpoint prod: listado muestra 98 Tipstrr con filtros
    por plataforma; BB intacto.
 
