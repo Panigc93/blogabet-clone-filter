@@ -1,0 +1,54 @@
+// Outcome policy for the stats crawl. Conservative by default: stats are never
+// nulled unless explicitly requested. Freshness stays visible in stats_updated_at
+// (rows that are not refreshed keep their old timestamp).
+
+export interface StatsRunSummary {
+  /** Tipsters selected for refresh (last_pick_at inside the activity window). */
+  selected: number
+  /** Tipsters that currently hold period stats (stats_updated_at not null). */
+  withStats: number
+  /** Selected tipsters processed without error in this run. */
+  done: number
+  /** Selected tipsters that failed in this run. */
+  errors: number
+  /** True only if the loop ran to the end (not cancelled or crashed). */
+  completed: boolean
+  /** Explicit opt-in (CLEAR_INACTIVE_STATS=1). Default false. */
+  clearRequested: boolean
+}
+
+export interface StatsOutcome {
+  clear: boolean
+  exitCode: 0 | 1
+  messages: string[]
+}
+
+export function decideStatsOutcome(s: StatsRunSummary): StatsOutcome {
+  const messages: string[] = []
+  let exitCode: 0 | 1 = 0
+
+  if (s.selected === 0) {
+    // No activity evidence at all (empty or fully stale catalog): nothing is refreshed
+    // and nothing is deleted. Make it visible instead of a green no-op.
+    messages.push(`No tipsters selected (last_pick_at has no activity inside the window). Nothing refreshed; ${s.withStats} rows keep their stats and old stats_updated_at.`)
+    exitCode = 1
+  } else {
+    const notRefreshed = Math.max(0, s.withStats - s.done)
+    if (notRefreshed > 0) {
+      messages.push(`${notRefreshed} rows with stats were not refreshed in this run; they keep their values and old stats_updated_at.`)
+    }
+    if (s.errors > 0) {
+      messages.push(`${s.errors} of ${s.selected} stats requests failed.`)
+      if (s.errors === s.selected) exitCode = 1
+    }
+  }
+
+  let clear = false
+  if (s.clearRequested) {
+    if (!s.completed) messages.push('Clear skipped: run did not complete.')
+    else if (s.selected === 0) messages.push('Clear skipped: no activity evidence.')
+    else if (s.errors > 0) messages.push('Clear skipped: some requests failed.')
+    else clear = true
+  }
+  return { clear, exitCode, messages }
+}

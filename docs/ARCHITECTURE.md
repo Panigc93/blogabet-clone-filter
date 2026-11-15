@@ -54,7 +54,7 @@ Browser ── Next.js middleware ── app/page.tsx ──┘
 | `db/schema.ts` | Drizzle table definition and inferred types. |
 | `db/index.ts` | Neon HTTP connection from `DATABASE_URL`; exports `db`. |
 | `crawler/crawl.ts` | Catalog crawler: HTML parser, upsert, checkpoints, retries, optional Playwright. |
-| `crawler/stats.ts` | Stats crawler: archive parser, period calculations, stale-stat cleanup. |
+| `crawler/stats.ts` | Stats crawler: archive parser, period calculations. Does not null stats by default (see `statsOutcome.ts`). |
 | `crawler/cleanup.ts` | Nulls period stats for inactive tipsters. |
 | `crawler/check-stats.ts` | Diagnostic counts of active/inactive tipsters with/without stats. |
 | `crawler/check-tipster.ts` | Prints the DB row(s) matching a slug. |
@@ -134,7 +134,7 @@ Single table: `tipsters` (`db/schema.ts`). No history table; only current values
 | `yield_12m` | numeric(6,2) | Weighted yield over closed months in the 12-month window. |
 | `picks_free_3m_avg` | numeric(7,2) | Free-pick average for paid tipsters, 3 closed months. |
 | `yield_free_3m` | numeric(6,2) | Free-pick yield for paid tipsters, 3 closed months. |
-| `stats_updated_at` | timestamptz | Last stats update; nulled when stats are cleared. |
+| `stats_updated_at` | timestamptz | Last stats update. Not refreshed for rows outside the activity window, so it shows how old their stats are. Nulled only by `cleanup.ts` or `CLEAR_INACTIVE_STATS=1`. |
 
 Indexes are defined for yield, yield6m, picks6mAvg, profit, picks, followers, sinceYear, lastPickAt, and isPaid.
 
@@ -222,7 +222,7 @@ Flow:
 9. Computes `picks6mAvg` as total picks divided by the number of months with data in the 6-month window (not a fixed divisor of 6).
 10. For paid tipsters, derives free stats by subtracting the paid tab from all-time rows for the last 3 closed months.
 11. Upserts the period columns and `stats_updated_at`.
-12. After the loop, nulls period stats for tipsters with `last_pick_at` null or older than one month.
+12. After the loop, reports coverage and never nulls stats unless `CLEAR_INACTIVE_STATS=1` on a complete run with no errors and at least one selected tipster. Exits 1 when no tipster is selected (no activity evidence) so the run is visible instead of a green no-op.
 
 Reliability details:
 

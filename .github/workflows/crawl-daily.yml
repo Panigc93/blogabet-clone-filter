@@ -40,6 +40,7 @@ jobs:
           exit 1
 
       - name: Run stats crawler
+        if: ${{ !cancelled() }}  # stats are public per blog and use stored slugs: run even if the catalog step failed
         env:
           DATABASE_URL_DIRECT: ${{ secrets.DATABASE_URL_DIRECT }}
           BLOGABET_COOKIE: ${{ secrets.BLOGABET_COOKIE }}
