@@ -48,23 +48,29 @@ export function buildFilters(params: TipsterFilters): SQL[] {
     conditions.push(gte(tipsters.picks, params.minPicks))
   }
 
-  if (params.activityMonths !== undefined) {
+  // Blogabet-only filters (activity, reset, years-in-BB, free picks): outside
+  // the Blogabet-only view they are NOT applied. Tipstrr rows carry null in
+  // the underlying fields (lastPickAt / lastResetAt / picksFree3mAvg), so a
+  // direct URL with these params would silently hide every Tipstrr row as if
+  // no tipster existed. The caller signals the ignored filters instead
+  // (ignoredFilters -> route warning + disabled UI).
+  if (params.activityMonths !== undefined && params.platform === 'blogabet') {
     conditions.push(
       gte(tipsters.lastPickAt, sql`NOW() - make_interval(months => ${params.activityMonths})`)
     )
   }
 
-  if (params.resetOlderThan ) {
+  if (params.resetOlderThan && params.platform === 'blogabet') {
     conditions.push(
       sql`(${tipsters.lastResetAt} IS NULL OR ${tipsters.lastResetAt} < NOW() - make_interval(months => 6))`
     )
   }
 
-  if (params.minYears !== undefined) {
+  if (params.minYears !== undefined && params.platform === 'blogabet') {
     conditions.push(lte(tipsters.sinceYear, new Date().getFullYear() - params.minYears))
   }
 
-  if (params.conPicksFree) {
+  if (params.conPicksFree && params.platform === 'blogabet') {
     conditions.push(isNotNull(tipsters.picksFree3mAvg))
     conditions.push(gt(tipsters.picksFree3mAvg, '0'))
   }
@@ -89,14 +95,50 @@ export function buildFilters(params: TipsterFilters): SQL[] {
   return conditions
 }
 
+// Blogabet-only filter keys: outside the Blogabet-only view they are
+// ignored (never silently applied against null fields of other platforms)
+// and must be signalled to the user.
+export const BB_ONLY_FILTERS = ['activity', 'minYears', 'conPicksFree', 'resetOlderThan', 'price'] as const
+export type IgnoredFilter = typeof BB_ONLY_FILTERS[number]
+
+// Filters the caller requested that this view does not apply.
+export function ignoredFilters(params: TipsterFilters): IgnoredFilter[] {
+  if (params.platform === 'blogabet') return []
+  const out: IgnoredFilter[] = []
+  if (params.activityMonths !== undefined) out.push('activity')
+  if (params.minYears !== undefined) out.push('minYears')
+  if (params.conPicksFree) out.push('conPicksFree')
+  if (params.resetOlderThan) out.push('resetOlderThan')
+  if (params.priceMin !== undefined || params.priceMax !== undefined) out.push('price')
+  return out
+}
+
 // True when a price filter was requested but not applied because the
 // view's currency is not comparable (Tipstrr GBP, or the combined
 // all-platforms view mixing EUR and GBP — no FX invented).
 export function priceFilterIgnored(params: TipsterFilters): boolean {
-  return (
-    (params.priceMin !== undefined || params.priceMax !== undefined) &&
-    params.platform !== 'blogabet'
-  )
+  return ignoredFilters(params).includes('price')
+}
+
+const IGNORED_LABELS: Record<IgnoredFilter, string> = {
+  activity: 'Actividad',
+  minYears: 'Años en BB',
+  conPicksFree: 'Con picks free',
+  resetOlderThan: 'Sin Reset +6 meses',
+  price: 'Precio',
+}
+
+// User-facing wording (shared by page banner and API warnings) for the
+// filters this view does not apply. Returns null when nothing is ignored.
+export function ignoredWarning(params: TipsterFilters): string | null {
+  const ignored = ignoredFilters(params)
+  if (ignored.length === 0) return null
+  const names = ignored.map(f => IGNORED_LABELS[f]).join(', ')
+  const vista = params.platform === 'tipstrr' ? 'la vista Tipstrr' : 'la vista de todas las plataformas'
+  const fx = ignored.includes('price')
+    ? ' Blogabet cobra en € y Tipstrr en £, no comparables sin conversión (no inventamos tipos de cambio): los precios se muestran en su moneda.'
+    : ''
+  return `No se aplican en ${vista} (son propios de Blogabet): ${names}.${fx}`
 }
 
 export function sortColumn(sort: SortField) {

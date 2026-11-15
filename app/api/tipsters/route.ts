@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, sortOrder, priceFilterIgnored, TipsterFilters, SortField } from '@/lib/query'
+import { buildFilters, sortOrder, ignoredWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and } from 'drizzle-orm'
 
 const PAGE_SIZE = 50
@@ -41,10 +41,9 @@ export async function GET(req: NextRequest) {
     .offset(page * PAGE_SIZE)
 
   const warnings: string[] = []
-  if (priceFilterIgnored(filters)) {
-    warnings.push(filters.platform === 'tipstrr'
-      ? 'Filtro de precio no aplicado: Tipstrr cobra en GBP y no es comparable con EUR sin conversión (no inventamos FX).'
-      : 'Filtro de precio no aplicado: la vista combinada mezcla EUR y GBP y no son comparables sin conversión (no inventamos FX).')
+  const ignored = ignoredWarning(filters)
+  if (ignored) {
+    warnings.push(ignored)
   }
 
   return NextResponse.json({ data: rows, page, hasMore: rows.length === PAGE_SIZE, ...(warnings.length ? { warnings } : {}) })

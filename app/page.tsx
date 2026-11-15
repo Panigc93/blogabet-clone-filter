@@ -1,6 +1,6 @@
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, sortOrder, priceFilterIgnored, TipsterFilters, SortField } from '@/lib/query'
+import { buildFilters, sortOrder, ignoredWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and, count } from 'drizzle-orm'
 import { FilterBar } from '@/components/FilterBar'
 import { LoadMore } from '@/components/LoadMore'
@@ -50,11 +50,9 @@ export default async function Home({ searchParams }: PageProps) {
     <>
       <FilterBar searchParams={searchParams} />
       <div id="page-content" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px' }}>
-        {priceFilterIgnored(filters) && (
+        {ignoredWarning(filters) && (
           <div style={{ margin: '8px 0 0', padding: '8px 12px', background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: 4, fontSize: 13, color: '#856404' }}>
-            {filters.platform === 'tipstrr'
-              ? 'El filtro de precio no se aplica a Tipstrr: cobra en £ (GBP) y no es comparable con € sin conversión (no inventamos tipos de cambio). Los precios se muestran en su moneda.'
-              : 'El filtro de precio no se aplica en la vista de todas las plataformas: Blogabet cobra en € y Tipstrr en £, y no son comparables sin conversión (no inventamos tipos de cambio). Los precios se muestran en su moneda.'}
+            {ignoredWarning(filters)}
           </div>
         )}
         <LoadMore key={searchString} initialRows={rows} initialHasMore={hasMore} total={total} searchString={searchString} />

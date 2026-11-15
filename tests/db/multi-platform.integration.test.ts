@@ -151,6 +151,16 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
     expect(tt).toHaveLength(2) // NOT silently zero
   })
 
+  it('Blogabet-only filters (activity, years, free picks, reset) never hide Tipstrr rows via direct URL params', async () => {
+    // Tipstrr rows carry null lastPickAt/lastResetAt/picksFree3mAvg: applying
+    // these filters would silently drop every Tipstrr row as if none existed.
+    const bbOnly = { activityMonths: 3, minYears: 1, conPicksFree: true, resetOlderThan: true }
+    const tt = await runQuery({ ...bbOnly, platform: 'tipstrr' as const })
+    expect(tt).toHaveLength(2) // both Tipstrr rows still listed
+    const all = await runQuery(bbOnly) // combined view: nothing applied
+    expect(all).toHaveLength(3)
+  })
+
   it('pagination (LoadMore path) returns stable pages with negative ids', async () => {
     const page0 = await runQuery({ platform: 'tipstrr' }, 0, 1)
     const page1 = await runQuery({ platform: 'tipstrr' }, 1, 1)

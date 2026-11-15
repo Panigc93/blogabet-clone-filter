@@ -86,6 +86,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
     // Al cambiar de fuente se limpian los filtros solo-Blogabet (años en BB, resets,
     // picks free evaluables) y el precio (Tipstrr cobra en GBP, no comparable en €).
     if (key === 'platform') {
+      params.delete('activity')
       params.delete('minYears')
       params.delete('conPicksFree')
       params.delete('resetOlderThan')
@@ -194,6 +195,8 @@ export function FilterBar({ searchParams }: FilterBarProps) {
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Actividad</label>
               <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('activity') ?? ''}
+                disabled={nonBB}
+                title={nonBB ? 'Filtro propio de Blogabet: los datos de actividad reciente de otras fuentes no son comparables' : undefined}
                 onChange={e => update('activity', e.target.value || null)}>
                 <option value="">Todos</option>
                 <option value="1">Último mes</option>
