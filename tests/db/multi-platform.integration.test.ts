@@ -111,6 +111,23 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
     expect(tt[0].profit).toBe('361.815')
   })
 
+  it('pick-count filter uses the profile historical total on both platforms', async () => {
+    // Requirement 2026-11-15 (user): Superblogabet filters by how many picks
+    // a tipster has. Mapping: tipsters.picks = source profile historical
+    // total (Tipstrr overview.tips: TLE 1974, StatMind 291; never the
+    // ranking-period count). Shared column, so one threshold works across
+    // platforms without per-source semantics.
+    const tt300 = await runQuery({ platform: 'tipstrr', minPicks: 300 })
+    expect(tt300.map((r) => r.slug)).toEqual(['the-least-expected']) // 1974 passes, 291 does not
+    const tt291 = await runQuery({ platform: 'tipstrr', minPicks: 291 })
+    expect(tt291.map((r) => r.slug).sort()).toEqual(['statmind', 'the-least-expected'].sort())
+    const tt1975 = await runQuery({ platform: 'tipstrr', minPicks: 1975 })
+    expect(tt1975).toHaveLength(0)
+    // Cross-platform: same threshold applies to the BB row (900) identically
+    const all500 = await runQuery({ minPicks: 500 })
+    expect(all500.map((r) => `${r.platform}:${r.slug}`).sort()).toEqual(['blogabet:the-least-expected', 'tipstrr:the-least-expected'].sort())
+  })
+
   it('price filter compares EUR only and never matches GBP rows as if absent', async () => {
     const eur = await runQuery({ priceMin: 5, priceMax: 50 })
     expect(eur.map((r) => r.platform)).toEqual(['blogabet']) // GBP TLE not matched by an EUR range
