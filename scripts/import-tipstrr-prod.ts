@@ -26,10 +26,11 @@
 //
 // La cadena se lee de la variable de entorno; nunca se imprime. Rollback y
 // huella de integridad BB: docs/deploy-tipstrr-prod.md (runbook).
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { neon } from '@neondatabase/serverless'
 import { loadTipstrrCapture, type TipstrrStatsCapture } from '../crawler/platforms/tipstrr/load-capture'
+import { sport6Totals, applySport6AllTime, type Sport6Capture } from '../crawler/platforms/tipstrr/sport6'
 import {
   tipstrrSnapshotToInsert,
   planTipstrrUpsert,
@@ -44,6 +45,21 @@ const APPLY = process.argv.includes('--apply')
 const RUN_ID = `tipstrr-prod-20261115-${APPLY ? 'apply' : 'dryrun'}-${Date.now()}`
 const CAP_DIR = 'crawler/platforms/tipstrr/captures/2026-11-15-stats'
 const TLE_CAPTURE = 'crawler/platforms/tipstrr/captures/2026-11-15-tle-stats-state.json'
+// Totales all-time advised independientes (recuperación 2026-11-15 de los 111
+// cuyo overview embebido no era all-time). Solo existen para esos 111; cuando
+// hay captura sport/6, SUSTITUYE el overview y la puerta estricta re-verifica
+// el cierre de 3 cifras contra la serie mensual embebida.
+const SPORT6_DIR = 'crawler/platforms/tipstrr/captures/2026-11-15-sport6'
+const SPORT6_LABEL = 'captura 2026-11-15'
+const sport6Slugs = new Set(
+  existsSync(SPORT6_DIR) ? readdirSync(SPORT6_DIR).map((f) => f.replace(/\.json$/, '')) : []
+)
+// Cierre numérico OK pero histórico NO validado: revenue-faq cerró las 3
+// cifras y sin embargo su serie empieza ~1 año después del alta (duda del
+// revisor 2026-11-15). Se excluye de este run hasta verificación adicional.
+const EXCLUDED_AFTER_REVIEW: Record<string, string> = {
+  'revenue-faq': 'excluido[revision-historico]: cierra numericamente pero la serie empieza ~1 año tras el alta; pendiente verificación adicional',
+}
 // portfolioId real capturado del origen (PORTFOLIO_TIP_CACHED /results,
 // evidencia captures/2026-11-15-tle-results-page1-state.json). El resto:
 // id interno por secuencia (0005). Nunca un id de fixture.
@@ -172,7 +188,21 @@ async function main() {
     const slug = f.includes('tle-stats-state')
       ? 'the-least-expected'
       : f.split('/').pop()!.replace(/\.json$/, '')
-    const snap = loadTipstrrCapture(cap, {
+    const excluded = EXCLUDED_AFTER_REVIEW[slug]
+    if (excluded) {
+      summary.skip++
+      skipDetail.push({ slug, klass: 'excluido[revision-historico]' })
+      if (APPLY) {
+        await sql.transaction((txn) => [
+          txn.query(
+            `INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
+            ['tipstrr', slug, capturedIso, 'excluido[revision-historico]', excluded, RUN_ID]
+          ),
+        ])
+      }
+      continue
+    }
+    let snap = loadTipstrrCapture(cap, {
       sourceUrl: cap._meta.source.split(' ')[0],
       capturedAt: cap._meta.captured,
       capturedAtDate: capturedIso,
@@ -188,6 +218,10 @@ async function main() {
         ],
       },
     })
+    if (sport6Slugs.has(slug)) {
+      const sp6 = JSON.parse(readFileSync(join(SPORT6_DIR, `${slug}.json`), 'utf8')) as Sport6Capture
+      snap = applySport6AllTime(snap, sport6Totals(sp6), SPORT6_LABEL)
+    }
     const portfolioId = SOURCE_PORTFOLIO_IDS[slug]
     const idSource: TipstrrIdSource = portfolioId ? 'source-captured' : 'internal-transactional'
     const mapping = tipstrrSnapshotToInsert(snap, {
