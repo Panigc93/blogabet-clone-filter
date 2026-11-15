@@ -153,3 +153,28 @@ Selección del usuario: orden **ROI** (`order=2`), período **3 meses** (`period
 - MMA: el slug del listado del pie (`/mixed-martial-arts`) es un soft-404 (HTTP 200, título "Error | 404"); el real es `/mma` (sportId 11). Ambos tipos vacíos.
 - Captura: `captures/2026-11-15-catalog-selection.json` (38 combinaciones con arrays de slugs por página y timestamp por petición). Validación: las 38 combinaciones pasan `validateCatalogCapture` sin issues.
 - `tips=45` (mínimo oculto por defecto del sitio) se mantuvo tal cual: los vacíos significan "0 bajo este filtro", no "0 tipsters del deporte".
+
+## Fase de stats por perfil (2026-11-15 15:27-16:00 UTC)
+
+217 peticiones totales (208 del job a 10-16 s + 7 pre-job por fallo de regex de extracción + 2 de sondeo de parámetro `?period=`, ignorado por la página). Cero no-200 en el job. 209/209 perfiles capturados (208 + TLE reutilizado de 13:46 UTC). Auditoría de las capturas: sin emails, tokens ni datos de sesión/PII.
+
+### Hallazgo: el overview de /stats NO es all-time por defecto
+
+`overview.period` varía por perfil: 3 (70 perfiles), 4 (60), 5 (26), 6 (53). Verificado contra las 209 capturas: los periodos 3/4/5 son **ventanas rodantes** no reproducibles desde buckets mensuales (ninguna ventana de meses naturales cuadra de forma general); el código 6 es all-time (50 de 53 cierran al tip contra la suma de la serie mensual). El parámetro `?period=` de la URL es ignorado (sonda en vivo, 2 peticiones).
+
+### Puerta por niveles (to-db.ts)
+
+- VERIFICADO: overview all-time (period 6 o tips == suma de la serie) con todas las comprobaciones en verde → picks del overview, yield = roi del overview (cierra contra denominadores exactos).
+- COBERTURA: overview rodante pero serie mensual desde el mes de alta → picks = suma exacta de la serie (los meses sin actividad no tienen fila y aportan 0; no-truncamiento probado por los 44 cierres exactos y series de 184 filas), yield all-time = Σprofit/Σstaked de la serie.
+- CONTRADICCIÓN: overview all-time que no cierra contra la serie → picks de la serie si hay cobertura, yield null.
+- RECHAZO: serie que empieza después del mes de alta (silencio ambiguo), o total ausente sin serie.
+
+### Resultado de la ingesta aislada (PGlite, nunca Neon)
+
+200 persistidos (84 free / 116 premium; ids provisionales -900000-i salvo TLE -221629 real), 9 rechazados por silencio ambiguo (alpheratz, beat-365, celtic-racing-tipster, chrisbestbets, forrest-jump, kensflat, ravi-predictz, steviebetscom, the-second-serve — capturas conservadas). 145 con yield all-time, 55 null. Script: `scripts/seed-tipstrr-catalog.ts`.
+
+### Huecos conocidos
+
+- Precio de suscripción: NO está en el estado /stats (membershipTier null incluso en premium); solo en tarjetas del listado, no capturadas.
+- Actividad último pick: dateAdded por tip solo en el detalle /tipster/<slug>/results (PORTFOLIO_TIP_CACHED). Opción preparada NO ejecutada: 1 lectura por perfil (~209, 35-55 min a 10-16 s); la ordenación "última publicación" NO está probada — verificar dateAdded descendente en primera página antes de usar max(dateAdded) como lastPickAt.
+- Los 9 rechazados son perfiles cuya primera fila mensual cae 1 mes después del alta (probable primera actividad tardía, no truncamiento, pero ambiguo); recuperables con una fuente de total independiente.
