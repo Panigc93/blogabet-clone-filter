@@ -159,7 +159,7 @@ export function fromTipstrrSnapshot(s: FichaSnapshot): TipsterCardData {
       p.picks6mAvg !== null && p.yield6m !== null
         ? `${p.yield6m.tips} tips / ${p.yield6m.months} meses${p.yield6m.complete ? '' : ' · ventana incompleta (no es media de 6 meses)'}`
         : null,
-    picksFree3mAvg: null, // split free/paid requiere cuenta Tipstrr
+    picksFree3mAvg: null, // split free/paid no evaluable: flag por tip liquidado no validado (control 15-11-2026); no es cuestión de cuenta
     yieldFree3m: null,
     showPeriodRow: p.yield3m !== null || p.yield6m !== null || p.yield12m !== null,
   }

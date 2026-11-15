@@ -93,7 +93,7 @@ export const STATMIND_SNAPSHOT: FichaSnapshot = {
     { field: 'resetCount (BB)', reason: 'Tipstrr no expone resets de estadísticas' },
     { field: 'followers', reason: 'no presente en el estado de la página' },
     { field: 'país / bandera', reason: 'no expuesto' },
-    { field: 'desglose free/paid agregado (BB)', reason: 'el agregado no se expone; la marca por apuesta sí es visible con cuenta gratuita (verificado 15-11-2026)' },
+    { field: 'desglose free/paid agregado (BB)', reason: 'ni agregado ni conteo mensual free: el flag `free` por apuesta liquidada falló el control (StatMind, tipster free, da 10/10 false igual que TLE 200/200, 15-11-2026); hipótesis sin confirmar: marca visibilidad del pick activo, no historial. Conteo mensual free = no evaluable' },
     { field: 'primera apuesta (since BB)', reason: 'solo consta alta de cuenta (25-oct-2026), no fecha de primera apuesta' },
   ],
 }
@@ -191,7 +191,7 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
     { field: 'resetCount (BB)', reason: 'Tipstrr no expone resets de estadísticas' },
     { field: 'followers', reason: 'no presente en el estado de la página' },
     { field: 'país / bandera', reason: 'no expuesto' },
-    { field: 'desglose free/paid agregado (BB)', reason: 'el agregado no se expone; la marca por apuesta sí es visible con cuenta gratuita (verificado 15-11-2026)' },
+    { field: 'desglose free/paid agregado (BB)', reason: 'ni agregado ni conteo mensual free: el flag `free` por apuesta liquidada falló el control (StatMind, tipster free, da 10/10 false igual que TLE 200/200, 15-11-2026); hipótesis sin confirmar: marca visibilidad del pick activo, no historial. Conteo mensual free = no evaluable' },
     { field: 'línea insight de profit total', reason: 'la frase "total cumulative profit" de la página muestra 3.624 €, 5,85 € por encima de la suma mensual exacta (3.618,15 €) y del overview (361,82u): discrepancia interna de la fuente; usamos la serie mensual, que es la comprobable' },
   ],
 }

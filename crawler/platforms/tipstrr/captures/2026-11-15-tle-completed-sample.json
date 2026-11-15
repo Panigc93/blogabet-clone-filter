@@ -1,0 +1,1380 @@
+{
+ "_meta": {
+  "source": "GET https://tipstrr.com/api/portfolio/the-least-expected/tips/completed?skip=N (ruta pública que usa la propia UI), sesión cuenta gratuita del usuario",
+  "executed": "2026-11-15T13:57-14:02Z",
+  "authorization": "usuario, WhatsApp 15-11-2026 14:56 CET: hasta 20 páginas, 1 consulta/15 s, una pasada, stop ante bloqueo",
+  "queries": "19 (skip=10..190) + 1 control StatMind (skip=0). skip=0 de TLE reutilizado de capturas previas del mismo día.",
+  "blocks": "ninguno (200 en las 20)",
+  "coverage": {
+   "2026-10": "78/78 = STATS_MONTH, mes completo verificado",
+   "2026-11": "al día (~38-39 con skip=0)",
+   "2026-09": "parcial: 83 de 106 (desde 06-09); 01-06 sep no cubierto"
+  },
+  "dateField": "descendente por `date`; sin confirmar si es publicación, evento o liquidación (las horas parecen de evento)",
+  "freeFlag": "NO VALIDADO como distinción gratis/pago en historial liquidado. Control negativo: StatMind (etiqueta 'Free football tipster' en su página) da 10/10 free:false; los 200 tips comprobados de TLE también free:false. Hipótesis (NO conclusión): el flag marca visibilidad gratuita del pick activo (uso en su código: free || !hidden) y no se conserva tras liquidación. No hay evidencia de otras rutas. Consecuencia: el conteo mensual de picks free NO ES EVALUABLE con estos datos; ausencia de free:true ≠ 0 picks free."
+ },
+ "control_statmind_skip0": {
+  "tipster": "statmind",
+  "skip": 0,
+  "status": 200,
+  "n": 10,
+  "firstDate": "2026-11-08T16:30:00Z",
+  "lastDate": "2026-11-08T20:00:00Z",
+  "freeTrue": 0,
+  "freeFalse": 10,
+  "freeMissing": 0
+ },
+ "pages": [
+  {
+   "skip": 10,
+   "status": 200,
+   "ms": 597,
+   "n": 10,
+   "firstDate": "2026-11-07T10:00:00Z",
+   "lastDate": "2026-11-10T05:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 20,
+   "status": 200,
+   "ms": 951,
+   "n": 10,
+   "firstDate": "2026-11-01T21:45:00Z",
+   "lastDate": "2026-11-07T10:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 30,
+   "status": 200,
+   "ms": 296,
+   "n": 10,
+   "firstDate": "2026-10-31T13:30:00Z",
+   "lastDate": "2026-11-01T17:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 40,
+   "status": 200,
+   "ms": 354,
+   "n": 10,
+   "firstDate": "2026-10-25T05:30:00Z",
+   "lastDate": "2026-10-31T10:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 50,
+   "status": 200,
+   "ms": 491,
+   "n": 10,
+   "firstDate": "2026-10-20T19:30:00Z",
+   "lastDate": "2026-10-24T13:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 60,
+   "status": 200,
+   "ms": 922,
+   "n": 10,
+   "firstDate": "2026-10-17T10:00:00Z",
+   "lastDate": "2026-10-19T19:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 70,
+   "status": 200,
+   "ms": 383,
+   "n": 10,
+   "firstDate": "2026-10-10T14:00:00Z",
+   "lastDate": "2026-10-17T09:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 80,
+   "status": 200,
+   "ms": 368,
+   "n": 10,
+   "firstDate": "2026-10-09T17:00:00Z",
+   "lastDate": "2026-10-10T13:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 90,
+   "status": 200,
+   "ms": 759,
+   "n": 10,
+   "firstDate": "2026-10-03T14:00:00Z",
+   "lastDate": "2026-10-09T14:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 100,
+   "status": 200,
+   "ms": 499,
+   "n": 10,
+   "firstDate": "2026-10-03T11:00:00Z",
+   "lastDate": "2026-10-03T14:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 110,
+   "status": 200,
+   "ms": 458,
+   "n": 10,
+   "firstDate": "2026-09-26T16:00:00Z",
+   "lastDate": "2026-10-03T10:30:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 120,
+   "status": 200,
+   "ms": 759,
+   "n": 10,
+   "firstDate": "2026-09-25T17:00:00Z",
+   "lastDate": "2026-09-26T15:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 130,
+   "status": 200,
+   "ms": 744,
+   "n": 10,
+   "firstDate": "2026-09-19T18:00:00Z",
+   "lastDate": "2026-09-25T17:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 140,
+   "status": 200,
+   "ms": 561,
+   "n": 10,
+   "firstDate": "2026-09-19T11:00:00Z",
+   "lastDate": "2026-09-19T15:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 150,
+   "status": 200,
+   "ms": 873,
+   "n": 10,
+   "firstDate": "2026-09-16T09:00:00Z",
+   "lastDate": "2026-09-19T10:30:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 160,
+   "status": 200,
+   "ms": 501,
+   "n": 10,
+   "firstDate": "2026-09-13T09:30:00Z",
+   "lastDate": "2026-09-16T09:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 170,
+   "status": 200,
+   "ms": 634,
+   "n": 10,
+   "firstDate": "2026-09-12T12:00:00Z",
+   "lastDate": "2026-09-12T23:30:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 180,
+   "status": 200,
+   "ms": 951,
+   "n": 10,
+   "firstDate": "2026-09-10T19:15:00Z",
+   "lastDate": "2026-09-12T11:00:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  },
+  {
+   "skip": 190,
+   "status": 200,
+   "ms": 547,
+   "n": 10,
+   "firstDate": "2026-09-06T14:30:00Z",
+   "lastDate": "2026-09-10T17:15:00Z",
+   "freeTrue": 0,
+   "freeFalse": 10,
+   "freeMissing": 0
+  }
+ ],
+ "records": [
+  {
+   "reference": "2026-11-10-central-stallions-v-hunters-xqywl",
+   "date": "2026-11-10T05:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-09-cliftonville-v-linfield-cmx74",
+   "date": "2026-11-09T20:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-08-hradec-kralove-v-opava-68n9a",
+   "date": "2026-11-08T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-08-crystal-palace-v-everton-j2vog",
+   "date": "2026-11-08T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-08-tallinn-v-tallinna-kalev-17kt6",
+   "date": "2026-11-08T10:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-07-nussdorfer-v-sv-seeboden-4ckrg",
+   "date": "2026-11-07T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-07-dornbirn-v-reichenau-c7jwt",
+   "date": "2026-11-07T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-07-hb-koge-v-agf-aarhus-j0ysm",
+   "date": "2026-11-07T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-07-spartak-trnava-v-ruzomberok-im71o",
+   "date": "2026-11-07T10:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-07-sparta-prague-v-slavia-prague-8ylv0",
+   "date": "2026-11-07T10:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-07-sigma-olomouc-v-fc-brno-wvxa5",
+   "date": "2026-11-07T10:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-07-pardubice-v-mlada-boleslav-f4gcz",
+   "date": "2026-11-07T09:15:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-06-guardianes-de-oriente-v-club-marina-cr-942ax",
+   "date": "2026-11-06T22:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-06-molenbeek-v-kortrijk-xkfr7",
+   "date": "2026-11-06T19:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-06-lierse-v-rfc-liege-7fxhj",
+   "date": "2026-11-06T19:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-06-gleisdorf-09-v-sc-weiz-opnst",
+   "date": "2026-11-06T18:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-06-tanjong-pagar-utd-ii-v-geylang-international-ii-642eg",
+   "date": "2026-11-06T11:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-02-limavady-v-cliftonville-ccrmy",
+   "date": "2026-11-02T20:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-02-central-stallions-v-deren-qi7qk",
+   "date": "2026-11-02T08:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-01-club-america-v-atlante-4ebqz",
+   "date": "2026-11-01T21:45:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-01-nomme-utd-v-tallinn-tgs57",
+   "date": "2026-11-01T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-01-rosenborg-ii-v-herd-r26l4",
+   "date": "2026-11-01T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-01-nordstrand-v-ready-jrgz2",
+   "date": "2026-11-01T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-01-foerde-v-askoy-uco8q",
+   "date": "2026-11-01T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-01-hinna-v-mandalskameratene-bdfsd",
+   "date": "2026-11-01T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-01-union-carl-berner-v-heming-da3z0",
+   "date": "2026-11-01T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-01-drobak-frogn-v-orn-horten-rc2dk",
+   "date": "2026-11-01T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-01-elva-v-tallinna-kalev-gsrhc",
+   "date": "2026-11-01T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-11-01-levadiakos-v-aris-tx8pj",
+   "date": "2026-11-01T10:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-31-rade-v-oppsal-o84l4",
+   "date": "2026-10-31T13:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-31-fc-brno-v-slavia-prague-8jpwa",
+   "date": "2026-10-31T10:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-31-teplice-v-plzen-mthe4",
+   "date": "2026-10-31T09:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-30-atletico-pachuca-v-fc-san-jose-del-arenal-se6hp",
+   "date": "2026-10-30T18:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-30-strawalchen-v-burmoos-0ntwp",
+   "date": "2026-10-30T18:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-30-slovacko-v-pardubice-yot6c",
+   "date": "2026-10-30T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-29-tallinna-kalev-v-nomme-kalju-1r27r",
+   "date": "2026-10-29T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-29-ulaanbaatar-v-deren-j1036",
+   "date": "2026-10-29T08:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-26-sv-spittal-v-dellach-im-gailtal-mroxj",
+   "date": "2026-10-26T16:45:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-25-elva-v-tallinna-fc-levadia-1tcgd",
+   "date": "2026-10-25T10:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-25-yuen-long-v-central--western-u3jxy",
+   "date": "2026-10-25T05:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-24-orn-horten-v-rade-9a9ei",
+   "date": "2026-10-24T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-24-ntnui-v-melhus-o6tpk",
+   "date": "2026-10-24T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-24-asker-v-union-carl-berner-rqqfd",
+   "date": "2026-10-24T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-24-elverum-v-gjovik-lyn-9v1ry",
+   "date": "2026-10-24T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-24-karvina-v-dukla-prague-s6dli",
+   "date": "2026-10-24T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-24-nomme-kalju-v-tallinn-1ubaw",
+   "date": "2026-10-24T09:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-24-ceske-budejovice-v-banik-ostrava-y902o",
+   "date": "2026-10-24T08:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-23-throttur-v-grindavik-dgiyi",
+   "date": "2026-10-23T18:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-21-spartans-v-hibernian-jvw3n",
+   "date": "2026-10-21T18:45:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-20-ciervos-ii-v-atletico-mexicano-d1r8u",
+   "date": "2026-10-20T19:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-19-dungannon-swifts-v-larne-90jnc",
+   "date": "2026-10-19T19:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-19-real-potosi-u19-v-cd-gualberto-villarroel-u19-cjrfi",
+   "date": "2026-10-19T13:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-19-ward-v-khovd-western-6n92h",
+   "date": "2026-10-19T05:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-18-klepp-v-asane-4pzi0",
+   "date": "2026-10-18T14:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-18-tampere-utd-v-rops-1lsq4",
+   "date": "2026-10-18T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-18-ulaanbaatar-v-central-stallions-rvz9t",
+   "date": "2026-10-18T05:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-18-birkenhead-v-napier-city-ek9y4",
+   "date": "2026-10-18T01:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-17-acdr-lamelas-v-vitoria-de-guimaraes-2un4o",
+   "date": "2026-10-17T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-17-vindbjart-v-varhaug-vjaj8",
+   "date": "2026-10-17T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-17-karvina-v-sparta-prague-wyt7n",
+   "date": "2026-10-17T10:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-17-slovacko-v-sigma-olomouc-0q0sr",
+   "date": "2026-10-17T09:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-16-ch-futbol-club-v-sangre-de-campeon-mxjgm",
+   "date": "2026-10-16T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-15-tallinn-v-jk-welco-elekter-75ou1",
+   "date": "2026-10-15T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-14-tallinna-fc-levadia-v-nomme-kalju-ehy3x",
+   "date": "2026-10-14T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-13-england-v-greece-zpdz7",
+   "date": "2026-10-13T18:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-13-harju-jk-v-nomme-utd-oxvgu",
+   "date": "2026-10-13T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-12-inter-turku-ii-v-jazz-g93qc",
+   "date": "2026-10-12T15:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-new-york-red-bulls-v-san-diego-qm6fj",
+   "date": "2026-10-10T23:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-fc-hoyvik-v-vikingur-ii-yofsr",
+   "date": "2026-10-10T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-tpv-v-kpv-kokkola-bfqwr",
+   "date": "2026-10-10T14:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-viking-2-v-vindbjart-7xy91",
+   "date": "2026-10-10T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-gvvv-v-rijnsburgse-boys-gexaj",
+   "date": "2026-10-10T12:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-varhaug-v-madla-11c1g",
+   "date": "2026-10-10T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-oppsal-v-drobak-frogn-vqde7",
+   "date": "2026-10-10T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-tallinna-kalev-v-viimsi-jk-lr1oi",
+   "date": "2026-10-10T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-union-plaani-v-mypa-7s5dp",
+   "date": "2026-10-10T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-asc-entente-sebkha-v-musa-lgsd6",
+   "date": "2026-10-10T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-ols-oulo-v-tampere-utd-zormg",
+   "date": "2026-10-10T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-10-flora-tallinn-ii-v-tallinn-hdyf8",
+   "date": "2026-10-10T09:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-09-wikielec-v-granica-ketrzyn-9jugp",
+   "date": "2026-10-09T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-09-ceske-budejovice-v-karvina-pl1nb",
+   "date": "2026-10-09T14:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-09-fc-brno-v-mlada-boleslav-2qgaw",
+   "date": "2026-10-09T10:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-07-dungannon-swifts-v-limavady-c3snz",
+   "date": "2026-10-07T19:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-07-klepp-v-viking-stavanger-fk33a",
+   "date": "2026-10-07T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-04-lisburn-rangers-v-linfield-jvvbj",
+   "date": "2026-10-04T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-04-montrose-v-glasgow-city-p0jnf",
+   "date": "2026-10-04T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-04-tp-47-v-vaajakoski-db16p",
+   "date": "2026-10-04T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-04-frigg-v-fyllingsdalen-tj4dy",
+   "date": "2026-10-04T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-rb-salzburg-v-first-vienna-o6q9u",
+   "date": "2026-10-03T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-musa-v-grifk-9l4p8",
+   "date": "2026-10-03T14:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-dollingstown-v-ballymacash-rangers-dahu3",
+   "date": "2026-10-03T14:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-grafenstein-v-dellach-im-gailtal-gn7go",
+   "date": "2026-10-03T13:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-togb-v-rbc-4syj9",
+   "date": "2026-10-03T13:15:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-vag-v-varhaug-wgmpt",
+   "date": "2026-10-03T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-vindbjart-v-floy-flekkeroy-uzmo2",
+   "date": "2026-10-03T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-fc-petrzalka-v-ruzomberok-gdvd5",
+   "date": "2026-10-03T12:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-os-turn-v-askoy-r9gs3",
+   "date": "2026-10-03T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-union-carl-berner-v-lokomotiv-oslo-de6mi",
+   "date": "2026-10-03T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-keps-v-villan-pojat-5e8mr",
+   "date": "2026-10-03T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-mypa-v-puiu-6kg33",
+   "date": "2026-10-03T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-mindil-aces-v-darwin-olympic-fwtzg",
+   "date": "2026-10-03T10:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-banik-ostrava-v-hradec-kralove-6xlai",
+   "date": "2026-10-03T10:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-grifk-v-nups-8rl3d",
+   "date": "2026-10-03T09:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-03-dukla-prague-v-pardubice-mb8vx",
+   "date": "2026-10-03T08:15:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-01-rayadas-de-chiriqui-w-v-cd-origen-w-ftbhu",
+   "date": "2026-10-01T21:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-01-lautp-ii-v-kumu-7yrz8",
+   "date": "2026-10-01T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-10-01-khaan-khuns-erchim-v-central-stallions-t7vnz",
+   "date": "2026-10-01T08:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-29-unterhaching-v-buchbach-8sbw7",
+   "date": "2026-09-29T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-27-ace-v-ylojarvi-utd-te5hb",
+   "date": "2026-09-27T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-26-asc-entente-sebkha-v-grifk-nqqar",
+   "date": "2026-09-26T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-26-musa-v-njs-3h7zs",
+   "date": "2026-09-26T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-26-sarpsborg-08-2-v-gjovik-lyn-3s6z2",
+   "date": "2026-09-26T14:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-26-herd-v-kvik-14zn4",
+   "date": "2026-09-26T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-26-brodd-v-vindbjart-mzwhj",
+   "date": "2026-09-26T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-26-tpv-v-jazz-6j8o2",
+   "date": "2026-09-26T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-26-fyllingsdalen-v-stord-acvm8",
+   "date": "2026-09-26T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-26-kaapo-v-salpa-ii-4854y",
+   "date": "2026-09-26T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-26-pardubice-v-karvina-4lyyl",
+   "date": "2026-09-26T10:45:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-26-gnistan-v-ilves-kn5fe",
+   "date": "2026-09-26T10:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-25-wolfsburg-v-bleiburg-nccq9",
+   "date": "2026-09-25T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-25-allerheiligen-v-deutschlandsberger-sc-y7q79",
+   "date": "2026-09-25T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-25-tampere-utd-v-jjk-jyvaskyla-vnonr",
+   "date": "2026-09-25T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-25-nups-v-ppj-ruoholahti-j2vo6",
+   "date": "2026-09-25T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-24-mps-v-sexy-poxyt-3ty0t",
+   "date": "2026-09-24T17:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-24-fish-utd-v-loiske-2szmx",
+   "date": "2026-09-24T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-22-johvi-fc-phoenix-u19-v-tartu-helios-u19-ryugf",
+   "date": "2026-09-22T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-20-philadelphia-ii-v-new-york-city-fc-ii-g7sif",
+   "date": "2026-09-20T18:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-20-new-york-red-bulls-ii-v-huntsville-gurz3",
+   "date": "2026-09-20T18:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-20-glasgow-city-v-partick-thistle-zp9ch",
+   "date": "2026-09-20T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-st-polten-v-sudburgenland---hartberg-nnhq2",
+   "date": "2026-09-19T18:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-kvik-v-ntnui-66xkm",
+   "date": "2026-09-19T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-vindbjart-v-mandalskameratene-uyq5j",
+   "date": "2026-09-19T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-floy-flekkeroy-v-varhaug-11ta3",
+   "date": "2026-09-19T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-orn-horten-v-oppsal-egsv2",
+   "date": "2026-09-19T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-pkk-u-v-rops-i07ty",
+   "date": "2026-09-19T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-hjs-akatemia-v-pallo-iirot-0hw04",
+   "date": "2026-09-19T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-vaajakoski-v-tp-47-0h89y",
+   "date": "2026-09-19T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-jazz-v-vjs-97rgu",
+   "date": "2026-09-19T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-tampere-utd-ii-v-nops-z4bid",
+   "date": "2026-09-19T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-union-plaani-v-reipas-alre5",
+   "date": "2026-09-19T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-university-azzurri-v-mindil-aces-0uyg6",
+   "date": "2026-09-19T10:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-sibbov-v-tups-zojbs",
+   "date": "2026-09-19T10:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-19-ceske-budejovice-v-pardubice-prxa5",
+   "date": "2026-09-19T09:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-18-le-havre-v-lyon-1oqlo",
+   "date": "2026-09-18T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-18-jjk-jyvaskyla-ii-v-komeetat-c0dhh",
+   "date": "2026-09-18T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-18-kpv-kokkola-v-kups-akatemia-52tb9",
+   "date": "2026-09-18T15:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-17-follo-v-kfum-7w7bv",
+   "date": "2026-09-17T18:15:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-17-mipk-v-kjp-kouvola-214qd",
+   "date": "2026-09-17T15:45:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-16-szekszardi-women-v-gyori-eto-women-lhjkh",
+   "date": "2026-09-16T14:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-16-tsirang-v-thimphu-4cwrs",
+   "date": "2026-09-16T09:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-16-fc-brno-v-hradec-kralove-nopz2",
+   "date": "2026-09-16T09:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-14-viking-2-v-varhaug-brh2q",
+   "date": "2026-09-14T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-13-chattanooga-v-atlanta-utd-2-yuczk",
+   "date": "2026-09-13T19:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-13-chicago-fire-fc-ii-v-philadelphia-ii-ly7zt",
+   "date": "2026-09-13T18:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-13-stabaek-ii-v-vindbjart-wisj8",
+   "date": "2026-09-13T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-13-hjk-ii-v-ktp-2poii",
+   "date": "2026-09-13T15:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-13-ilves-ii-v-honka-6rf7m",
+   "date": "2026-09-13T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-13-tallinn-v-tallinna-fc-levadia-g41yg",
+   "date": "2026-09-13T09:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-13-nomme-utd-v-viimsi-jk-zaaa3",
+   "date": "2026-09-13T09:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-13-flora-tallinn-ii-v-elva-d427y",
+   "date": "2026-09-13T09:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-inter-miami-v-nashville-sc-m1bxm",
+   "date": "2026-09-12T23:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-ntnui-v-molde-2-2sokc",
+   "date": "2026-09-12T14:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-musa-v-asc-entente-sebkha-cq0lz",
+   "date": "2026-09-12T14:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-fyllingsdalen-v-gneist-ti692",
+   "date": "2026-09-12T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-union-carl-berner-v-nordstrand-n66lq",
+   "date": "2026-09-12T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-sjk-akatemia-v-vaajakoski-0xstm",
+   "date": "2026-09-12T13:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-gjovik-lyn-v-lyn-ii-qqsga",
+   "date": "2026-09-12T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-askoy-v-stord-peeyx",
+   "date": "2026-09-12T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-oppsal-v-fram-vvnxr",
+   "date": "2026-09-12T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-gbk-kokkola-v-narpes-kraft-5y9je",
+   "date": "2026-09-12T12:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-sjk-j-v-sundom-if-pdi7m",
+   "date": "2026-09-12T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-mypa-v-union-plaani-oaqd4",
+   "date": "2026-09-12T11:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-elva-v-harju-jk-9y5m3",
+   "date": "2026-09-12T09:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-12-essendon-royals-v-avondale-g4k04",
+   "date": "2026-09-12T05:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-11-kiisto-v-virkia-i0su8",
+   "date": "2026-09-11T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-11-tp-47-v-hercules-r5fne",
+   "date": "2026-09-11T15:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-11-jazz-v-kpv-kokkola-hvjos",
+   "date": "2026-09-11T15:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-11-jyty-v-ltu-fzuo2",
+   "date": "2026-09-11T15:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-11-palmerston-rovers-v-hellenic-athletic-wtkjq",
+   "date": "2026-09-11T09:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-10-alafoss-v-hafnir-urgw6",
+   "date": "2026-09-10T19:15:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-10-hoogee-v-mps-49hfg",
+   "date": "2026-09-10T17:15:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-10-tips-v-fc-lahti-69-bt0hr",
+   "date": "2026-09-10T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-10-nomme-utd-v-tallinna-kalev-9h8y1",
+   "date": "2026-09-10T14:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-10-nomme-kalju-v-flora-tallinn-ii-l3rc5",
+   "date": "2026-09-10T14:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-09-vaajakoski-ii-v-keupa-vnhn4",
+   "date": "2026-09-09T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-09-lautp-v-kultsu-mcu71",
+   "date": "2026-09-09T15:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-07-orn-horten-v-sarpsborg-08-2-m0qh8",
+   "date": "2026-09-07T17:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-07-molde-2-v-aalesunds-2-8u467",
+   "date": "2026-09-07T16:00:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-06-gbk-kokkola-v-jbk-xxtvk",
+   "date": "2026-09-06T15:30:00Z",
+   "free": false,
+   "type": 1
+  },
+  {
+   "reference": "2026-09-06-b36-torshavn-ii-v-suduroy-yx9x3",
+   "date": "2026-09-06T14:30:00Z",
+   "free": false,
+   "type": 1
+  }
+ ]
+}
