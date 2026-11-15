@@ -181,14 +181,15 @@ export function tipstrrSnapshotToInsert(
 
 // Mezcla upsert preserva-ausentes: un valor ausente (null/undefined) en la
 // captura nueva NUNCA sobrescribe un valor válido ya guardado; los valores
-// presentes sí actualizan. Marcas de tiempo siempre avanzan. Pura: no toca
-// la DB. Política requerida para la futura vía de actualización (regresión
-// en tests/crawler/tipstrr-to-db.test.ts).
+// presentes sí actualizan. Pura: no toca la DB. Política requerida para la
+// futura vía de actualización (regresión en tests/crawler/tipstrr-to-db.test.ts).
+// NO usar directamente: pasar por planTipstrrUpsert, que aplica las guardas
+// de frescura y cuarentena.
 export function mergeTipstrrUpdate(existing: TipsterInsert, next: TipsterInsert): TipsterInsert {
   const merged: Record<string, unknown> = { ...existing }
   for (const [key, value] of Object.entries(next)) {
     if (key === 'capturedAt' || key === 'statsUpdatedAt') {
-      merged[key] = value // las marcas de tiempo siempre avanzan
+      merged[key] = value // la frescura la valida planTipstrrUpsert antes
     } else if (value !== null && value !== undefined) {
       merged[key] = value
     }
@@ -198,4 +199,56 @@ export function mergeTipstrrUpdate(existing: TipsterInsert, next: TipsterInsert)
   merged.platform = existing.platform
   merged.slug = existing.slug
   return merged as TipsterInsert
+}
+
+// Decisión de escritura para una captura mapeada. Tres guardas:
+// 1. CUARENTENA: un mapeo rechazado NUNCA escribe. En particular no toca la
+//    fila existente: un yield viejo no puede parecer fresco porque la
+//    captura nueva tenga capturedAt reciente — la fila conserva sus marcas
+//    y la captura/motivo quedan para revisión fuera de la tabla.
+// 2. FRESCURA: una captura más antigua (o igual) que la almacenada no
+//    retrocede valores ni marcas: no hay nada nuevo que aplicar.
+// 3. Ausentes: delegada en mergeTipstrrUpdate (un ausente nunca pisa un
+//    valor válido; la identidad es inmutable).
+export type TipstrrUpsertPlan =
+  | { action: 'insert'; insert: TipsterInsert }
+  | { action: 'update'; merged: TipsterInsert }
+  | { action: 'skip'; reason: string }
+
+export function planTipstrrUpsert(
+  existing: TipsterInsert | null,
+  mapping: TipstrrDbMapping
+): TipstrrUpsertPlan {
+  if (!mapping.ok) {
+    return {
+      action: 'skip',
+      reason: `captura en cuarentena (${mapping.reason}): no se escribe nada y la fila existente conserva sus valores y marcas`,
+    }
+  }
+  if (!existing) return { action: 'insert', insert: mapping.insert }
+  const nextAt = mapping.insert.capturedAt ? new Date(mapping.insert.capturedAt).getTime() : null
+  const curAt = existing.capturedAt ? new Date(existing.capturedAt).getTime() : null
+  if (nextAt !== null && curAt !== null && nextAt <= curAt) {
+    return {
+      action: 'skip',
+      reason: `captura no más reciente que la almacenada (${mapping.insert.capturedAt} <= ${existing.capturedAt}): no se retroceden valores ni marcas`,
+    }
+  }
+  return { action: 'update', merged: mergeTipstrrUpdate(existing, mapping.insert) }
+}
+
+// Guarda de la ruta de import REAL: los ids provisionales del entorno
+// aislado (-900000-i, idSource 'isolated-fixture') son fixtures de
+// validación y deben rechazarse ANTES de cualquier escritura real, no solo
+// etiquetarse. La ruta real debe llamar a esta guarda con el idSource
+// declarado por el llamador; el seed aislado NO la llama (su entorno es el
+// fixture). Con la clave natural (platform, slug) como identidad operativa,
+// el id numérico es un surrogate interno transaccional: ningún id de
+// fixture puede llegar a producción por esta vía.
+export function assertRealImportProvenance(idSource: 'source-captured' | 'isolated-fixture', slug: string): void {
+  if (idSource !== 'source-captured') {
+    throw new Error(
+      `import real rechazado para ${slug}: idSource '${idSource}' — los ids provisionales del entorno aislado no son payload importable`
+    )
+  }
 }

@@ -204,12 +204,25 @@ Antes de proponer 209 lecturas, resolver la semántica con 2-3 lecturas acotadas
 - 142 pendientes con yield de la clasificación anterior: NINGUNO persiste con la puerta estricta; quedan en cuarentena con clase y captura conservada.
 - tsc limpio, 175/175 tests y `next build` compila desde checkout limpio; el aviso final de "patch lockfile" es del entorno de verificación (node_modules enlazado), no del código.
 
-### Pendientes declarados para el import real (NO implementados aún)
+### Guardas de import (implementadas 2026-11-15 17:52 CET, con regresiones)
 
-1. Rechazo de fixtures efectivo ANTES de escribir: la ruta de import real debe rechazar cualquier fila con idSource 'isolated-fixture' (id provisional -900000-i) antes del write, no solo etiquetarla.
-2. El merge no debe retroceder valores: una captura más ANTIGUA que la fila guardada (capturedAt menor) no debe actualizar campos hacia atrás; hoy mergeTipstrrUpdate siempre avanza las marcas de tiempo — falta la guarda de frescura.
-3. Cuarentena vs frescura: una fila en cuarentena no debe heredar un yield viejo que parezca fresco solo porque capturedAt nuevo; la cuarentena y la marca de actualización son estados separados.
+1. Rechazo de fixtures ANTES de escribir: assertRealImportProvenance lanza si idSource no es 'source-captured'. La ruta de import real debe llamarla antes del write; el seed aislado no la llama (su entorno es el fixture).
+2. Frescura: planTipstrrUpsert devuelve skip si la captura no es más reciente que la fila guardada (capturedAt nuevo <= almacenado): una captura antigua no retrocede valores ni marcas.
+3. Cuarentena vs frescura: planTipstrrUpsert devuelve skip para todo mapeo rechazado: una cuarentena NUNCA escribe, y la fila existente conserva valores y marcas — un yield viejo no puede parecer fresco por un capturedAt nuevo.
+4. mergeTipstrrUpdate queda como pieza interna del plan (ausente nunca pisa válido; identidad inmutable), no para uso directo.
 
-### Próximo paso único propuesto (sonda puntual, NO ejecutada, sin red nueva todavía)
+### Identidad por clave natural (recomendación de arquitectura, borrador 0005 NO ejecutado)
 
-Una sola lectura de /tipster/the-least-expected/results para certificar que la vía resuelve los tres bloqueos con fuente verificable: (a) PORTFOLIO_TIP_CACHED expone portfolioId por tip (identidad real → PK -portfolioId); (b) dateAdded por tip (actividad/último pick y total histórico independiente); (c) ordenación de la primera página por dateAdded descendente. Solo si (a)-(c) se confirman en esa lectura tendría sentido plantear la pasada de 209 results; el coste y la semántica se medirían en la sonda, no asumidos.
+(platform, slug) es la clave de negocio operativa — ux_tipsters_platform_slug la impone desde 0004 — y el id numérico pasa a surrogate interno transaccional (secuencia tipsters_internal_id_seq en espacio negativo separado), no un índice del directorio Tipstrr. Motivo: /stats no expone portfolioId; exigir PK=-portfolioId obligaría a ~208 lecturas /results solo por un número. Limitación declarada: el slug es la URL canónica hoy, pero una plataforma puede renombrar slugs — la clave es operativa, no una garantía universal de estabilidad; source_portfolio_id queda como provenance opcional si una lectura futura lo expone. Borrador en drizzle/0005_tipstrr_internal_pk.sql, no aplicado a ninguna base.
+
+### Métrica de actividad (política, sin última publicación exacta inventada)
+
+El filtro "activos el último mes" NO se cierra con un timestamp exacto de publicación: (a) la serie mensual solo da el MES con picks (granularidad mensual), (b) activeTips cuenta tips abiertos, que pueden haberse publicado hace más de 30 días, (c) dateAdded por tip existe en /results pero la primera página ordena por fecha de EVENTO (observación de muestra, no contrato), así que max() de página 1 no certifica la última publicación global, y (d) el render puede venir cacheado horas (SERVER_DATE 14:39Z en lectura 16:48Z). Política: dos métricas separadas y honestas — "último mes con picks observado" (de la serie /stats, con fecha de captura) y "tips abiertos ahora" (activeTips) — declarando que el negativo es "sin actividad observada", no "inactivo probado". lastPickAt exacto queda null; nunca se fabrica desde el bucket mensual.
+
+### Sonda selector all-time de /stats (PREPARADA, NO ejecutada, alcance real)
+
+Objetivo: certificar si el selector de periodo de la UI cambia el overview a all-time (el parámetro ?period= de URL fue ignorado, pero eso no agota la vía nativa). Alcance REAL: no es "1 petición" — es (1) navegar a /tipster/<slug>/stats de un perfil con period=3 (p. ej. alpheratz o cualquier cobertura-sin-cierre), (2) localizar y pulsar el selector "All time", (3) esperar la actualización (puede ser fetch cliente adicional: contar y registrar TODAS las peticiones de red disparadas), (4) releer el estado embebido y comprobar overview.period == 6 con cifras nuevas, (5) guardar la captura. Criterio de éxito: el overview cambia a period 6 tras la selección. Criterio de fallo: no cambia, o requiere login de pago, o dispara un muro. Coste: 1 navegación + 1 selección + fetches que la UI dispare (medidos, no asumidos). Solo si pasa: pasada acotada de ~111 perfiles cuarentenados a 10-16 s, con la misma puerta estricta sobre el overview all-time obtenido.
+
+### Preview seguro (requisitos ANTES de configurar nada)
+
+Desplegar la rama en Preview requiere primero una propuesta que Juan apruebe con: qué cuenta/servicio se usa (Vercel existente o nueva), qué base de preview (rama Neon gratuita vs otra), coste esperado (idealmente 0 €, declarado), qué variables de entorno hacen falta y qué datos se siembran (los 98 verificados, nunca fixtures como si fueran reales). Sin esa aprobación explícita no se configura nada: no hay autorización implícita de cuentas ni gasto.

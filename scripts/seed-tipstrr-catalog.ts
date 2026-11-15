@@ -12,7 +12,7 @@ import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
 import { tipsters } from '../db/schema'
 import { loadTipstrrCapture, type TipstrrStatsCapture } from '../crawler/platforms/tipstrr/load-capture'
-import { tipstrrSnapshotToInsert, mergeTipstrrUpdate } from '../crawler/platforms/tipstrr/to-db'
+import { tipstrrSnapshotToInsert, planTipstrrUpsert } from '../crawler/platforms/tipstrr/to-db'
 
 const DIR = process.env.PGLITE_DIR || '/tmp/pglite-catalog'
 const CAP_DIR = 'crawler/platforms/tipstrr/captures/2026-11-15-stats'
@@ -100,11 +100,12 @@ for (const f of files) {
   // Clase de persistencia para auditoría (la decisión real vive en to-db.ts):
   const cls = m.insert.picks === 0 ? 'cero-real' : 'cierre-alltime-independiente'
   persistedClasses[cls] = (persistedClasses[cls] ?? 0) + 1
-  // Upsert preserva-ausentes: si la fila ya existe (re-seed), la ausencia en
-  // la captura nueva NUNCA pisa un valor válido guardado (mergeTipstrrUpdate).
+  // Upsert por planTipstrrUpsert: preserva ausentes, no retrocede con
+  // capturas antiguas y una cuarentena nunca toca la fila guardada.
   const existing = await pg.query<{ id: number }>(
     `SELECT id FROM tipsters WHERE platform = 'tipstrr' AND slug = $1`, [slug]
   )
+  let existingRow: Record<string, unknown> | null = null
   if (existing.rows.length > 0) {
     const cur = await pg.query('SELECT * FROM tipsters WHERE id = $1', [existing.rows[0].id])
     const row = cur.rows[0] as Record<string, unknown>
@@ -112,7 +113,11 @@ for (const f of files) {
     for (const [k, v] of Object.entries(row)) {
       camel[k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())] = v
     }
-    const merged = mergeTipstrrUpdate(camel as never, m.insert)
+    existingRow = camel
+  }
+  const plan = planTipstrrUpsert(existingRow as never, m)
+  if (plan.action === 'update') {
+    const merged = plan.merged
     await pg.query(
       `UPDATE tipsters SET picks = $2, profit = $3, yield = $4, price = $5, captured_at = $6,
          stats_updated_at = $7, yield3m = $8, yield6m = $9, yield12m = $10, picks6m_avg = $11
@@ -121,9 +126,10 @@ for (const f of files) {
        merged.capturedAt, merged.statsUpdatedAt, merged.yield3m, merged.yield6m,
        merged.yield12m, merged.picks6mAvg]
     )
-  } else {
-    await db.insert(tipsters).values(m.insert)
+  } else if (plan.action === 'insert') {
+    await db.insert(tipsters).values(plan.insert)
   }
+  // plan.action === 'skip': nada que escribir (captura no más reciente).
   // TipsterInsert marca los campos opcionales (tipo de inserción parcial);
   // la puerta garantiza picks e isPaid — se estrecha con guarda explícita,
   // no con aserción.

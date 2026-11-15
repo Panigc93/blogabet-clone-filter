@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { tipstrrSnapshotToInsert, mergeTipstrrUpdate, type TipstrrDbMapping } from '@/crawler/platforms/tipstrr/to-db'
+import { tipstrrSnapshotToInsert, mergeTipstrrUpdate, planTipstrrUpsert, assertRealImportProvenance, type TipstrrDbMapping } from '@/crawler/platforms/tipstrr/to-db'
 import type { FichaSnapshot } from '@/app/lab/tipstrr/ficha/fixtures'
 import type { TipsterInsert } from '@/db/schema'
 
@@ -372,5 +372,65 @@ describe('mergeTipstrrUpdate: upsert que preserva ausentes', () => {
     expect(merged.id).toBe(-221629)
     expect(merged.platform).toBe('tipstrr')
     expect(merged.slug).toBe('the-least-expected')
+  })
+})
+
+describe('planTipstrrUpsert: guardas de cuarentena y frescura', () => {
+  const base = mustMap(tipstrrSnapshotToInsert(TLE_SNAPSHOT, {
+    id: -221629, idSource: 'source-captured', slug: 'the-least-expected',
+    subscriptionPriceGbp: 39, isPaid: true,
+  }))
+  const okMapping = tipstrrSnapshotToInsert(TLE_SNAPSHOT, {
+    id: -221629, idSource: 'source-captured', slug: 'the-least-expected',
+    subscriptionPriceGbp: 39, isPaid: true,
+  })
+  const quarantineMapping = tipstrrSnapshotToInsert(
+    { ...TLE_SNAPSHOT, overview: { ...TLE_SNAPSHOT.overview, tips: null } },
+    { id: -221629, idSource: 'source-captured', slug: 'the-least-expected', isPaid: true }
+  )
+
+  it('sin fila existente y mapeo verde: insert', () => {
+    const plan = planTipstrrUpsert(null, okMapping)
+    expect(plan.action).toBe('insert')
+    if (plan.action === 'insert') expect(plan.insert.slug).toBe('the-least-expected')
+  })
+
+  it('cuarentena con fila existente: skip — el yield viejo NO se refresca con el capturedAt nuevo', () => {
+    expect(quarantineMapping.ok).toBe(false)
+    const plan = planTipstrrUpsert(base, quarantineMapping)
+    expect(plan.action).toBe('skip')
+    if (plan.action === 'skip') expect(plan.reason).toContain('cuarentena')
+  })
+
+  it('captura más antigua que la almacenada: skip — no retrocede valores ni marcas', () => {
+    const olderMapping = tipstrrSnapshotToInsert(
+      { ...TLE_SNAPSHOT, capturedAtDate: '2026-11-01T00:00:00Z' },
+      { id: -221629, idSource: 'source-captured', slug: 'the-least-expected', isPaid: true }
+    )
+    const plan = planTipstrrUpsert(base, olderMapping)
+    expect(plan.action).toBe('skip')
+    if (plan.action === 'skip') expect(plan.reason).toContain('no más reciente')
+  })
+
+  it('captura más reciente: update con merge preserva-ausentes', () => {
+    const newerMapping = tipstrrSnapshotToInsert(
+      { ...TLE_SNAPSHOT, capturedAtDate: '2026-11-16T00:00:00Z' },
+      { id: -221629, idSource: 'source-captured', slug: 'the-least-expected', isPaid: true }
+    )
+    const plan = planTipstrrUpsert(base, newerMapping)
+    expect(plan.action).toBe('update')
+    if (plan.action === 'update') {
+      expect(plan.merged.id).toBe(-221629)
+      expect(plan.merged.capturedAt?.toISOString()).toBe('2026-11-16T00:00:00.000Z')
+    }
+  })
+})
+
+describe('assertRealImportProvenance: rechazo de fixtures antes del write', () => {
+  it('un id provisional del aislado lanza antes de escribir', () => {
+    expect(() => assertRealImportProvenance('isolated-fixture', 'statmind')).toThrow(/no son payload importable/)
+  })
+  it('un id capturado del origen pasa', () => {
+    expect(() => assertRealImportProvenance('source-captured', 'the-least-expected')).not.toThrow()
   })
 })
