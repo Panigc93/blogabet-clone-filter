@@ -12,11 +12,13 @@ export interface CoverageSummary {
   newIds: number | null
   orderViolations: number
   end: CrawlEnd | 'unfinished'
-  complete: boolean
+  reachedEnd: boolean
+  endLooksValid: boolean | null
   note: string
 }
 
 export class CoverageTracker {
+  constructor(private expectedMinRows?: number) {}
   private seen = new Set<number>()
   private pages = 0
   private rows = 0
@@ -47,18 +49,22 @@ export class CoverageTracker {
   }
 
   summary(): CoverageSummary {
-    const complete = this.end === 'empty_page' && this.rows > 0
+    const reachedEnd = this.end === 'empty_page' && this.rows > 0
+    // An empty 200 can also be a lost session or a challenge page. Without an expectation we cannot tell.
+    const endLooksValid = reachedEnd && this.expectedMinRows !== undefined ? this.rows >= this.expectedMinRows : null
     let note: string
     if (this.end === 'error') note = 'Crawl stopped by an error: coverage is partial.'
     else if (this.end === 'unfinished') note = 'Crawl did not finish: coverage is partial.'
     else if (this.rows === 0) note = 'First page was empty: nothing was read.'
+    else if (endLooksValid === false)
+      note = `Ended on an empty page but only ${this.rows} rows were read (expected at least ${this.expectedMinRows}): treat it as a failure (lost session or challenge), not a valid end.`
     else if (this.dups > 0 || this.violations > 0)
       note = 'Reached the end, but the listing shifted during the crawl (duplicates or order violations): some rows may have been skipped. Run a second pass to confirm.'
-    else note = 'Reached the end with no duplicates or order violations. This is not proof of completeness.'
+    else note = `Reached an empty page with no duplicates or order violations. This is not proof of completeness${endLooksValid === null ? ' and the end is unverified (no expected row count given)' : ''}.`
     return {
       pages: this.pages, rows: this.rows, uniqueIds: this.seen.size, duplicateIds: this.dups,
       newIds: this.newKnown ? this.newIds : null, orderViolations: this.violations,
-      end: this.end, complete, note,
+      end: this.end, reachedEnd, endLooksValid, note,
     }
   }
 }
@@ -69,7 +75,7 @@ export function formatCoverage(s: CoverageSummary): string {
     `- Pages: ${s.pages}, rows: ${s.rows}, unique ids: ${s.uniqueIds}`,
     `- Duplicates: ${s.duplicateIds}, followers order violations: ${s.orderViolations}`,
     `- New ids inserted: ${s.newIds ?? 'unknown'}`,
-    `- Ended by: ${s.end}, reached end: ${s.complete ? 'yes' : 'no'}`,
+    `- Ended by: ${s.end}, reached an empty page: ${s.reachedEnd ? 'yes' : 'no'}, end verified: ${s.endLooksValid === null ? 'unknown' : s.endLooksValid ? 'yes' : 'NO'}`,
     `- ${s.note}`,
   ].join('\n')
 }

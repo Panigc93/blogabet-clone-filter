@@ -18,6 +18,9 @@ export interface DryRunReport {
   stopReason: 'completed' | 'http_error' | 'network_error' | 'challenge_or_empty' | 'invalid_config'
   detail?: string
   statuses: number[]
+  firstFollowers?: number
+  lastFollowers?: number
+  ids?: number[]
 }
 
 export async function runListingDryRun(opts: {
@@ -26,6 +29,7 @@ export async function runListingDryRun(opts: {
   sleep: (ms: number) => Promise<void>
   maxPages: number
   delayMs: number
+  startOffset?: number
 }): Promise<DryRunReport> {
   const report: DryRunReport = {
     pagesRequested: 0, pagesOk: 0, parsed: 0, uniqueIds: 0, duplicateIds: 0,
@@ -37,7 +41,9 @@ export async function runListingDryRun(opts: {
   const pages = Math.min(Math.max(0, Math.floor(opts.maxPages)), DRY_RUN_HARD_MAX_PAGES)
   const ids = new Set<number>()
   let prevFollowers: number | null = null
-  let start = 0
+  let start = Math.max(0, Math.floor(opts.startOffset ?? 0))
+  const idList: number[] = []
+  let first: number | undefined
 
   for (let i = 0; i < pages; i++) {
     if (i > 0) await opts.sleep(opts.delayMs)
@@ -61,13 +67,15 @@ export async function runListingDryRun(opts: {
       report.parsed++
       if (ids.has(r.id!)) report.duplicateIds++
       ids.add(r.id!)
+      idList.push(r.id!)
+      if (first === undefined) first = r.followers ?? 0
       if (prevFollowers !== null && (r.followers ?? 0) > prevFollowers) report.followersNonIncreasing = true
       prevFollowers = r.followers ?? 0
     }
     report.uniqueIds = ids.size
     start += records.length
   }
-  return report
+  return { ...report, ids: idList, firstFollowers: first, lastFollowers: prevFollowers ?? undefined }
 }
 
 export function nodeFetchPage(cookie: string): PageFetcher {

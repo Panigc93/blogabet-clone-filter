@@ -14,6 +14,7 @@ async function main() {
     sleep: ms => new Promise(r => setTimeout(r, ms)),
     maxPages: Number(process.env.DRY_RUN_MAX_PAGES ?? String(DRY_RUN_HARD_MAX_PAGES)),
     delayMs,
+    startOffset: Number(process.env.DRY_RUN_START ?? '0'),
   })
   console.log(JSON.stringify(report, null, 2))
   if (report.stopReason !== 'completed') process.exitCode = 1
