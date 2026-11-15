@@ -1,0 +1,21 @@
+import { chromium } from 'playwright'
+
+const BASE = 'http://localhost:3000'
+
+const browser = await chromium.launch()
+async function shoot(width, height, file) {
+  const ctx = await browser.newContext({ viewport: { width, height } })
+  const page = await ctx.newPage()
+  await page.goto(`${BASE}/login`, { waitUntil: 'networkidle' })
+  await page.fill('input[name="password"]', 'labproto')
+  await page.click('button[type="submit"]')
+  await page.waitForURL(`${BASE}/`, { timeout: 15000 }).catch(() => {})
+  await page.goto(`${BASE}/lab/tipstrr`, { waitUntil: 'networkidle' })
+  await page.screenshot({ path: file, fullPage: true })
+  console.log(file, 'title:', await page.title())
+  await ctx.close()
+}
+
+await shoot(1280, 900, '/downloads/lab-tipstrr-desktop.png')
+await shoot(390, 844, '/downloads/lab-tipstrr-mobile.png')
+await browser.close()
