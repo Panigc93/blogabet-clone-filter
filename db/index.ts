@@ -23,7 +23,14 @@ function getDb(): NeonHttpDatabase<typeof schema> {
       cached = drizzlePglite(new PGlite(process.env.PGLITE_DIR || '/tmp/pglite-data'), { schema }) as unknown as NeonHttpDatabase<typeof schema>
     } else {
       if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set')
-      cached = drizzle(neon(process.env.DATABASE_URL), { schema })
+      // cache: 'no-store' — Next.js patches fetch and would otherwise serve
+      // STALE query results from Vercel's Data Cache, which is shared across
+      // deployments of the project. Observed 2026-11-15: the combined-view
+      // count(*) (identical SQL text to the pre-multiplatform homepage) came
+      // back from a cache entry written by a morning deployment (11160 vs the
+      // real 11265). Every page of this app is DB-driven; cached SQL is never
+      // what we want.
+      cached = drizzle(neon(process.env.DATABASE_URL, { fetchOptions: { cache: 'no-store' } }), { schema })
     }
   }
   return cached
