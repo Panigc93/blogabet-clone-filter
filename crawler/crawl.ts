@@ -11,11 +11,24 @@ import type { BrowserContext, Browser } from 'playwright'
 
 // ─── Retry helper ────────────────────────────────────────────────────────────
 
-async function withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 8): Promise<T> {
+export class HttpError extends Error {
+  constructor(public status: number, statusText: string) {
+    super(`Blogabet HTTP ${status} ${statusText}`)
+  }
+}
+
+// Statuses that mean a block, rate limit or lost session: never retried, whatever CRAWL_MAX_ATTEMPTS says.
+export const NO_RETRY_STATUSES = [401, 403, 429]
+
+// Default is a single attempt (no retries). Set CRAWL_MAX_ATTEMPTS to opt into retries for non-block errors.
+const DEFAULT_MAX_ATTEMPTS = Math.max(1, Number(process.env.CRAWL_MAX_ATTEMPTS ?? '1') || 1)
+
+async function withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = DEFAULT_MAX_ATTEMPTS): Promise<T> {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn()
     } catch (err) {
+      if (err instanceof HttpError && NO_RETRY_STATUSES.includes(err.status)) throw err
       if (attempt === maxAttempts) throw err
       const wait = attempt * 2000
       console.warn(`${label} failed (attempt ${attempt}/${maxAttempts}), retrying in ${wait / 1000}s... ${(err as Error).message}`)
@@ -32,7 +45,7 @@ async function fetchPage(lastActive: number, start: number, cookie: string): Pro
     headers: { ...COMMON_HEADERS, Cookie: cookie },
   })
 
-  if (!res.ok) throw new Error(`Blogabet HTTP ${res.status} ${res.statusText}`)
+  if (!res.ok) throw new HttpError(res.status, res.statusText)
 
   const html = await res.text()
   return parseBlocks(html, lastActive)
@@ -45,7 +58,7 @@ async function fetchPagePlaywright(lastActive: number, start: number, cookie: st
     headers: COMMON_HEADERS,
   })
 
-  if (!res.ok()) throw new Error(`Blogabet HTTP ${res.status()} ${res.statusText()}`)
+  if (!res.ok()) throw new HttpError(res.status(), res.statusText())
 
   const html = await res.text()
   return parseBlocks(html, lastActive)
@@ -117,7 +130,8 @@ async function crawl() {
     console.log(`Starting crawl: lastActive=${lastActive}`)
   }
 
-  const coverage = new CoverageTracker()
+  const expectedMin = process.env.CRAWL_EXPECTED_MIN_ROWS ? Number(process.env.CRAWL_EXPECTED_MIN_ROWS) : undefined
+  const coverage = new CoverageTracker(expectedMin)
   const delayMs = Number(process.env.CRAWL_DELAY_MS ?? '1000')
   if (!Number.isFinite(delayMs) || delayMs < 0) throw new Error('CRAWL_DELAY_MS must be a number >= 0')
   try {
