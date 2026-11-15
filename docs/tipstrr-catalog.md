@@ -141,3 +141,15 @@ los umbrales los decide el usuario en la UI.
 Restricciones reales: sin listado global ni totales; la vista por defecto
 excluye lo que no cumpla sus umbrales ocultos (tips=45 según lo inferido);
 términos de Tipstrr pendientes para cualquier extracción recurrente.
+
+## Pasada de selección ejecutada (2026-11-15 15:02-15:25 UTC)
+
+Selección del usuario: orden **ROI** (`order=2`), período **3 meses** (`period=3`), free (`portfolioType=1`) y premium (`portfolioType=2`) por separado, hasta **3 páginas** por tipo y deporte, los 19 deportes del menú. Parada por rama: página vacía o parcial. Ritmo: 15-23 s (tramo 1) y 10-16 s (tramo 2, aprobado por el usuario a las 16:11 CET). Condición de parada global (401/403/429/reto): **no se activó** — 0 respuestas no-200 en toda la pasada.
+
+- Peticiones: 29 (leg1) + 34 (leg2) + 2 (MMA) = **65** (44 listing + 21 pageLoad), más 0-1 del intento descartado jsjob-1 (respuesta perdida con recarga).
+- Resultado: **209 slugs únicos** (86 free + 123 premium, solape free∩premium = 0; 11 tipsters aparecen en más de un deporte).
+- Combinaciones con resultados: 16 de 38; 22 vacías (0 tipsters con ≥45 tips bajo este filtro: cricket, darts, e-sports, greyhounds, handball, rugby-league, rugby-union, snooker, volleyball, golf free, MMA ambos, boxing ambos).
+- Topes de 3 páginas alcanzados (cobertura truncada por decisión del usuario): football free y premium, horse-racing premium.
+- MMA: el slug del listado del pie (`/mixed-martial-arts`) es un soft-404 (HTTP 200, título "Error | 404"); el real es `/mma` (sportId 11). Ambos tipos vacíos.
+- Captura: `captures/2026-11-15-catalog-selection.json` (38 combinaciones con arrays de slugs por página y timestamp por petición). Validación: las 38 combinaciones pasan `validateCatalogCapture` sin issues.
+- `tips=45` (mínimo oculto por defecto del sitio) se mantuvo tal cual: los vacíos significan "0 bajo este filtro", no "0 tipsters del deporte".

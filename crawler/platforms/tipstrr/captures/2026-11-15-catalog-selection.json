@@ -1,0 +1,1237 @@
+{
+ "meta": {
+  "source": "tipstrr-listing-selection",
+  "endpoint": "https://tipstrr.com/api/portfolio",
+  "selection": {
+   "order": "2 (ROI)",
+   "period": "3 (últimos 3 meses)",
+   "portfolioType": "1=free, 2=premium (por separado)",
+   "pagesPerTypeMax": 3,
+   "sports": "menú de deportes de la portada (19)"
+  },
+  "paramsSent": {
+   "sportId": "por deporte",
+   "order": 2,
+   "period": 3,
+   "tips": 45,
+   "portfolioType": "1 o 2",
+   "page": "1..3"
+  },
+  "paramsOmittedEndpointDefaults": "filterType/profit/roi/minOdds/maxOdds no se enviaron; la petición propia del sitio usa 0/0/0/1.2/1000",
+  "executedAt": "2026-11-15T15:02/15:25Z",
+  "spacing": "leg1 15-23s; leg2 y MMA 10-16s (ritmo 10s aprobado por el usuario 16:11 CET)",
+  "stopConditions": "ninguna activada: 0 respuestas no-200, 0 retos, 0 rate-limits",
+  "requests": {
+   "leg1": 29,
+   "leg2": 34,
+   "mma": 2,
+   "total": 65,
+   "note": "+ 0-1 del intento descartado jsjob-1 (respuesta perdida con recarga)"
+  },
+  "mmaNote": "la 1ª pasada usó /mixed-martial-arts (soft-404: HTTP 200 con título 'Error | 404'); el slug real es /mma (sportId 11), capturado en una 3ª mini-pasada de 2 peticiones a 10-16s"
+ },
+ "combos": {
+  "american-football:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 3,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "american-football",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página parcial (4); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "kingfisher-sports-hub",
+      "futeblog-tips",
+      "trust-me",
+      "zambrano"
+     ]
+    }
+   ]
+  },
+  "american-football:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 3,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "american-football",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página parcial (2); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "nfl-premium",
+      "value-wins"
+     ]
+    }
+   ]
+  },
+  "baseball:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 5,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "baseball",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página parcial (2); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "alucard-bgxpo",
+      "blue-fire"
+     ]
+    }
+   ]
+  },
+  "baseball:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 5,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "baseball",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página parcial (3); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "mlbets",
+      "stateside-winner",
+      "10-streak"
+     ]
+    }
+   ]
+  },
+  "basketball:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 4,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "basketball",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página parcial (7); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "alucard-bgxpo",
+      "nieder",
+      "basket-ligas",
+      "stitch-betting-lab",
+      "zambrano",
+      "sangarjvbasket",
+      "blue-fire"
+     ]
+    }
+   ]
+  },
+  "basketball:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 4,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "basketball",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página parcial (8); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "mihaib",
+      "sharpsh0t",
+      "augusto-107",
+      "marshalbasketbet",
+      "usa-sports-wiseguys",
+      "docjw",
+      "stateside-winner",
+      "venecash"
+     ]
+    }
+   ]
+  },
+  "boxing:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 8,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "boxing",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "boxing:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 8,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "boxing",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "cricket:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "cricket",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "cricket:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "cricket",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "darts:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "darts",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "darts:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "darts",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "e-sports:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "e-sports",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "e-sports:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "e-sports",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "football:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 1,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "football",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: tope 3 páginas (selección usuario); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "betsmasher",
+      "eplcorrectscores-8ugml",
+      "sharpslayer",
+      "broncoxl",
+      "revenue-faq",
+      "predzone",
+      "varchapet",
+      "rorschachs-bet",
+      "triple-draw-alpha",
+      "footballpunter",
+      "straight-sets",
+      "drev",
+      "sharp-diamond-freeplays",
+      "tudo-ao-contrario",
+      "ea-picks"
+     ]
+    },
+    {
+     "page": 2,
+     "fetchedAt": null,
+     "slugs": [
+      "kalibasa",
+      "football-profit-klk7q",
+      "football-glory-tips",
+      "thunderbirdsrgo1",
+      "malaia",
+      "vicents",
+      "correctscore-9k0lv",
+      "honeybadgerbets",
+      "pro-betting-insights",
+      "stvch",
+      "betting-master20",
+      "football-profit-tips",
+      "mameibet",
+      "footinsider",
+      "chrisbestbets"
+     ]
+    },
+    {
+     "page": 3,
+     "fetchedAt": null,
+     "slugs": [
+      "nieder",
+      "ravi-predictz",
+      "mb-sports-tips",
+      "foot-handicap",
+      "glvnz05",
+      "cptamundsen-bets",
+      "hanalytics",
+      "draw-magic-picks",
+      "the-omnivore",
+      "chels",
+      "futeblog-tips",
+      "gononleague",
+      "-25",
+      "thebestbets",
+      "stitch-betting-lab"
+     ]
+    }
+   ]
+  },
+  "football:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 1,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "football",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: tope 3 páginas (selección usuario); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "summer-accas",
+      "edgefooty",
+      "pureedge-68",
+      "lucra",
+      "the-least-expected",
+      "the-btts-extreme",
+      "javier-rey",
+      "niin-betting",
+      "chicken-dinner",
+      "footydraws101",
+      "kelsier-picks",
+      "sharps",
+      "svb-tips",
+      "acca4life-m6aay",
+      "joydi"
+     ]
+    },
+    {
+     "page": 2,
+     "fetchedAt": null,
+     "slugs": [
+      "aura-orange-betting",
+      "HugoCantara",
+      "fox-pro-tips",
+      "match-score-analytics",
+      "spain-football",
+      "marrokino",
+      "victor-binotti",
+      "iverius",
+      "bill444",
+      "holanda-punter",
+      "matchmind-gold",
+      "gumisksc1987",
+      "nflmaster",
+      "ultimate-draw",
+      "see-what-happens"
+     ]
+    },
+    {
+     "page": 3,
+     "fetchedAt": null,
+     "slugs": [
+      "filipipunter",
+      "highest-odds",
+      "profitgr",
+      "batebet",
+      "bartys",
+      "thesafeone",
+      "arvis-petunovs",
+      "isonemybet-kthpl",
+      "betiko",
+      "indianbet",
+      "qweetix",
+      "ai-odds-results",
+      "brooklyns-turkish-football",
+      "alpheratz",
+      "longterm-growth"
+     ]
+    }
+   ]
+  },
+  "golf:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "golf",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "golf:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "golf",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página parcial (1); legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "golf-master-pro"
+     ]
+    }
+   ]
+  },
+  "greyhounds:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "greyhounds",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "greyhounds:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "greyhounds",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "handball:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "handball",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "handball:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "handball",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "horse-racing:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 2,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "horse-racing",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página parcial (11); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "benny-nap",
+      "strategy7tips",
+      "parabola-bets",
+      "cinzano-kid",
+      "mega-priced-ponies",
+      "quantum-gallop",
+      "sgtipster",
+      "1086",
+      "eclipse-bloodlines",
+      "weightshift-pro",
+      "false-favourite",
+      "neon-track",
+      "rosenstein",
+      "the-winning-machine",
+      "phoenix-sectionals"
+     ]
+    },
+    {
+     "page": 2,
+     "fetchedAt": null,
+     "slugs": [
+      "closing-line-journal",
+      "gallop-guru",
+      "neon-rail-code",
+      "brekky-movers",
+      "groundpig",
+      "crown-form-ratings",
+      "erniegolds",
+      "circuit-thesis",
+      "vector-velocity",
+      "argentina-horse",
+      "quiet-margin-racing"
+     ]
+    }
+   ]
+  },
+  "horse-racing:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 2,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "horse-racing",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: tope 3 páginas (selección usuario); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "daily-x2-double",
+      "edgerunner-racing-tips",
+      "zenyatta",
+      "little-horses",
+      "eachwaymornigtips",
+      "thebanker",
+      "on-target-tips",
+      "shrewd-tips",
+      "ca-bets",
+      "rogue-excellence",
+      "active-betting-hub",
+      "value-bet-mhak6",
+      "on-the-money-tips",
+      "pro-eachway-morning",
+      "the-profit-rocket"
+     ]
+    },
+    {
+     "page": 2,
+     "fetchedAt": null,
+     "slugs": [
+      "underdog-racing-tips",
+      "barreto",
+      "early-value-racing",
+      "moth-tips",
+      "60-seconds",
+      "beat-365",
+      "live-for-racing",
+      "svb-tips",
+      "enicma-ai-value-bets",
+      "kensflat",
+      "the-dark-horse",
+      "the-king-of-horses",
+      "daily-insider-horse-tip",
+      "the-lucky-paddock",
+      "shes-the-fastest"
+     ]
+    },
+    {
+     "page": 3,
+     "fetchedAt": null,
+     "slugs": [
+      "sniiperman",
+      "tigger",
+      "jampizza",
+      "forrest-jump",
+      "celtic-racing-tipster",
+      "rh-orp",
+      "golden-gallop-tips",
+      "honest-jim",
+      "racing-edge-uk",
+      "the-acca-blueprint",
+      "jeandeniss",
+      "raceedgex",
+      "a-trixie-a-day",
+      "on-the-bob",
+      "australian-horse"
+     ]
+    }
+   ]
+  },
+  "ice-hockey:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "ice-hockey",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página parcial (2); legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "dario",
+      "michaels-world"
+     ]
+    }
+   ]
+  },
+  "ice-hockey:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "ice-hockey",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página parcial (2); legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "redondo",
+      "alexbaseball"
+     ]
+    }
+   ]
+  },
+  "mixed-martial-arts:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 11,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "mixed-martial-arts",
+    "type": "free",
+    "executedAt": "2026-11-15T15:24:09.570Z",
+    "note": "endReason: página vacía; legs: mma"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": "2026-11-15T15:24:09.570Z",
+     "slugs": []
+    }
+   ]
+  },
+  "mixed-martial-arts:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 11,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "mixed-martial-arts",
+    "type": "premium",
+    "executedAt": "2026-11-15T15:24:20.921Z",
+    "note": "endReason: página vacía; legs: mma"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": "2026-11-15T15:24:20.921Z",
+     "slugs": []
+    }
+   ]
+  },
+  "rugby-league:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "rugby-league",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "rugby-league:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "rugby-league",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "rugby-union:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "rugby-union",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "rugby-union:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "rugby-union",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "snooker:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "snooker",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "snooker:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "snooker",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "tennis:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 16,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "tennis",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página parcial (7); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "moonballology-tips",
+      "ea-picks",
+      "penkofan22",
+      "jelenius",
+      "ixmael",
+      "chris1",
+      "betsmartsports"
+     ]
+    }
+   ]
+  },
+  "tennis:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": 16,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "tennis",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página parcial (6); legs: leg1"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": [
+      "baby-cash",
+      "steviebetscom",
+      "the-second-serve",
+      "combined",
+      "niin-tennis",
+      "tennisexplorer",
+      "chicken-dinner",
+      "xvalue-edge-pro",
+      "firststrike",
+      "readyplay",
+      "one3q",
+      "xgoal-over-pro",
+      "goodzon-tennis-analytics-17baf",
+      "matchpointvalue",
+      "pointbypoint"
+     ]
+    },
+    {
+     "page": 2,
+     "fetchedAt": null,
+     "slugs": [
+      "radar-tenis",
+      "out-bank-power",
+      "redondo",
+      "out-bank",
+      "hola-tips",
+      "bibi-free"
+     ]
+    }
+   ]
+  },
+  "volleyball:free": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 1
+    },
+    "sport": "volleyball",
+    "type": "free",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  },
+  "volleyball:premium": {
+   "meta": {
+    "source": "tipstrr-listing",
+    "endpoint": "https://tipstrr.com/api/portfolio",
+    "params": {
+     "sportId": null,
+     "order": 2,
+     "period": 3,
+     "tips": 45,
+     "portfolioType": 2
+    },
+    "sport": "volleyball",
+    "type": "premium",
+    "executedAt": null,
+    "note": "endReason: página vacía; legs: leg2"
+   },
+   "pages": [
+    {
+     "page": 1,
+     "fetchedAt": null,
+     "slugs": []
+    }
+   ]
+  }
+ },
+ "errors": {},
+ "global": {
+  "uniqueFree": 86,
+  "uniquePremium": 123,
+  "uniqueAll": 209,
+  "overlapFreePremium": 0
+ }
+}

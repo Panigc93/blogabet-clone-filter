@@ -1,0 +1,35 @@
+{
+ "finished": true,
+ "stopped": null,
+ "requests": [
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?page=1&sportId=11&order=2&period=3&tips=45&portfolioType=1",
+   "status": 200,
+   "ms": 402,
+   "at": "2026-11-15T15:24:09.570Z"
+  },
+  {
+   "kind": "listing",
+   "url": "https://tipstrr.com/api/portfolio?page=1&sportId=11&order=2&period=3&tips=45&portfolioType=2",
+   "status": 200,
+   "ms": 556,
+   "at": "2026-11-15T15:24:20.921Z"
+  }
+ ],
+ "combos": {
+  "mixed-martial-arts:free": {
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía"
+  },
+  "mixed-martial-arts:premium": {
+   "pages": {
+    "1": []
+   },
+   "endReason": "página vacía"
+  }
+ },
+ "last": 1794756260921
+}
