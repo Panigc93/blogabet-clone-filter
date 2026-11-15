@@ -22,8 +22,8 @@ function Ficha({ s }: { s: FichaSnapshot }) {
   return (
     <div style={{ maxWidth: 860, margin: '0 auto', padding: 12, fontFamily: 'Roboto, Arial, sans-serif' }}>
       <div style={{ background: '#d9edf7', border: '1px solid #bce8f1', color: '#31708f', padding: '8px 12px', borderRadius: 4, fontSize: 13, marginBottom: 12 }}>
-        <strong>Captura real puntual</strong> de {s.sourceUrl} · {s.capturedAt} · cifras agregadas, se quedan
-        desactualizadas (Tipstrr actualiza cada 24 h). No es una sincronización ni una integración desplegada.
+        <strong>Captura real puntual</strong> de {s.sourceUrl} · {s.capturedAt} · cifras agregadas fechadas;
+        pueden no reflejar las actuales. No es una sincronización ni una integración desplegada.
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>

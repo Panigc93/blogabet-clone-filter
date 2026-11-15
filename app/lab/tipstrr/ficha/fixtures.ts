@@ -3,7 +3,7 @@
 // (anonymous read) and validated with crawler/platforms/tipstrr/stats-state.ts.
 // Aggregate figures only; per-tip odds/profit require a Tipstrr account.
 // This file is a labeled point-in-time capture for UI development, not a
-// sync: figures go stale (their stats update every 24h).
+// sync: this capture is dated and may not reflect current figures.
 
 export interface FichaMonth {
   label: string
