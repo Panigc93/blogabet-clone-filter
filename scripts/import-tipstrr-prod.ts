@@ -33,7 +33,7 @@ import { loadTipstrrCapture, type TipstrrStatsCapture } from '../crawler/platfor
 import { sport6Totals, applySport6AllTime, type Sport6Capture } from '../crawler/platforms/tipstrr/sport6'
 import {
   tipstrrSnapshotToInsert,
-  planTipstrrUpsert,
+  planSport6Batch,
   assertRealImportProvenance,
   type TipstrrIdSource,
 } from '../crawler/platforms/tipstrr/to-db'
@@ -244,8 +244,24 @@ async function main() {
       `SELECT * FROM tipsters WHERE platform = 'tipstrr' AND slug = $1`, [slug]
     )) as Record<string, unknown>[]
     const existing = existingRows.length > 0 ? (camelize(existingRows[0]) as TipsterInsert) : null
-    const plan = planTipstrrUpsert(existing, mapping)
+    // Lote sport/6: SOLO ALTAS (decisión de revisión 2026-11-15). Una fila
+    // existente se preserva intacta y se salta siempre; no depende de que la
+    // captura sea "no más reciente".
+    const plan = planSport6Batch(existing, mapping)
 
+    if (plan.action === 'skip-existing') {
+      summary.skip++
+      skipDetail.push({ slug, klass: 'skip[existente-preservado]' })
+      if (APPLY) {
+        await sql.transaction((txn) => [
+          txn.query(
+            `INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
+            ['tipstrr', slug, capturedIso, 'skip[existente-preservado]', 'lote sport/6 solo-altas: la fila existente se preserva intacta, sin update', RUN_ID]
+          ),
+        ])
+      }
+      continue
+    }
     if (plan.action === 'skip') {
       summary.skip++
       if (plan.reason.includes('cuarentena')) summary.quarantine++
@@ -260,32 +276,30 @@ async function main() {
       }
       continue
     }
+    // Solo queda 'insert' (lote solo-altas). Insert + log de procedencia
+    // sport/6 en UNA transacción: una caída no puede dejar la fila sin su
+    // fuente, y un reintento la verá existente y la saltará con el log ya
+    // escrito (o nada escrito en absoluto).
     if (!APPLY) {
-      summary[plan.action]++
+      summary.insert++
       continue
     }
-    if (plan.action === 'insert') {
-      const q = buildInsert(plan.insert, !portfolioId)
-      await sql.transaction((txn) => [txn.query(q.text, q.params)])
-      summary.insert++
-    } else {
-      const q = buildUpdate((existing as TipsterInsert).id as number, plan.merged)
-      await sql.transaction((txn) => [txn.query(q.text, q.params)])
-      summary.update++
-    }
-    // Proveniencia del override sport/6 persistida en el log de validación
-    // (sin migración): fuente independiente, fecha de captura y re-verificación
-    // de la puerta quedan registradas junto al alta/actualización.
-    if (sport6Slugs.has(slug)) {
-      await sql.transaction((txn) => [
-        txn.query(
-          `INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
-          ['tipstrr', slug, capturedIso, 'importado[sport6-override]',
-           'overview all-time sustituido por totales advised de /api/portfolio/<slug>/stats/sport/6 (captura 2026-11-15); cierre de 3 cifras re-verificado por la puerta contra la serie mensual embebida',
-           RUN_ID]
-        ),
-      ])
-    }
+    const q = buildInsert(plan.insert, !portfolioId)
+    await sql.transaction((txn) => {
+      const batch = [txn.query(q.text, q.params)]
+      if (sport6Slugs.has(slug)) {
+        batch.push(
+          txn.query(
+            `INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
+            ['tipstrr', slug, capturedIso, 'importado[sport6-override]',
+             'overview all-time sustituido por totales advised de /api/portfolio/<slug>/stats/sport/6 (captura 2026-11-15); cierre de 3 cifras re-verificado por la puerta contra la serie mensual embebida',
+             RUN_ID]
+          )
+        )
+      }
+      return batch
+    })
+    summary.insert++
   }
 
   console.log(JSON.stringify({ runId: RUN_ID, apply: APPLY, summary, skipDetail }, null, 1))
