@@ -1,22 +1,27 @@
 import { describe, it, expect } from 'vitest'
-import { tipstrrSnapshotToInsert } from '@/crawler/platforms/tipstrr/to-db'
+import { tipstrrSnapshotToInsert, type TipstrrDbMapping } from '@/crawler/platforms/tipstrr/to-db'
+
+const mustMap = (m: TipstrrDbMapping) => {
+  if (!m.ok) throw new Error(m.reason)
+  return m.insert
+}
 import { TLE_SNAPSHOT, STATMIND_SNAPSHOT } from '@/app/lab/tipstrr/ficha/fixtures'
 
 describe('tipstrrSnapshotToInsert', () => {
   // TLE portfolioId 221629: real, from the captured per-tip object
   // (2026-11-15). Negative-space convention keeps BB and Tipstrr ids apart.
-  const tle = tipstrrSnapshotToInsert(TLE_SNAPSHOT, {
+  const tle = mustMap(tipstrrSnapshotToInsert(TLE_SNAPSHOT, {
     id: -221629,
     slug: 'the-least-expected',
     subscriptionPriceGbp: 39,
     isPaid: true,
-  })
-  const statmind = tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, {
+  }))
+  const statmind = mustMap(tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, {
     id: -999999, // fabricated for the test only; StatMind's portfolioId not captured
     slug: 'statmind',
     subscriptionPriceGbp: null,
     isPaid: false,
-  })
+  }))
 
   it('keeps platform identity and unit separation', () => {
     expect(tle.id).toBe(-221629)
@@ -40,10 +45,10 @@ describe('tipstrrSnapshotToInsert', () => {
   it('stores all-time yield only when the record is fully consistent', () => {
     expect(tle.yield).toBe('18.33')
     expect(statmind.yield).toBe('-20.32')
-    const broken = tipstrrSnapshotToInsert(
+    const broken = mustMap(tipstrrSnapshotToInsert(
       { ...TLE_SNAPSHOT, consistency: [{ name: 'x', passed: false }] },
       { id: -1, slug: 'x', isPaid: true }
-    )
+    ))
     expect(broken.yield).toBeNull()
   })
 
@@ -56,6 +61,25 @@ describe('tipstrrSnapshotToInsert', () => {
     expect(statmind.yield3m).toBeNull()
     expect(statmind.yield6m).toBeNull()
     expect(statmind.yield12m).toBeNull()
+  })
+
+  it('missing historical pick total rejects the record; a real 0 is kept', () => {
+    // 2026-11-15: the pick-count filter needs the real historical total and
+    // the column is NOT NULL, so an absent total must NOT become a
+    // fabricated 0 — the record is rejected with an explicit reason and the
+    // capture kept for review. A genuine 0 (new profile, no tips) persists.
+    const absent = tipstrrSnapshotToInsert(
+      { ...TLE_SNAPSHOT, overview: { ...TLE_SNAPSHOT.overview, tips: null } },
+      { id: -2, slug: 'x', isPaid: true }
+    )
+    expect(absent.ok).toBe(false)
+    if (!absent.ok) expect(absent.reason).toContain('picks')
+    const realZero = tipstrrSnapshotToInsert(
+      { ...TLE_SNAPSHOT, overview: { ...TLE_SNAPSHOT.overview, tips: 0 } },
+      { id: -3, slug: 'y', isPaid: true }
+    )
+    expect(realZero.ok).toBe(true)
+    if (realZero.ok) expect(realZero.insert.picks).toBe(0)
   })
 
   it('absence stays null, never 0', () => {

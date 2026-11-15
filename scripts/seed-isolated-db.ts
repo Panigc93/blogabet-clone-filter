@@ -11,7 +11,12 @@ import { join } from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
 import { tipsters } from '../db/schema'
-import { tipstrrSnapshotToInsert } from '../crawler/platforms/tipstrr/to-db'
+import { tipstrrSnapshotToInsert, type TipstrrDbMapping } from '../crawler/platforms/tipstrr/to-db'
+
+const mustMap = (m: TipstrrDbMapping) => {
+  if (!m.ok) throw new Error(`seed: ${m.reason}`)
+  return m.insert
+}
 import { TLE_SNAPSHOT, STATMIND_SNAPSHOT } from '../app/lab/tipstrr/ficha/fixtures'
 
 const DIR = process.env.PGLITE_DIR || '/tmp/pglite-data'
@@ -86,8 +91,8 @@ async function main() {
   })
   // Filas Tipstrr desde las capturas reales fechadas del repo.
   await db.insert(tipsters).values([
-    tipstrrSnapshotToInsert(TLE_SNAPSHOT, { id: -221629, slug: 'the-least-expected', subscriptionPriceGbp: 39, isPaid: true }),
-    tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, { id: -999999, slug: 'statmind', subscriptionPriceGbp: null, isPaid: false }),
+    mustMap(tipstrrSnapshotToInsert(TLE_SNAPSHOT, { id: -221629, slug: 'the-least-expected', subscriptionPriceGbp: 39, isPaid: true })),
+    mustMap(tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, { id: -999999, slug: 'statmind', subscriptionPriceGbp: null, isPaid: false })),
   ])
 
   const n = await pg.query<{ n: string }>('SELECT count(*)::text AS n FROM tipsters')

@@ -6,7 +6,11 @@ import { drizzle } from 'drizzle-orm/pglite'
 import { and } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 import { buildFilters, sortOrder, priceFilterIgnored } from '@/lib/query'
-import { tipstrrSnapshotToInsert } from '@/crawler/platforms/tipstrr/to-db'
+import { tipstrrSnapshotToInsert, type TipstrrDbMapping } from '@/crawler/platforms/tipstrr/to-db'
+const mustMap = (m: TipstrrDbMapping) => {
+  if (!m.ok) throw new Error(m.reason)
+  return m.insert
+}
 import { TLE_SNAPSHOT, STATMIND_SNAPSHOT } from '@/app/lab/tipstrr/ficha/fixtures'
 
 // Real end-to-end regression on an isolated in-memory Postgres (PGlite):
@@ -58,8 +62,8 @@ beforeAll(async () => {
   }
   await db.insert(tipsters).values(BB_ROW)
   await db.insert(tipsters).values([
-    tipstrrSnapshotToInsert(TLE_SNAPSHOT, { id: -221629, slug: 'the-least-expected', subscriptionPriceGbp: 39, isPaid: true }),
-    tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, { id: -999999, slug: 'statmind', subscriptionPriceGbp: null, isPaid: false }),
+    mustMap(tipstrrSnapshotToInsert(TLE_SNAPSHOT, { id: -221629, slug: 'the-least-expected', subscriptionPriceGbp: 39, isPaid: true })),
+    mustMap(tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, { id: -999999, slug: 'statmind', subscriptionPriceGbp: null, isPaid: false })),
   ])
 })
 

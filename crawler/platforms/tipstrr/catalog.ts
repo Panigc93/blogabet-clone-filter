@@ -166,3 +166,68 @@ export function buildCatalogIndex(c: CatalogCapture): CatalogIndex {
     validation,
   }
 }
+
+// --- Selección definida por el usuario (2026-11-15 15:57 CET) -----------
+// Orden ROI (periodo 3 meses), free y premium por separado, hasta 3
+// páginas de cada tipo por deporte, y después stats por perfil.
+// Pendiente de aclaración: su condición "siempre y cuando haya más de 12
+// páginas" — propuesta enviada: si hay menos, coger las que haya (máx 3).
+// Este planificador NO ejecuta nada: materializa el alcance para que el
+// coste (peticiones, minutos) sea explícito antes de pedir autorización.
+
+export const SELECTION_TYPES = [
+  // Correspondencia indicada por el usuario: 1 = free, 2 = premium.
+  // Coincide con el campo type de los perfiles capturados (StatMind free
+  // type=1, TLE premium type=2), pero el valor del FILTRO se verifica en
+  // la propia UI al ejecutar (seleccionar el filtro y leer la URL que
+  // genera la página) — no se reinterpreta.
+  { label: 'free', portfolioType: 1 },
+  { label: 'premium', portfolioType: 2 },
+] as const
+
+export interface SelectionPlanOptions {
+  pagesPerTypeMax: number // usuario: 3
+  sports: { sportId: number; sport: string }[] // sportId conocido: football=1; el resto se resuelve en ejecución vía UI
+}
+
+export interface PlannedListingRequest {
+  sport: string
+  sportId: number
+  typeLabel: 'free' | 'premium'
+  portfolioType: number
+  page: number // 1..pagesPerTypeMax
+  // Condiciones de parada de la rama (deporte+tipo): página vacía o
+  // parcial según lo aclarado; cualquier aviso/limitación detiene TODO.
+}
+
+export function planSelectionPass(opts: SelectionPlanOptions): PlannedListingRequest[] {
+  const out: PlannedListingRequest[] = []
+  for (const s of opts.sports)
+    for (const t of SELECTION_TYPES)
+      for (let p = 1; p <= opts.pagesPerTypeMax; p++)
+        out.push({
+          sport: s.sport,
+          sportId: s.sportId,
+          typeLabel: t.label,
+          portfolioType: t.portfolioType,
+          page: p,
+        })
+  return out
+}
+
+export interface SelectionBudget {
+  sports: number
+  maxListingRequests: number // sports × 2 tipos × pagesPerTypeMax
+  minSecondsBetween: number // 15 según lo ya transmitido al usuario
+  worstCaseMinutes: number // solo peticiones de listado, sin cargas de página
+}
+
+export function selectionBudget(sports: number, pagesPerTypeMax: number, minSecondsBetween = 15): SelectionBudget {
+  const maxListingRequests = sports * SELECTION_TYPES.length * pagesPerTypeMax
+  return {
+    sports,
+    maxListingRequests,
+    minSecondsBetween,
+    worstCaseMinutes: Math.ceil((maxListingRequests * minSecondsBetween) / 60),
+  }
+}

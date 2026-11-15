@@ -30,17 +30,35 @@ export interface TipstrrDbMappingOptions {
   isPaid: boolean
 }
 
+export type TipstrrDbMapping =
+  | { ok: true; insert: TipsterInsert }
+  | { ok: false; reason: string }
+
 export function tipstrrSnapshotToInsert(
   s: FichaSnapshot,
   opts: TipstrrDbMappingOptions
-): TipsterInsert {
+): TipstrrDbMapping {
+  // Requisito 2026-11-15: el total histórico de picks es el dato del filtro
+  // "nº de picks" y la columna es NOT NULL, así que si la captura no lo
+  // trae el registro se RECHAZA con motivo explícito (la captura se
+  // conserva para revisión) en vez de fabricar un 0. Un 0 REAL (perfil
+  // nuevo sin tips) sí se persiste como 0.
+  // Política para la futura vía de actualización: una captura con un dato
+  // ausente nunca sobrescribe con null un valor ya guardado válido.
+  if (s.overview.tips === null || s.overview.tips === undefined) {
+    return {
+      ok: false,
+      reason:
+        'falta el total histórico de picks (overview.tips): registro omitido de persistencia, captura conservada para revisión',
+    }
+  }
   const allConsistent = s.consistency.length > 0 && s.consistency.every((c) => c.passed)
   const periods = computeExactPeriodStats(s.monthState, new Date(s.capturedAtDate))
 
   const periodOrNull = (p: { yieldPct: number; complete: boolean } | null): string | null =>
     p && p.complete ? p.yieldPct.toFixed(2) : null
 
-  return {
+  return { ok: true, insert: {
     id: opts.id,
     platform: 'tipstrr',
     slug: opts.slug,
@@ -55,7 +73,7 @@ export function tipstrrSnapshotToInsert(
     sinceYear: null,
     signupAt: s.signupDate ? new Date(`${s.signupDate}T00:00:00Z`) : null,
     capturedAt: new Date(s.capturedAtDate),
-    picks: s.overview.tips ?? 0,
+    picks: s.overview.tips,
     profit: s.overview.tips !== null && s.monthState.length > 0
       ? s.monthState.reduce((acc, m) => acc + m.profit, 0).toFixed(3)
       : null,
@@ -78,5 +96,5 @@ export function tipstrrSnapshotToInsert(
     picksFree3mAvg: null, // free/paid monthly split: not evaluable (2026-11-15)
     yieldFree3m: null,
     statsUpdatedAt: new Date(s.capturedAtDate),
-  }
+  } }
 }
