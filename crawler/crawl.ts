@@ -133,7 +133,12 @@ async function withRetry<T>(fn: () => Promise<T>, label: string, maxAttempts = 8
 
 // ─── Build Blogabet URL ───────────────────────────────────────────────────────
 
-function blogabetUrl(lastActive: number, start: number): string {
+// Listing order. Candidate: 'followers' (the site's own default). 'yield' made the
+// listing endpoint answer HTTP 500 after ~26 s in the official UI on 2026-11-15.
+// Only changes traversal order, not the filter set (lastActive and the rest are unchanged).
+export const CATALOG_ORDER = 'followers'
+
+export function blogabetUrl(lastActive: number, start: number): string {
   const url = new URL('https://blogabet.com/tipsters/')
   url.searchParams.set('f[language]', 'all')
   url.searchParams.set('f[pickType]', 'all')
@@ -142,7 +147,7 @@ function blogabetUrl(lastActive: number, start: number): string {
   url.searchParams.set('f[picksOver]', '0')
   url.searchParams.set('f[lastActive]', String(lastActive))
   url.searchParams.set('f[bookiesUsed]', 'null')
-  url.searchParams.set('f[order]', 'yield')
+  url.searchParams.set('f[order]', CATALOG_ORDER)
   url.searchParams.set('f[start]', String(start))
   return url.toString()
 }
