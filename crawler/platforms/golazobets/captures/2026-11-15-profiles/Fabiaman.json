@@ -1,0 +1,238 @@
+{
+ "tipster_id": 223,
+ "type": "free",
+ "sport_id": 1,
+ "header": {
+  "number_bets": 224,
+  "total_bet": 192.45,
+  "profit": -0.01,
+  "yield": 0,
+  "win_rate": 45.09,
+  "average_stake": 0.86,
+  "average_odds": 2.25
+ },
+ "monthly": [
+  {
+   "year": 2026,
+   "month": 4,
+   "total_picks": 1,
+   "total_bet": 1,
+   "profit": 1.32,
+   "yield": 132,
+   "win_rate": 100,
+   "average_stake": 1,
+   "average_odds": 2.32
+  },
+  {
+   "year": 2026,
+   "month": 5,
+   "total_picks": 4,
+   "total_bet": 2,
+   "profit": -2,
+   "yield": -100,
+   "win_rate": 0,
+   "average_stake": 0.5,
+   "average_odds": 5.26
+  },
+  {
+   "year": 2025,
+   "month": 8,
+   "total_picks": 6,
+   "total_bet": 6,
+   "profit": 3.26,
+   "yield": 54.33,
+   "win_rate": 83.33,
+   "average_stake": 1,
+   "average_odds": 1.85
+  },
+  {
+   "year": 2025,
+   "month": 9,
+   "total_picks": 4,
+   "total_bet": 4,
+   "profit": -0.28,
+   "yield": -7,
+   "win_rate": 50,
+   "average_stake": 1,
+   "average_odds": 1.96
+  },
+  {
+   "year": 2025,
+   "month": 10,
+   "total_picks": 1,
+   "total_bet": 1,
+   "profit": 0.89,
+   "yield": 89,
+   "win_rate": 100,
+   "average_stake": 1,
+   "average_odds": 1.89
+  },
+  {
+   "year": 2025,
+   "month": 11,
+   "total_picks": 1,
+   "total_bet": 1,
+   "profit": -1,
+   "yield": -100,
+   "win_rate": 0,
+   "average_stake": 1,
+   "average_odds": 1.71
+  },
+  {
+   "year": 2025,
+   "month": 12,
+   "total_picks": 2,
+   "total_bet": 2,
+   "profit": -0.19,
+   "yield": -9.5,
+   "win_rate": 50,
+   "average_stake": 1,
+   "average_odds": 1.86
+  },
+  {
+   "year": 2026,
+   "month": 1,
+   "total_picks": 3,
+   "total_bet": 1.75,
+   "profit": 2.18,
+   "yield": 124.57,
+   "win_rate": 100,
+   "average_stake": 0.58,
+   "average_odds": 2.55
+  },
+  {
+   "year": 2026,
+   "month": 2,
+   "total_picks": 1,
+   "total_bet": 1,
+   "profit": 0.61,
+   "yield": 61,
+   "win_rate": 100,
+   "average_stake": 1,
+   "average_odds": 1.61
+  },
+  {
+   "year": 2026,
+   "month": 3,
+   "total_picks": 2,
+   "total_bet": 1.25,
+   "profit": 0.45,
+   "yield": 36,
+   "win_rate": 50,
+   "average_stake": 0.63,
+   "average_odds": 2.41
+  },
+  {
+   "year": 2026,
+   "month": 4,
+   "total_picks": 33,
+   "total_bet": 28.75,
+   "profit": -6.99,
+   "yield": -24.3,
+   "win_rate": 33.33,
+   "average_stake": 0.87,
+   "average_odds": 2.16
+  },
+  {
+   "year": 2026,
+   "month": 5,
+   "total_picks": 33,
+   "total_bet": 28,
+   "profit": -4.53,
+   "yield": -16.18,
+   "win_rate": 33.33,
+   "average_stake": 0.85,
+   "average_odds": 2.28
+  },
+  {
+   "year": 2026,
+   "month": 6,
+   "total_picks": 5,
+   "total_bet": 4.75,
+   "profit": 0.66,
+   "yield": 13.84,
+   "win_rate": 60,
+   "average_stake": 0.95,
+   "average_odds": 1.94
+  },
+  {
+   "year": 2026,
+   "month": 6,
+   "total_picks": 32,
+   "total_bet": 27.1,
+   "profit": -3.71,
+   "yield": -13.67,
+   "win_rate": 40.63,
+   "average_stake": 0.85,
+   "average_odds": 2.08
+  },
+  {
+   "year": 2026,
+   "month": 7,
+   "total_picks": 27,
+   "total_bet": 21.1,
+   "profit": -4.92,
+   "yield": -23.32,
+   "win_rate": 29.63,
+   "average_stake": 0.78,
+   "average_odds": 2.76
+  },
+  {
+   "year": 2026,
+   "month": 8,
+   "total_picks": 1,
+   "total_bet": 1,
+   "profit": 0.61,
+   "yield": 61,
+   "win_rate": 100,
+   "average_stake": 1,
+   "average_odds": 1.61
+  },
+  {
+   "year": 2026,
+   "month": 9,
+   "total_picks": 25,
+   "total_bet": 22.75,
+   "profit": 9.97,
+   "yield": 43.8,
+   "win_rate": 68,
+   "average_stake": 0.91,
+   "average_odds": 2.13
+  },
+  {
+   "year": 2026,
+   "month": 10,
+   "total_picks": 25,
+   "total_bet": 23,
+   "profit": 3.12,
+   "yield": 13.54,
+   "win_rate": 56,
+   "average_stake": 0.92,
+   "average_odds": 1.95
+  },
+  {
+   "year": 2026,
+   "month": 11,
+   "total_picks": 18,
+   "total_bet": 15,
+   "profit": 0.55,
+   "yield": 3.63,
+   "win_rate": 44.44,
+   "average_stake": 0.83,
+   "average_odds": 2.22
+  }
+ ],
+ "picks_total": 228,
+ "recent_results": [
+  "won",
+  "lost",
+  "lost",
+  "lost",
+  "won",
+  "won",
+  "lost",
+  "lost",
+  "lost",
+  "won"
+ ]
+}

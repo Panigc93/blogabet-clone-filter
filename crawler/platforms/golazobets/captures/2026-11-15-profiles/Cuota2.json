@@ -1,0 +1,51 @@
+{
+ "tipster_id": 353,
+ "type": "free",
+ "sport_id": 1,
+ "header": {
+  "number_bets": 48,
+  "total_bet": 47.75,
+  "profit": -13.91,
+  "yield": -29.13,
+  "win_rate": 31.25,
+  "average_stake": 0.99,
+  "average_odds": 2.44
+ },
+ "monthly": [
+  {
+   "year": 2025,
+   "month": 8,
+   "total_picks": 21,
+   "total_bet": 20.75,
+   "profit": -12.1,
+   "yield": -58.31,
+   "win_rate": 19.05,
+   "average_stake": 0.99,
+   "average_odds": 2.38
+  },
+  {
+   "year": 2025,
+   "month": 9,
+   "total_picks": 27,
+   "total_bet": 27,
+   "profit": -1.81,
+   "yield": -6.7,
+   "win_rate": 40.74,
+   "average_stake": 1,
+   "average_odds": 2.48
+  }
+ ],
+ "picks_total": 49,
+ "recent_results": [
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "won",
+  "won",
+  "lost",
+  "lost"
+ ]
+}

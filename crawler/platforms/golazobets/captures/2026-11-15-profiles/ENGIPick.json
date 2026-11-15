@@ -1,0 +1,34 @@
+{
+ "tipster_id": 827,
+ "type": "free",
+ "sport_id": 3,
+ "header": {
+  "number_bets": 4,
+  "total_bet": 8,
+  "profit": -6.17,
+  "yield": -77.13,
+  "win_rate": 25,
+  "average_stake": 2,
+  "average_odds": 1.75
+ },
+ "monthly": [
+  {
+   "year": 2026,
+   "month": 5,
+   "total_picks": 4,
+   "total_bet": 8,
+   "profit": -6.17,
+   "yield": -77.13,
+   "win_rate": 25,
+   "average_stake": 2,
+   "average_odds": 1.75
+  }
+ ],
+ "picks_total": 4,
+ "recent_results": [
+  "lost",
+  "lost",
+  "lost",
+  "won"
+ ]
+}

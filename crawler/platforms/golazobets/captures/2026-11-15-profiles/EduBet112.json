@@ -1,0 +1,128 @@
+{
+ "tipster_id": 229,
+ "type": "free",
+ "sport_id": 1,
+ "header": {
+  "number_bets": 105,
+  "total_bet": 97.5,
+  "profit": -8.55,
+  "yield": -8.77,
+  "win_rate": 42.86,
+  "average_stake": 0.93,
+  "average_odds": 1.92
+ },
+ "monthly": [
+  {
+   "year": 2025,
+   "month": 8,
+   "total_picks": 35,
+   "total_bet": 31.25,
+   "profit": -8.33,
+   "yield": -26.66,
+   "win_rate": 34.29,
+   "average_stake": 0.89,
+   "average_odds": 1.92
+  },
+  {
+   "year": 2025,
+   "month": 8,
+   "total_picks": 1,
+   "total_bet": 0.5,
+   "profit": 0.88,
+   "yield": 175,
+   "win_rate": 100,
+   "average_stake": 0.5,
+   "average_odds": 2.75
+  },
+  {
+   "year": 2025,
+   "month": 9,
+   "total_picks": 36,
+   "total_bet": 32.75,
+   "profit": 4.47,
+   "yield": 13.64,
+   "win_rate": 52.78,
+   "average_stake": 0.91,
+   "average_odds": 1.81
+  },
+  {
+   "year": 2025,
+   "month": 10,
+   "total_picks": 13,
+   "total_bet": 12.5,
+   "profit": -4.27,
+   "yield": -34.14,
+   "win_rate": 38.46,
+   "average_stake": 0.96,
+   "average_odds": 1.83
+  },
+  {
+   "year": 2026,
+   "month": 5,
+   "total_picks": 1,
+   "total_bet": 0.5,
+   "profit": -0.5,
+   "yield": -100,
+   "win_rate": 0,
+   "average_stake": 0.5,
+   "average_odds": 6
+  },
+  {
+   "year": 2025,
+   "month": 11,
+   "total_picks": 3,
+   "total_bet": 3,
+   "profit": 1,
+   "yield": 33.33,
+   "win_rate": 66.67,
+   "average_stake": 1,
+   "average_odds": 2.03
+  },
+  {
+   "year": 2025,
+   "month": 12,
+   "total_picks": 5,
+   "total_bet": 5,
+   "profit": -1.02,
+   "yield": -20.4,
+   "win_rate": 20,
+   "average_stake": 1,
+   "average_odds": 1.81
+  },
+  {
+   "year": 2026,
+   "month": 1,
+   "total_picks": 10,
+   "total_bet": 11,
+   "profit": 0.23,
+   "yield": 2.09,
+   "win_rate": 50,
+   "average_stake": 1.1,
+   "average_odds": 1.93
+  },
+  {
+   "year": 2026,
+   "month": 2,
+   "total_picks": 1,
+   "total_bet": 1,
+   "profit": -1,
+   "yield": -100,
+   "win_rate": 0,
+   "average_stake": 1,
+   "average_odds": 1.8
+  }
+ ],
+ "picks_total": 106,
+ "recent_results": [
+  "lost",
+  "lost",
+  "won",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "won",
+  "lost",
+  "won"
+ ]
+}
