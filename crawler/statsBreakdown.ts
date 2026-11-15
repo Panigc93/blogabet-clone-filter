@@ -16,10 +16,16 @@ export const BREAKDOWN_SECTIONS: BreakdownSection[] = [
   'odds_range', 'hour_of_the_day', 'hours_to_event',
 ]
 
+// Clasificacion de una categoria de Blogabet. La categoria original se conserva
+// siempre en key. 'unclassified' = puede ser competicion, pais o region: no se
+// sabe sin verificar, y no se etiqueta como liga.
+export type CategoryKind = 'live_aggregate' | 'combo_aggregate' | 'unclassified'
+
 export interface BreakdownRow {
   key: string          // categories: "Football-Spa. Primera"; otros: etiqueta visible
   sport?: string       // solo categories
-  category?: string    // solo categories (liga/competicion)
+  category?: string    // solo categories: segunda parte tal cual (competicion, pais o agregado)
+  categoryKind?: CategoryKind  // solo categories
   picks: number
   winRate: number | null   // %
   profit: number | null    // unidades
@@ -29,6 +35,14 @@ export interface BreakdownRow {
 }
 
 export type StatsBreakdown = Partial<Record<BreakdownSection, BreakdownRow[]>>
+
+// "Livebet" y "Combo pick" son agregados por tipo de apuesta, no competiciones.
+export function classifyCategory(sport: string, category: string): CategoryKind {
+  const c = category.replace(/\s+/g, '').toLowerCase()
+  if (c === 'livebet') return 'live_aggregate'
+  if (c === 'combopick' || sport.replace(/\s+/g, '').toLowerCase() === 'combopick') return 'combo_aggregate'
+  return 'unclassified'
+}
 
 function num(text: string): number | null {
   const t = text.replace(/\u00a0/g, ' ').replace(/[+%\s]/g, '').replace(',', '.')
@@ -41,13 +55,28 @@ function clean(text: string): string {
   return text.replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
-// scope: '#alltimeStatsTab' (por defecto), '#paidStatsTab', '#privateStatsTab', o ''
-// para leer toda la pagina. Ojo: '' mezcla pestanas y duplica picks. Si el scope
-// pedido no existe en la pagina devuelve {} (nunca cae a toda la pagina).
-export function parseStatsBreakdown(html: string, scope = '#alltimeStatsTab'): StatsBreakdown {
+// Pestanas de la pagina /blog/stats. Cada una es un conjunto de picks distinto
+// (alltime = todos; paid = solo picks de pago; private = solo privados). Nunca se
+// suman entre si y no hay lectura "de toda la pagina": hay que elegir una.
+export type StatsTab = 'alltime' | 'paid' | 'private'
+const TAB_SELECTOR: Record<StatsTab, string> = {
+  alltime: '#alltimeStatsTab',
+  paid: '#paidStatsTab',
+  private: '#privateStatsTab',
+}
+
+export function availableStatsTabs(html: string): StatsTab[] {
   const $ = cheerio.load(html)
-  if (scope && $(scope).length === 0) return {}
-  const root = scope ? $(scope) : $.root()
+  return (Object.keys(TAB_SELECTOR) as StatsTab[]).filter(t => $(TAB_SELECTOR[t]).length > 0)
+}
+
+// Devuelve null si la pestana no existe en la pagina (no hay datos, no ceros).
+// Un tab sin secciones reconocibles devuelve {} con la pestana presente.
+export function parseStatsBreakdown(html: string, tab: StatsTab): StatsBreakdown | null {
+  const $ = cheerio.load(html)
+  const sel = TAB_SELECTOR[tab]
+  if (!sel || $(sel).length === 0) return null
+  const root = $(sel)
   const out: StatsBreakdown = {}
 
   for (const section of BREAKDOWN_SECTIONS) {
@@ -89,6 +118,7 @@ export function parseStatsBreakdown(html: string, scope = '#alltimeStatsTab'): S
         if (dash > 0) {
           row.sport = key.slice(0, dash).trim()
           row.category = key.slice(dash + 1).trim()
+          row.categoryKind = classifyCategory(row.sport, row.category)
         }
       }
       rows.push(row)
@@ -108,6 +138,9 @@ export const MYS_SCOPE_MIN_YIELD = 11
 export interface ScopeCheck {
   scope: 'sport' | 'category'
   key: string
+  // 'live_aggregate' / 'combo_aggregate': agregado por tipo de apuesta, no acredita ninguna
+  // competicion concreta. 'unclassified': categoria original, competicion o pais sin verificar.
+  categoryKind?: CategoryKind
   picks: number
   yieldPct: number | null
   sampleOk: boolean
@@ -119,7 +152,7 @@ export function checkMuestraYield(b: StatsBreakdown): ScopeCheck[] {
   const mk = (scope: 'sport' | 'category', r: BreakdownRow): ScopeCheck => {
     const sampleOk = r.picks >= MYS_SCOPE_MIN_PICKS
     const yieldOk = r.yieldPct !== null && r.yieldPct >= MYS_SCOPE_MIN_YIELD
-    return { scope, key: r.key, picks: r.picks, yieldPct: r.yieldPct, sampleOk, yieldOk, muestraYYieldCumplen: sampleOk && yieldOk }
+    return { scope, key: r.key, categoryKind: r.categoryKind, picks: r.picks, yieldPct: r.yieldPct, sampleOk, yieldOk, muestraYYieldCumplen: sampleOk && yieldOk }
   }
   return [
     ...(b.sports ?? []).map(r => mk('sport', r)),
@@ -127,7 +160,7 @@ export function checkMuestraYield(b: StatsBreakdown): ScopeCheck[] {
   ]
 }
 
-// Antelacion publicada: tramo con mas picks. Distribucion historica autodeclarada.
+// Antelacion publicada: tramo con mas picks (puede ser LIVE). Distribucion historica autodeclarada.
 export function dominantLeadBucket(b: StatsBreakdown): { bucket: string; sharePct: number } | null {
   const rows = b.hours_to_event
   if (!rows || rows.length === 0) return null
@@ -137,14 +170,32 @@ export function dominantLeadBucket(b: StatsBreakdown): { bucket: string; sharePc
   return { bucket: top.key, sharePct: Math.round((top.picks / total) * 1000) / 10 }
 }
 
-// Parte de picks publicada como LIVE (apuestas en directo). Un seguidor no puede
-// replicarlas con la misma ventana que un pick prepartido. Distribucion historica
-// autodeclarada: orienta, no demuestra nada sobre ejecucion.
-export function liveShare(b: StatsBreakdown): number | null {
+// Parte de picks publicada como LIVE, con numerador y denominador de la MISMA
+// pestana. null si la pagina no trae la seccion hours_to_event (no se rellena con 0).
+// Distribucion historica autodeclarada: no dice nada de ejecucion ni se puede cruzar
+// con ligas (no hay cruce liga x LIVE en estos datos, solo dos marginales).
+export interface LiveShare { livePicks: number; totalPicks: number; pct: number }
+export function liveShare(b: StatsBreakdown): LiveShare | null {
   const rows = b.hours_to_event
   if (!rows || rows.length === 0) return null
-  const total = rows.reduce((s, r) => s + r.picks, 0)
-  if (total === 0) return null
-  const live = rows.filter(r => r.key.trim().toUpperCase() === 'LIVE').reduce((s, r) => s + r.picks, 0)
-  return Math.round((live / total) * 1000) / 10
+  const totalPicks = rows.reduce((s, r) => s + r.picks, 0)
+  if (totalPicks === 0) return null
+  const livePicks = rows.filter(r => r.key.trim().toUpperCase() === 'LIVE').reduce((s, r) => s + r.picks, 0)
+  return { livePicks, totalPicks, pct: Math.round((livePicks / totalPicks) * 1000) / 10 }
+}
+
+// Cuadre de totales dentro de una pestana: suma de sports vs suma de categories vs
+// suma de hours_to_event. Si difieren, los denominadores no son intercambiables.
+export interface Reconcile {
+  sportsPicks: number | null
+  categoriesPicks: number | null
+  hoursToEventPicks: number | null
+  consistent: boolean | null   // null si falta alguna seccion
+}
+export function reconcileTotals(b: StatsBreakdown): Reconcile {
+  const sum = (r?: BreakdownRow[]) => (r && r.length > 0 ? r.reduce((s, x) => s + x.picks, 0) : null)
+  const sportsPicks = sum(b.sports), categoriesPicks = sum(b.categories), hoursToEventPicks = sum(b.hours_to_event)
+  const vals = [sportsPicks, categoriesPicks, hoursToEventPicks]
+  const consistent = vals.some(v => v === null) ? null : new Set(vals).size === 1
+  return { sportsPicks, categoriesPicks, hoursToEventPicks, consistent }
 }

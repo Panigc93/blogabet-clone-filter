@@ -1,0 +1,20 @@
+{
+  "note": "Evidencia de capturas publicas sin cookie de /blog/stats (peticion GET anonima con cabecera x-requested-with). Cifras autodeclaradas por Blogabet/tipsters; no prueban liquidez, cuota disponible ni ejecucion. Los HTML grandes no se versionan; el sha256 permite reconocer la captura.",
+  "captures": [
+    { "slug": "criteriofutbol", "url": "https://criteriofutbol.blogabet.com/blog/stats", "capturedAtUtc": "2026-11-15T11:11:03Z", "http": 200, "sha256_16": "1a90d3a20c63f268", "access": "free, non-verified", "tabs": ["alltime"],
+      "alltime": { "picks": 50, "liveShare": { "live": 0, "total": 50 }, "fixture": "stats-public-free-unverified.html" } },
+    { "slug": "greimancook", "url": "https://greimancook.blogabet.com/blog/stats", "capturedAtUtc": "2026-11-15T11:14:05Z", "http": 200, "sha256_16": "e0eb0e40a8589052", "access": "paid 99 EUR/month (catalog), verified", "tabs": ["alltime", "private", "paid"],
+      "alltime": { "picks": 18108, "liveShare": { "live": 15034, "total": 18108 }, "muestraYYieldCumplen": ["sport Football (14475, yield 13)", "sport Basketball (2675, 13)", "category 'Football - Greece' (117, 13) unclassified", "category 'Football - Livebet' (13336, 14) live aggregate"] },
+      "paid":    { "picks": 15305, "liveShare": { "live": 12807, "total": 15305 }, "muestraYYieldCumplen": ["sport Football (12516, 13)", "sport Basketball (1917, 11)", "category 'Football - Greece' (110, 13) unclassified", "category 'Football - Livebet' (11535, 14) live aggregate"] },
+      "private": { "picks": 56, "liveShare": { "live": 37, "total": 56 }, "muestraYYieldCumplen": [] } },
+    { "slug": "yugovalue", "url": "https://yugovalue.blogabet.com/blog/stats", "capturedAtUtc": "2026-11-15T11:14:11Z", "http": 200, "sha256_16": "86373297be330a9b", "access": "free (catalog), verified", "tabs": ["alltime", "private"],
+      "alltime": { "picks": 2316, "liveShare": { "live": 1567, "total": 2316 }, "muestraYYieldCumplen": ["sport Football (1957, 15)", "sport Basketball (334, 44)", "category 'Basketball-Livebet' (145, 53) live aggregate", "category 'Football-Bosnia & Herz.' (167, 39) unclassified"] },
+      "private": { "picks": 759, "liveShare": { "live": 214, "total": 759 }, "muestraYYieldCumplen": ["sport Football (470, 30)", "sport Basketball (267, 48)", "category 'Basketball-Livebet' (101, 58) live aggregate", "category 'Football-Bosnia & Herz.' (151, 40) unclassified", "category 'Football-Livebet' (121, 23) live aggregate"] } }
+  ],
+  "limits": [
+    "Las pestanas paid y private son subconjuntos de picks distintos de alltime: no se suman ni se atribuyen entre si.",
+    "Football-Livebet es un agregado de apuestas en directo, no una liga. No hay cruce liga x LIVE en estos datos (solo dos marginales).",
+    "Football-Greece y similares son categorias originales de Blogabet: pueden ser pais o competicion, sin verificar.",
+    "Antelacion y casas son distribuciones historicas autodeclaradas, no prueba de recepcion a tiempo."
+  ]
+}
