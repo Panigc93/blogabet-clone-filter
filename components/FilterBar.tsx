@@ -129,8 +129,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             <div style={{ flex: 1 }} />
             {/* FUENTE (plataforma) */}
             <select
-              className="form-control"
-              style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 13, height: 36, cursor: 'pointer', flexShrink: 0, marginRight: 8 }}
+              style={{ background: '#fff', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 13, height: 36, cursor: 'pointer', flexShrink: 0, marginRight: 8, padding: '0 8px' }}
               value={platform}
               onChange={e => update('platform', e.target.value === 'blogabet' ? null : e.target.value)}
             >
