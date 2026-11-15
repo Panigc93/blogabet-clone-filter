@@ -48,6 +48,17 @@ describe('apiCaptureToSnapshot (captura compacta real)', () => {
     if (!m.ok) expect(m.reason).toContain('contradiccion-numerica')
   })
 
+  it('winRate con cierre win/lose month/6 vs sport/6 se conserva; si se rompe el cierre, null (no fabricado)', () => {
+    expect(snap.overview.winRatePct).toBe(46) // 1488/(1488+1722), cuentas enteras idénticas en ambas agregaciones
+    const tampered: TipstrrApiCapture = {
+      ...cap,
+      month6: cap.month6.map((r, i) => (i === 0 ? { ...r, win: (r.win ?? 0) + 1 } : r)),
+    }
+    const s2 = apiCaptureToSnapshot(tampered)
+    expect(s2.overview.winRatePct).toBeNull()
+    expect(s2.notAvailable.some((n) => n.field === 'winRatePct')).toBe(true)
+  })
+
   it('fidelidad de formato: month/6 replica la serie de la captura embebida (evidencia sonda 1086)', () => {
     // La sonda alltime-selector-probe-1086 verificó que month/6 es IDÉNTICA a
     // la serie embebida #tipstrr-state. Aquí se fija la forma esperada por

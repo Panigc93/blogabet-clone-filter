@@ -25,66 +25,23 @@ import {
   assertRealImportProvenance,
 } from '../crawler/platforms/tipstrr/to-db'
 import type { TipsterInsert } from '../db/schema'
-
-// Copia local de la composición INSERT (misma que la auditada de
-// import-tipstrr-prod): NO se importa de allí porque ese módulo ejecuta su
-// propio main() al cargarse. Mantener ambas en sync si cambia el esquema.
-const COLUMNS: [keyof TipsterInsert, string][] = [
-  ['platform', 'platform'], ['slug', 'slug'], ['name', 'name'],
-  ['profitUnit', 'profit_unit'], ['priceCurrency', 'price_currency'],
-  ['avatarUrl', 'avatar_url'], ['flagUrl', 'flag_url'], ['countryCode', 'country_code'],
-  ['isPaid', 'is_paid'], ['price', 'price'], ['sinceYear', 'since_year'],
-  ['picks', 'picks'], ['profit', 'profit'], ['yield', 'yield'],
-  ['verifiedPct', 'verified_pct'], ['isVerified', 'is_verified'],
-  ['followers', 'followers'], ['lastPickAt', 'last_pick_at'],
-  ['signupAt', 'signup_at'], ['capturedAt', 'captured_at'],
-  ['resetCount', 'reset_count'], ['lastResetAt', 'last_reset_at'],
-  ['picks6mAvg', 'picks_6m_avg'], ['yield3m', 'yield_3m'], ['yield6m', 'yield_6m'],
-  ['yield12m', 'yield_12m'], ['picksFree3mAvg', 'picks_free_3m_avg'],
-  ['yieldFree3m', 'yield_free_3m'], ['statsUpdatedAt', 'stats_updated_at'],
-  ['sourcePortfolioId', 'source_portfolio_id'],
-]
-
-export function buildInsert(insert: TipsterInsert, internalId: boolean): { text: string; params: unknown[] } {
-  const cols: string[] = ['id']
-  const vals: string[] = []
-  const params: unknown[] = []
-  if (internalId) {
-    vals.push(`nextval('tipsters_internal_id_seq')`)
-  } else {
-    params.push(insert.id)
-    vals.push(`$${params.length}`)
-  }
-  for (const [key, col] of COLUMNS) {
-    const v = insert[key]
-    if (v === undefined) continue
-    cols.push(col)
-    params.push(v)
-    vals.push(`$${params.length}`)
-  }
-  return {
-    text: `INSERT INTO tipsters (${cols.join(', ')}) VALUES (${vals.join(', ')})`,
-    params,
-  }
-}
+// Builder COMPARTIDO y probado (crawler/platforms/tipstrr/insert-sql.ts,
+// cubierto con PGlite en tests/crawler/import-catalog-sql.test.ts): el mismo
+// código que el import sport/6 auditado, sin copias locales.
+import { buildInsert, camelize } from '../crawler/platforms/tipstrr/insert-sql'
 
 const APPLY = process.argv.includes('--apply')
 const RUN_ID = `tipstrr-catalog-20261115-${APPLY ? 'apply' : 'dryrun'}-${Date.now()}`
 const CAP_DIR = 'crawler/platforms/tipstrr/captures/2026-11-15-api'
 
-// PG devuelve numeric como string (igual que en import-tipstrr-prod).
-const NUMERIC_KEYS = new Set([
-  'price', 'profit', 'yield', 'verifiedPct',
-  'picks6mAvg', 'yield3m', 'yield6m', 'yield12m', 'picksFree3mAvg', 'yieldFree3m',
-])
-const camelize = (row: Record<string, unknown>): Record<string, unknown> => {
-  const out: Record<string, unknown> = {}
-  for (const [k, v] of Object.entries(row)) {
-    const key = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
-    out[key] = NUMERIC_KEYS.has(key) && typeof v === 'string' ? Number(v) : v
-  }
-  return out
-}
+// Re-export para tests.
+export { buildInsert } from '../crawler/platforms/tipstrr/insert-sql'
+
+// Huella de las filas EXISTENTES (blogabet + tipstrr previos): el lote es
+// solo-altas, así que la huella debe ser invariante entre antes y después.
+// md5 calculado en servidor sobre el volcado ordenado (mismo criterio que la
+// huella del lote sport/6).
+const HUELLA_SQL = `SELECT md5(string_agg(t::text, '|' ORDER BY id)) AS h, count(*)::text AS n FROM tipsters t`
 
 const skipClass = (reason: string): string => {
   const m = reason.match(/cuarentena\[([^\]]+)\]/)
@@ -107,13 +64,14 @@ async function main() {
   const logt = await sql.query(`SELECT 1 FROM pg_tables WHERE tablename = 'import_validation_log'`)
   if (logt.length === 0) throw new Error('falta import_validation_log: aplica 0005 antes del import')
 
-  const pre = await sql.query(`SELECT count(*)::text AS n FROM tipsters`) as { n: string }[]
-  console.log(`filas tipsters antes: ${pre[0].n} (solo deben sumar inserts Tipstrr nuevos)`)
+  const pre = (await sql.query(HUELLA_SQL)) as { h: string; n: string }[]
+  console.log(`filas tipsters antes: ${pre[0].n} | huella md5: ${pre[0].h} (debe ser invariante salvo los inserts nuevos)`)
 
   if (!existsSync(CAP_DIR)) throw new Error(`sin capturas: ${CAP_DIR} no existe`)
   const files = readdirSync(CAP_DIR).filter((f) => f.endsWith('.json'))
   const summary = { insert: 0, skip: 0, quarantine: 0, errors: 0 }
   const skipDetail: { slug: string; klass: string }[] = []
+  const insertedSlugs: string[] = []
 
   for (const f of files) {
     const slug = f.replace(/\.json$/, '')
@@ -132,7 +90,24 @@ async function main() {
       continue
     }
     const snap = apiCaptureToSnapshot(cap)
-    const isPaid = cap.portfolio.type === 2
+    // Tipo portfolio: 1=free, 2=premium (documentado en select#discover-type).
+    // Cualquier otro valor NO se asume gratis: cuarentena con el valor medido.
+    const ptype = cap.portfolio.type
+    if (ptype !== 1 && ptype !== 2) {
+      summary.skip++
+      summary.quarantine++
+      skipDetail.push({ slug, klass: 'cuarentena[tipo-portfolio-desconocido]' })
+      if (APPLY) {
+        await sql.transaction((txn) => [
+          txn.query(
+            `INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
+            ['tipstrr', slug, capturedIso, 'cuarentena[tipo-portfolio-desconocido]', `portfolio.type=${ptype} no documentado (1=free, 2=premium): no se asume free por defecto; captura conservada`, RUN_ID]
+          ),
+        ])
+      }
+      continue
+    }
+    const isPaid = ptype === 2
     // Control de cobertura histórica (lección revenue-faq, 2026-11-15): con
     // overviewPeriod=6 la puerta verifica el cierre numérico, pero el cierre
     // NO ve historia previa al primer mes de la serie. Si la serie empieza
@@ -217,12 +192,14 @@ async function main() {
          RUN_ID]
       ),
     ])
+    insertedSlugs.push(slug)
     summary.insert++
   }
 
   console.log(JSON.stringify({ runId: RUN_ID, apply: APPLY, summary, skipDetail }, null, 1))
 
   if (APPLY) {
+    const post = (await sql.query(HUELLA_SQL)) as { h: string; n: string }[]
     const byPlatform = await sql.query(`SELECT platform, count(*)::text AS n FROM tipsters GROUP BY platform ORDER BY platform`)
     const fixtures = await sql.query(
       `SELECT count(*)::text AS n FROM tipsters WHERE id BETWEEN -900999 AND -900000`
@@ -230,8 +207,23 @@ async function main() {
     const logCount = await sql.query(
       `SELECT count(*)::text AS n FROM import_validation_log WHERE run_id = $1`, [RUN_ID]
     ) as { n: string }[]
-    console.log(JSON.stringify({ byPlatform, fixtureIds: fixtures[0].n, validationLogRows: logCount[0].n }))
+    console.log(JSON.stringify({ despues: post[0], esperadoN: String(Number(pre[0].n) + summary.insert), byPlatform, fixtureIds: fixtures[0].n, validationLogRows: logCount[0].n }))
     if (fixtures[0].n !== '0') throw new Error('POST-IMPORT: hay ids de fixture en tipsters — abortar y revisar')
+    if (Number(post[0].n) !== Number(pre[0].n) + summary.insert) throw new Error('POST-IMPORT: el recuento no cuadra (antes + inserts != después) — abortar y revisar')
+    // La huella global cambia por los inserts nuevos; la invariancia real es
+    // la de las filas PREEXISTENTES: md5 excluyendo los slugs insertados por
+    // ESTE run debe coincidir con la huella previa.
+    if (insertedSlugs.length === 0) {
+      // Sin inserts no se excluye nada: la huella post debe ser la previa.
+      if (post[0].h !== pre[0].h) throw new Error('POST-IMPORT: la huella cambió sin inserts — abortar y revisar')
+    } else {
+      const preHuella = (await sql.query(
+        `SELECT md5(string_agg(t::text, '|' ORDER BY id)) AS h FROM tipsters t WHERE NOT (platform = 'tipstrr' AND slug = ANY($1))`,
+        [insertedSlugs]
+      )) as { h: string }[]
+      console.log(`huella filas preexistentes tras el import: ${preHuella[0].h} (previa: ${pre[0].h})`)
+      if (preHuella[0].h !== pre[0].h) throw new Error('POST-IMPORT: la huella de las filas preexistentes cambió — abortar y revisar')
+    }
   }
 }
 

@@ -65,22 +65,11 @@ const EXCLUDED_AFTER_REVIEW: Record<string, string> = {
 // id interno por secuencia (0005). Nunca un id de fixture.
 const SOURCE_PORTFOLIO_IDS: Record<string, number> = { 'the-least-expected': 221629 }
 
-// camelCase TipsterInsert -> columna SQL. updatedAt se omite: default NOW().
-const COLUMNS: [keyof TipsterInsert, string][] = [
-  ['platform', 'platform'], ['slug', 'slug'], ['name', 'name'],
-  ['profitUnit', 'profit_unit'], ['priceCurrency', 'price_currency'],
-  ['avatarUrl', 'avatar_url'], ['flagUrl', 'flag_url'], ['countryCode', 'country_code'],
-  ['isPaid', 'is_paid'], ['price', 'price'], ['sinceYear', 'since_year'],
-  ['picks', 'picks'], ['profit', 'profit'], ['yield', 'yield'],
-  ['verifiedPct', 'verified_pct'], ['isVerified', 'is_verified'],
-  ['followers', 'followers'], ['lastPickAt', 'last_pick_at'],
-  ['signupAt', 'signup_at'], ['capturedAt', 'captured_at'],
-  ['resetCount', 'reset_count'], ['lastResetAt', 'last_reset_at'],
-  ['picks6mAvg', 'picks_6m_avg'], ['yield3m', 'yield_3m'], ['yield6m', 'yield_6m'],
-  ['yield12m', 'yield_12m'], ['picksFree3mAvg', 'picks_free_3m_avg'],
-  ['yieldFree3m', 'yield_free_3m'], ['statsUpdatedAt', 'stats_updated_at'],
-  ['sourcePortfolioId', 'source_portfolio_id'],
-]
+// camelCase TipsterInsert -> columna SQL: COMPARTIDO en
+// crawler/platforms/tipstrr/insert-sql.ts (mismo builder probado que el
+// import de catálogo). updatedAt se omite: default NOW().
+import { COLUMNS, buildInsert as buildInsertShared, buildUpdate as buildUpdateShared, camelize } from '../crawler/platforms/tipstrr/insert-sql'
+export { COLUMNS }
 
 // Pertenencia free/premium medida en la pasada de catálogo (combos).
 const catalog = JSON.parse(
@@ -91,59 +80,10 @@ for (const [k, c] of Object.entries(catalog.combos)) {
   for (const p of c.pages) for (const s of p.slugs) if (k.endsWith(':premium')) premium.add(s)
 }
 
-// PG devuelve numeric como string: al camelizar una fila existente hay que
-// devolver esos campos a number o un update los reescribiría como texto.
-const NUMERIC_KEYS = new Set([
-  'price', 'profit', 'yield', 'verifiedPct',
-  'picks6mAvg', 'yield3m', 'yield6m', 'yield12m', 'picksFree3mAvg', 'yieldFree3m',
-])
-const camelize = (row: Record<string, unknown>): Record<string, unknown> => {
-  const out: Record<string, unknown> = {}
-  for (const [k, v] of Object.entries(row)) {
-    const key = k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())
-    out[key] = NUMERIC_KEYS.has(key) && typeof v === 'string' ? Number(v) : v
-  }
-  return out
-}
 
-export function buildInsert(insert: TipsterInsert, internalId: boolean): { text: string; params: unknown[] } {
-  const cols: string[] = ['id']
-  const vals: string[] = []
-  const params: unknown[] = []
-  if (internalId) {
-    // Id surrogate generado por la secuencia interna en la propia
-    // transacción del INSERT (sin placeholder).
-    vals.push(`nextval('tipsters_internal_id_seq')`)
-  } else {
-    params.push(insert.id)
-    vals.push(`$${params.length}`)
-  }
-  for (const [key, col] of COLUMNS) {
-    const v = insert[key]
-    if (v === undefined) continue // defaults de esquema
-    cols.push(col)
-    params.push(v)
-    vals.push(`$${params.length}`)
-  }
-  return {
-    text: `INSERT INTO tipsters (${cols.join(', ')}) VALUES (${vals.join(', ')})`,
-    params,
-  }
-}
 
-export function buildUpdate(id: number, merged: TipsterInsert): { text: string; params: unknown[] } {
-  const sets: string[] = []
-  const params: unknown[] = []
-  for (const [key, col] of COLUMNS) {
-    if (key === 'platform' || key === 'slug') continue // identidad inmutable
-    const v = merged[key]
-    if (v === undefined) continue
-    params.push(v)
-    sets.push(`${col} = $${params.length}`)
-  }
-  params.push(id)
-  return { text: `UPDATE tipsters SET ${sets.join(', ')} WHERE id = $${params.length}`, params }
-}
+export const buildInsert = buildInsertShared
+export const buildUpdate = buildUpdateShared
 
 const skipClass = (reason: string): string => {
   const m = reason.match(/cuarentena\[([^\]]+)\]/)

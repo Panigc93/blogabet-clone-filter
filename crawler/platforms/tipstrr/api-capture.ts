@@ -18,6 +18,8 @@ export interface ApiMonthRow {
   tips: number
   staked: number
   profit: number
+  win?: number
+  lose?: number
   winPercentage?: number
   roi?: number
   averageOdds?: number | null
@@ -81,6 +83,20 @@ export function apiCaptureToSnapshot(cap: TipstrrApiCapture): FichaSnapshot {
   const totals = sport6Totals({ slug: cap._meta.slug, source: 'api', capturedAt: capturedIso, stats: cap.sport6 })
   const isPaid = cap.portfolio.type === 2
 
+  // WinRate multi-deporte (revisión main 2026-11-15): el agregado
+  // Σwin/Σ(win+lose) de sport/6 solo se conserva si CIERRA contra las
+  // cuentas enteras win/lose de la serie month/6 (dos agregaciones
+  // independientes del servidor, misma filosofía que la puerta numérica).
+  // Si falta alguna cuenta o discrepan: null (incierto, no fabricado). La
+  // captura nunca se bloquea por esto.
+  const mWin = cap.month6.reduce((a, r) => a + (r.win ?? 0), 0)
+  const mLose = cap.month6.reduce((a, r) => a + (r.lose ?? 0), 0)
+  const sWin = cap.sport6.reduce((a, r) => a + (r.win ?? 0), 0)
+  const sLose = cap.sport6.reduce((a, r) => a + (r.lose ?? 0), 0)
+  const monthCarriesCounts = cap.month6.every((r) => typeof r.win === 'number' && typeof r.lose === 'number')
+  const winRateVerificado = monthCarriesCounts && mWin + mLose > 0 && mWin === sWin && mLose === sLose
+  const winRatePct = winRateVerificado && sWin + sLose > 0 ? Math.round((100 * sWin) / (sWin + sLose)) : null
+
   return {
     capturedAt: capturedIso,
     capturedAtDate: capturedIso,
@@ -95,7 +111,7 @@ export function apiCaptureToSnapshot(cap: TipstrrApiCapture): FichaSnapshot {
     lastResultVisibleLabel: null,
     overview: {
       tips: totals.tips,
-      winRatePct: totals.winRatePct,
+      winRatePct,
       avgOdds: null, // agregado multi-deporte no emitido por la fuente; ausente, no inventado
       stakeLabel: null,
       profitDisplay: null,
@@ -110,6 +126,9 @@ export function apiCaptureToSnapshot(cap: TipstrrApiCapture): FichaSnapshot {
     notAvailable: [
       { field: 'subscriptionPriceGbp', reason: 'precio no capturado en esta fase (membership del endpoint, semantica no verificada)' },
       { field: 'lastPickAt', reason: 'granularidad mensual; no hay fecha de pick en la captura API' },
+      ...(winRatePct === null && totals.winRatePct !== null
+        ? [{ field: 'winRatePct', reason: 'agregado multi-deporte sin cierre win/lose contra month/6: null, no fabricado' }]
+        : []),
     ],
   }
 }
