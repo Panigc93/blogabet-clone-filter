@@ -5,7 +5,7 @@ import { drizzle } from 'drizzle-orm/neon-http'
 import { tipsters } from '../db/schema'
 import { sql, gt, and, gte, lt, or, isNull } from 'drizzle-orm'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { shouldClearInactiveStats } from './catalogFreshness'
+import { decideStatsOutcome } from './statsOutcome'
 
 // Load .env.local if vars aren't already set (avoids shell $ expansion issues)
 const envPath = new URL('../.env.local', import.meta.url).pathname
@@ -298,24 +298,28 @@ async function crawlStats() {
     unlinkSync(CHECKPOINT_PATH)
   }
 
-  // Null out stats for tipsters not active in the last month, but only when the
-  // catalog crawl (which refreshes last_pick_at) is fresh. Otherwise a failing
-  // catalog crawl would make everyone look inactive and wipe valid stats.
-  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 3600 * 1000)
-  const [{ activeInWindow, refreshedRecently }] = await db.select({
-    activeInWindow: sql<number>`count(*) filter (where ${tipsters.lastPickAt} >= ${oneMonthAgo})`.mapWith(Number),
-    refreshedRecently: sql<number>`count(*) filter (where ${tipsters.lastPickAt} >= ${oneMonthAgo} and ${tipsters.updatedAt} >= ${threeDaysAgo})`.mapWith(Number),
+  // Conservative by default: never null stats. Freshness stays visible in
+  // stats_updated_at. Clearing needs CLEAR_INACTIVE_STATS=1 and a complete clean run.
+  const [{ withStats }] = await db.select({
+    withStats: sql<number>`count(*) filter (where ${tipsters.statsUpdatedAt} is not null)`.mapWith(Number),
   }).from(tipsters)
-  const decision = shouldClearInactiveStats({ activeInWindow, refreshedRecently })
-  if (!decision.clear) {
-    console.warn(`Skipping clear of inactive stats: ${decision.reason}`)
-    return
+  const outcome = decideStatsOutcome({
+    selected: allTipsters.length,
+    withStats,
+    done,
+    errors,
+    completed: true,
+    clearRequested: process.env.CLEAR_INACTIVE_STATS === '1',
+  })
+  for (const m of outcome.messages) console.warn(m)
+  if (outcome.clear) {
+    await db.update(tipsters)
+      .set({ yield3m: null, yield6m: null, yield12m: null, picks6mAvg: null,
+             picksFree3mAvg: null, yieldFree3m: null, statsUpdatedAt: null })
+      .where(or(isNull(tipsters.lastPickAt), lt(tipsters.lastPickAt, oneMonthAgo)))
+    console.log('Cleared stale stats for inactive tipsters (explicit opt-in).')
   }
-  const cleared = await db.update(tipsters)
-    .set({ yield3m: null, yield6m: null, yield12m: null, picks6mAvg: null,
-           picksFree3mAvg: null, yieldFree3m: null, statsUpdatedAt: null })
-    .where(or(isNull(tipsters.lastPickAt), lt(tipsters.lastPickAt, oneMonthAgo)))
-  console.log(`Cleared stale stats for inactive tipsters.`)
+  if (outcome.exitCode !== 0) process.exitCode = outcome.exitCode
 }
 
 // Only run when executed directly
