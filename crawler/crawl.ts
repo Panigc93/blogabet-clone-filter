@@ -5,6 +5,8 @@ import type { TipsterInsert } from '../db/schema'
 import { parseBlocks, blogabetUrl, CATALOG_ORDER, COMMON_HEADERS } from './listing'
 export { parseBlocks, blogabetUrl, CATALOG_ORDER }
 import { sql, inArray, notInArray, and } from 'drizzle-orm'
+import { CoverageTracker, formatCoverage } from './coverage'
+import { appendFileSync } from 'fs'
 import type { BrowserContext, Browser } from 'playwright'
 
 // ─── Retry helper ────────────────────────────────────────────────────────────
@@ -115,26 +117,37 @@ async function crawl() {
     console.log(`Starting crawl: lastActive=${lastActive}`)
   }
 
+  const coverage = new CoverageTracker()
+  const delayMs = Number(process.env.CRAWL_DELAY_MS ?? '1000')
+  if (!Number.isFinite(delayMs) || delayMs < 0) throw new Error('CRAWL_DELAY_MS must be a number >= 0')
   try {
   while (true) {
     console.log(`Fetching page start=${start}`)
     const fetch = usePlaywright && pwCtx
       ? () => fetchPagePlaywright(lastActive, start, cookie, pwCtx!)
       : () => fetchPage(lastActive, start, cookie)
-    const records = await withRetry(fetch, `fetchPage(${start})`)
+    let records: TipsterInsert[]
+    try {
+      records = await withRetry(fetch, `fetchPage(${start})`)
+    } catch (err) {
+      coverage.finish('error')
+      throw err
+    }
 
     if (records.length === 0) {
+      coverage.finish('empty_page')
       console.log('Empty page — crawl complete')
       break
     }
 
+    let newCount = 0
     await withRetry(async () => {
       // Remove stale records: same slug but different id (tipster reset their account)
       const slugs = records.map(r => r.slug)
       const ids = records.map(r => r.id!)
       await db.delete(tipsters).where(and(inArray(tipsters.slug, slugs), notInArray(tipsters.id, ids)))
 
-      await db
+      const written = await db
         .insert(tipsters)
         .values(records)
         .onConflictDoUpdate({
@@ -159,19 +172,25 @@ async function crawl() {
           updatedAt:   sql`NOW()`,
         },
       })
+        .returning({ inserted: sql<boolean>`(xmax = 0)` })
+      newCount = written.filter(w => w.inserted).length
     }, `upsert(start=${start})`)
 
+    coverage.addPage(records.map(r => ({ id: r.id!, followers: r.followers ?? 0 })), newCount)
     total += records.length
     start += records.length
     saveCheckpoint(lastActive, start, total)
     console.log(`Upserted ${records.length} tipsters (total: ${total})`)
 
-    await new Promise(r => setTimeout(r, 300))
+    await new Promise(r => setTimeout(r, delayMs))
   }
 
   clearCheckpoint(lastActive)
   console.log(`Crawl finished. Total upserted: ${total}`)
   } finally {
+    const text = formatCoverage(coverage.summary())
+    console.log(text)
+    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, text + '\n')
     await browser?.close()
   }
 }
