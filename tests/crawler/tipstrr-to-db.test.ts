@@ -43,14 +43,19 @@ describe('tipstrrSnapshotToInsert', () => {
     expect(parseFloat(statmind.profit!)).toBeCloseTo(-59.125, 3)
   })
 
-  it('stores all-time yield only when the record is fully consistent', () => {
+  it('verified tier stores the overview yield; a battery failure without numeric contradiction falls back to the exact-series yield', () => {
     expect(tle.yield).toBe('18.33')
     expect(statmind.yield).toBe('-20.32')
+    // 2026-11-15 (revisión): un fallo de la batería que NO contradice las
+    // cifras (p.ej. advised != level en stake variable) ya no anula el
+    // yield: con tips/roi/profit cerrando contra la serie, el yield se
+    // calcula de la serie exacta (misma base level-stake). Solo una
+    // contradicción numérica real lo deja null.
     const broken = mustMap(tipstrrSnapshotToInsert(
       { ...TLE_SNAPSHOT, consistency: [{ name: 'x', passed: false }] },
       { id: -1, slug: 'x', isPaid: true }
     ))
-    expect(broken.yield).toBeNull()
+    expect(broken.yield).toBe('18.33') // calculado: 361.82/1974 cierra con 18.33
   })
 
   it('computes period yields from exact monthly figures; incomplete windows are null', () => {
@@ -193,5 +198,54 @@ describe('puerta por niveles: overview rodante vs all-time', () => {
     )
     expect(r.ok).toBe(false)
     if (!r.ok) expect(r.reason).toContain('no llega al mes de alta')
+  })
+})
+
+describe('stake variable vs contradicción numérica', () => {
+  const mk = (over: Partial<FichaSnapshot>): FichaSnapshot => ({
+    capturedAt: '2026-11-15',
+    capturedAtDate: '2026-11-15T16:00:00Z',
+    monthState: [
+      { year: 2026, month: 10, tips: 100, staked: 100, profit: 10 },
+      { year: 2026, month: 9, tips: 100, staked: 100, profit: -5 },
+    ],
+    sourceUrl: 'https://tipstrr.com/tipster/x/stats',
+    name: 'X', platformLabel: 'Free', signupDate: '2026-09-10', avatarUrl: null,
+    activeTipsNow: null, lastResultVisibleLabel: null,
+    overview: { tips: 50, winRatePct: null, avgOdds: null, stakeLabel: null, profitDisplay: null, profitUnits: 3, roiPct: 3, roiPeriodLabel: 'period=3' },
+    months: [], consistency: [{ name: 'misma ventana', passed: true }],
+    overviewPeriod: 3, yieldEquivalenceNote: '', notAvailable: [], ...over,
+  })
+  const OPTS = { id: -700002, slug: 'x', isPaid: false }
+
+  it('stake variable (advised != level) con cierres numéricos en verde NO es contradicción: yield calculado de la serie', () => {
+    // 2026-11-15: 51 perfiles all-time reales fallaban solo el chequeo
+    // advised == level (estructural en stake variable) y la puerta anterior
+    // les anulaba el yield pese a cerrar tips/roi/profit contra la serie.
+    const ok = mk({})
+    const r = mustMap(tipstrrSnapshotToInsert(
+      mk({
+        overviewPeriod: 6,
+        overview: { ...ok.overview, tips: 200, roiPct: 2.5, profitUnits: 5 },
+        consistency: [{ name: 'profit advised = level stake', passed: false }],
+      }),
+      OPTS
+    ))
+    expect(r.picks).toBe(200)
+    expect(r.yield).toBe('2.50') // Σprofit/Σstaked = 5/200, base level-stake
+  })
+
+  it('contradicción numérica real (roi del overview no cierra contra la serie): yield null', () => {
+    const ok = mk({})
+    const r = mustMap(tipstrrSnapshotToInsert(
+      mk({
+        overviewPeriod: 6,
+        overview: { ...ok.overview, tips: 200, roiPct: 9.99, profitUnits: 5 },
+        consistency: [{ name: 'roi = profit / total apostado cierra', passed: false }],
+      }),
+      OPTS
+    ))
+    expect(r.picks).toBe(200)
+    expect(r.yield).toBeNull()
   })
 })

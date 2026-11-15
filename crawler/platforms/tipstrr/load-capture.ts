@@ -228,6 +228,7 @@ export function loadTipstrrCapture(
       // Monthly sum (exact) x the account's configured unit stake: the
       // source's own EUR rendering is this same unit normalization.
       profitDisplay: monthRows.length > 0 ? formatMoney(sumProfit) : null,
+      profitUnits: overviewProfit,
       roiPct: overviewRoi,
       roiPeriodLabel: opts.editorial.roiPeriodLabel,
     },

@@ -102,10 +102,24 @@ export function tipstrrSnapshotToInsert(
     yieldAll = null
   } else if (coverage) {
     picks = sumTips
-    // Contradicción overview/serie: no defendemos ningún yield. Si no hay
-    // contradicción (overview rodante), el yield all-time se calcula de
-    // las cifras mensuales exactas de la fuente.
-    yieldAll = overviewAllTime
+    // Yield all-time = Σprofit/Σstaked de la serie (base level-stake, la
+    // definición de yield acordada), EXCEPTO contradicción numérica real
+    // overview-vs-serie (tips/roi/profit no cierran): ahí no defendemos
+    // ninguna cifra. OJO: advised != level NO es contradicción — es lo
+    // estructural en tipsters de stake variable (2026-11-15: 51 perfiles
+    // all-time con cierres numéricos en verde fallaban solo ese chequeo
+    // heredado de los fixtures de stake plano).
+    const roiCloses =
+      sumStaked > 0 &&
+      s.overview.roiPct !== null &&
+      Math.abs((sumProfit / sumStaked) * 100 - s.overview.roiPct) < 0.05
+    const profitCloses =
+      s.overview.profitUnits === null || s.overview.profitUnits === undefined
+        ? true // cierre no computable (fixture antiguo): no se usa en contra
+        : Math.abs(sumProfit - s.overview.profitUnits) < 0.01
+    const numericContradiction =
+      overviewAllTime && !(s.overview.tips === sumTips && roiCloses && profitCloses)
+    yieldAll = numericContradiction
       ? null
       : sumStaked > 0
         ? (Math.round((sumProfit / sumStaked) * 10000) / 100).toFixed(2)

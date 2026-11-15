@@ -46,6 +46,8 @@ const files = [
   ...readdirSync(CAP_DIR).map((f) => join(CAP_DIR, f)),
   'crawler/platforms/tipstrr/captures/2026-11-15-tle-stats-state.json',
 ]
+const tiers: Record<string, number> = {}
+const nullReasons: Record<string, number> = {}
 
 let i = 0
 const okRows: { slug: string; picks: number; yield: string | null; paid: boolean }[] = []
@@ -90,8 +92,25 @@ for (const f of files) {
     rejected.push({ slug, reason: m.reason })
     continue
   }
+  // Nivel de la puerta (misma lógica de ramas que to-db.ts, para auditoría):
+  const sumTipsT = snap.monthState.reduce((a, r) => a + r.tips, 0)
+  const overviewAllTimeT =
+    snap.overviewPeriod === 6 || (snap.overview.tips !== null && snap.overview.tips === sumTipsT)
+  const allConsistentT = snap.consistency.length > 0 && snap.consistency.every((c) => c.passed)
+  const verifiedT =
+    overviewAllTimeT && allConsistentT && (snap.monthState.length === 0 || snap.overview.tips === sumTipsT)
+  const tier = verifiedT ? 'VERIFICADO' : overviewAllTimeT ? 'CONTRADICCION' : 'COBERTURA'
+  tiers[tier] = (tiers[tier] ?? 0) + 1
+  if (m.insert.yield === null) {
+    const why = verifiedT
+      ? 'verificado_sin_roi'
+      : overviewAllTimeT
+        ? 'contradiccion_overview_vs_serie'
+        : 'cobertura_sin_denominador'
+    nullReasons[why] = (nullReasons[why] ?? 0) + 1
+  }
   await db.insert(tipsters).values(m.insert)
-  okRows.push({ slug, picks: m.insert.picks, yield: m.insert.yield, paid: m.insert.isPaid })
+  okRows.push({ slug, picks: m.insert.picks!, yield: m.insert.yield ?? null, paid: m.insert.isPaid! })
 }
 
 const byPlatform = await pg.query<{ platform: string; n: string }>(
@@ -101,6 +120,8 @@ console.log(JSON.stringify({
   persisted: okRows.length,
   rejected: rejected.length,
   rejectedDetail: rejected,
+  tiers,
+  nullReasons,
   withYield: okRows.filter((r) => r.yield !== null).length,
   yieldNull: okRows.filter((r) => r.yield === null).length,
   byPlatform,

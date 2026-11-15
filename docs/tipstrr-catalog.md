@@ -160,7 +160,7 @@ Selección del usuario: orden **ROI** (`order=2`), período **3 meses** (`period
 
 ### Hallazgo: el overview de /stats NO es all-time por defecto
 
-`overview.period` varía por perfil: 3 (70 perfiles), 4 (60), 5 (26), 6 (53). Verificado contra las 209 capturas: los periodos 3/4/5 son **ventanas rodantes** no reproducibles desde buckets mensuales (ninguna ventana de meses naturales cuadra de forma general); el código 6 es all-time (50 de 53 cierran al tip contra la suma de la serie mensual). El parámetro `?period=` de la URL es ignorado (sonda en vivo, 2 peticiones).
+`overview.period` varía por perfil: 3 (70 perfiles), 4 (60), 5 (26), 6 (53). Verificado contra las 209 capturas: los periodos 3/4/5 NO son reproducibles desde buckets mensuales (ninguna de las ventanas de meses naturales ensayadas cuadra de forma general — últimos N cerrados por calendario, últimos N presentes en la serie, ni incluyendo el mes en curso). Esto descarta esas comparaciones; la semántica real (rodante de N días u otra) queda SIN VERIFICAR. El código 6 sí es all-time: 50 de 53 cierran al tip contra la suma de la serie mensual. El parámetro `?period=` de la URL es ignorado (sonda en vivo, 2 peticiones).
 
 ### Puerta por niveles (to-db.ts)
 
@@ -171,10 +171,28 @@ Selección del usuario: orden **ROI** (`order=2`), período **3 meses** (`period
 
 ### Resultado de la ingesta aislada (PGlite, nunca Neon)
 
-200 persistidos (84 free / 116 premium; ids provisionales -900000-i salvo TLE -221629 real), 9 rechazados por silencio ambiguo (alpheratz, beat-365, celtic-racing-tipster, chrisbestbets, forrest-jump, kensflat, ravi-predictz, steviebetscom, the-second-serve — capturas conservadas). 145 con yield all-time, 55 null. Script: `scripts/seed-tipstrr-catalog.ts`.
+200 persistidos (84 free / 116 premium) en la base AISLADA con ids PROVISIONALES -900000-i (salvo TLE -221629 real): son FIXTURES de validación, NO payload importable a producción — el estado /stats no expone portfolioId en ningún campo (búsqueda exhaustiva sobre las capturas) y la convención exige PK = -portfolioId real. La identidad real se resuelve con los objetos por-tip de /results (como el 221629 de TLE), misma pasada acotada que la actividad. 9 rechazados por silencio ambiguo (alpheratz, beat-365, celtic-racing-tipster, chrisbestbets, forrest-jump, kensflat, ravi-predictz, steviebetscom, the-second-serve — capturas conservadas). 191 con yield all-time, 9 null (solo contradicciones numéricas reales). Script: `scripts/seed-tipstrr-catalog.ts`.
+
+### Revisión 17:35 — desglose por nivel (instrumentado en el script)
+
+- VERIFICADO 49: overview all-time + batería completa en verde → picks y yield del overview.
+- COBERTURA 96: overview no all-time + serie desde el alta → picks = suma exacta, yield = Σprofit/Σstaked.
+- CONTRADICCION 55 → reclasificada: 46 eran stake variable (advised != level, estructural, con tips/roi/profit cerrando contra la serie) → ahora yield calculado de la serie; 9 contradicciones numéricas reales (joydi, nieder, on-target-tips, on-the-money-tips, parabola-bets, shrewd-tips, svb-tips, thebanker, trust-me) → yield null, picks de la serie.
+- RECHAZO 9: serie empieza tras el mes de alta y overview no all-time verificado.
+
+Controles de cobertura aplicados: (1) primera fila mensual <= mes de alta; (2) igualdad exacta tips serie vs overview cuando el overview es all-time; (3) cierre roi = Σprofit/Σstaked ±0.05 y profit ±0.01 contra la serie; (4) meses sin actividad no generan fila (0 filas tips=0 en 4.271) y aportan 0 a la suma, así que los huecos intermedios NO corruptan el total — sí anulan ventanas de periodo vía periods.ts (complete=false); (5) sin truncamiento observado: series de hasta 184 filas y 44+ cierres exactos. Límite honesto: para perfiles con overview no all-time, la completitud es evidencia de mecanismo (mismo estado, misma serie), no prueba registro a registro.
+
+Precio: las tarjetas guardadas del listado (football default) contienen ROI/odds/tips/winrate/profit pero NINGÚN precio de suscripción ("Join from £X" no aparece en el material capturado) → hueco confirmado sin red nueva.
 
 ### Huecos conocidos
 
 - Precio de suscripción: NO está en el estado /stats (membershipTier null incluso en premium); solo en tarjetas del listado, no capturadas.
 - Actividad último pick: dateAdded por tip solo en el detalle /tipster/<slug>/results (PORTFOLIO_TIP_CACHED). Opción preparada NO ejecutada: 1 lectura por perfil (~209, 35-55 min a 10-16 s); la ordenación "última publicación" NO está probada — verificar dateAdded descendente en primera página antes de usar max(dateAdded) como lastPickAt.
 - Los 9 rechazados son perfiles cuya primera fila mensual cae 1 mes después del alta (probable primera actividad tardía, no truncamiento, pero ambiguo); recuperables con una fuente de total independiente.
+
+### Actividad (último pick) — comprobación acotada PREVIA a cualquier pasada (NO ejecutada)
+
+Antes de proponer 209 lecturas, resolver la semántica con 2-3 lecturas acotadas:
+1. Elegir 2 perfiles del catálogo: uno con activeTips > 0 y otro con activeTips = 0 (ambos datos ya en las capturas /stats).
+2. Leer /tipster/<slug>/results de cada uno (mismo ritmo 10-16 s) y extraer PORTFOLIO_TIP_CACHED: comprobar (a) que la primera página está ordenada por dateAdded descendente, (b) qué estados incluye (abiertos vs liquidados), (c) si dateAdded es fecha de publicación o de evento.
+3. Solo si (a)-(c) se verifican: max(dateAdded) de la primera página = última publicación, y la pasada completa (209 lecturas, 35-55 min) tendría semántica defendible. Si la página no ordena por publicación, haría falta paginar y el coste cambia — se reportaría antes de seguir.

@@ -41,6 +41,10 @@ export interface FichaSnapshot {
     avgOdds: number | null
     stakeLabel: string | null
     profitDisplay: string | null // source display at 10/10=10 € (cuenta con divisa EUR y stake 10 €; verificado 15-11-2026)
+    // Profit advised EN UNIDADES tal cual lo emite el estado (overview.profit),
+    // acotado al periodo del overview. Lo usa la puerta para el cierre numérico
+    // contra la serie; null en fixtures antiguos = cierre no computable.
+    profitUnits?: number | null
     roiPct: number | null
     roiPeriodLabel: string
   }
@@ -75,6 +79,7 @@ export const STATMIND_SNAPSHOT: FichaSnapshot = {
     avgOdds: 2.93,
     stakeLabel: '10/10 (291/291)',
     profitDisplay: '-591,25 €',
+    profitUnits: -59.13,
     roiPct: -20.32,
     roiPeriodLabel: 'periodo overview: 3 meses; tabla deporte (todo su historial) muestra -20.3% sobre los mismos 291 tips',
   },
@@ -155,6 +160,7 @@ export const TLE_SNAPSHOT: FichaSnapshot = {
     avgOdds: 3.34,
     stakeLabel: '10/10 · plano 1u (21/21 meses)',
     profitDisplay: '+3.618,15 €',
+    profitUnits: 361.82,
     roiPct: 18.33,
     roiPeriodLabel: 'overview all-time: 1974 tips; advised = level = 18.33%',
   },
