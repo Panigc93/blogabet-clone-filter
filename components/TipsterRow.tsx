@@ -74,7 +74,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
             {t.sourceLabel}
           </a>
           {t.capturedAt && (
-            <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>Tipstrr · captura {t.capturedAt} (no es sincronización)</div>
+            <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{t.platform === 'golazobets' ? 'Golazobets' : 'Tipstrr'} · captura {t.capturedAt} (no es sincronización)</div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
             {t.isVerified !== null && (
