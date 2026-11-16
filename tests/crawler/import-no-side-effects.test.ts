@@ -15,4 +15,13 @@ describe('production importer is inert on import', () => {
     expect(child.stdout.trim()).toBe('inert-import-ok')
     expect(child.stderr).not.toContain('DATABASE_URL')
   })
+  it('still runs CLI directly and refuses missing credentials before network', () => {
+    const env = { ...process.env }
+    delete env.DATABASE_URL
+    const child = spawnSync(process.execPath, ['--import', 'tsx', 'scripts/import-tipstrr-prod.ts'], { cwd: process.cwd(), encoding: 'utf8', env })
+    expect(child.status).toBe(1)
+    expect(child.stderr).toContain('DATABASE_URL ausente o dummy')
+    expect(child.stdout).not.toContain('INSERT')
+  })
+
 })

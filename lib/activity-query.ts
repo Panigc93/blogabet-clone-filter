@@ -22,6 +22,8 @@ export function activityCondition(months: number, unknown = false, rows: Activit
 export function activityWarning(months?: number, unknown?: boolean): string | null {
   if (months === undefined && !unknown) return null
   if (unknown) return 'Sin publicación comprobada en el último mes. Incluye datos ausentes, parciales o antiguos: NO significa inactivo. Blogabet conserva su aproximación del catálogo.'
+  const dates = evidence.map(e => e.capturedAt).sort()
+  const range = dates.length ? ` Fechas de captura: ${dates[0]} a ${dates[dates.length - 1]}. ` : ' Sin fechas de captura disponibles. '
   const coverage = `Capturas con fecha aprovechable: Golazobets ${new Set(evidence.filter(e => e.platform === 'golazobets').map(e => e.slug)).size}; Tipstrr ${new Set(evidence.filter(e => e.platform === 'tipstrr').map(e => e.slug)).size}. `
-  return coverage + 'Actividad comprobada por una publicación dentro del periodo, según capturas parciales (no es necesariamente la última publicación). Sin prueba reciente queda fuera, no se clasifica como inactivo. Blogabet conserva su aproximación del catálogo. No hay actualización automática.'
+  return coverage + range + 'Actividad comprobada por una publicación dentro del periodo, según capturas parciales (no es necesariamente la última publicación). Sin prueba reciente queda fuera, no se clasifica como inactivo. Blogabet conserva su aproximación del catálogo. No hay actualización automática.'
 }

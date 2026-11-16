@@ -1,3 +1,4 @@
+import { observedPublicationBounds } from '@/lib/activity'
 import { activityCondition } from '@/lib/activity-query'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { readFileSync } from 'node:fs'
@@ -187,6 +188,20 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
     expect(unknown.some(r => r.platform === 'tipstrr' && r.slug === 'statmind')).toBe(true)
     const noEvidence = await db.select().from(tipsters).where(activityCondition(1, false, []))
     expect(noEvidence).toHaveLength(0)
+  })
+
+  it('recent naive publication two hours ago is positive SQL evidence, bounded by capture', async () => {
+    const capture = new Date(Date.now() - 1000).toISOString()
+    const raw = new Date(Date.now() - 2 * 3600000).toISOString().slice(0, 19).replace('T', ' ')
+    const b = observedPublicationBounds(raw, capture)!
+    expect(b.upper).toBe(capture)
+    const proof = [{ platform: 'golazobets' as const, slug: 'FutbolEnCasa', sourceUrl: 'https://golazobets.com/tipster/FutbolEnCasa',
+      capturedAt: capture, publishedLower: b.lower, publishedUpper: b.upper,
+      precision: 'timezone-unknown' as const, coverage: 'first-page' as const }]
+    const recent = await db.select().from(tipsters).where(activityCondition(1, false, proof))
+    expect(recent.map(r => r.slug)).toEqual(['FutbolEnCasa'])
+    const unknown = await db.select().from(tipsters).where(activityCondition(1, true, proof))
+    expect(unknown.some(r => r.slug === 'FutbolEnCasa')).toBe(false)
   })
 
   it('pagination (LoadMore path) returns stable pages with negative ids', async () => {

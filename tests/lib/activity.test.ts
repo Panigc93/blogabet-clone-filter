@@ -40,7 +40,8 @@ describe('activity evidence, not invented last publication', () => {
   it('validates URL input for SSR/API identically', () => {
     expect(['1','3','6','12'].map(parseActivity)).toEqual([1,3,6,12])
     expect(parseActivity('unknown')).toBe('unknown')
-    for (const bad of ['', null, undefined, 'NaN', '-1', '0', '2', 'Infinity']) expect(parseActivity(bad)).toBeUndefined()
+    expect(parseActivity('2')).toBe(2)
+    for (const bad of ['', null, undefined, 'NaN', '-1', '0', 'Infinity']) expect(parseActivity(bad)).toBeUndefined()
   })
   it('clamps calendar month boundaries rather than subtracting 30 days', () => {
     expect(monthsBefore(new Date('2026-03-31T12:00:00Z'), 1).toISOString()).toBe('2026-02-28T12:00:00.000Z')

@@ -195,9 +195,10 @@ export function FilterBar({ searchParams }: FilterBarProps) {
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Actividad</label>
               <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('activity') ?? ''}
-                title="Publicaciones comprobadas en capturas; ausencia de prueba no significa inactividad. BB usa su catálogo de activos."
+                title={sp.get('activity') === 'unknown' ? 'Sin publicación comprobada en el último mes; no significa inactivo' : "Publicaciones comprobadas en capturas; ausencia de prueba no significa inactividad. BB usa su catálogo de activos."}
                 onChange={e => update('activity', e.target.value || null)}>
                 <option value="">Todos</option>
+                {sp.get('activity') && !['1','3','6','12','unknown'].includes(sp.get('activity')!) && <option value={sp.get('activity')!}>Últimos {sp.get('activity')} meses</option>}
                 <option value="1">Último mes</option>
                 <option value="3">Últimos 3 meses</option>
                 <option value="6">Últimos 6 meses</option>

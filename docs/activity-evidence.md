@@ -31,7 +31,8 @@ Golazobets: created_at es publicación, distinto de event_date/resolved_at.
 Una primera página basta para prueba POSITIVA, no prueba negativa. Las
 muestras ordenan por publicación, pero no hay contrato global demostrado.
 La fecha no incluye offset: se usa intervalo conservador para todo el
-rango civil UTC-12..UTC+14. Solo pasa el filtro cuando TODO el intervalo
+rango civil UTC-12..UTC+14. El extremo superior se acota por capturedAt: una publicación observada no
+puede ser posterior a su captura. Solo pasa el filtro cuando todo ese intervalo
 está dentro de la ventana y en el pasado. Casos de frontera quedan sin
 confirmar. No se inventa UTC ni zona Madrid. La fecha de captura no es la
 fecha de publicación. max observado es una cota, no último global.
@@ -52,8 +53,7 @@ empieza con la prueba Tipstrr existente y espera la captura Golazobets
 
 El mismo buildFilters aplica SQL antes de count, orden y paginación tanto
 en SSR como API. No se filtran arrays después de paginar. SQL parametrizado,
-sin interpolar identificadores de usuario. La vista /lab/activity es visual,
-sin DB ni resultados ficticios.
+sin interpolar identificadores de usuario. No se añade ninguna vista lab al merge final.
 
 ## Pruebas
 

@@ -11,11 +11,11 @@ export interface ActivityEvidence {
   coverage: 'sample' | 'first-page' | 'complete'
 }
 
-const MONTHS = [1, 3, 6, 12]
 export function parseActivity(value: string | null | undefined): number | 'unknown' | undefined {
   if (value === 'unknown') return 'unknown'
   const n = Number(value)
-  return value && MONTHS.includes(n) ? n : undefined
+  // Preserve existing direct URLs such as activity=2 (whole positive months).
+  return value && Number.isSafeInteger(n) && n > 0 && n <= 1200 ? n : undefined
 }
 
 export function validEvidence(e: ActivityEvidence): boolean {
@@ -51,4 +51,13 @@ export function provesRecent(e: ActivityEvidence, cutoff: Date, now: Date): bool
   return validEvidence(e) && Date.parse(e.publishedLower) >= cutoff.getTime()
     && Date.parse(e.publishedUpper) <= now.getTime()
     && Date.parse(e.capturedAt) <= now.getTime()
+}
+
+// An observed publication cannot occur after the response capture. This is a
+// causal bound, not a guessed timezone. Reject a lower bound after capture.
+export function observedPublicationBounds(raw: unknown, capturedAt: string): { lower: string; upper: string } | null {
+  const bounds = golazobetsPublicationBounds(raw)
+  const capture = Date.parse(capturedAt)
+  if (!bounds || !Number.isFinite(capture) || Date.parse(bounds.lower) > capture) return null
+  return { lower: bounds.lower, upper: new Date(Math.min(Date.parse(bounds.upper), capture)).toISOString() }
 }

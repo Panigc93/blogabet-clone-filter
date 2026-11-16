@@ -51,7 +51,7 @@ export function buildFilters(params: TipsterFilters): SQL[] {
   }
 
   // Activity evidence is independent of historical yield. BB keeps its proxy.
-  if (params.activityUnknown || [1, 3, 6, 12].includes(params.activityMonths ?? 0)) {
+  if (params.activityUnknown || (Number.isSafeInteger(params.activityMonths) && params.activityMonths! > 0 && params.activityMonths! <= 1200)) {
     conditions.push(activityCondition(params.activityUnknown ? 1 : params.activityMonths!, params.activityUnknown))
   }
 
