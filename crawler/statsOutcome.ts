@@ -1,8 +1,11 @@
+import type { StatsRunCounters } from './statsLoop'
+
 // Outcome policy for the stats crawl. Conservative by default: stats are never
 // nulled unless explicitly requested. Freshness stays visible in stats_updated_at
 // (rows that are not refreshed keep their old timestamp).
 
 export interface StatsRunSummary {
+  counters?: StatsRunCounters // absent in legacy callers: never reconstruct them from done
   /** Tipsters selected for refresh (last_pick_at inside the activity window). */
   selected: number
   /** Tipsters that currently hold period stats (stats_updated_at not null). */
@@ -29,6 +32,14 @@ export interface StatsOutcome {
 
 export function decideStatsOutcome(s: StatsRunSummary): StatsOutcome {
   const messages: string[] = []
+  if (s.counters) {
+    const c = s.counters
+    messages.push(`Stats invocation: processed=${c.processed}, refreshed=${c.refreshed}, noData=${c.noData}, requestErrors=${c.requestErrors}.`)
+    messages.push(`Restored checkpoint: offset=${c.checkpointOffset}, done=${c.checkpointDone}, errors=${c.checkpointErrors}. Legacy cumulative done=${s.done}, errors=${s.errors}; these are not row-update counts.`)
+  } else {
+    messages.push('Invocation counters unavailable; legacy done is not a row-update count.')
+  }
+  messages.push(`Rows with a non-null stats timestamp after run: ${s.withStats}. This is not the number refreshed or retained by this invocation.`)
   let exitCode: 0 | 1 = 0
 
   if (s.blocked) {
@@ -37,20 +48,18 @@ export function decideStatsOutcome(s: StatsRunSummary): StatsOutcome {
   } else if (s.selected === 0) {
     // No activity evidence at all (empty or fully stale catalog): nothing is refreshed
     // and nothing is deleted. Make it visible instead of a green no-op.
-    messages.push(`No tipsters selected (last_pick_at has no activity inside the window). Nothing refreshed; ${s.withStats} rows keep their stats and old stats_updated_at.`)
+    messages.push(`No tipsters selected (last_pick_at has no activity inside the window). Nothing refreshed; previous values are kept.`)
     exitCode = 1
   } else {
-    const notRefreshed = Math.max(0, s.withStats - s.done)
-    if (notRefreshed > 0) {
-      messages.push(`${notRefreshed} rows with stats were not refreshed in this run; they keep their values and old stats_updated_at.`)
-    }
     if (s.errors > 0) {
-      messages.push(`${s.errors} of ${s.selected} stats requests failed.`)
+      messages.push(s.counters
+        ? `${s.counters.requestErrors} requests failed in this invocation; legacy cumulative errors=${s.errors} may include the restored checkpoint.`
+        : `Legacy cumulative errors=${s.errors}; invocation request-error count unavailable.`)
       if (s.errors === s.selected) exitCode = 1
     }
     if (s.errors < s.selected && s.refreshed === 0) {
       // HTTP 200 on every page but nothing parsed: an empty or changed response, not a success.
-      messages.push(`0 of ${s.selected} selected tipsters returned parseable stats (empty or changed responses). Nothing was written.`)
+      messages.push(`0 of ${s.counters?.processed ?? s.selected} processed/selected tipsters returned parseable stats in this invocation (empty or changed responses). Nothing was written in this invocation.`)
       exitCode = 1
     }
   }
