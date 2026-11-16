@@ -1,3 +1,4 @@
+import { activityCondition } from '@/lib/activity-query'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -162,14 +163,30 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
     expect(tt).toHaveLength(2) // NOT silently zero
   })
 
-  it('Blogabet-only filters (activity, years, free picks, reset) never hide Tipstrr rows via direct URL params', async () => {
+  it('Blogabet-only filters (years, free picks, reset) never hide Tipstrr rows via direct URL params', async () => {
     // Tipstrr rows carry null lastPickAt/lastResetAt/picksFree3mAvg: applying
     // these filters would silently drop every Tipstrr row as if none existed.
-    const bbOnly = { activityMonths: 3, minYears: 1, conPicksFree: true, resetOlderThan: true }
+    const bbOnly = { minYears: 1, conPicksFree: true, resetOlderThan: true }
     const tt = await runQuery({ ...bbOnly, platform: 'tipstrr' as const })
     expect(tt).toHaveLength(2) // both Tipstrr rows still listed
     const all = await runQuery(bbOnly) // combined view: nothing applied
     expect(all).toHaveLength(4) // BB + 2 Tipstrr + 1 Golazobets
+  })
+
+  it('activity is applied before pagination; unknown is null-safe and platform-scoped', async () => {
+    const now = new Date().toISOString()
+    const proof = [{ platform: 'tipstrr' as const, slug: 'the-least-expected',
+      sourceUrl: 'https://tipstrr.com/tipster/the-least-expected/results', capturedAt: now,
+      publishedLower: now, publishedUpper: now, precision: 'utc' as const, coverage: 'sample' as const }]
+    const recent = await db.select().from(tipsters).where(activityCondition(1, false, proof)).limit(1)
+    expect(recent).toHaveLength(1)
+    expect(recent[0].platform).toBe('tipstrr') // BB shares its slug, but has no proof.
+    const unknown = await db.select().from(tipsters).where(activityCondition(1, true, proof))
+    expect(unknown).toHaveLength(3)
+    expect(unknown.some(r => r.platform === 'blogabet')).toBe(true) // NULL last_pick_at
+    expect(unknown.some(r => r.platform === 'tipstrr' && r.slug === 'statmind')).toBe(true)
+    const noEvidence = await db.select().from(tipsters).where(activityCondition(1, false, []))
+    expect(noEvidence).toHaveLength(0)
   })
 
   it('pagination (LoadMore path) returns stable pages with negative ids', async () => {
