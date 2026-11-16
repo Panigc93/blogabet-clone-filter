@@ -10,6 +10,11 @@
 //   attempt record; the previous valid capture is kept untouched.
 // - A valid capture never moves backwards in time (older capturedAt does
 //   not replace a newer one).
+// - A 'stopped' outcome (403/429/challenge/reset/timeout) is a SITE signal:
+//   it leaves the slug state untouched (no failure counted, no attempt that
+//   could pass for a capture) and instead writes a persistent GLOBAL PAUSE.
+//   The pause is never lifted by time or backoff: only resume(), an
+//   explicit decision with a named decider and a note, removes it.
 import fs from 'fs'
 import path from 'path'
 import type { CrawlOutcome } from './crawl'
@@ -46,6 +51,7 @@ export function applyOutcome(state: SlugState, outcome: CrawlOutcome, attemptedA
     kind: outcome.kind,
     reason: outcome.kind === 'ok' ? null : outcome.reason,
   }
+  if (outcome.kind === 'stopped') return state // site-level: not this profile's failure
   if (outcome.kind !== 'ok') {
     return { ...state, lastAttempt: attempt, consecutiveFailures: state.consecutiveFailures + 1 }
   }
@@ -68,15 +74,8 @@ export interface RefreshPolicy {
   batchSize: number // max profiles per run
 }
 
-// PROPOSAL, not a verified platform requirement: weekly refresh, 1 h base
-// backoff capped at 24 h, 30 profiles per run (~5 min of pacing alone).
-export const DEFAULT_POLICY: RefreshPolicy = {
-  refreshAfterMs: 7 * 24 * 3600_000,
-  backoffBaseMs: 3600_000,
-  backoffMaxMs: 24 * 3600_000,
-  batchSize: 30,
-}
-
+// No default policy exists: every value is an explicit decision by whoever
+// runs the crawl (none has been authorized yet).
 export function backoffMs(failures: number, p: RefreshPolicy): number {
   if (failures <= 0) return 0
   return Math.min(p.backoffBaseMs * 2 ** (failures - 1), p.backoffMaxMs)
@@ -89,7 +88,7 @@ export function selectDue(
   slugs: string[],
   states: Map<string, SlugState>,
   now: Date,
-  policy: RefreshPolicy = DEFAULT_POLICY,
+  policy: RefreshPolicy,
 ): string[] {
   const t = now.getTime()
   const due: { slug: string; key: number }[] = []
@@ -110,8 +109,11 @@ export function selectDue(
 }
 
 // ---- file adapter -------------------------------------------------------
+// Per-slug files live in <dir>/captures/; the pause lives apart in
+// <dir>/pause.json so no slug can collide with it.
+const capturesDir = (dir: string) => path.join(dir, 'captures')
 const fileFor = (dir: string, slug: string) =>
-  path.join(dir, `${encodeURIComponent(slug)}.json`)
+  path.join(capturesDir(dir), `${encodeURIComponent(slug)}.json`)
 
 export function loadState(dir: string, slug: string): SlugState {
   const f = fileFor(dir, slug)
@@ -124,14 +126,67 @@ export function loadState(dir: string, slug: string): SlugState {
 // Atomic: write a temp file then rename, so a crash never leaves a torn
 // record that could replace a valid one.
 export function saveState(dir: string, state: SlugState): void {
-  fs.mkdirSync(dir, { recursive: true })
-  const f = fileFor(dir, state.slug)
+  writeAtomic(fileFor(dir, state.slug), JSON.stringify(state, null, 1))
+}
+
+function writeAtomic(f: string, text: string): void {
+  fs.mkdirSync(path.dirname(f), { recursive: true })
   const tmp = `${f}.${process.pid}.tmp`
-  fs.writeFileSync(tmp, JSON.stringify(state, null, 1))
+  fs.writeFileSync(tmp, text)
   fs.renameSync(tmp, f)
 }
 
+// ---- global pause -------------------------------------------------------
+export interface GlobalPause {
+  pausedAt: string // ISO
+  reason: string
+  triggerSlug: string // profile being requested when the signal appeared (not at fault)
+}
+
+export interface PauseResolution extends GlobalPause {
+  resumedAt: string
+  decidedBy: string
+  note: string
+}
+
+const pauseFile = (dir: string) => path.join(dir, 'pause.json')
+const pauseLog = (dir: string) => path.join(dir, 'pause-log.json')
+
+export function readPause(dir: string): GlobalPause | null {
+  const f = pauseFile(dir)
+  return fs.existsSync(f) ? (JSON.parse(fs.readFileSync(f, 'utf8')) as GlobalPause) : null
+}
+
+// Keeps the FIRST pause: later signals never overwrite its origin.
+export function writePause(dir: string, outcome: CrawlOutcome, at: Date): GlobalPause {
+  const existing = readPause(dir)
+  if (existing) return existing
+  if (outcome.kind !== 'stopped') throw new Error('pause requires a stopped outcome')
+  const pause: GlobalPause = { pausedAt: at.toISOString(), reason: outcome.reason, triggerSlug: outcome.slug }
+  writeAtomic(pauseFile(dir), JSON.stringify(pause, null, 1))
+  return pause
+}
+
+// The ONLY way out of a pause. Needs a named decider and a note; nothing in
+// the crawl or the refresh policy calls it.
+export function resume(dir: string, decision: { decidedBy: string; note: string }, at: Date): PauseResolution {
+  const pause = readPause(dir)
+  if (!pause) throw new Error('no pause to resume')
+  if (!decision.decidedBy.trim() || !decision.note.trim()) {
+    throw new Error('resume requires decidedBy and note (explicit decision)')
+  }
+  const resolution: PauseResolution = { ...pause, resumedAt: at.toISOString(), decidedBy: decision.decidedBy.trim(), note: decision.note.trim() }
+  const log = fs.existsSync(pauseLog(dir)) ? (JSON.parse(fs.readFileSync(pauseLog(dir), 'utf8')) as PauseResolution[]) : []
+  writeAtomic(pauseLog(dir), JSON.stringify([...log, resolution], null, 1))
+  fs.rmSync(pauseFile(dir))
+  return resolution
+}
+
 export function recordOutcome(dir: string, outcome: CrawlOutcome, attemptedAt: Date): SlugState {
+  if (outcome.kind === 'stopped') {
+    writePause(dir, outcome, attemptedAt)
+    return loadState(dir, outcome.slug) // unchanged
+  }
   const next = applyOutcome(loadState(dir, outcome.slug), outcome, attemptedAt)
   saveState(dir, next)
   return next

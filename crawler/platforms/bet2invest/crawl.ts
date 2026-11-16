@@ -7,13 +7,15 @@
 // - STOP the whole run on 403/429, a challenge page, or a transport
 //   failure (connection reset/timeout): a reset+timeout pair was observed
 //   on one profile and its cause is unknown, so it is treated as a
-//   throttling signal, not retried aggressively.
+//   throttling signal, not retried aggressively. A 'stopped' outcome is a
+//   SITE-level signal: it says nothing about the profile that happened to
+//   be requested, and profiles after it are never requested.
 // - Enumeration comes from the sitemap: the default listing showed 50 rows,
 //   all PRO, while the sitemap has 300 slugs (47 overlap). Why Free
 //   profiles are absent from the listing is NOT established.
 // - Each profile ends as exactly one outcome with a class; nothing is
 //   persisted here: the caller receives mappings and decides.
-import { parseProfilePage, Bet2InvestParseError } from './parse'
+import { parseProfilePage, isChallengeResponse, Bet2InvestParseError } from './parse'
 import { bet2investProfileToInsert, type Bet2InvestDbMapping } from './to-db'
 import { parseSitemapProfiles } from './catalog'
 
@@ -56,6 +58,7 @@ export async function crawlProfiles(
   slugs: string[],
   deps: CrawlDeps,
   mapId: (slug: string) => number,
+  onOutcome?: (outcome: CrawlOutcome) => void, // called right after each outcome (crash-safe persistence)
 ): Promise<CrawlReport> {
   const outcomes: CrawlOutcome[] = []
   let requests = 0
@@ -71,22 +74,36 @@ export async function crawlProfiles(
     try {
       res = await deps.fetch(profileUrl(slug))
     } catch (e) {
-      outcomes.push({ slug, kind: 'stopped', reason: `transport failure (${(e as Error).message}): treated as throttling, run halted` })
+      const o: CrawlOutcome = { slug, kind: 'stopped', reason: `transport failure (${(e as Error).message}): treated as throttling, run halted` }
+      outcomes.push(o)
+      onOutcome?.(o)
       return { outcomes, stoppedEarly: true, requests }
     }
     if (res.status === 403 || res.status === 429) {
-      outcomes.push({ slug, kind: 'stopped', reason: `HTTP ${res.status}: run halted` })
+      const o: CrawlOutcome = { slug, kind: 'stopped', reason: `HTTP ${res.status}: run halted` }
+      outcomes.push(o)
+      onOutcome?.(o)
       return { outcomes, stoppedEarly: true, requests }
     }
     const capturedAt = deps.now()
     if (res.status !== 200) {
-      outcomes.push({ slug, kind: 'parse-failed', capturedAt, reason: `HTTP ${res.status}: no stats evaluated` })
+      const o: CrawlOutcome = { slug, kind: 'parse-failed', capturedAt, reason: `HTTP ${res.status}: no stats evaluated` }
+      outcomes.push(o)
+      onOutcome?.(o)
       continue
+    }
+    if (isChallengeResponse(res.body)) {
+      const o: CrawlOutcome = { slug, kind: 'stopped', reason: 'challenge page: no stats delivered: run halted' }
+      outcomes.push(o)
+      onOutcome?.(o)
+      return { outcomes, stoppedEarly: true, requests }
     }
     try {
       const profile = parseProfilePage(res.body)
       if (profile.username.toLowerCase() !== slug.toLowerCase()) {
-        outcomes.push({ slug, kind: 'parse-failed', capturedAt, reason: `canonical slug ${profile.username} != requested ${slug}` })
+        const o: CrawlOutcome = { slug, kind: 'parse-failed', capturedAt, reason: `canonical slug ${profile.username} != requested ${slug}` }
+        outcomes.push(o)
+        onOutcome?.(o)
         continue
       }
       const mapping = bet2investProfileToInsert(profile, {
@@ -95,15 +112,22 @@ export async function crawlProfiles(
         slug,
         capturedAt,
       })
-      outcomes.push(
-        mapping.ok
-          ? { slug, kind: 'ok', capturedAt, mapping }
-          : { slug, kind: 'quarantine', capturedAt, reason: mapping.reason },
-      )
+      const o: CrawlOutcome = mapping.ok
+        ? { slug, kind: 'ok', capturedAt, mapping }
+        : { slug, kind: 'quarantine', capturedAt, reason: mapping.reason }
+      outcomes.push(o)
+      onOutcome?.(o)
     } catch (e) {
-      if (e instanceof Bet2InvestParseError) {
-        outcomes.push({ slug, kind: 'parse-failed', capturedAt, reason: e.message })
-      } else throw e
+      if (!(e instanceof Bet2InvestParseError)) throw e
+      if (e.message.startsWith('challenge page')) {
+        const o: CrawlOutcome = { slug, kind: 'stopped', reason: `${e.message}: run halted` }
+        outcomes.push(o)
+        onOutcome?.(o)
+        return { outcomes, stoppedEarly: true, requests }
+      }
+      const o: CrawlOutcome = { slug, kind: 'parse-failed', capturedAt, reason: e.message }
+      outcomes.push(o)
+      onOutcome?.(o)
     }
   }
   return { outcomes, stoppedEarly: false, requests }

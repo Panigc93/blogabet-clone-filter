@@ -154,6 +154,12 @@ function looksLikeChallenge(html: string): boolean {
   return /challenge-platform|__CF\$cv\$params/.test(html)
 }
 
+// A challenge response: the marker AND no stats block. The marker alone is
+// not enough (it is embedded in complete pages too).
+export function isChallengeResponse(html: string): boolean {
+  return looksLikeChallenge(html) && !html.includes('data-testid="stats-settledBetsNumber"')
+}
+
 function testid($: cheerio.CheerioAPI, id: string): string {
   return $(`[data-testid="${id}"]`).first().text().trim()
 }
