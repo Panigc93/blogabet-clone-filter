@@ -3,7 +3,7 @@ import { eq, gt, gte, ilike, isNotNull, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
 export interface TipsterFilters {
-  platform?: 'blogabet' | 'tipstrr' | 'golazobets' // undefined = all platforms (callers: default to 'blogabet')
+  platform?: 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' // undefined = all platforms (callers: default to 'blogabet')
   search?: string
   tipo?: 'all' | 'free' | 'paid'
   minYield?: number
@@ -139,7 +139,7 @@ export function ignoredWarning(params: TipsterFilters): string | null {
 // golazobets-units, luego units), NO es un ranking global de beneficio.
 export function profitSortWarning(sort: SortField, platform: TipsterFilters['platform']): string | null {
   if (sort !== 'profit' || platform !== undefined) return null
-  return 'Orden por beneficio agrupado por unidad: € (Blogabet), u (Golazobets) y u (Tipstrr) no son comparables entre si; no es un ranking global de beneficio.'
+  return 'Orden por beneficio agrupado por unidad: € (Blogabet), u (Golazobets), u (Tipstrr) y u (Bet2Invest) no son comparables entre si; no es un ranking global de beneficio.'
 }
 
 export function sortColumn(sort: SortField) {
@@ -159,8 +159,9 @@ export function sortColumn(sort: SortField) {
 export function sortOrder(sort: SortField): SQL[] {
   if (sort === 'profit') {
     // El profit NO es comparable entre unidades ('eur' BB, 'units' Tipstrr,
-    // 'golazobets-units'): una ordenación cruzada silenciosa sería un ranking
-    // falso. Se agrupa por unidad y se ordena por valor dentro de cada una.
+    // 'golazobets-units', 'bet2invest-units'): una ordenación cruzada
+    // silenciosa sería un ranking falso. Se agrupa por unidad y se ordena
+    // por valor dentro de cada una.
     return [
       sql`${tipsters.profitUnit} ASC`,
       sql`${tipsters.profit} DESC NULLS LAST`,

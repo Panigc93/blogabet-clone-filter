@@ -78,6 +78,7 @@ describe('buildFilters', () => {
   it('scopes by platform only when requested', () => {
     expect(buildFilters({ platform: 'tipstrr' })).toHaveLength(1)
     expect(buildFilters({ platform: 'blogabet' })).toHaveLength(1)
+    expect(buildFilters({ platform: 'bet2invest' })).toHaveLength(1)
     expect(buildFilters({})).toHaveLength(0) // undefined = no platform clause
   })
 
@@ -103,8 +104,10 @@ describe('sortOrder', () => {
 describe('profitSortWarning', () => {
   it('avisa solo en vista combinada ordenada por beneficio', () => {
     expect(profitSortWarning('profit', undefined)).toContain('no son comparables')
+    expect(profitSortWarning('profit', undefined)).toContain('Bet2Invest')
     expect(profitSortWarning('profit', 'blogabet')).toBeNull()
     expect(profitSortWarning('profit', 'golazobets')).toBeNull()
+    expect(profitSortWarning('profit', 'bet2invest')).toBeNull()
     expect(profitSortWarning('yield', undefined)).toBeNull()
   })
 })

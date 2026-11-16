@@ -3,12 +3,13 @@
 // records. Provenance is mandatory: a metric without its basis and period is
 // not comparable across platforms and must not be presented as if it were.
 
-export type PlatformId = 'blogabet' | 'golazobets' | 'tipstrr'
+export type PlatformId = 'blogabet' | 'golazobets' | 'tipstrr' | 'bet2invest'
 
 export type StakeBasis =
   | 'advised-stakes' // tipstrr default: the tipster's advised stake per tip
   | 'level-stakes' // every tip treated as staked with the max unit
   | 'platform-total-bet' // golazobets: profit over their total_bet figure
+  | 'profile-stakes-inferred' // bet2invest: profile profit contrasts with the flat 'Profit (1U)' mode; basis inferred, never labelled by the source
   | 'unknown'
 
 export interface StatSample {
