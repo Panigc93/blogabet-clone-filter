@@ -214,7 +214,7 @@ export function fromTipstrrSnapshot(s: FichaSnapshot): TipsterCardData {
 
 // DB-backed Golazobets row. Misma regla de honestidad que Tipstrr: capturedAt
 // siempre visible (captura fechada, no sync). El profit va etiquetado con su
-// unidad propia ('ud Golazobets'): NO es equivalente a las 'u' de Tipstrr ni
+// unidad propia ('u' en la cifra): NO es equivalente a las 'u' de Tipstrr ni
 // a los € de Blogabet, y la ordenación por profit la agrupa aparte
 // (lib/query.ts). Campos no expuestos por la plataforma: null, nunca 0.
 function golazobetsFromDbRow(t: Tipster): TipsterCardData {
@@ -235,10 +235,10 @@ function golazobetsFromDbRow(t: Tipster): TipsterCardData {
     sourceUrl: `https://golazobets.com/tipster/${encodeURIComponent(t.slug)}`,
     sourceLabel: `golazobets.com/tipster/${t.slug}`,
     capturedAt: captured && !isNaN(captured.getTime()) ? captured.toISOString().slice(0, 10) : null,
-    sinceYear: null,
-    sinceTitle: null,
+    sinceYear: t.sinceYear,
+    sinceTitle: 'Año de la primera apuesta registrada en Golazobets (no es la fecha de alta en la plataforma)',
     picks: t.picks,
-    profitDisplay: profit !== null ? `${profit >= 0 ? '+' : ''}${profit} ud Golazobets` : null,
+    profitDisplay: profit !== null ? `${profit >= 0 ? '+' : ''}${fmtEs.format(profit)} u` : null,
     yieldPct: num(t.yield),
     yieldTitle: 'Yield publicado por Golazobets (beneficio / total apostado); las unidades Golazobets no son equivalentes a € ni a las unidades de Tipstrr',
     verifiedPct: null, // win_rate no es % verificado: no se mezclan conceptos

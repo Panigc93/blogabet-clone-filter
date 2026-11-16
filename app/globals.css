@@ -47,7 +47,7 @@ a {
 .period-cell { min-width: 55px; }
 
 .tipster-left  { width: 364px; flex-shrink: 0; }
-.tipster-right { min-width: 150px; width: 150px; }
+.tipster-right { min-width: 174px; width: 174px; }
 .filterbar-search { width: 280px; }
 
 /* ── Mobile (≤768px) ──────────────────────────────────────────────────────── */

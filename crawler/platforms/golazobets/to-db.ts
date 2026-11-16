@@ -55,6 +55,15 @@ export interface GzbProfileCapture {
   }[]
   picks_total: number | null
   recent_results: string[] | null
+  // Foto de perfil (profile_picture de la pagina), captura 2026-11-16:
+  // campo añadido a posteriori; ausente en perfiles aun no enriquecidos.
+  // null explicito = la pagina no expone foto (fallback a iniciales).
+  avatar_url?: string | null
+  // Año de la primera apuesta registrada: primer (year, month) con
+  // total_picks > 0 del histórico all-time del perfil (derivado 2026-11-16
+  // tras decisión del usuario: Since = primera apuesta, no fecha de alta;
+  // la plataforma no expone alta). Precisión de AÑO; nunca día inventado.
+  since_year_first_pick?: number | null
 }
 
 export type GzbGateResult =
@@ -135,7 +144,7 @@ export function golazobetsClosureGate(cap: GzbProfileCapture): GzbGateResult {
 export type GzbDbMapping = { ok: true; insert: TipsterInsert } | { ok: false; reason: string }
 
 // Mapeo a fila. SOLO tras la puerta ok. Campos no expuestos por Golazobets:
-// null (verifiedPct, followers, sinceYear, lastPickAt, signupAt, precios).
+// null (verifiedPct, followers, lastPickAt, signupAt, precios). sinceYear se deriva del histórico (primer mes con apuestas>0).
 export function golazobetsCaptureToInsert(
   slug: string,
   cap: GzbProfileCapture,
@@ -158,12 +167,15 @@ export function golazobetsCaptureToInsert(
       profitUnit: 'golazobets-units',
       // priceCurrency omitido: price es null (precio premium no expuesto);
       // el default de esquema se ignora mientras price sea null.
-      avatarUrl: null,
+      // Foto de perfil de la pagina del tipster (captura 2026-11-16);
+      // null o ausente -> la tarjeta muestra iniciales (mismo fallback
+      // que Blogabet/Tipstrr).
+      avatarUrl: cap.avatar_url ?? null,
       flagUrl: null,
       countryCode: null,
       isPaid: cap.type === 'premium',
       price: null,
-      sinceYear: null,
+      sinceYear: cap.since_year_first_pick ?? null,
       picks: h.number_bets,
       profit: h.profit !== null ? String(h.profit) : null,
       yield: h.yield !== null ? String(h.yield) : null,

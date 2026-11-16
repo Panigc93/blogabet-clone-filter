@@ -59,7 +59,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
       <div className="tipster-left" style={{ display: 'flex', alignItems: 'center', padding: '10px 12px' }}>
         <div style={{ flexShrink: 0, marginRight: 12, width: 96 }}>
           {t.avatarUrl ? (
-            <img src={t.avatarUrl} alt={t.name} loading="lazy" style={{ width: 76, height: 76, borderRadius: '50%', objectFit: 'cover', display: 'block', marginLeft: 15 }} />
+            <img src={t.avatarUrl} alt={t.name} loading="lazy" style={{ width: 76, height: 76, minWidth: 76, minHeight: 76, flexShrink: 0, borderRadius: '50%', objectFit: 'cover', display: 'block', marginLeft: 15 }} />
           ) : (
             <div style={{ width: 76, height: 76, borderRadius: '50%', background: '#82daca', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
               {initials}
