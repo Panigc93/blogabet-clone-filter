@@ -120,3 +120,67 @@ describe('runCrawl', () => {
     fs.rmSync(dir, { recursive: true })
   })
 })
+
+describe('barrera de ritmo persistente entre runs', () => {
+  const GAP = 10_100
+  function clocked(startMs: number, responses: Record<string, any> = {}) {
+    let t = startMs
+    const reqAt: number[] = []
+    const deps: CrawlDeps = {
+      origin: 'https://bet2invest.com',
+      now: () => new Date(t),
+      sleep: async (ms) => { t += ms },
+      fetch: async (url) => {
+        reqAt.push(t)
+        const slug = decodeURIComponent(url.split('/').pop()!)
+        const r = responses[slug]
+        if (r instanceof Error) throw r
+        return r ?? { status: 200, body: page(slug) }
+      },
+    }
+    return { deps, reqAt, set: (ms: number) => { t = ms } }
+  }
+  it('dos lotes sucesivos con slugs distintos respetan 10,1 s desde la ultima peticion del lote anterior', async () => {
+    const dir = tmp()
+    const a = clocked(1_000_000)
+    await runCrawl({ dir, slugs: ['a'], policy: POLICY, deps: a.deps, mapId: () => -1 })
+    const b = clocked(1_000_000 + 2_000) // el reloj del 2o run arranca solo 2 s despues
+    await runCrawl({ dir, slugs: ['z'], policy: POLICY, deps: b.deps, mapId: () => -1 })
+    expect(b.reqAt[0] - a.reqAt[0]).toBeGreaterThanOrEqual(GAP)
+    fs.rmSync(dir, { recursive: true })
+  })
+  it('una peticion fallida (throw) tambien cuenta para la barrera', async () => {
+    const dir = tmp()
+    const a = clocked(2_000_000, { a: new Error('ECONNRESET') })
+    await runCrawl({ dir, slugs: ['a'], policy: POLICY, deps: a.deps, mapId: () => -1 })
+    // pausa activa: se levanta por decision explicita, y la barrera sigue vigente
+    resume(dir, { decidedBy: 'Juan', note: 'test' }, new Date(2_000_001))
+    const b = clocked(2_000_000 + 1_000)
+    await runCrawl({ dir, slugs: ['z'], policy: POLICY, deps: b.deps, mapId: () => -1 })
+    expect(b.reqAt[0] - a.reqAt[0]).toBeGreaterThanOrEqual(GAP)
+    fs.rmSync(dir, { recursive: true })
+  })
+  it('un run sin peticiones no mueve la barrera; ya pasado el hueco, no espera', async () => {
+    const dir = tmp()
+    const a = clocked(3_000_000)
+    await runCrawl({ dir, slugs: ['a'], policy: { ...POLICY, refreshAfterMs: 10 ** 12 }, deps: a.deps, mapId: () => -1 })
+    const idle = clocked(3_000_500)
+    expect((await runCrawl({ dir, slugs: ['a'], policy: { ...POLICY, refreshAfterMs: 10 ** 12 }, deps: idle.deps, mapId: () => -1 })).status).toBe('nothing-due')
+    const late = clocked(3_000_000 + 60_000)
+    await runCrawl({ dir, slugs: ['z'], policy: POLICY, deps: late.deps, mapId: () => -1 })
+    expect(late.reqAt[0]).toBe(3_000_000 + 60_000) // sin espera extra
+    fs.rmSync(dir, { recursive: true })
+  })
+  it('reloj hacia atras (lastAt futuro) espera como maximo un hueco; fichero corrupto falla cerrado sin peticiones', async () => {
+    const dir = tmp()
+    fs.writeFileSync(path.join(dir, 'last-request.json'), JSON.stringify({ at: new Date(9_000_000).toISOString() }))
+    const skew = clocked(1_000_000)
+    await runCrawl({ dir, slugs: ['z'], policy: POLICY, deps: skew.deps, mapId: () => -1 })
+    expect(skew.reqAt[0] - 1_000_000).toBe(GAP)
+    fs.writeFileSync(path.join(dir, 'last-request.json'), 'not json{')
+    const bad = clocked(5_000_000)
+    await expect(runCrawl({ dir, slugs: ['y'], policy: POLICY, deps: bad.deps, mapId: () => -1 })).rejects.toThrow()
+    expect(bad.reqAt).toEqual([])
+    fs.rmSync(dir, { recursive: true })
+  })
+})

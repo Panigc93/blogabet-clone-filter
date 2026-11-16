@@ -44,6 +44,11 @@ export type CrawlOutcome =
   | { slug: string; kind: 'parse-failed'; capturedAt: Date; reason: string } // fail-closed: truncated/empty/changed layout
   | { slug: string; kind: 'stopped'; cause: StopCause; reason: string } // run halted here; profile NOT evaluated
 
+export interface PacingBarrier {
+  lastRequestAt: Date | null // persisted time of the previous request, if any
+  onRequest: (at: Date) => void // must persist before the fetch is issued
+}
+
 export interface CrawlReport {
   outcomes: CrawlOutcome[]
   stoppedEarly: boolean
@@ -64,16 +69,22 @@ export async function crawlProfiles(
   deps: CrawlDeps,
   mapId: (slug: string) => number,
   onOutcome?: (outcome: CrawlOutcome) => void, // called right after each outcome (crash-safe persistence)
+  pacing?: PacingBarrier,
 ): Promise<CrawlReport> {
   const outcomes: CrawlOutcome[] = []
   let requests = 0
-  let lastAt: number | null = null
+  // The barrier starts from the persisted time of the LAST request of any
+  // earlier run, so the gap holds across runs, not only inside one.
+  let lastAt: number | null = pacing?.lastRequestAt ? pacing.lastRequestAt.getTime() : null
   for (const slug of slugs) {
     if (lastAt !== null) {
-      const wait = B2I_MIN_GAP_MS - (deps.now().getTime() - lastAt)
+      // A future lastAt (clock skew) never waits more than one gap.
+      const wait = Math.min(B2I_MIN_GAP_MS, B2I_MIN_GAP_MS - (deps.now().getTime() - lastAt))
       if (wait > 0) await deps.sleep(wait)
     }
-    lastAt = deps.now().getTime()
+    const startedAt = deps.now()
+    lastAt = startedAt.getTime()
+    pacing?.onRequest(startedAt) // persisted BEFORE the request: failures and crashes count too
     requests++
     let res: FetchResult
     try {

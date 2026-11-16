@@ -4,7 +4,7 @@
 // defaults for the refresh policy, the store directory or the id mapping.
 import { crawlProfiles, type CrawlDeps, type CrawlReport } from './crawl'
 import {
-  acquireLock, releaseLock, assertValidPolicy, readPause, loadState, recordOutcome, selectDue, type RefreshPolicy, type GlobalPause, type RunLock, type SlugState,
+  acquireLock, readLastRequest, releaseLock, writeLastRequest, assertValidPolicy, readPause, loadState, recordOutcome, selectDue, type RefreshPolicy, type GlobalPause, type RunLock, type SlugState,
 } from './capture-store'
 
 export interface RunParams {
@@ -41,6 +41,9 @@ async function runLocked(p: RunParams): Promise<RunResult> {
   if (due.length === 0) return { status: 'nothing-due', requests: 0 }
   const report = await crawlProfiles(due, p.deps, p.mapId, (o) => {
     recordOutcome(p.dir, o, p.deps.now())
+  }, {
+    lastRequestAt: readLastRequest(p.dir),
+    onRequest: (at) => writeLastRequest(p.dir, at),
   })
   if (report.stoppedEarly) {
     const last = report.outcomes[report.outcomes.length - 1]

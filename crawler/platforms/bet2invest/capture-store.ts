@@ -250,3 +250,23 @@ export function forceReleaseLock(dir: string, decision: { decidedBy: string; not
   releaseLock(dir)
   return held
 }
+
+// ---- persistent pacing barrier --------------------------------------------
+// <dir>/last-request.json holds the start time of the most recent request.
+// Written (atomically) BEFORE each fetch, so a failed or interrupted request
+// still counts. Only meaningful under the single-directory lock; it limits
+// requests through this directory, not globally.
+const pacingFile = (dir: string) => path.join(dir, 'last-request.json')
+
+export function readLastRequest(dir: string): Date | null {
+  const f = pacingFile(dir)
+  if (!fs.existsSync(f)) return null
+  const parsed = JSON.parse(fs.readFileSync(f, 'utf8')) as { at?: string }
+  const t = typeof parsed.at === 'string' ? Date.parse(parsed.at) : NaN
+  if (!Number.isFinite(t)) throw new Error('corrupt last-request.json: refusing to run without a valid pacing barrier')
+  return new Date(t)
+}
+
+export function writeLastRequest(dir: string, at: Date): void {
+  writeAtomic(pacingFile(dir), JSON.stringify({ at: at.toISOString() }))
+}
