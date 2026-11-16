@@ -65,6 +65,27 @@ describe('runCrawl', () => {
       fs.rmSync(dir, { recursive: true })
     }
   })
+  it('5xx detiene el lote como fallo de servicio (causa distinguible), sin reintento y sin tocar la captura valida', async () => {
+    const dir = tmp()
+    const first = mk({})
+    await runCrawl({ dir, slugs: ['a'], policy: POLICY, deps: first.deps, mapId: () => -1 })
+    const valid = loadState(dir, 'a').lastValid
+    const m = mk({ b: { status: 503, body: '' } }, 5_000_000) // b (nunca capturado) va primero
+    const r = await runCrawl({ dir, slugs: ['a', 'b', 'c'], policy: POLICY, deps: m.deps, mapId: () => -1 })
+    expect(r.status).toBe('stopped')
+    expect(m.fetched).toEqual(['b']) // un solo intento, nada despues (ni c ni a)
+    const pause = readPause(dir)!
+    expect(pause.cause).toBe('service-error')
+    expect(pause.reason).toContain('not a confirmed block')
+    expect(loadState(dir, 'a')).toMatchObject({ lastValid: valid, consecutiveFailures: 0 })
+    fs.rmSync(dir, { recursive: true })
+  })
+  it('429 queda como access-signal', async () => {
+    const dir = tmp()
+    await runCrawl({ dir, slugs: ['a'], policy: POLICY, deps: mk({ a: { status: 429, body: '' } }).deps, mapId: () => -1 })
+    expect(readPause(dir)?.cause).toBe('access-signal')
+    fs.rmSync(dir, { recursive: true })
+  })
   it('un parse-failed normal no pausa, no sustituye la captura valida y suma fallo', async () => {
     const dir = tmp()
     const first = mk({})

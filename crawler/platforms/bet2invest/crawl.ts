@@ -33,11 +33,15 @@ export interface CrawlDeps {
   now: () => Date
 }
 
+// 'access-signal': 403/429/challenge/transport failure (possible throttling,
+// NOT a confirmed block). 'service-error': HTTP 5xx (service-side failure).
+export type StopCause = 'access-signal' | 'service-error'
+
 export type CrawlOutcome =
   | { slug: string; kind: 'ok'; capturedAt: Date; mapping: Extract<Bet2InvestDbMapping, { ok: true }> }
   | { slug: string; kind: 'quarantine'; capturedAt: Date; reason: string }
   | { slug: string; kind: 'parse-failed'; capturedAt: Date; reason: string } // fail-closed: truncated/empty/changed layout
-  | { slug: string; kind: 'stopped'; reason: string } // run halted here; profile NOT evaluated
+  | { slug: string; kind: 'stopped'; cause: StopCause; reason: string } // run halted here; profile NOT evaluated
 
 export interface CrawlReport {
   outcomes: CrawlOutcome[]
@@ -74,13 +78,21 @@ export async function crawlProfiles(
     try {
       res = await deps.fetch(profileUrl(slug))
     } catch (e) {
-      const o: CrawlOutcome = { slug, kind: 'stopped', reason: `transport failure (${(e as Error).message}): treated as throttling, run halted` }
+      const o: CrawlOutcome = { slug, kind: 'stopped', cause: 'access-signal', reason: `transport failure (${(e as Error).message}): treated as throttling, run halted` }
       outcomes.push(o)
       onOutcome?.(o)
       return { outcomes, stoppedEarly: true, requests }
     }
     if (res.status === 403 || res.status === 429) {
-      const o: CrawlOutcome = { slug, kind: 'stopped', reason: `HTTP ${res.status}: run halted` }
+      const o: CrawlOutcome = { slug, kind: 'stopped', cause: 'access-signal', reason: `HTTP ${res.status}: run halted` }
+      outcomes.push(o)
+      onOutcome?.(o)
+      return { outcomes, stoppedEarly: true, requests }
+    }
+    if (res.status >= 500 && res.status <= 599) {
+      // Service-side failure, not a profile parsing problem: halt the batch,
+      // no automatic retry, last valid capture untouched. Not a confirmed block.
+      const o: CrawlOutcome = { slug, kind: 'stopped', cause: 'service-error', reason: `HTTP ${res.status}: service failure, batch halted (not a confirmed block)` }
       outcomes.push(o)
       onOutcome?.(o)
       return { outcomes, stoppedEarly: true, requests }
@@ -93,7 +105,7 @@ export async function crawlProfiles(
       continue
     }
     if (isChallengeResponse(res.body)) {
-      const o: CrawlOutcome = { slug, kind: 'stopped', reason: 'challenge page: no stats delivered: run halted' }
+      const o: CrawlOutcome = { slug, kind: 'stopped', cause: 'access-signal', reason: 'challenge page: no stats delivered: run halted' }
       outcomes.push(o)
       onOutcome?.(o)
       return { outcomes, stoppedEarly: true, requests }
@@ -120,7 +132,7 @@ export async function crawlProfiles(
     } catch (e) {
       if (!(e instanceof Bet2InvestParseError)) throw e
       if (e.message.startsWith('challenge page')) {
-        const o: CrawlOutcome = { slug, kind: 'stopped', reason: `${e.message}: run halted` }
+        const o: CrawlOutcome = { slug, kind: 'stopped', cause: 'access-signal', reason: `${e.message}: run halted` }
         outcomes.push(o)
         onOutcome?.(o)
         return { outcomes, stoppedEarly: true, requests }

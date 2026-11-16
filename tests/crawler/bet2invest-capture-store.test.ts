@@ -19,7 +19,7 @@ const ok = (slug: string, cap: Date, picks = 100): CrawlOutcome => ({
   mapping: { ok: true, insert: { id: -1, platform: 'bet2invest', slug, name: slug, picks, capturedAt: cap } as any },
 })
 const bad = (slug: string, kind: 'quarantine' | 'parse-failed'): CrawlOutcome => ({ slug, kind, capturedAt: T0, reason: 'x' })
-const stopped = (slug: string): CrawlOutcome => ({ slug, kind: 'stopped', reason: 'HTTP 429' })
+const stopped = (slug: string): CrawlOutcome => ({ slug, kind: 'stopped', cause: 'access-signal', reason: 'HTTP 429' })
 
 describe('applyOutcome', () => {
   it('ok guarda captura valida con capturedAt real y limpia fallos', () => {

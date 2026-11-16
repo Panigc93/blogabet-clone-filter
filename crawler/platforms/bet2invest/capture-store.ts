@@ -139,6 +139,7 @@ function writeAtomic(f: string, text: string): void {
 // ---- global pause -------------------------------------------------------
 export interface GlobalPause {
   pausedAt: string // ISO
+  cause: 'access-signal' | 'service-error'
   reason: string
   triggerSlug: string // profile being requested when the signal appeared (not at fault)
 }
@@ -162,7 +163,7 @@ export function writePause(dir: string, outcome: CrawlOutcome, at: Date): Global
   const existing = readPause(dir)
   if (existing) return existing
   if (outcome.kind !== 'stopped') throw new Error('pause requires a stopped outcome')
-  const pause: GlobalPause = { pausedAt: at.toISOString(), reason: outcome.reason, triggerSlug: outcome.slug }
+  const pause: GlobalPause = { pausedAt: at.toISOString(), cause: outcome.cause, reason: outcome.reason, triggerSlug: outcome.slug }
   writeAtomic(pauseFile(dir), JSON.stringify(pause, null, 1))
   return pause
 }
