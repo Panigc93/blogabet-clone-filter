@@ -15,6 +15,7 @@ function deps(responses: Record<string, any>) {
   const sleeps: number[] = []
   const calls: number[] = []
   const d: CrawlDeps = {
+    origin: 'https://bet2invest.com',
     now: () => new Date(t),
     sleep: async (ms) => { sleeps.push(ms); t += ms },
     fetch: async (url) => {

@@ -17,6 +17,7 @@ function mk(responses: Record<string, any>, startMs = 1_000_000) {
   let t = startMs
   const fetched: string[] = []
   const deps: CrawlDeps = {
+    origin: 'https://bet2invest.com',
     now: () => new Date(t),
     sleep: async (ms) => { t += ms },
     fetch: async (url) => {

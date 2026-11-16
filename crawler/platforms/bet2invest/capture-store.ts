@@ -206,3 +206,47 @@ export function recordOutcome(dir: string, outcome: CrawlOutcome, attemptedAt: D
   saveState(dir, next)
   return next
 }
+
+// ---- run lock (one crawl per store directory = per site) ------------------
+export interface RunLock {
+  pid: number
+  startedAt: string // ISO
+  origin: string
+}
+const lockFile = (dir: string) => path.join(dir, 'crawl.lock')
+
+export function readLock(dir: string): RunLock | null {
+  const f = lockFile(dir)
+  return fs.existsSync(f) ? (JSON.parse(fs.readFileSync(f, 'utf8')) as RunLock) : null
+}
+
+// Atomic exclusive create ('wx'): of two concurrent callers exactly one wins.
+// A leftover lock (crash) is NEVER removed by time or heuristics: only
+// forceReleaseLock, an explicit named decision, clears it.
+export function acquireLock(dir: string, info: RunLock): { acquired: true } | { acquired: false; held: RunLock | null } {
+  fs.mkdirSync(dir, { recursive: true })
+  try {
+    const fd = fs.openSync(lockFile(dir), 'wx')
+    fs.writeSync(fd, JSON.stringify(info))
+    fs.closeSync(fd)
+    return { acquired: true }
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === 'EEXIST') {
+      let held: RunLock | null = null
+      try { held = readLock(dir) } catch { held = null }
+      return { acquired: false, held }
+    }
+    throw e
+  }
+}
+
+export function releaseLock(dir: string): void {
+  fs.rmSync(lockFile(dir), { force: true })
+}
+
+export function forceReleaseLock(dir: string, decision: { decidedBy: string; note: string }): RunLock | null {
+  if (!decision.decidedBy.trim() || !decision.note.trim()) throw new Error('forceReleaseLock requires decidedBy and note')
+  const held = readLock(dir)
+  releaseLock(dir)
+  return held
+}

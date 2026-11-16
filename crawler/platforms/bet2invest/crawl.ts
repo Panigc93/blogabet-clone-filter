@@ -28,6 +28,7 @@ export interface FetchResult {
 export type Fetcher = (url: string) => Promise<FetchResult> // throws on transport failure
 
 export interface CrawlDeps {
+  origin: string // REQUIRED, no default; production: https://bet2invest.com
   fetch: Fetcher
   sleep: (ms: number) => Promise<void>
   now: () => Date
@@ -49,8 +50,8 @@ export interface CrawlReport {
   requests: number
 }
 
-const profileUrl = (slug: string) =>
-  `https://bet2invest.com/tipsters/performance-stats/${encodeURIComponent(slug)}`
+const profileUrl = (origin: string, slug: string) =>
+  `${origin}/tipsters/performance-stats/${encodeURIComponent(slug)}`
 
 export function planFromSitemap(xml: string, limit: number): string[] {
   if (!Number.isInteger(limit) || limit < 1) throw new Error('limit must be a positive integer')
@@ -76,7 +77,7 @@ export async function crawlProfiles(
     requests++
     let res: FetchResult
     try {
-      res = await deps.fetch(profileUrl(slug))
+      res = await deps.fetch(profileUrl(deps.origin, slug))
     } catch (e) {
       const o: CrawlOutcome = { slug, kind: 'stopped', cause: 'access-signal', reason: `transport failure (${(e as Error).message}): treated as throttling, run halted` }
       outcomes.push(o)
