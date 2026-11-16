@@ -1,3 +1,5 @@
+import { parseActivity } from '@/lib/activity'
+import { ActivityNotice } from '@/components/ActivityNotice'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
 import { buildFilters, sortOrder, ignoredWarning, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
@@ -16,13 +18,15 @@ interface PageProps {
 }
 
 export default async function Home({ searchParams }: PageProps) {
+  const activity = parseActivity(searchParams.activity)
   const filters: TipsterFilters = {
     search:         searchParams.search ?? undefined,
     tipo:           (searchParams.tipo as TipsterFilters['tipo']) ?? 'all',
     minYield:       searchParams.minYield ? Number(searchParams.minYield) : undefined,
     maxYield:       searchParams.maxYield ? Number(searchParams.maxYield) : undefined,
     minPicks:       searchParams.minPicks ? Number(searchParams.minPicks) : undefined,
-    activityMonths: searchParams.activity ? Number(searchParams.activity) : undefined,
+    activityMonths: typeof activity === 'number' ? activity : undefined,
+    activityUnknown: activity === 'unknown',
     minYears:       searchParams.minYears ? Number(searchParams.minYears) : undefined,
     priceMin:       searchParams.priceMin ? Number(searchParams.priceMin) : undefined,
     priceMax:       searchParams.priceMax ? Number(searchParams.priceMax) : undefined,
@@ -55,6 +59,7 @@ export default async function Home({ searchParams }: PageProps) {
             {profitSortWarning(sort, filters.platform)}
           </div>
         )}
+        <ActivityNotice months={filters.activityMonths} unknown={filters.activityUnknown} />
         {ignoredWarning(filters) && (
           <div style={{ margin: '8px 0 0', padding: '8px 12px', background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: 4, fontSize: 13, color: '#856404' }}>
             {ignoredWarning(filters)}

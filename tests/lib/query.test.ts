@@ -49,18 +49,18 @@ describe('buildFilters', () => {
 
   it('ignores Blogabet-only filters outside the Blogabet view and reports them (direct URLs cannot silently hide Tipstrr rows)', () => {
     const bbOnly = { activityMonths: 3, minYears: 1, conPicksFree: true, resetOlderThan: true, priceMin: 5, priceMax: 50 }
-    // combined view (platform undefined): no condition at all
-    expect(buildFilters(bbOnly)).toHaveLength(0)
-    expect(ignoredFilters(bbOnly).sort()).toEqual(['activity', 'conPicksFree', 'minYears', 'price', 'resetOlderThan'].sort())
+    // Activity now applies everywhere; the other BB-only controls stay scoped.
+    expect(buildFilters(bbOnly)).toHaveLength(1)
+    expect(ignoredFilters(bbOnly).sort()).toEqual(['conPicksFree', 'minYears', 'price', 'resetOlderThan'].sort())
     // Tipstrr view: only the platform clause
     const tt = { ...bbOnly, platform: 'tipstrr' as const }
-    expect(buildFilters(tt)).toHaveLength(1)
-    expect(ignoredFilters(tt)).toHaveLength(5)
+    expect(buildFilters(tt)).toHaveLength(2)
+    expect(ignoredFilters(tt)).toHaveLength(4)
     // Blogabet view: everything applies, nothing ignored
     const bb = { ...bbOnly, platform: 'blogabet' as const }
     expect(ignoredFilters(bb)).toHaveLength(0)
     expect(buildFilters(bb).length).toBeGreaterThan(5)
-    expect(ignoredWarning(tt)).toContain('Actividad')
+    expect(ignoredWarning(tt)).not.toContain('Actividad')
     expect(ignoredWarning(bb)).toBeNull()
   })
 

@@ -1,3 +1,4 @@
+import { activityCondition } from './activity-query'
 import { eq, gt, gte, ilike, isNotNull, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
@@ -9,6 +10,7 @@ export interface TipsterFilters {
   maxYield?: number
   minPicks?: number
   activityMonths?: number  // 1 | 3 | 6 | 12
+  activityUnknown?: boolean
   minYears?: number
   priceMin?: number
   priceMax?: number
@@ -48,16 +50,9 @@ export function buildFilters(params: TipsterFilters): SQL[] {
     conditions.push(gte(tipsters.picks, params.minPicks))
   }
 
-  // Blogabet-only filters (activity, reset, years-in-BB, free picks): outside
-  // the Blogabet-only view they are NOT applied. Tipstrr rows carry null in
-  // the underlying fields (lastPickAt / lastResetAt / picksFree3mAvg), so a
-  // direct URL with these params would silently hide every Tipstrr row as if
-  // no tipster existed. The caller signals the ignored filters instead
-  // (ignoredFilters -> route warning + disabled UI).
-  if (params.activityMonths !== undefined && params.platform === 'blogabet') {
-    conditions.push(
-      gte(tipsters.lastPickAt, sql`NOW() - make_interval(months => ${params.activityMonths})`)
-    )
+  // Activity evidence is independent of historical yield. BB keeps its proxy.
+  if (params.activityUnknown || (Number.isSafeInteger(params.activityMonths) && params.activityMonths! > 0 && params.activityMonths! <= 1200)) {
+    conditions.push(activityCondition(params.activityUnknown ? 1 : params.activityMonths!, params.activityUnknown))
   }
 
   if (params.resetOlderThan && params.platform === 'blogabet') {
@@ -98,14 +93,13 @@ export function buildFilters(params: TipsterFilters): SQL[] {
 // Blogabet-only filter keys: outside the Blogabet-only view they are
 // ignored (never silently applied against null fields of other platforms)
 // and must be signalled to the user.
-export const BB_ONLY_FILTERS = ['activity', 'minYears', 'conPicksFree', 'resetOlderThan', 'price'] as const
+export const BB_ONLY_FILTERS = ['minYears', 'conPicksFree', 'resetOlderThan', 'price'] as const
 export type IgnoredFilter = typeof BB_ONLY_FILTERS[number]
 
 // Filters the caller requested that this view does not apply.
 export function ignoredFilters(params: TipsterFilters): IgnoredFilter[] {
   if (params.platform === 'blogabet') return []
   const out: IgnoredFilter[] = []
-  if (params.activityMonths !== undefined) out.push('activity')
   if (params.minYears !== undefined) out.push('minYears')
   if (params.conPicksFree) out.push('conPicksFree')
   if (params.resetOlderThan) out.push('resetOlderThan')
@@ -121,7 +115,6 @@ export function priceFilterIgnored(params: TipsterFilters): boolean {
 }
 
 const IGNORED_LABELS: Record<IgnoredFilter, string> = {
-  activity: 'Actividad',
   minYears: 'Años en BB',
   conPicksFree: 'Con picks free',
   resetOlderThan: 'Sin Reset +6 meses',
