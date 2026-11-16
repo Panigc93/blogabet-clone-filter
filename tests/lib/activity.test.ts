@@ -93,6 +93,9 @@ it('final evidence matches all 284 original Golazobets identities without privat
     expect(Date.parse(e.publishedUpper)).toBeLessThanOrEqual(Date.parse(e.capturedAt))
     expect(e.coverage).toBe('first-page')
   }
+  expect(rows.filter(e => e.visiblePaginationComplete)).toHaveLength(142)
+  expect(rows.every(e => e.globalCoverageProven === false)).toBe(true)
+  expect(rows.every(e => e.sourcePagination?.currentPage === 1)).toBe(true)
   const referenceNow = new Date('2026-11-16T12:33:00Z')
   expect(rows.filter(e => provesRecent(e, monthsBefore(referenceNow, 1), referenceNow))).toHaveLength(93)
 })

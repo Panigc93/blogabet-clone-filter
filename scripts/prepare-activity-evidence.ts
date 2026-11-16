@@ -24,7 +24,10 @@ for (const r of rows) {
   const e: ActivityEvidence = {
     platform: 'golazobets', slug: r.slug, sourceUrl: r.sourceUrl, capturedAt: r.capturedAt,
     publishedLower: publications[0].lower, publishedUpper: publications[0].upper,
-    precision: 'timezone-unknown', coverage: 'first-page'
+    precision: 'timezone-unknown', coverage: 'first-page',
+    visiblePaginationComplete: r.coverage === 'complete-visible-pagination',
+    globalCoverageProven: false,
+    sourcePagination: { currentPage: r.pagination.current_page, lastPage: r.pagination.last_page, total: r.pagination.total, perPage: r.pagination.per_page }
   }
   if (!validEvidence(e)) throw new Error('Invalid source/date evidence')
   evidence.push(e)

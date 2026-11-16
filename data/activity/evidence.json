@@ -7,7 +7,15 @@
     "publishedLower": "2026-11-15T20:28:33.000Z",
     "publishedUpper": "2026-11-16T11:43:37.512Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 8,
+      "total": 142,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -17,7 +25,15 @@
     "publishedLower": "2026-10-24T11:03:18.000Z",
     "publishedUpper": "2026-10-25T13:03:18.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 14,
+      "total": 262,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -27,7 +43,15 @@
     "publishedLower": "2026-06-04T12:05:08.000Z",
     "publishedUpper": "2026-06-05T14:05:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 22,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -37,7 +61,15 @@
     "publishedLower": "2026-03-11T06:37:03.000Z",
     "publishedUpper": "2026-03-12T08:37:03.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 9,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -47,7 +79,15 @@
     "publishedLower": "2026-11-15T21:25:49.000Z",
     "publishedUpper": "2026-11-16T11:44:18.493Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 10,
+      "total": 195,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -57,7 +97,15 @@
     "publishedLower": "2026-03-18T22:34:52.000Z",
     "publishedUpper": "2026-03-20T00:34:52.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 22,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -67,7 +115,15 @@
     "publishedLower": "2026-11-15T05:33:20.000Z",
     "publishedUpper": "2026-11-16T07:33:20.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 13,
+      "total": 249,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -77,7 +133,15 @@
     "publishedLower": "2025-08-04T22:17:54.000Z",
     "publishedUpper": "2025-08-06T00:17:54.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -87,7 +151,15 @@
     "publishedLower": "2026-11-14T14:59:36.000Z",
     "publishedUpper": "2026-11-15T16:59:36.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 47,
+      "total": 927,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -97,7 +169,15 @@
     "publishedLower": "2026-07-02T19:34:24.000Z",
     "publishedUpper": "2026-07-03T21:34:24.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 15,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -107,7 +187,15 @@
     "publishedLower": "2026-02-03T11:27:33.000Z",
     "publishedUpper": "2026-02-04T13:27:33.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 8,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -117,7 +205,15 @@
     "publishedLower": "2026-11-13T16:38:38.000Z",
     "publishedUpper": "2026-11-14T18:38:38.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 8,
+      "total": 158,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -127,7 +223,15 @@
     "publishedLower": "2026-10-17T09:03:59.000Z",
     "publishedUpper": "2026-10-18T11:03:59.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 4,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -137,7 +241,15 @@
     "publishedLower": "2026-09-15T23:03:56.000Z",
     "publishedUpper": "2026-09-17T01:03:56.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 38,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -147,7 +259,15 @@
     "publishedLower": "2026-06-05T05:10:13.000Z",
     "publishedUpper": "2026-06-06T07:10:13.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 6,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -157,7 +277,15 @@
     "publishedLower": "2026-02-27T03:23:22.000Z",
     "publishedUpper": "2026-02-28T05:23:22.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 11,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -167,7 +295,15 @@
     "publishedLower": "2026-05-03T01:59:52.000Z",
     "publishedUpper": "2026-05-04T03:59:52.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -177,7 +313,15 @@
     "publishedLower": "2026-11-15T05:47:58.000Z",
     "publishedUpper": "2026-11-16T07:47:58.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 18,
+      "total": 343,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -187,7 +331,15 @@
     "publishedLower": "2026-07-28T06:42:55.000Z",
     "publishedUpper": "2026-07-29T08:42:55.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -197,7 +349,15 @@
     "publishedLower": "2026-01-30T07:53:54.000Z",
     "publishedUpper": "2026-01-31T09:53:54.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 5,
+      "total": 84,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -207,7 +367,15 @@
     "publishedLower": "2026-08-14T03:43:39.000Z",
     "publishedUpper": "2026-08-15T05:43:39.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 7,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -217,7 +385,15 @@
     "publishedLower": "2026-03-31T03:45:21.000Z",
     "publishedUpper": "2026-04-01T05:45:21.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 27,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -227,7 +403,15 @@
     "publishedLower": "2026-03-01T21:20:06.000Z",
     "publishedUpper": "2026-03-02T23:20:06.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 24,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -237,7 +421,15 @@
     "publishedLower": "2026-04-09T18:19:45.000Z",
     "publishedUpper": "2026-04-10T20:19:45.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 21,
+      "total": 403,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -247,7 +439,15 @@
     "publishedLower": "2026-02-11T10:10:54.000Z",
     "publishedUpper": "2026-02-12T12:10:54.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 18,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -257,7 +457,15 @@
     "publishedLower": "2026-11-03T03:51:41.000Z",
     "publishedUpper": "2026-11-04T05:51:41.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -267,7 +475,15 @@
     "publishedLower": "2026-11-11T20:11:06.000Z",
     "publishedUpper": "2026-11-12T22:11:06.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 79,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -277,7 +493,15 @@
     "publishedLower": "2025-12-13T03:42:12.000Z",
     "publishedUpper": "2025-12-14T05:42:12.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 5,
+      "total": 97,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -287,7 +511,15 @@
     "publishedLower": "2025-08-28T23:32:46.000Z",
     "publishedUpper": "2025-08-30T01:32:46.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 74,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -297,7 +529,15 @@
     "publishedLower": "2026-07-05T06:33:59.000Z",
     "publishedUpper": "2026-07-06T08:33:59.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 5,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -307,7 +547,15 @@
     "publishedLower": "2026-09-04T04:45:00.000Z",
     "publishedUpper": "2026-09-05T06:45:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 62,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -317,7 +565,15 @@
     "publishedLower": "2026-01-27T10:43:22.000Z",
     "publishedUpper": "2026-01-28T12:43:22.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 9,
+      "total": 180,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -327,7 +583,15 @@
     "publishedLower": "2026-11-13T04:09:22.000Z",
     "publishedUpper": "2026-11-14T06:09:22.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 38,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -337,7 +601,15 @@
     "publishedLower": "2026-02-26T00:06:18.000Z",
     "publishedUpper": "2026-02-27T02:06:18.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -347,7 +619,15 @@
     "publishedLower": "2025-08-08T07:58:15.000Z",
     "publishedUpper": "2025-08-09T09:58:15.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -357,7 +637,15 @@
     "publishedLower": "2026-10-19T04:37:13.000Z",
     "publishedUpper": "2026-10-20T06:37:13.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -367,7 +655,15 @@
     "publishedLower": "2026-11-14T20:49:40.000Z",
     "publishedUpper": "2026-11-15T22:49:40.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 24,
+      "total": 468,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -377,7 +673,15 @@
     "publishedLower": "2026-03-19T21:27:22.000Z",
     "publishedUpper": "2026-03-20T23:27:22.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 6,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -387,7 +691,15 @@
     "publishedLower": "2026-02-11T12:50:55.000Z",
     "publishedUpper": "2026-02-12T14:50:55.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 20,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -397,7 +709,15 @@
     "publishedLower": "2026-08-21T03:05:00.000Z",
     "publishedUpper": "2026-08-22T05:05:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 22,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -407,7 +727,15 @@
     "publishedLower": "2026-02-23T23:52:16.000Z",
     "publishedUpper": "2026-02-25T01:52:16.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 9,
+      "total": 168,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -417,7 +745,15 @@
     "publishedLower": "2025-12-11T01:58:44.000Z",
     "publishedUpper": "2025-12-12T03:58:44.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -427,7 +763,15 @@
     "publishedLower": "2025-08-29T19:29:16.000Z",
     "publishedUpper": "2025-08-30T21:29:16.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 39,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -437,7 +781,15 @@
     "publishedLower": "2026-11-11T04:49:48.000Z",
     "publishedUpper": "2026-11-12T06:49:48.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 22,
+      "total": 425,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -447,7 +799,15 @@
     "publishedLower": "2026-03-22T08:33:08.000Z",
     "publishedUpper": "2026-03-23T10:33:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 9,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -457,7 +817,15 @@
     "publishedLower": "2026-11-15T22:00:56.000Z",
     "publishedUpper": "2026-11-16T11:51:12.011Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 45,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -467,7 +835,15 @@
     "publishedLower": "2025-09-30T02:19:18.000Z",
     "publishedUpper": "2025-10-01T04:19:18.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 49,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -477,7 +853,15 @@
     "publishedLower": "2026-06-18T11:00:44.000Z",
     "publishedUpper": "2026-06-19T13:00:44.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 7,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -487,7 +871,15 @@
     "publishedLower": "2026-06-17T07:55:35.000Z",
     "publishedUpper": "2026-06-18T09:55:35.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 10,
+      "total": 190,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -497,7 +889,15 @@
     "publishedLower": "2026-02-13T15:08:35.000Z",
     "publishedUpper": "2026-02-14T17:08:35.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 12,
+      "total": 238,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -507,7 +907,15 @@
     "publishedLower": "2026-01-10T07:22:48.000Z",
     "publishedUpper": "2026-01-11T09:22:48.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 31,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -517,7 +925,15 @@
     "publishedLower": "2026-01-17T22:57:15.000Z",
     "publishedUpper": "2026-01-19T00:57:15.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 21,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -527,7 +943,15 @@
     "publishedLower": "2026-11-11T04:18:00.000Z",
     "publishedUpper": "2026-11-12T06:18:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 22,
+      "total": 435,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -537,7 +961,15 @@
     "publishedLower": "2025-11-18T03:49:57.000Z",
     "publishedUpper": "2025-11-19T05:49:57.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -547,7 +979,15 @@
     "publishedLower": "2026-05-06T23:19:31.000Z",
     "publishedUpper": "2026-05-08T01:19:31.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 55,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -557,7 +997,15 @@
     "publishedLower": "2026-07-27T21:36:00.000Z",
     "publishedUpper": "2026-07-28T23:36:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -567,7 +1015,15 @@
     "publishedLower": "2026-04-04T01:14:47.000Z",
     "publishedUpper": "2026-04-05T03:14:47.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 10,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -577,7 +1033,15 @@
     "publishedLower": "2026-10-25T08:41:03.000Z",
     "publishedUpper": "2026-10-26T10:41:03.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 26,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -587,7 +1051,15 @@
     "publishedLower": "2026-04-07T23:14:07.000Z",
     "publishedUpper": "2026-04-09T01:14:07.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 18,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -597,7 +1069,15 @@
     "publishedLower": "2026-04-14T08:45:14.000Z",
     "publishedUpper": "2026-04-15T10:45:14.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -607,7 +1087,15 @@
     "publishedLower": "2026-11-15T09:11:13.000Z",
     "publishedUpper": "2026-11-16T11:11:13.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 65,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -617,7 +1105,15 @@
     "publishedLower": "2026-11-03T06:37:58.000Z",
     "publishedUpper": "2026-11-04T08:37:58.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 43,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -627,7 +1123,15 @@
     "publishedLower": "2026-05-10T11:01:33.000Z",
     "publishedUpper": "2026-05-11T13:01:33.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 4,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -637,7 +1141,15 @@
     "publishedLower": "2026-04-12T00:54:28.000Z",
     "publishedUpper": "2026-04-13T02:54:28.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 4,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -647,7 +1159,15 @@
     "publishedLower": "2026-02-08T05:23:34.000Z",
     "publishedUpper": "2026-02-09T07:23:34.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 6,
+      "total": 106,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -657,7 +1177,15 @@
     "publishedLower": "2026-10-30T22:29:42.000Z",
     "publishedUpper": "2026-11-01T00:29:42.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 17,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -667,7 +1195,15 @@
     "publishedLower": "2026-11-15T08:01:15.000Z",
     "publishedUpper": "2026-11-16T10:01:15.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 17,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -677,7 +1213,15 @@
     "publishedLower": "2026-03-04T04:03:45.000Z",
     "publishedUpper": "2026-03-05T06:03:45.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 15,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -687,7 +1231,15 @@
     "publishedLower": "2025-11-23T06:37:08.000Z",
     "publishedUpper": "2025-11-24T08:37:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 55,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -697,7 +1249,15 @@
     "publishedLower": "2025-11-19T08:53:54.000Z",
     "publishedUpper": "2025-11-20T10:53:54.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 18,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -707,7 +1267,15 @@
     "publishedLower": "2026-11-14T06:16:58.000Z",
     "publishedUpper": "2026-11-15T08:16:58.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 35,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -717,7 +1285,15 @@
     "publishedLower": "2026-09-11T06:52:00.000Z",
     "publishedUpper": "2026-09-12T08:52:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 41,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -727,7 +1303,15 @@
     "publishedLower": "2026-11-10T01:14:13.000Z",
     "publishedUpper": "2026-11-11T03:14:13.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 12,
+      "total": 228,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -737,7 +1321,15 @@
     "publishedLower": "2026-04-28T07:08:08.000Z",
     "publishedUpper": "2026-04-29T09:08:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 10,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -747,7 +1339,15 @@
     "publishedLower": "2026-03-31T06:05:32.000Z",
     "publishedUpper": "2026-04-01T08:05:32.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 13,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -757,7 +1357,15 @@
     "publishedLower": "2026-04-01T00:30:14.000Z",
     "publishedUpper": "2026-04-02T02:30:14.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 6,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -767,7 +1375,15 @@
     "publishedLower": "2026-06-08T18:48:48.000Z",
     "publishedUpper": "2026-06-09T20:48:48.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 14,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -777,7 +1393,15 @@
     "publishedLower": "2026-02-19T08:17:23.000Z",
     "publishedUpper": "2026-02-20T10:17:23.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 5,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -787,7 +1411,15 @@
     "publishedLower": "2026-11-06T06:31:21.000Z",
     "publishedUpper": "2026-11-07T08:31:21.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 5,
+      "total": 84,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -797,7 +1429,15 @@
     "publishedLower": "2025-12-18T00:09:44.000Z",
     "publishedUpper": "2025-12-19T02:09:44.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 7,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -807,7 +1447,15 @@
     "publishedLower": "2026-11-14T10:05:37.000Z",
     "publishedUpper": "2026-11-15T12:05:37.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 7,
+      "total": 122,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -817,7 +1465,15 @@
     "publishedLower": "2026-11-13T22:30:19.000Z",
     "publishedUpper": "2026-11-15T00:30:19.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 11,
+      "total": 212,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -827,7 +1483,15 @@
     "publishedLower": "2026-03-30T03:33:53.000Z",
     "publishedUpper": "2026-03-31T05:33:53.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 56,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -837,7 +1501,15 @@
     "publishedLower": "2026-11-06T22:28:00.000Z",
     "publishedUpper": "2026-11-08T00:28:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 12,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -847,7 +1519,15 @@
     "publishedLower": "2025-08-13T01:42:50.000Z",
     "publishedUpper": "2025-08-14T03:42:50.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 4,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -857,7 +1537,15 @@
     "publishedLower": "2025-10-16T20:43:40.000Z",
     "publishedUpper": "2025-10-17T22:43:40.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 4,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -867,7 +1555,15 @@
     "publishedLower": "2026-06-30T18:50:40.000Z",
     "publishedUpper": "2026-07-01T20:50:40.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 9,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -877,7 +1573,15 @@
     "publishedLower": "2026-05-03T01:40:15.000Z",
     "publishedUpper": "2026-05-04T03:40:15.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 5,
+      "total": 82,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -887,7 +1591,15 @@
     "publishedLower": "2026-11-06T18:28:25.000Z",
     "publishedUpper": "2026-11-07T20:28:25.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 6,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -897,7 +1609,15 @@
     "publishedLower": "2026-11-14T15:24:43.000Z",
     "publishedUpper": "2026-11-15T17:24:43.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 6,
+      "total": 117,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -907,7 +1627,15 @@
     "publishedLower": "2026-02-01T20:39:20.000Z",
     "publishedUpper": "2026-02-02T22:39:20.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -917,7 +1645,15 @@
     "publishedLower": "2026-04-08T06:09:02.000Z",
     "publishedUpper": "2026-04-09T08:09:02.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -927,7 +1663,15 @@
     "publishedLower": "2026-03-21T00:33:35.000Z",
     "publishedUpper": "2026-03-22T02:33:35.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -937,7 +1681,15 @@
     "publishedLower": "2026-11-14T08:59:27.000Z",
     "publishedUpper": "2026-11-15T10:59:27.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 11,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -947,7 +1699,15 @@
     "publishedLower": "2026-11-14T07:52:24.000Z",
     "publishedUpper": "2026-11-15T09:52:24.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 20,
+      "total": 394,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -957,7 +1717,15 @@
     "publishedLower": "2026-11-14T01:59:08.000Z",
     "publishedUpper": "2026-11-15T03:59:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 47,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -967,7 +1735,15 @@
     "publishedLower": "2026-04-02T12:37:09.000Z",
     "publishedUpper": "2026-04-03T14:37:09.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 17,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -977,7 +1753,15 @@
     "publishedLower": "2026-01-27T03:47:04.000Z",
     "publishedUpper": "2026-01-28T05:47:04.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -987,7 +1771,15 @@
     "publishedLower": "2026-03-26T06:32:13.000Z",
     "publishedUpper": "2026-03-27T08:32:13.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 12,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -997,7 +1789,15 @@
     "publishedLower": "2026-11-15T03:42:19.000Z",
     "publishedUpper": "2026-11-16T05:42:19.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 5,
+      "total": 88,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1007,7 +1807,15 @@
     "publishedLower": "2026-07-10T06:28:11.000Z",
     "publishedUpper": "2026-07-11T08:28:11.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 26,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1017,7 +1825,15 @@
     "publishedLower": "2026-11-15T09:47:15.000Z",
     "publishedUpper": "2026-11-16T11:47:15.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 67,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1027,7 +1843,15 @@
     "publishedLower": "2026-06-20T04:26:43.000Z",
     "publishedUpper": "2026-06-21T06:26:43.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 21,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1037,7 +1861,15 @@
     "publishedLower": "2026-11-11T01:44:28.000Z",
     "publishedUpper": "2026-11-12T03:44:28.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 6,
+      "total": 107,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1047,7 +1879,15 @@
     "publishedLower": "2026-02-27T07:35:08.000Z",
     "publishedUpper": "2026-02-28T09:35:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 8,
+      "total": 148,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1057,7 +1897,15 @@
     "publishedLower": "2026-09-13T20:01:00.000Z",
     "publishedUpper": "2026-09-14T22:01:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1067,7 +1915,15 @@
     "publishedLower": "2026-11-14T07:01:12.000Z",
     "publishedUpper": "2026-11-15T09:01:12.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 16,
+      "total": 317,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1077,7 +1933,15 @@
     "publishedLower": "2026-11-02T07:35:24.000Z",
     "publishedUpper": "2026-11-03T09:35:24.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1087,7 +1951,15 @@
     "publishedLower": "2026-06-12T01:33:19.000Z",
     "publishedUpper": "2026-06-13T03:33:19.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 30,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1097,7 +1969,15 @@
     "publishedLower": "2025-11-01T22:06:45.000Z",
     "publishedUpper": "2025-11-03T00:06:45.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 11,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1107,7 +1987,15 @@
     "publishedLower": "2026-10-14T20:05:41.000Z",
     "publishedUpper": "2026-10-15T22:05:41.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 6,
+      "total": 110,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1117,7 +2005,15 @@
     "publishedLower": "2026-08-14T06:11:12.000Z",
     "publishedUpper": "2026-08-15T08:11:12.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1127,7 +2023,15 @@
     "publishedLower": "2025-08-29T15:33:57.000Z",
     "publishedUpper": "2025-08-30T17:33:57.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1137,7 +2041,15 @@
     "publishedLower": "2025-11-14T06:54:13.000Z",
     "publishedUpper": "2025-11-15T08:54:13.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 5,
+      "total": 82,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1147,7 +2059,15 @@
     "publishedLower": "2026-08-27T06:12:49.000Z",
     "publishedUpper": "2026-08-28T08:12:49.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1157,7 +2077,15 @@
     "publishedLower": "2026-02-04T00:53:09.000Z",
     "publishedUpper": "2026-02-05T02:53:09.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 6,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1167,7 +2095,15 @@
     "publishedLower": "2026-11-06T18:43:47.000Z",
     "publishedUpper": "2026-11-07T20:43:47.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 15,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1177,7 +2113,15 @@
     "publishedLower": "2026-10-11T03:40:31.000Z",
     "publishedUpper": "2026-10-12T05:40:31.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 8,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1187,7 +2131,15 @@
     "publishedLower": "2026-09-17T02:21:15.000Z",
     "publishedUpper": "2026-09-18T04:21:15.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 4,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1197,7 +2149,15 @@
     "publishedLower": "2026-06-29T10:16:39.000Z",
     "publishedUpper": "2026-06-30T12:16:39.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1207,7 +2167,15 @@
     "publishedLower": "2026-07-14T12:16:03.000Z",
     "publishedUpper": "2026-07-15T14:16:03.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 13,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1217,7 +2185,15 @@
     "publishedLower": "2026-03-24T02:33:45.000Z",
     "publishedUpper": "2026-03-25T04:33:45.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 13,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1227,7 +2203,15 @@
     "publishedLower": "2026-09-03T21:51:07.000Z",
     "publishedUpper": "2026-09-04T23:51:07.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 23,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1237,7 +2221,15 @@
     "publishedLower": "2026-11-15T05:42:09.000Z",
     "publishedUpper": "2026-11-16T07:42:09.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 8,
+      "total": 143,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1247,7 +2239,15 @@
     "publishedLower": "2025-10-28T19:53:36.000Z",
     "publishedUpper": "2025-10-29T21:53:36.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1257,7 +2257,15 @@
     "publishedLower": "2026-11-14T22:42:32.000Z",
     "publishedUpper": "2026-11-16T00:42:32.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 23,
+      "total": 444,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1267,7 +2275,15 @@
     "publishedLower": "2026-06-06T12:15:58.000Z",
     "publishedUpper": "2026-06-07T14:15:58.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1277,7 +2293,15 @@
     "publishedLower": "2026-09-25T22:16:03.000Z",
     "publishedUpper": "2026-09-27T00:16:03.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 4,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1287,7 +2311,15 @@
     "publishedLower": "2026-10-05T10:56:49.000Z",
     "publishedUpper": "2026-10-06T12:56:49.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1297,7 +2329,15 @@
     "publishedLower": "2026-11-13T03:38:47.000Z",
     "publishedUpper": "2026-11-14T05:38:47.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 6,
+      "total": 105,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1307,7 +2347,15 @@
     "publishedLower": "2026-11-15T01:50:54.000Z",
     "publishedUpper": "2026-11-16T03:50:54.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 15,
+      "total": 296,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1317,7 +2365,15 @@
     "publishedLower": "2026-11-15T05:57:40.000Z",
     "publishedUpper": "2026-11-16T07:57:40.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 27,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1327,7 +2383,15 @@
     "publishedLower": "2026-09-02T06:29:33.000Z",
     "publishedUpper": "2026-09-03T08:29:33.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1337,7 +2401,15 @@
     "publishedLower": "2026-06-14T10:17:50.000Z",
     "publishedUpper": "2026-06-15T12:17:50.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 19,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1347,7 +2419,15 @@
     "publishedLower": "2026-11-15T02:39:32.000Z",
     "publishedUpper": "2026-11-16T04:39:32.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 51,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1357,7 +2437,15 @@
     "publishedLower": "2026-02-03T10:41:16.000Z",
     "publishedUpper": "2026-02-04T12:41:16.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 70,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1367,7 +2455,15 @@
     "publishedLower": "2026-11-07T02:59:50.000Z",
     "publishedUpper": "2026-11-08T04:59:50.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 44,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1377,7 +2473,15 @@
     "publishedLower": "2026-03-14T02:03:08.000Z",
     "publishedUpper": "2026-03-15T04:03:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1387,7 +2491,15 @@
     "publishedLower": "2026-11-15T21:05:45.000Z",
     "publishedUpper": "2026-11-16T12:06:51.426Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 14,
+      "total": 268,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1397,7 +2509,15 @@
     "publishedLower": "2026-11-15T10:03:00.000Z",
     "publishedUpper": "2026-11-16T12:03:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 11,
+      "total": 215,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1407,7 +2527,15 @@
     "publishedLower": "2026-08-24T07:27:20.000Z",
     "publishedUpper": "2026-08-25T09:27:20.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 26,
+      "total": 520,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1417,7 +2545,15 @@
     "publishedLower": "2026-04-23T04:38:20.000Z",
     "publishedUpper": "2026-04-24T06:38:20.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 8,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1427,7 +2563,15 @@
     "publishedLower": "2026-11-15T03:33:01.000Z",
     "publishedUpper": "2026-11-16T05:33:01.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 44,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1437,7 +2581,15 @@
     "publishedLower": "2026-11-14T08:54:18.000Z",
     "publishedUpper": "2026-11-15T10:54:18.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 17,
+      "total": 339,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1447,7 +2599,15 @@
     "publishedLower": "2026-04-23T04:44:10.000Z",
     "publishedUpper": "2026-04-24T06:44:10.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 40,
+      "total": 783,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1457,7 +2617,15 @@
     "publishedLower": "2026-09-17T05:11:22.000Z",
     "publishedUpper": "2026-09-18T07:11:22.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 13,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1467,7 +2635,15 @@
     "publishedLower": "2026-04-06T06:29:03.000Z",
     "publishedUpper": "2026-04-07T08:29:03.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 13,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1477,7 +2653,15 @@
     "publishedLower": "2026-08-09T11:03:55.000Z",
     "publishedUpper": "2026-08-10T13:03:55.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 7,
+      "total": 123,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1487,7 +2671,15 @@
     "publishedLower": "2025-10-22T01:37:23.000Z",
     "publishedUpper": "2025-10-23T03:37:23.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 6,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1497,7 +2689,15 @@
     "publishedLower": "2026-10-30T23:07:44.000Z",
     "publishedUpper": "2026-11-01T01:07:44.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1507,7 +2707,15 @@
     "publishedLower": "2026-07-13T06:07:00.000Z",
     "publishedUpper": "2026-07-14T08:07:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 46,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1517,7 +2725,15 @@
     "publishedLower": "2026-10-15T22:40:37.000Z",
     "publishedUpper": "2026-10-17T00:40:37.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1527,7 +2743,15 @@
     "publishedLower": "2026-04-12T23:32:13.000Z",
     "publishedUpper": "2026-04-14T01:32:13.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 7,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1537,7 +2761,15 @@
     "publishedLower": "2026-11-07T04:29:15.000Z",
     "publishedUpper": "2026-11-08T06:29:15.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 9,
+      "total": 180,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1547,7 +2779,15 @@
     "publishedLower": "2025-10-30T06:58:27.000Z",
     "publishedUpper": "2025-10-31T08:58:27.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 30,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1557,7 +2797,15 @@
     "publishedLower": "2026-06-27T08:01:35.000Z",
     "publishedUpper": "2026-06-28T10:01:35.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 45,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1567,7 +2815,15 @@
     "publishedLower": "2026-09-30T02:20:24.000Z",
     "publishedUpper": "2026-10-01T04:20:24.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 52,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1577,7 +2833,15 @@
     "publishedLower": "2026-07-07T20:05:04.000Z",
     "publishedUpper": "2026-07-08T22:05:04.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 10,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1587,7 +2851,15 @@
     "publishedLower": "2026-07-05T04:45:04.000Z",
     "publishedUpper": "2026-07-06T06:45:04.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 13,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1597,7 +2869,15 @@
     "publishedLower": "2025-08-24T04:10:03.000Z",
     "publishedUpper": "2025-08-25T06:10:03.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 10,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1607,7 +2887,15 @@
     "publishedLower": "2026-10-27T08:14:08.000Z",
     "publishedUpper": "2026-10-28T10:14:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 21,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1617,7 +2905,15 @@
     "publishedLower": "2026-02-04T08:47:20.000Z",
     "publishedUpper": "2026-02-05T10:47:20.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 5,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1627,7 +2923,15 @@
     "publishedLower": "2026-03-09T02:50:03.000Z",
     "publishedUpper": "2026-03-10T04:50:03.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 77,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1637,7 +2941,15 @@
     "publishedLower": "2026-05-10T09:31:08.000Z",
     "publishedUpper": "2026-05-11T11:31:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 54,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1647,7 +2959,15 @@
     "publishedLower": "2026-04-18T01:30:51.000Z",
     "publishedUpper": "2026-04-19T03:30:51.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 22,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1657,7 +2977,15 @@
     "publishedLower": "2026-11-15T06:30:24.000Z",
     "publishedUpper": "2026-11-16T08:30:24.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 16,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1667,7 +2995,15 @@
     "publishedLower": "2026-03-17T05:24:21.000Z",
     "publishedUpper": "2026-03-18T07:24:21.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 12,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1677,7 +3013,15 @@
     "publishedLower": "2026-03-02T07:42:51.000Z",
     "publishedUpper": "2026-03-03T09:42:51.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 12,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1687,7 +3031,15 @@
     "publishedLower": "2026-05-16T17:44:14.000Z",
     "publishedUpper": "2026-05-17T19:44:14.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1697,7 +3049,15 @@
     "publishedLower": "2025-09-15T03:07:30.000Z",
     "publishedUpper": "2025-09-16T05:07:30.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 7,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1707,7 +3067,15 @@
     "publishedLower": "2026-04-18T08:46:24.000Z",
     "publishedUpper": "2026-04-19T10:46:24.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1717,7 +3085,15 @@
     "publishedLower": "2026-07-23T19:47:25.000Z",
     "publishedUpper": "2026-07-24T21:47:25.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 62,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1727,7 +3103,15 @@
     "publishedLower": "2026-11-01T21:43:00.000Z",
     "publishedUpper": "2026-11-02T23:43:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 5,
+      "total": 88,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1737,7 +3121,15 @@
     "publishedLower": "2026-11-14T22:15:11.000Z",
     "publishedUpper": "2026-11-16T00:15:11.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 5,
+      "total": 86,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1747,7 +3139,15 @@
     "publishedLower": "2026-02-11T09:21:00.000Z",
     "publishedUpper": "2026-02-12T11:21:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 29,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1757,7 +3157,15 @@
     "publishedLower": "2026-11-15T20:06:06.000Z",
     "publishedUpper": "2026-11-16T12:13:05.136Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 11,
+      "total": 213,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1767,7 +3175,15 @@
     "publishedLower": "2026-04-15T23:47:19.000Z",
     "publishedUpper": "2026-04-17T01:47:19.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 5,
+      "total": 86,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1777,7 +3193,15 @@
     "publishedLower": "2026-10-20T02:42:29.000Z",
     "publishedUpper": "2026-10-21T04:42:29.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 8,
+      "total": 159,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1787,7 +3211,15 @@
     "publishedLower": "2026-11-15T10:38:09.000Z",
     "publishedUpper": "2026-11-16T12:13:35.713Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 24,
+      "total": 474,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1797,7 +3229,15 @@
     "publishedLower": "2026-09-26T17:50:02.000Z",
     "publishedUpper": "2026-09-27T19:50:02.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 5,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1807,7 +3247,15 @@
     "publishedLower": "2026-11-04T04:32:42.000Z",
     "publishedUpper": "2026-11-05T06:32:42.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 74,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1817,7 +3265,15 @@
     "publishedLower": "2025-10-31T15:33:33.000Z",
     "publishedUpper": "2025-11-01T17:33:33.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1827,7 +3283,15 @@
     "publishedLower": "2026-04-05T04:11:01.000Z",
     "publishedUpper": "2026-04-06T06:11:01.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 6,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1837,7 +3301,15 @@
     "publishedLower": "2026-10-23T04:52:49.000Z",
     "publishedUpper": "2026-10-24T06:52:49.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 72,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1847,7 +3319,15 @@
     "publishedLower": "2026-01-06T21:40:22.000Z",
     "publishedUpper": "2026-01-07T23:40:22.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 12,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1857,7 +3337,15 @@
     "publishedLower": "2026-03-02T20:43:53.000Z",
     "publishedUpper": "2026-03-03T22:43:53.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1867,7 +3355,15 @@
     "publishedLower": "2026-06-05T23:34:36.000Z",
     "publishedUpper": "2026-06-07T01:34:36.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 11,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1877,7 +3373,15 @@
     "publishedLower": "2025-09-22T19:49:17.000Z",
     "publishedUpper": "2025-09-23T21:49:17.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 61,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1887,7 +3391,15 @@
     "publishedLower": "2026-01-31T23:28:10.000Z",
     "publishedUpper": "2026-02-02T01:28:10.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 34,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1897,7 +3409,15 @@
     "publishedLower": "2026-11-10T18:48:30.000Z",
     "publishedUpper": "2026-11-11T20:48:30.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 16,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1907,7 +3427,15 @@
     "publishedLower": "2025-09-12T00:22:07.000Z",
     "publishedUpper": "2025-09-13T02:22:07.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 36,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1917,7 +3445,15 @@
     "publishedLower": "2026-11-02T08:08:08.000Z",
     "publishedUpper": "2026-11-03T10:08:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 9,
+      "total": 177,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1927,7 +3463,15 @@
     "publishedLower": "2026-11-08T06:10:11.000Z",
     "publishedUpper": "2026-11-09T08:10:11.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 8,
+      "total": 154,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1937,7 +3481,15 @@
     "publishedLower": "2026-05-12T09:36:00.000Z",
     "publishedUpper": "2026-05-13T11:36:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1947,7 +3499,15 @@
     "publishedLower": "2025-08-15T00:53:51.000Z",
     "publishedUpper": "2025-08-16T02:53:51.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1957,7 +3517,15 @@
     "publishedLower": "2026-03-27T02:05:15.000Z",
     "publishedUpper": "2026-03-28T04:05:15.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 9,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1967,7 +3535,15 @@
     "publishedLower": "2026-01-30T01:13:27.000Z",
     "publishedUpper": "2026-01-31T03:13:27.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 6,
+      "total": 107,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1977,7 +3553,15 @@
     "publishedLower": "2026-08-11T09:30:39.000Z",
     "publishedUpper": "2026-08-12T11:30:39.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 26,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1987,7 +3571,15 @@
     "publishedLower": "2026-11-08T05:29:34.000Z",
     "publishedUpper": "2026-11-09T07:29:34.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 10,
+      "total": 183,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -1997,7 +3589,15 @@
     "publishedLower": "2026-02-25T11:40:32.000Z",
     "publishedUpper": "2026-02-26T13:40:32.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 9,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2007,7 +3607,15 @@
     "publishedLower": "2026-11-11T14:04:17.000Z",
     "publishedUpper": "2026-11-12T16:04:17.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 35,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2017,7 +3625,15 @@
     "publishedLower": "2026-09-17T00:48:00.000Z",
     "publishedUpper": "2026-09-18T02:48:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 12,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2027,7 +3643,15 @@
     "publishedLower": "2026-11-14T20:20:08.000Z",
     "publishedUpper": "2026-11-15T22:20:08.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 11,
+      "total": 207,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2037,7 +3661,15 @@
     "publishedLower": "2026-03-03T16:48:25.000Z",
     "publishedUpper": "2026-03-04T18:48:25.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 28,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2047,7 +3679,15 @@
     "publishedLower": "2026-09-09T21:09:25.000Z",
     "publishedUpper": "2026-09-10T23:09:25.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 17,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2057,7 +3697,15 @@
     "publishedLower": "2026-11-15T22:22:07.000Z",
     "publishedUpper": "2026-11-16T12:18:42.785Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 16,
+      "total": 305,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2067,7 +3715,15 @@
     "publishedLower": "2026-11-14T08:13:46.000Z",
     "publishedUpper": "2026-11-15T10:13:46.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 40,
+      "total": 781,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2077,7 +3733,15 @@
     "publishedLower": "2026-09-30T06:35:00.000Z",
     "publishedUpper": "2026-10-01T08:35:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 16,
+      "total": 312,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2087,7 +3751,15 @@
     "publishedLower": "2026-11-15T22:00:03.000Z",
     "publishedUpper": "2026-11-16T12:19:13.558Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 13,
+      "total": 243,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2097,7 +3769,15 @@
     "publishedLower": "2026-07-01T23:44:58.000Z",
     "publishedUpper": "2026-07-03T01:44:58.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 9,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2107,7 +3787,15 @@
     "publishedLower": "2026-05-05T07:00:55.000Z",
     "publishedUpper": "2026-05-06T09:00:55.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 9,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2117,7 +3805,15 @@
     "publishedLower": "2026-05-02T04:13:13.000Z",
     "publishedUpper": "2026-05-03T06:13:13.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 8,
+      "total": 148,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2127,7 +3823,15 @@
     "publishedLower": "2026-03-20T05:30:49.000Z",
     "publishedUpper": "2026-03-21T07:30:49.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 10,
+      "total": 183,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2137,7 +3841,15 @@
     "publishedLower": "2026-03-07T10:12:54.000Z",
     "publishedUpper": "2026-03-08T12:12:54.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 43,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2147,7 +3859,15 @@
     "publishedLower": "2026-05-10T00:45:14.000Z",
     "publishedUpper": "2026-05-11T02:45:14.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 17,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2157,7 +3877,15 @@
     "publishedLower": "2026-05-01T04:29:43.000Z",
     "publishedUpper": "2026-05-02T06:29:43.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 25,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2167,7 +3895,15 @@
     "publishedLower": "2026-03-10T09:28:50.000Z",
     "publishedUpper": "2026-03-11T11:28:50.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 13,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2177,7 +3913,15 @@
     "publishedLower": "2026-11-15T02:21:17.000Z",
     "publishedUpper": "2026-11-16T04:21:17.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 16,
+      "total": 312,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2187,7 +3931,15 @@
     "publishedLower": "2025-10-04T07:52:19.000Z",
     "publishedUpper": "2025-10-05T09:52:19.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 4,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2197,7 +3949,15 @@
     "publishedLower": "2026-09-06T00:17:39.000Z",
     "publishedUpper": "2026-09-07T02:17:39.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 27,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2207,7 +3967,15 @@
     "publishedLower": "2026-11-01T01:37:42.000Z",
     "publishedUpper": "2026-11-02T03:37:42.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 6,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2217,7 +3985,15 @@
     "publishedLower": "2026-11-07T21:36:23.000Z",
     "publishedUpper": "2026-11-08T23:36:23.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 77,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2227,7 +4003,15 @@
     "publishedLower": "2025-11-20T04:41:19.000Z",
     "publishedUpper": "2025-11-21T06:41:19.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 18,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2237,7 +4021,15 @@
     "publishedLower": "2026-11-12T05:42:20.000Z",
     "publishedUpper": "2026-11-13T07:42:20.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 27,
+      "total": 530,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2247,7 +4039,15 @@
     "publishedLower": "2026-04-15T08:04:22.000Z",
     "publishedUpper": "2026-04-16T10:04:22.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 7,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2257,7 +4057,15 @@
     "publishedLower": "2026-11-15T05:39:56.000Z",
     "publishedUpper": "2026-11-16T07:39:56.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 14,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2267,7 +4075,15 @@
     "publishedLower": "2026-02-14T19:20:54.000Z",
     "publishedUpper": "2026-02-15T21:20:54.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 11,
+      "total": 208,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2277,7 +4093,15 @@
     "publishedLower": "2026-03-09T06:46:55.000Z",
     "publishedUpper": "2026-03-10T08:46:55.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 6,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2287,7 +4111,15 @@
     "publishedLower": "2026-09-10T06:19:41.000Z",
     "publishedUpper": "2026-09-11T08:19:41.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 10,
+      "total": 197,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2297,7 +4129,15 @@
     "publishedLower": "2026-03-22T10:39:21.000Z",
     "publishedUpper": "2026-03-23T12:39:21.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2307,7 +4147,15 @@
     "publishedLower": "2026-09-04T03:57:45.000Z",
     "publishedUpper": "2026-09-05T05:57:45.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 17,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2317,7 +4165,15 @@
     "publishedLower": "2026-05-09T06:03:49.000Z",
     "publishedUpper": "2026-05-10T08:03:49.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 15,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2327,7 +4183,15 @@
     "publishedLower": "2026-11-11T18:06:07.000Z",
     "publishedUpper": "2026-11-12T20:06:07.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 5,
+      "total": 97,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2337,7 +4201,15 @@
     "publishedLower": "2026-10-07T07:12:05.000Z",
     "publishedUpper": "2026-10-08T09:12:05.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 15,
+      "total": 299,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2347,7 +4219,15 @@
     "publishedLower": "2026-11-14T21:36:11.000Z",
     "publishedUpper": "2026-11-15T23:36:11.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 17,
+      "total": 338,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2357,7 +4237,15 @@
     "publishedLower": "2026-08-13T00:05:16.000Z",
     "publishedUpper": "2026-08-14T02:05:16.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 4,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2367,7 +4255,15 @@
     "publishedLower": "2026-04-21T19:34:16.000Z",
     "publishedUpper": "2026-04-22T21:34:16.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 10,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2377,7 +4273,15 @@
     "publishedLower": "2026-11-15T01:12:50.000Z",
     "publishedUpper": "2026-11-16T03:12:50.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 76,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2387,7 +4291,15 @@
     "publishedLower": "2026-04-18T06:46:22.000Z",
     "publishedUpper": "2026-04-19T08:46:22.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 20,
+      "total": 396,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2397,7 +4309,15 @@
     "publishedLower": "2026-10-09T10:06:03.000Z",
     "publishedUpper": "2026-10-10T12:06:03.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 41,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2407,7 +4327,15 @@
     "publishedLower": "2025-12-20T23:30:06.000Z",
     "publishedUpper": "2025-12-22T01:30:06.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2417,7 +4345,15 @@
     "publishedLower": "2026-07-23T06:58:34.000Z",
     "publishedUpper": "2026-07-24T08:58:34.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2427,7 +4363,15 @@
     "publishedLower": "2026-11-04T17:09:56.000Z",
     "publishedUpper": "2026-11-05T19:09:56.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 63,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2437,7 +4381,15 @@
     "publishedLower": "2026-04-29T05:40:10.000Z",
     "publishedUpper": "2026-04-30T07:40:10.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 14,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2447,7 +4399,15 @@
     "publishedLower": "2026-11-14T06:44:56.000Z",
     "publishedUpper": "2026-11-15T08:44:56.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 28,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2457,7 +4417,15 @@
     "publishedLower": "2026-11-15T18:49:58.000Z",
     "publishedUpper": "2026-11-16T12:25:26.427Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 3,
+      "total": 52,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2467,7 +4435,15 @@
     "publishedLower": "2026-11-07T02:40:37.000Z",
     "publishedUpper": "2026-11-08T04:40:37.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 8,
+      "total": 152,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2477,7 +4453,15 @@
     "publishedLower": "2026-03-13T04:59:39.000Z",
     "publishedUpper": "2026-03-14T06:59:39.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2487,7 +4471,15 @@
     "publishedLower": "2026-08-15T02:18:07.000Z",
     "publishedUpper": "2026-08-16T04:18:07.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 2,
+      "total": 39,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2497,7 +4489,15 @@
     "publishedLower": "2026-01-16T05:42:26.000Z",
     "publishedUpper": "2026-01-17T07:42:26.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 7,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2507,7 +4507,15 @@
     "publishedLower": "2026-08-07T04:38:30.000Z",
     "publishedUpper": "2026-08-08T06:38:30.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 12,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2517,7 +4525,15 @@
     "publishedLower": "2026-11-15T07:52:47.000Z",
     "publishedUpper": "2026-11-16T09:52:47.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 10,
+      "total": 183,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2527,7 +4543,15 @@
     "publishedLower": "2026-11-15T23:06:41.000Z",
     "publishedUpper": "2026-11-16T12:26:36.815Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 9,
+      "total": 174,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2537,7 +4561,15 @@
     "publishedLower": "2026-11-03T20:39:59.000Z",
     "publishedUpper": "2026-11-04T22:39:59.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2547,7 +4579,15 @@
     "publishedLower": "2026-02-12T22:08:29.000Z",
     "publishedUpper": "2026-02-14T00:08:29.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 72,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2557,7 +4597,15 @@
     "publishedLower": "2026-11-13T04:32:49.000Z",
     "publishedUpper": "2026-11-14T06:32:49.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 12,
+      "total": 237,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2567,7 +4615,15 @@
     "publishedLower": "2026-08-16T23:53:00.000Z",
     "publishedUpper": "2026-08-18T01:53:00.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 13,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2577,7 +4633,15 @@
     "publishedLower": "2026-09-21T13:20:16.000Z",
     "publishedUpper": "2026-09-22T15:20:16.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2587,7 +4651,15 @@
     "publishedLower": "2026-11-15T21:50:50.000Z",
     "publishedUpper": "2026-11-16T12:27:37.164Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 20,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2597,7 +4669,15 @@
     "publishedLower": "2026-04-30T10:09:50.000Z",
     "publishedUpper": "2026-05-01T12:09:50.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2607,7 +4687,15 @@
     "publishedLower": "2025-07-24T02:01:41.000Z",
     "publishedUpper": "2025-07-25T04:01:41.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2617,7 +4705,15 @@
     "publishedLower": "2026-09-06T03:21:46.000Z",
     "publishedUpper": "2026-09-07T05:21:46.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 8,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2627,7 +4723,15 @@
     "publishedLower": "2026-02-17T02:54:22.000Z",
     "publishedUpper": "2026-02-18T04:54:22.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 5,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2637,7 +4741,15 @@
     "publishedLower": "2026-02-07T22:33:31.000Z",
     "publishedUpper": "2026-02-09T00:33:31.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2647,7 +4759,15 @@
     "publishedLower": "2025-08-18T18:10:22.000Z",
     "publishedUpper": "2025-08-19T20:10:22.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2657,7 +4777,15 @@
     "publishedLower": "2026-02-21T00:59:11.000Z",
     "publishedUpper": "2026-02-22T02:59:11.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 6,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2667,7 +4795,15 @@
     "publishedLower": "2026-05-30T11:33:53.000Z",
     "publishedUpper": "2026-05-31T13:33:53.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 9,
+      "total": 170,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2677,7 +4813,15 @@
     "publishedLower": "2026-10-05T22:43:43.000Z",
     "publishedUpper": "2026-10-07T00:43:43.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 2,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2687,7 +4831,15 @@
     "publishedLower": "2026-02-04T07:04:54.000Z",
     "publishedUpper": "2026-02-05T09:04:54.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2697,7 +4849,15 @@
     "publishedLower": "2026-10-03T11:15:57.000Z",
     "publishedUpper": "2026-10-04T13:15:57.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 9,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2707,7 +4867,15 @@
     "publishedLower": "2026-10-26T03:42:25.000Z",
     "publishedUpper": "2026-10-27T05:42:25.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 5,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2717,7 +4885,15 @@
     "publishedLower": "2026-10-18T06:37:27.000Z",
     "publishedUpper": "2026-10-19T08:37:27.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 9,
+      "total": 172,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2727,7 +4903,15 @@
     "publishedLower": "2026-01-05T00:11:59.000Z",
     "publishedUpper": "2026-01-06T02:11:59.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 3,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2737,7 +4921,15 @@
     "publishedLower": "2026-11-12T05:50:51.000Z",
     "publishedUpper": "2026-11-13T07:50:51.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 13,
+      "total": 243,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2747,7 +4939,15 @@
     "publishedLower": "2026-11-12T01:43:48.000Z",
     "publishedUpper": "2026-11-13T03:43:48.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 11,
+      "total": 201,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2757,7 +4957,15 @@
     "publishedLower": "2026-09-11T11:51:42.000Z",
     "publishedUpper": "2026-09-12T13:51:42.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2767,7 +4975,15 @@
     "publishedLower": "2026-11-10T21:39:45.000Z",
     "publishedUpper": "2026-11-11T23:39:45.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 8,
+      "total": 160,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2777,7 +4993,15 @@
     "publishedLower": "2026-09-02T05:54:58.000Z",
     "publishedUpper": "2026-09-03T07:54:58.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2787,7 +5011,15 @@
     "publishedLower": "2026-06-11T13:25:44.000Z",
     "publishedUpper": "2026-06-12T15:25:44.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 9,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2797,7 +5029,15 @@
     "publishedLower": "2026-08-18T08:56:44.000Z",
     "publishedUpper": "2026-08-19T10:56:44.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 5,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2807,7 +5047,15 @@
     "publishedLower": "2026-10-22T02:53:38.000Z",
     "publishedUpper": "2026-10-23T04:53:38.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 4,
+      "total": 66,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2817,7 +5065,15 @@
     "publishedLower": "2026-03-03T06:15:59.000Z",
     "publishedUpper": "2026-03-04T08:15:59.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": true,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 1,
+      "total": 1,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2827,7 +5083,15 @@
     "publishedLower": "2026-09-08T04:10:31.000Z",
     "publishedUpper": "2026-09-09T06:10:31.000Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 8,
+      "total": 153,
+      "perPage": 20
+    }
   },
   {
     "platform": "golazobets",
@@ -2837,7 +5101,15 @@
     "publishedLower": "2026-11-15T22:41:29.000Z",
     "publishedUpper": "2026-11-16T12:31:49.826Z",
     "precision": "timezone-unknown",
-    "coverage": "first-page"
+    "coverage": "first-page",
+    "visiblePaginationComplete": false,
+    "globalCoverageProven": false,
+    "sourcePagination": {
+      "currentPage": 1,
+      "lastPage": 14,
+      "total": 261,
+      "perPage": 20
+    }
   },
   {
     "platform": "tipstrr",

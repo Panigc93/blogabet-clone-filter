@@ -53,7 +53,8 @@ con las capturas master 0aac60c, sin faltantes/sobrantes. Captura única del
 `eed680cf3b9b05fac332fd8c9ffc16a26b911af164c12bb5e937c5c83c7dc13a`.
 3870 picks observados, 142 páginas parciales y 142 que incluyen todo lo que
 declara el paginador; globalCoverageProven=false en todos. El artefacto
-filtrable conserva first-page, no afirma completitud global. 93 perfiles
+filtrable conserva first-page y añade visiblePaginationComplete142true/142false,
+sourcePagination y globalCoverageProven=false. No afirma completitud global. 93 perfiles
 prueban publicación en el último mes a las 13:33CET;191 sin confirmar
 (incluido un caso de frontera por zona), NO inactivos. La fecha de captura
 de estadísticas que ya aparece en cada tarjeta no se reemplaza: evidencia

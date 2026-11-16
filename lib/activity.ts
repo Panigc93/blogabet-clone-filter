@@ -8,7 +8,10 @@ export interface ActivityEvidence {
   publishedLower: string // earliest possible UTC instant
   publishedUpper: string // latest possible UTC instant
   precision: 'utc' | 'timezone-unknown'
-  coverage: 'sample' | 'first-page' | 'complete'
+  coverage: 'sample' | 'first-page'
+  visiblePaginationComplete?: boolean // complete only relative to source paginator
+  globalCoverageProven?: false // never upgraded by a one-page observation
+  sourcePagination?: { currentPage: number; lastPage: number; total: number; perPage: number }
 }
 
 export function parseActivity(value: string | null | undefined): number | 'unknown' | undefined {
