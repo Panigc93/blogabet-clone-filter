@@ -277,7 +277,7 @@ async function crawlStats() {
   refreshed = loop.refreshed
   const blocked = loop.blocked
   saveCheckpoint(loop.next, done, errors)
-  console.log(`Stats crawl finished. Total done=${done}, errors=${errors}`)
+  console.log(`Stats crawl loop finished (legacy cumulative done=${done}, errors=${errors}; not refreshed-row counts).`)
 
   if (existsSync(CHECKPOINT_PATH) && errors === 0 && !blocked) {
     const { unlinkSync } = await import('fs')
@@ -290,6 +290,7 @@ async function crawlStats() {
     withStats: sql<number>`count(*) filter (where ${tipsters.statsUpdatedAt} is not null)`.mapWith(Number),
   }).from(tipsters).where(blogabetOnly)
   const outcome = decideStatsOutcome({
+    counters: loop.counters,
     selected: allTipsters.length,
     withStats,
     done,

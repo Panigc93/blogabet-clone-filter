@@ -15,7 +15,19 @@ export interface StatsLoopDeps<R> {
   now?: () => number
 }
 
+export interface StatsRunCounters {
+  /** Completed items in this invocation only: refreshed + noData + requestErrors. */
+  processed: number
+  refreshed: number
+  noData: number
+  requestErrors: number
+  checkpointOffset: number
+  checkpointDone: number
+  checkpointErrors: number
+}
+
 export interface StatsLoopResult {
+  counters: StatsRunCounters
   done: number
   refreshed: number
   errors: number
@@ -32,7 +44,13 @@ export async function runStatsLoop<R>(
   onProgress?: (next: number, done: number, errors: number) => void,
 ): Promise<StatsLoopResult> {
   let { done, errors } = start
+  let noData = 0
+  let requestErrors = 0
   let refreshed = 0
+  const counters = (): StatsRunCounters => ({
+    processed: refreshed + noData + requestErrors, refreshed, noData, requestErrors,
+    checkpointOffset: start.offset, checkpointDone: start.done, checkpointErrors: start.errors,
+  })
   let consecutive = 0 // failed tipsters in a row
   let unrefreshed = 0 // not-refreshed tipsters in a row (errors + 200 without data)
   const now = d.now ?? Date.now
@@ -42,7 +60,7 @@ export async function runStatsLoop<R>(
     if (d.maxRuntimeMs !== undefined && now() - t0 > d.maxRuntimeMs) {
       const reason = `time budget of ${Math.round(d.maxRuntimeMs / 60000)} min exceeded`
       log(`[${i + 1}/${items.length}] STOP: ${reason}. Previous stats kept; checkpoint kept.`)
-      return { done, refreshed, errors, blocked: reason, next: i }
+      return { counters: counters(), done, refreshed, errors, blocked: reason, next: i }
     }
     const { id, slug } = items[i]
     let result: R | null = null
@@ -54,9 +72,10 @@ export async function runStatsLoop<R>(
     } catch (err) {
       if (err instanceof BlockedError) {
         log(`[${i + 1}/${items.length}] STOP ${slug}: ${err.message}. Run aborted; previous stats kept.`)
-        return { done, refreshed, errors, blocked: err.message, next: i }
+        return { counters: counters(), done, refreshed, errors, blocked: err.message, next: i }
       }
       errors++
+      requestErrors++
       consecutive++
       unrefreshed++
       log(`[${i + 1}/${items.length}] ERROR ${slug}: ${(err as Error).message}`)
@@ -67,7 +86,7 @@ export async function runStatsLoop<R>(
           ? `${unrefreshed} consecutive tipsters not refreshed`
           : `${consecutive} consecutive failed tipsters`
         log(`STOP: ${reason}. Previous stats kept; checkpoint kept.`)
-        return { done, refreshed, errors, blocked: reason, next: i + 1 }
+        return { counters: counters(), done, refreshed, errors, blocked: reason, next: i + 1 }
       }
       await d.sleep(500)
       continue
@@ -78,18 +97,19 @@ export async function runStatsLoop<R>(
       consecutive = 0
       unrefreshed = 0
     } else {
+      noData++
       // 200 without parseable data is NOT a refresh: it counts toward the unrefreshed streak.
       unrefreshed++
       if (d.maxConsecutiveUnrefreshed !== undefined && unrefreshed >= d.maxConsecutiveUnrefreshed) {
         const reason = `${unrefreshed} consecutive tipsters not refreshed`
         log(`STOP: ${reason}. Previous stats kept; checkpoint kept.`)
         done++
-        return { done, refreshed, errors, blocked: reason, next: i + 1 }
+        return { counters: counters(), done, refreshed, errors, blocked: reason, next: i + 1 }
       }
     }
     done++
     if ((i + 1) % 100 === 0) onProgress?.(i + 1, done, errors)
     await d.sleep(300)
   }
-  return { done, refreshed, errors, next: items.length }
+  return { counters: counters(), done, refreshed, errors, next: items.length }
 }

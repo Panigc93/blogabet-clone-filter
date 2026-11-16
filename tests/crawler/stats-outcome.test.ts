@@ -13,13 +13,14 @@ describe('decideStatsOutcome', () => {
     const r = decideStatsOutcome({ ...base, selected: 0, done: 0, refreshed: 0, completed: true, clearRequested: true })
     expect(r.clear).toBe(false)
     expect(r.exitCode).toBe(1)
-    expect(r.messages.join(' ')).toMatch(/keep their stats/)
+    expect(r.messages.join(' ')).toMatch(/previous values are kept/)
   })
-  it('partial / reduced selection: no clear, reports unrefreshed rows', () => {
+  it('partial / reduced selection: never invents a retained-row count from cumulative done', () => {
     const r = decideStatsOutcome({ ...base, selected: 10, done: 10, withStats: 2100 })
     expect(r.clear).toBe(false)
     expect(r.exitCode).toBe(0)
-    expect(r.messages.join(' ')).toMatch(/2090 rows .* not refreshed/)
+    expect(r.messages.join(' ')).not.toMatch(/2090|rows .* not refreshed/)
+    expect(r.messages.join(' ')).toContain('not a row-update count')
   })
   it('stats failures: partial errors exit 0 and block clear; all failed exits 1', () => {
     const some = decideStatsOutcome({ ...base, done: 1990, refreshed: 1980, errors: 10, clearRequested: true })
