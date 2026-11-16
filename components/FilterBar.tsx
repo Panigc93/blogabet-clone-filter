@@ -202,7 +202,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
                 <option value="3">Últimos 3 meses</option>
                 <option value="6">Últimos 6 meses</option>
                 <option value="12">Último año</option>
-                <option value="unknown">Sin confirmar (1m)</option>
+                <option value="unknown">Sin confirmar</option>
               </select>
             </div>
 

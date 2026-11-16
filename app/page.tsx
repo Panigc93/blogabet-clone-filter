@@ -1,5 +1,5 @@
 import { parseActivity } from '@/lib/activity'
-import { activityWarning } from '@/lib/activity-query'
+import { ActivityNotice } from '@/components/ActivityNotice'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
 import { buildFilters, sortOrder, ignoredWarning, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
@@ -59,11 +59,7 @@ export default async function Home({ searchParams }: PageProps) {
             {profitSortWarning(sort, filters.platform)}
           </div>
         )}
-        {activityWarning(filters.activityMonths, filters.activityUnknown) && (
-          <div role="note" style={{ margin: '8px 0', padding: '8px 12px', background: '#eef6ff', border: '1px solid #b8d5f3', borderRadius: 4, fontSize: 13 }}>
-            {activityWarning(filters.activityMonths, filters.activityUnknown)}
-          </div>
-        )}
+        <ActivityNotice months={filters.activityMonths} unknown={filters.activityUnknown} />
         {ignoredWarning(filters) && (
           <div style={{ margin: '8px 0 0', padding: '8px 12px', background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: 4, fontSize: 13, color: '#856404' }}>
             {ignoredWarning(filters)}

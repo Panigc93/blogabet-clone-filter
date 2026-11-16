@@ -59,7 +59,16 @@ sin DB ni resultados ficticios.
 
 Actividad: datos parciales, ausencia, intervalo zona desconocida, límite
 de mes, timestamp futuro, identidad/plataforma, parser SSR/API compartido,
-BB invariante y null-safe unknown. Suite base contiene un problema ajeno:
-los tests import-prod-sql/import-sport6-batch importan un módulo con main()
-incondicional y causan process.exit(1) al no haber DATABASE_URL. No se
-proporciona una conexión real para silenciarlo ni se cambia ese importador.
+BB invariante, SQL 284 perfiles parametrizado y null-safe unknown.
+
+El fallo basal de main() ejecutado al importar import-tipstrr-prod.ts se
+reprodujo sobre master 0aac60c. Se corrige en commit separable con guard de
+punto de entrada (import.meta.url), conservando ejecución CLI directa. Un
+subproceso de prueba importa builders sin DATABASE_URL y con fetch que
+lanza error si se llama: no hace red, DB ni process.exit. Suite 250/250 OK,
+sin errores no capturados; TypeScript OK (antes de integración de lote).
+
+Visual local: app real contra PGlite aislado, 284 filas Golazobets desde
+capturas fechadas y dos filas Tipstrr desde snapshots reales. Tipstrr
+activity=1 devuelve TLE, no StatMind; desconocido devuelve los perfiles sin
+prueba. Esto NO prueba producción ni cobertura completa del lote pendiente.
