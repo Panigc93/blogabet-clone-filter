@@ -171,7 +171,9 @@ describe('golazobetsCaptureToInsert', () => {
       // no expuestos -> null (ausente = null, nunca 0)
       expect(m.insert.verifiedPct).toBeNull()
       expect(m.insert.followers).toBeNull()
-      expect(m.insert.sinceYear).toBeNull()
+      // sinceYear YA no es null: se deriva del primer mes con apuestas>0
+      // del histórico all-time (decisión usuario 16-nov; KROM90 = 2026).
+      expect(m.insert.sinceYear).toBe(2026)
       expect(m.insert.signupAt).toBeNull()
       expect(m.insert.price).toBeNull()
     }

@@ -156,8 +156,10 @@ describe('fromDbTipster (Golazobets)', () => {
     expect(c.platform).toBe('golazobets')
     expect(c.capturedAt).toBe('2026-11-15')
     expect(c.sourceUrl).toBe('https://golazobets.com/tipster/DemoGzb')
-    // La unidad propia va en la etiqueta: jamás 'u' (Tipstrr) ni '€' (BB)
-    expect(c.profitDisplay).toBe('+55.63 ud Golazobets')
+    // Sufijo corto 'u' decidido por el usuario (16-nov); jamás '€' (BB) ni
+    // equivalencia con las 'u' de Tipstrr (esa distinción vive en el aviso
+    // contextual y en el tooltip del yield, no en la cifra).
+    expect(c.profitDisplay).toBe('+55,63 u')
     expect(c.profitDisplay).not.toContain('€')
     expect(c.yieldPct).toBe(42.14)
     expect(c.yieldTitle).toContain('no son equivalentes')
