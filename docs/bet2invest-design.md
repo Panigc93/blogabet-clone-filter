@@ -138,8 +138,11 @@ workflow, no merge.
   platform option in FilterBar; card-model mapper with provenance tooltips;
   'VER EN BET2INVEST' button in a proposed violet (#6a5aa8, owner's call,
   reversible); profit-sort warning now names the fourth unit; isolated
-  preview at /lab/bet2invest with FULLY SYNTHETIC rows (not linked, no
-  data, no real captures).
+  preview at /lab/bet2invest with FULLY SYNTHETIC rows (no data, no real
+  captures), guarded: the route 404s unless LAB_PREVIEW=1 is set, so it
+  cannot be exposed by an accidental deploy ('not linked' is not enough —
+  a deployed route is public even when nothing links to it). Verified
+  2026-11-16: 404 without the env, 200 with it.
 - Shared-file deltas for regression review: `crawler/platforms/types.ts`
   (additive union members only), `lib/query.ts` (platform union member,
   warning text, comment), `components/tipster-card-model.ts` (new branch),

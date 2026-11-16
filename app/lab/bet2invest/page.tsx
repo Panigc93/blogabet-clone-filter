@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { TipsterRow } from '@/components/TipsterRow'
 import { fromDbTipster } from '@/components/tipster-card-model'
 import {
@@ -11,8 +12,11 @@ import type { Tipster } from '@/db/schema'
 // tarjeta (perfil parseado -> bet2investProfileToInsert -> fromDbTipster ->
 // TipsterRow). Datos FULLY SYNTHETIC (identidades y cifras inventadas): no
 // hay fetch, ni capturas reales, ni base de datos. Esta página no está
-// enlazada desde la app; es solo previsualización de la UI antes de
-// cualquier importación (producción pendiente de decisión del propietario).
+// enlazada desde la app y además va GUARDADA: sin LAB_PREVIEW=1 en el
+// entorno responde 404, así no puede exponerse por un despliegue
+// accidental si la rama llegara a producción. Es solo previsualización de
+// la UI antes de cualquier importación (pendiente de decisión del
+// propietario).
 
 const CAPTURED_AT = new Date('2026-11-16T10:00:00.000Z')
 
@@ -89,6 +93,10 @@ const SAMPLE: { slug: string; nota: string; profile: Bet2InvestProfile }[] = [
 ]
 
 export default function LabBet2InvestPage() {
+  // Guarda real de aislamiento: la ruta no existe fuera de un entorno que
+  // pida explícitamente la preview (LAB_PREVIEW=1). 'No enlazada' no es
+  // suficiente: una ruta desplegada es pública aunque nadie enlace a ella.
+  if (process.env.LAB_PREVIEW !== '1') notFound()
   const rows = SAMPLE.map(({ slug, nota, profile }, i) => {
     const mapping: Bet2InvestDbMapping = bet2investProfileToInsert(profile, {
       id: -920000 - i, // fixture aislado: nunca payload de producción
@@ -110,7 +118,8 @@ export default function LabBet2InvestPage() {
         es equivalente a los € de Blogabet ni a las u de Tipstrr o Golazobets. El yield es el ROI
         publicado por la fuente con base de stake inferida (la página no muestra el total apostado):
         no es una cifra recalculada. Campos no capturados o no verificados: guion (null), nunca 0.
-        Esta página no está conectada a datos ni enlazada desde la app.
+        Esta página no está conectada a datos, no está enlazada desde la app y solo existe con{' '}
+        <code>LAB_PREVIEW=1</code> (sin ella responde 404).
       </p>
       {rows.map(({ slug, nota, error, card }) => (
         <div key={slug} style={{ marginBottom: 14 }}>
