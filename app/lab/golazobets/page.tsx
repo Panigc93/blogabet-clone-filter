@@ -44,7 +44,7 @@ export default function LabGolazobetsPage() {
       <h1 style={{ fontSize: 20, fontWeight: 700 }}>Lab · vista previa Golazobets</h1>
       <p style={{ fontSize: 13, color: '#555', maxWidth: 760 }}>
         Filas renderizadas con el pipeline real desde capturas fechadas (2026-11-15). El beneficio
-        se etiqueta como <strong>ud Golazobets</strong>: no es equivalente a los € de Blogabet ni a
+        se etiqueta como <strong>u (Golazobets)</strong>: no es equivalente a los € de Blogabet ni a
         las u de Tipstrr, y la ordenacion por beneficio las agrupa por unidad, nunca las mezcla.
         Campos no expuestos por la plataforma: guion (null), nunca 0.
       </p>

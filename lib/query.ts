@@ -146,7 +146,7 @@ export function ignoredWarning(params: TipsterFilters): string | null {
 // golazobets-units, luego units), NO es un ranking global de beneficio.
 export function profitSortWarning(sort: SortField, platform: TipsterFilters['platform']): string | null {
   if (sort !== 'profit' || platform !== undefined) return null
-  return 'Orden por beneficio agrupado por unidad: € (Blogabet), ud Golazobets y u (Tipstrr) no son comparables entre si; no es un ranking global de beneficio.'
+  return 'Orden por beneficio agrupado por unidad: € (Blogabet), u (Golazobets) y u (Tipstrr) no son comparables entre si; no es un ranking global de beneficio.'
 }
 
 export function sortColumn(sort: SortField) {
