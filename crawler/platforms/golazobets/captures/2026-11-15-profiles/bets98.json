@@ -1,0 +1,31 @@
+{
+ "tipster_id": 970,
+ "type": "free",
+ "sport_id": 1,
+ "header": {
+  "number_bets": 1,
+  "total_bet": 4,
+  "profit": 2,
+  "yield": 50,
+  "win_rate": 100,
+  "average_stake": 4,
+  "average_odds": 1.5
+ },
+ "monthly": [
+  {
+   "year": 2026,
+   "month": 8,
+   "total_picks": 1,
+   "total_bet": 4,
+   "profit": 2,
+   "yield": 50,
+   "win_rate": 100,
+   "average_stake": 4,
+   "average_odds": 1.5
+  }
+ ],
+ "picks_total": 1,
+ "recent_results": [
+  "won"
+ ]
+}

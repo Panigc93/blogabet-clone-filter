@@ -1,0 +1,117 @@
+{
+ "tipster_id": 811,
+ "type": "free",
+ "sport_id": 1,
+ "header": {
+  "number_bets": 255,
+  "total_bet": 274,
+  "profit": 18.15,
+  "yield": 6.62,
+  "win_rate": 57.65,
+  "average_stake": 1.07,
+  "average_odds": 1.88
+ },
+ "monthly": [
+  {
+   "year": 2026,
+   "month": 5,
+   "total_picks": 43,
+   "total_bet": 60,
+   "profit": -7.16,
+   "yield": -11.93,
+   "win_rate": 44.19,
+   "average_stake": 1.4,
+   "average_odds": 1.87
+  },
+  {
+   "year": 2026,
+   "month": 7,
+   "total_picks": 5,
+   "total_bet": 5,
+   "profit": -2,
+   "yield": -40,
+   "win_rate": 20,
+   "average_stake": 1,
+   "average_odds": 2.56
+  },
+  {
+   "year": 2026,
+   "month": 6,
+   "total_picks": 32,
+   "total_bet": 35.25,
+   "profit": 11.01,
+   "yield": 31.23,
+   "win_rate": 75,
+   "average_stake": 1.1,
+   "average_odds": 1.84
+  },
+  {
+   "year": 2026,
+   "month": 7,
+   "total_picks": 28,
+   "total_bet": 27.25,
+   "profit": 11.5,
+   "yield": 42.21,
+   "win_rate": 75,
+   "average_stake": 0.97,
+   "average_odds": 1.85
+  },
+  {
+   "year": 2026,
+   "month": 8,
+   "total_picks": 36,
+   "total_bet": 35.75,
+   "profit": 4.97,
+   "yield": 13.9,
+   "win_rate": 63.89,
+   "average_stake": 0.99,
+   "average_odds": 1.67
+  },
+  {
+   "year": 2026,
+   "month": 9,
+   "total_picks": 51,
+   "total_bet": 54.5,
+   "profit": 8.59,
+   "yield": 15.77,
+   "win_rate": 58.82,
+   "average_stake": 1.07,
+   "average_odds": 1.91
+  },
+  {
+   "year": 2026,
+   "month": 10,
+   "total_picks": 43,
+   "total_bet": 39.25,
+   "profit": -3.68,
+   "yield": -9.37,
+   "win_rate": 51.16,
+   "average_stake": 0.91,
+   "average_odds": 2.02
+  },
+  {
+   "year": 2026,
+   "month": 11,
+   "total_picks": 17,
+   "total_bet": 17,
+   "profit": -5.09,
+   "yield": -29.94,
+   "win_rate": 41.18,
+   "average_stake": 1,
+   "average_odds": 1.82
+  }
+ ],
+ "picks_total": 259,
+ "recent_results": [
+  "won",
+  "lost",
+  "lost",
+  "lost",
+  "won",
+  "lost",
+  "lost",
+  "lost",
+  "won",
+  "won"
+ ]
+}
