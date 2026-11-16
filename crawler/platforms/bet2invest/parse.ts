@@ -164,11 +164,29 @@ function testid($: cheerio.CheerioAPI, id: string): string {
   return $(`[data-testid="${id}"]`).first().text().trim()
 }
 
+// Identity comes ONLY from a fully validated canonical URL: https, host
+// exactly bet2invest.com, no credentials/port/query/fragment, and a path of
+// exactly /tipsters/performance-stats/<slug> (one segment, no extras).
 function usernameFromCanonical($: cheerio.CheerioAPI): string {
   const href = $('link[rel="canonical"]').attr('href') ?? ''
-  const match = href.match(/\/tipsters\/performance-stats\/([^/?#]+)/)
-  if (!match) throw new Bet2InvestParseError('no performance-stats canonical link found')
-  return safeDecode(match[1])
+  let url: URL
+  try {
+    url = new URL(href)
+  } catch {
+    throw new Bet2InvestParseError('no performance-stats canonical link found')
+  }
+  const m = /^\/tipsters\/performance-stats\/([^/]+)$/.exec(url.pathname)
+  const ok =
+    url.protocol === 'https:' &&
+    url.hostname === 'bet2invest.com' &&
+    url.port === '' &&
+    url.username === '' &&
+    url.password === '' &&
+    url.search === '' &&
+    url.hash === '' &&
+    m !== null
+  if (!ok || !m) throw new Bet2InvestParseError('no performance-stats canonical link found')
+  return safeDecode(m[1])
 }
 
 function parseStatsScope($: cheerio.CheerioAPI): { periodLabel: string | null; statsScope: Bet2InvestStatsScope } {

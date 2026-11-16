@@ -233,6 +233,27 @@ describe('parseProfilePage', () => {
     expect(() => parseProfilePage(profileHtml({ slug: '%E0%A4%A' }))).toThrow(Bet2InvestParseError)
   })
 
+  it('rejects canonical URLs that are not exactly https://bet2invest.com/tipsters/performance-stats/<slug>', () => {
+    const base = profileHtml({})
+    const swap = (href: string) =>
+      base.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${href}">`)
+    for (const bad of [
+      'https://wrong.invalid/tipsters/performance-stats/x',
+      'http://bet2invest.com/tipsters/performance-stats/x',
+      'https://bet2invest.com.evil.test/tipsters/performance-stats/x',
+      'https://user@bet2invest.com/tipsters/performance-stats/x',
+      'https://bet2invest.com:8443/tipsters/performance-stats/x',
+      'https://bet2invest.com/x/tipsters/performance-stats/x',
+      'https://bet2invest.com/tipsters/performance-stats/x/extra',
+      'https://bet2invest.com/tipsters/performance-stats/x?a=1',
+      'https://bet2invest.com/tipsters/performance-stats/x#h',
+      '/tipsters/performance-stats/x',
+    ]) {
+      expect(() => parseProfilePage(swap(bad)), bad).toThrow(Bet2InvestParseError)
+    }
+    expect(parseProfilePage(swap('https://bet2invest.com/tipsters/performance-stats/x')).username).toBe('x')
+  })
+
   it('rejects pages without a performance-stats canonical link', () => {
     expect(() => parseProfilePage('<html><body></body></html>')).toThrow(Bet2InvestParseError)
   })

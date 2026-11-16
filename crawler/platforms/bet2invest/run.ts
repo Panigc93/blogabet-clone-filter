@@ -4,7 +4,7 @@
 // defaults for the refresh policy, the store directory or the id mapping.
 import { crawlProfiles, type CrawlDeps, type CrawlReport } from './crawl'
 import {
-  readPause, loadState, recordOutcome, selectDue, type RefreshPolicy, type GlobalPause, type SlugState,
+  assertValidPolicy, readPause, loadState, recordOutcome, selectDue, type RefreshPolicy, type GlobalPause, type SlugState,
 } from './capture-store'
 
 export interface RunParams {
@@ -21,6 +21,7 @@ export type RunResult =
   | { status: 'completed' | 'stopped'; report: CrawlReport; stoppedAt?: string }
 
 export async function runCrawl(p: RunParams): Promise<RunResult> {
+  assertValidPolicy(p.policy) // before the pause check, any store read or any fetch
   const pause = readPause(p.dir)
   if (pause) return { status: 'paused', pause, requests: 0 }
   const now = p.deps.now()

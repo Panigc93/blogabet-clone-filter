@@ -56,7 +56,8 @@ export function applyOutcome(state: SlugState, outcome: CrawlOutcome, attemptedA
     return { ...state, lastAttempt: attempt, consecutiveFailures: state.consecutiveFailures + 1 }
   }
   const capturedIso = outcome.capturedAt.toISOString()
-  const keepOld = state.lastValid !== null && state.lastValid.capturedAt > capturedIso
+  // strictly newer only: equal capturedAt keeps the previous capture (aligned with planBet2InvestUpsert)
+  const keepOld = state.lastValid !== null && state.lastValid.capturedAt >= capturedIso
   const { capturedAt: _drop, ...insert } = outcome.mapping.insert
   void _drop
   return {
@@ -76,6 +77,18 @@ export interface RefreshPolicy {
 
 // No default policy exists: every value is an explicit decision by whoever
 // runs the crawl (none has been authorized yet).
+// Rejects unusable runtime values before any use (fetch included).
+export function assertValidPolicy(p: RefreshPolicy): void {
+  const bad = (k: string) => {
+    throw new Error(`invalid RefreshPolicy.${k}`)
+  }
+  if (!Number.isInteger(p.batchSize) || p.batchSize < 1) bad('batchSize')
+  for (const k of ['refreshAfterMs', 'backoffBaseMs', 'backoffMaxMs'] as const) {
+    if (typeof p[k] !== 'number' || !Number.isFinite(p[k]) || p[k] < 0) bad(k)
+  }
+  if (p.backoffMaxMs < p.backoffBaseMs) bad('backoffMaxMs')
+}
+
 export function backoffMs(failures: number, p: RefreshPolicy): number {
   if (failures <= 0) return 0
   return Math.min(p.backoffBaseMs * 2 ** (failures - 1), p.backoffMaxMs)
@@ -90,6 +103,7 @@ export function selectDue(
   now: Date,
   policy: RefreshPolicy,
 ): string[] {
+  assertValidPolicy(policy)
   const t = now.getTime()
   const due: { slug: string; key: number }[] = []
   for (const slug of slugs) {

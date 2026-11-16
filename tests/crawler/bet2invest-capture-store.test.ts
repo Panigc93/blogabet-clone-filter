@@ -4,7 +4,7 @@ import os from 'os'
 import path from 'path'
 import {
   applyOutcome, emptyState, selectDue, backoffMs, recordOutcome, loadState, readPause, resume,
-  type RefreshPolicy,
+  assertValidPolicy, type RefreshPolicy,
   type SlugState,
 } from '@/crawler/platforms/bet2invest/capture-store'
 import type { CrawlOutcome } from '@/crawler/platforms/bet2invest/crawl'
@@ -42,6 +42,13 @@ describe('applyOutcome', () => {
     expect(applyOutcome(v, stopped('a'), at(H))).toEqual(v)
     const fresh = applyOutcome(emptyState('b'), stopped('b'), at(H))
     expect(fresh).toEqual(emptyState('b'))
+  })
+  it('capturedAt igual conserva la captura previa (solo estrictamente mas reciente sustituye)', () => {
+    const v = applyOutcome(emptyState('a'), ok('a', at(5 * H), 200), at(5 * H))
+    const same = applyOutcome(v, ok('a', at(5 * H), 999), at(6 * H))
+    expect(same.lastValid?.insert.picks).toBe(200)
+    const newer = applyOutcome(v, ok('a', at(5 * H + 1), 999), at(6 * H))
+    expect(newer.lastValid?.insert.picks).toBe(999)
   })
   it('una captura valida mas antigua no sustituye a una mas nueva', () => {
     const v = applyOutcome(emptyState('a'), ok('a', at(10 * H), 200), at(10 * H))
@@ -116,5 +123,21 @@ describe('pausa global persistente', () => {
     expect(readPause(dir)).toBeNull()
     expect(JSON.parse(fs.readFileSync(path.join(dir, 'pause-log.json'), 'utf8'))).toHaveLength(1)
     fs.rmSync(dir, { recursive: true })
+  })
+})
+
+describe('RefreshPolicy en tiempo de ejecucion', () => {
+  it('rechaza valores invalidos en selectDue y assertValidPolicy', () => {
+    const base = DEFAULT_POLICY
+    const many = ['a', 'b', 'c', 'd']
+    for (const bad of [
+      { ...base, batchSize: -1 }, { ...base, batchSize: 0 }, { ...base, batchSize: 1.5 }, { ...base, batchSize: NaN },
+      { ...base, refreshAfterMs: -1 }, { ...base, refreshAfterMs: Infinity }, { ...base, backoffBaseMs: NaN },
+      { ...base, backoffMaxMs: -5 }, { ...base, backoffMaxMs: 10, backoffBaseMs: 100 },
+    ]) {
+      expect(() => assertValidPolicy(bad as RefreshPolicy)).toThrow()
+      expect(() => selectDue(many, new Map(), at(0), bad as RefreshPolicy)).toThrow()
+    }
+    expect(() => assertValidPolicy(base)).not.toThrow()
   })
 })

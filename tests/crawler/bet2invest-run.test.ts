@@ -31,6 +31,16 @@ function mk(responses: Record<string, any>, startMs = 1_000_000) {
 }
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'b2i-run-'))
 
+describe('runCrawl: politica invalida', () => {
+  it('rechaza antes de cualquier fetch', async () => {
+    const dir = tmp()
+    const m = mk({})
+    await expect(runCrawl({ dir, slugs: ['a', 'b', 'c', 'd'], policy: { ...POLICY, batchSize: -1 }, deps: m.deps, mapId: () => -1 })).rejects.toThrow()
+    expect(m.fetched).toEqual([])
+    fs.rmSync(dir, { recursive: true })
+  })
+})
+
 describe('runCrawl', () => {
   it('captura, guarda, y tras 429 pausa globalmente sin contar el perfil como fallo ni como captura', async () => {
     const dir = tmp()
