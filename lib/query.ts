@@ -127,7 +127,9 @@ export function ignoredWarning(params: TipsterFilters): string | null {
   const ignored = ignoredFilters(params)
   if (ignored.length === 0) return null
   const names = ignored.map(f => IGNORED_LABELS[f]).join(', ')
-  const vista = params.platform === 'tipstrr' ? 'la vista Tipstrr' : 'la vista de todas las plataformas'
+  const vista = params.platform === 'tipstrr' ? 'la vista Tipstrr'
+    : params.platform === 'bet2invest' ? 'la vista Bet2Invest'
+    : 'la vista de todas las plataformas'
   const fx = ignored.includes('price')
     ? ' Blogabet cobra en € y Tipstrr en £, no comparables sin conversión (no inventamos tipos de cambio): los precios se muestran en su moneda.'
     : ''
@@ -135,11 +137,12 @@ export function ignoredWarning(params: TipsterFilters): string | null {
 }
 
 // Aviso visible cuando la vista combinada ('Todas') se ordena por beneficio:
-// las unidades no comparten escala y la ordenacion las agrupa (eur, luego
-// golazobets-units, luego units), NO es un ranking global de beneficio.
+// las unidades no comparten escala y la ordenacion las agrupa por profit_unit
+// en orden alfabetico ASC (bet2invest-units, eur, golazobets-units, units),
+// NO es un ranking global de beneficio.
 export function profitSortWarning(sort: SortField, platform: TipsterFilters['platform']): string | null {
   if (sort !== 'profit' || platform !== undefined) return null
-  return 'Orden por beneficio agrupado por unidad: € (Blogabet), u (Golazobets), u (Tipstrr) y u (Bet2Invest) no son comparables entre si; no es un ranking global de beneficio.'
+  return 'Orden por beneficio agrupado por unidad (u Bet2Invest, € Blogabet, u Golazobets, u Tipstrr): no son comparables entre si; no es un ranking global de beneficio.'
 }
 
 export function sortColumn(sort: SortField) {
