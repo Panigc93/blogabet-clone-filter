@@ -149,3 +149,20 @@ workflow, no merge.
   `components/TipsterRow.tsx` (label/colour ternaries),
   `components/FilterBar.tsx` (one option). No Blogabet/Tipstrr/Golazobets
   behaviour changes; BB-only filters stay BB-only.
+
+
+## Validación pública 2026-11-16 (7 GET anónimos con curl, sin navegador)
+
+Hechos (fuente: `b2i-validation-evidence.json`, adjunto a la revisión):
+- Listado, sitemap y perfiles devuelven HTML SSR completo por GET simple.
+- Listado `https://bet2invest.com/tipsters`: 50 filas, las 50 con badge PRO. Sitemap: 300 slugs, 47 en esas filas, 253 fuera.
+- Perfiles WinZone y Justx (fuera del listado): og `Free Tipster`, sin botón Subscribe, sección mensual vacía con 446/963 liquidadas. Cierres exactos (resumen, bets y profit por deporte). La causa de que no aparezcan en el listado NO está establecida.
+- followers 2 / rating 1 en ambos: posibles marcadores por defecto; no se persisten para Free.
+- La cabecera de resultados omite categorías a 0 en esos perfiles; la leyenda DOM las da explícitas (parser corregido).
+- GOALPROFESSOR: respuesta truncada por reset de conexión y luego timeout de 40 s con 0 bytes. Causa desconocida (no es 403/429); no se reintentó y no se declara bloqueo.
+
+Alcance de las observaciones: 2 perfiles Free y 2 PRO. El parser reconoce las etiquetas explícitas; persistir Free con isPaid=false descansa sobre esa observación n=2. Etiquetas desconocidas siguen en cuarentena.
+
+## Rastreador (preparado, no ejecutado)
+
+`crawler/platforms/bet2invest/crawl.ts`: inyección de fetch/sleep/reloj, >=10,1 s entre peticiones, parada total ante 403/429 o fallo de transporte (reset/timeout), fail-closed por perfil, un resultado con clase por slug. Sin workflow, cron ni DB.

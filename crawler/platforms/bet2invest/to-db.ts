@@ -187,7 +187,7 @@ function buildInsert(
     avatarUrl: null, // el parser no captura avatar
     flagUrl: null,
     countryCode: null,
-    isPaid: p.accountType === 'pro', // etiqueta explícita; 'free' = 'Free Tipster' (n=2 observados, sin botón Subscribe)
+    isPaid: p.accountType === 'pro', // por etiqueta explícita; Free: ver docs/bet2invest-design.md (observación n=2, no un hecho general)
     price: null, // precio de suscripción no capturado: no se asume
     profitUnit: 'bet2invest-units',
     priceCurrency: 'eur', // default de esquema; price null la deja muda
@@ -199,7 +199,9 @@ function buildInsert(
     yield: yieldAll, // ROI publicado por la fuente; base de stake inferida
     verifiedPct: null,
     isVerified: false,
-    followers: p.audience.followers, // null si la página no lo expone
+    // Free: followers/rating observados (2/1 en ambos perfiles Free vistos) pueden ser
+    // marcadores por defecto, no mediciones verificadas: no se persisten (null).
+    followers: p.accountType === 'pro' ? p.audience.followers : null, // null si la página no lo expone
     lastPickAt: null,
     resetCount: 0,
     lastResetAt: null,

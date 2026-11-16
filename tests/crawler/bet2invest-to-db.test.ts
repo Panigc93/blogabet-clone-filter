@@ -95,7 +95,10 @@ describe('bet2investProfileToInsert: cuarentenas', () => {
   it('free explícito persiste con isPaid=false; mismas puertas', () => {
     const m = bet2investProfileToInsert(baseProfile({ accountType: 'free' }), OPTS)
     expect(m.ok).toBe(true)
-    if (m.ok) expect(m.insert.isPaid).toBe(false)
+    if (m.ok) {
+      expect(m.insert.isPaid).toBe(false)
+      expect(m.insert.followers).toBeNull() // posible placeholder: no persistido
+    }
     const bad = bet2investProfileToInsert(baseProfile({ accountType: 'free', settledBets: 999 }), OPTS)
     expect(bad.ok).toBe(false)
   })

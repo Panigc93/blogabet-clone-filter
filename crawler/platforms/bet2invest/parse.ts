@@ -330,7 +330,8 @@ export function parseProfilePage(html: string): Bet2InvestProfile {
     'meta[property="og:description"]',
   ).attr('content') ?? ''}`
   // Explicit label only; both or neither present = unknown (never inferred
-  // from absence). Observed 2026-11-16: 'PRO Tipster' x2, 'Free Tipster' x2.
+  // from absence). Recognising the label is parsing; what the label implies
+  // for persistence is decided in to-db.
   const isPro = /\bPRO Tipster\b/.test(ogText)
   const isFree = /\bFree Tipster\b/.test(ogText)
   const accountType: 'pro' | 'free' | 'unknown' = isPro === isFree ? 'unknown' : isPro ? 'pro' : 'free'
