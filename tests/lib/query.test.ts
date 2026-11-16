@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildFilters, sortOrder, ignoredFilters, ignoredWarning } from '@/lib/query'
+import { buildFilters, sortOrder, ignoredFilters, ignoredWarning, profitSortWarning } from '@/lib/query'
 
 describe('buildFilters', () => {
   it('returns empty array for default params', () => {
@@ -97,5 +97,14 @@ describe('sortOrder', () => {
     // 'eur', 'units' y 'golazobets-units' no comparten escala: la ordenación
     // por profit agrupa por profit_unit primero, nunca mezcla valores.
     expect(sortOrder('profit')).toHaveLength(3)
+  })
+})
+
+describe('profitSortWarning', () => {
+  it('avisa solo en vista combinada ordenada por beneficio', () => {
+    expect(profitSortWarning('profit', undefined)).toContain('no son comparables')
+    expect(profitSortWarning('profit', 'blogabet')).toBeNull()
+    expect(profitSortWarning('profit', 'golazobets')).toBeNull()
+    expect(profitSortWarning('yield', undefined)).toBeNull()
   })
 })

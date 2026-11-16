@@ -116,3 +116,20 @@ invariante, fixtures=0. Dry-run por defecto.
 Cobertura = unión medida: 850 slugs únicos catalogados, 284 con históricos.
 Lagunas: 566 sin stats no verificados a nivel perfil; contador de portada
 (284) no probado como definición; paginación inestable (repeticiones).
+
+## UI (rama, sin producción)
+
+- Tarjeta: beneficio etiquetado "ud Golazobets" (ni "u" Tipstrr ni € BB),
+  capturedAt siempre visible (captura fechada, no sync), campos no expuestos
+  en null (guion), nunca 0. URL de origen con slug codificado (24 slugs
+  reales con espacios/paréntesis/tildes/"|").
+- Orden por beneficio en vista combinada: AGRUPA por unidad (€ BB → ud
+  Golazobets → u Tipstrr) y ordena por valor solo dentro de cada unidad; ya
+  no es un ranking global de beneficio (unidades no comparables). Aviso
+  visible en la propia página cuando sort=profit en "Todas". Cambio de
+  comportamiento deliberado, confirmado por revisión independiente.
+- Vista previa visual sin base de datos: /lab/golazobets renderiza 5
+  capturas reales (cierre exacto, premium sin precio, slugs con
+  espacios/paréntesis, los 2 casos límite de yield) por el pipeline real de
+  tarjeta. Verificación de píxeles pendiente sobre despliegue de la rama
+  antes de cualquier apply.
