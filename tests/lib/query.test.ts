@@ -88,9 +88,14 @@ describe('buildFilters', () => {
 
 describe('sortOrder', () => {
   it('adds a deterministic id tiebreaker to every sort', () => {
-    const sorts = ['yield', 'profit', 'picks', 'followers', 'since_year', 'price', 'yield6m', 'yield12m', 'picks6m_avg'] as const
+    const sorts = ['yield', 'picks', 'followers', 'since_year', 'price', 'yield6m', 'yield12m', 'picks6m_avg'] as const
     for (const sort of sorts) {
       expect(sortOrder(sort)).toHaveLength(2)
     }
+  })
+  it('groups profit by unit before value (units are not cross-comparable)', () => {
+    // 'eur', 'units' y 'golazobets-units' no comparten escala: la ordenación
+    // por profit agrupa por profit_unit primero, nunca mezcla valores.
+    expect(sortOrder('profit')).toHaveLength(3)
   })
 })

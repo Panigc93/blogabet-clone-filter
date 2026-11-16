@@ -136,6 +136,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
             >
               <option value="blogabet">Blogabet</option>
               <option value="tipstrr">Tipstrr</option>
+              <option value="golazobets">Golazobets</option>
               <option value="all">Todas</option>
             </select>
             <div style={{ display: 'flex', flexShrink: 0 }}>

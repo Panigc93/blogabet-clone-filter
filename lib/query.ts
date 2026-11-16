@@ -2,7 +2,7 @@ import { eq, gt, gte, ilike, isNotNull, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
 export interface TipsterFilters {
-  platform?: 'blogabet' | 'tipstrr' // undefined = all platforms (callers: default to 'blogabet' until multi-source UI lands)
+  platform?: 'blogabet' | 'tipstrr' | 'golazobets' // undefined = all platforms (callers: default to 'blogabet')
   search?: string
   tipo?: 'all' | 'free' | 'paid'
   minYield?: number
@@ -156,6 +156,16 @@ export function sortColumn(sort: SortField) {
 }
 
 export function sortOrder(sort: SortField): SQL[] {
+  if (sort === 'profit') {
+    // El profit NO es comparable entre unidades ('eur' BB, 'units' Tipstrr,
+    // 'golazobets-units'): una ordenación cruzada silenciosa sería un ranking
+    // falso. Se agrupa por unidad y se ordena por valor dentro de cada una.
+    return [
+      sql`${tipsters.profitUnit} ASC`,
+      sql`${tipsters.profit} DESC NULLS LAST`,
+      sql`${tipsters.id} DESC`,
+    ]
+  }
   return [
     sql`${sortColumn(sort)} DESC NULLS LAST`,
     sql`${tipsters.id} DESC`,
