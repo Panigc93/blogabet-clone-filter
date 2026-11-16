@@ -51,7 +51,7 @@ async function main() {
   const results = (await sql.transaction((txn) => [
     ...plan.map((p) =>
       txn.query(
-        `UPDATE tipsters SET avatar_url = $2, since_year = $3 WHERE platform = 'golazobets' AND slug = $4 RETURNING id`,
+        `UPDATE tipsters SET avatar_url = $1, since_year = $2 WHERE platform = 'golazobets' AND slug = $3 RETURNING id`,
         [p.avatar, p.since, p.slug]
       )
     ),
