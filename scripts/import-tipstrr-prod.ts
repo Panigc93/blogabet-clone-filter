@@ -1,3 +1,5 @@
+import { pathToFileURL } from 'node:url'
+import { resolve } from 'node:path'
 // Import REAL Tipstrr -> Neon producción (Superblogabet). Dry-run por
 // defecto; --apply escribe. Autorización: despliegue 98 verificados
 // (17:57/18:01 CET); fixtures NUNCA son payload.
@@ -259,4 +261,7 @@ async function main() {
   }
 }
 
-main().catch((e) => { console.error(e); process.exit(1) })
+// Importing SQL builders in tests must never run a production importer.
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  main().catch((e) => { console.error(e); process.exit(1) })
+}
