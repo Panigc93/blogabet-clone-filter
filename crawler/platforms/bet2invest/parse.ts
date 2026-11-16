@@ -64,7 +64,7 @@ export interface Bet2InvestProfile {
   accountType: 'pro' | 'unknown'
   audience: Bet2InvestAudience
   settledBets: number | null
-  profitUnits: number | null // stake basis inferred real (page contrasts flat 1U), not labelled
+  profitUnits: number | null // profile profit; stake basis inferred (page contrasts flat 1U), not labelled
   roiPct: number | null // platform yield as reported (denominator not displayed)
   avgOdds: number | null
   avgMaxBet: number | null
@@ -258,6 +258,13 @@ export function parseProfilePage(html: string): Bet2InvestProfile {
   const monthlyAvailable =
     monthlySection.length > 0 && monthlySection.find('[data-testid="stats-empty"]').length === 0
 
+  const settledBets = parseNumber(testid($, 'stats-settledBetsNumber'))
+  const profitUnits = parseNumber(testid($, 'stats-profit'))
+  const roiPct = parseNumber(testid($, 'stats-roi'))
+  if (settledBets === null && profitUnits === null && roiPct === null) {
+    throw new Bet2InvestParseError('stats block present but empty: refusing a false-success record')
+  }
+
   return {
     platform: 'bet2invest',
     username,
@@ -266,9 +273,9 @@ export function parseProfilePage(html: string): Bet2InvestProfile {
     statsScope,
     accountType,
     audience: parseAudience($),
-    settledBets: parseNumber(testid($, 'stats-settledBetsNumber')),
-    profitUnits: parseNumber(testid($, 'stats-profit')),
-    roiPct: parseNumber(testid($, 'stats-roi')),
+    settledBets,
+    profitUnits,
+    roiPct,
     avgOdds: parseNumber(testid($, 'stats-averagePrice')),
     avgMaxBet: avgMaxBet.value,
     avgMaxBetCurrency: avgMaxBet.currency,
@@ -344,6 +351,9 @@ export function parseListingPage(html: string): Bet2InvestListingRow[] {
         ? 'challenge page: no listing delivered'
         : 'listing table not found or headers not recognised',
     )
+  }
+  if (rows.length === 0) {
+    throw new Bet2InvestParseError('listing table parsed but yielded no tipster rows')
   }
   return rows
 }

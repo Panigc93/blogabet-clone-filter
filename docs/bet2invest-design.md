@@ -32,8 +32,11 @@ contact with the platform. Base: master `903059e`.
   vs a displayed 51.13, i.e. the inputs are rounded displays. Treat this
   as approximate consistency, not an exact reconciliation.
 - The listing column 'Profit (1U)' is a flat-stake figure and differs from
-  the real-stakes profit on the same row (64.50U vs 51.13U in one sample).
+  the profile profit on the same row (64.50U vs 51.13U in one sample).
   The two modes are stored in separate fields and never mixed.
+- Money figures keep the displayed currency symbol (e.g. '$'); when no
+  symbol is shown the currency field stays null. No conversion is applied
+  and no currency is assumed.
 - Open for the pilot: recompute exact denominators from pick-level settled
   history, confirm void/refund treatment, confirm the period filter values
   (the 30d/3m/1y switch is client-side; `?period=30d` had no effect), and
@@ -91,5 +94,5 @@ contact with the platform. Base: master `903059e`.
   on the captured shape; no real tipster data stored in tests.
 - Deliberately NOT included yet: fetch.ts, to-db.ts, workflow wiring, and
   any change to shared `crawler/platforms/types.ts` (PlatformId /
-  StakeBasis need a 'bet2invest' / real-stakes entry when persistence is
+  StakeBasis need a 'bet2invest' entry (basis inferred, not labelled) when persistence is
   designed, after the permission question is resolved).

@@ -8,16 +8,37 @@ export interface Bet2InvestSitemapProfile {
   url: string
 }
 
+export class Bet2InvestCatalogError extends Error {}
+
+// Minimal XML entity decoding for <loc> content (&amp; last).
+function decodeXmlEntities(text: string): string {
+  return text
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+}
+
+function safeDecodeSlug(component: string): string {
+  try {
+    return decodeURIComponent(component)
+  } catch {
+    throw new Bet2InvestCatalogError(`malformed percent-encoding in slug: ${component.slice(0, 40)}`)
+  }
+}
+
 export function parseSitemapProfiles(xml: string): Bet2InvestSitemapProfile[] {
   const profiles: Bet2InvestSitemapProfile[] = []
   const seen = new Set<string>()
-  const locPattern = /<loc>\s*([^<]*\/tipsters\/performance-stats\/([^/?<\s]+)[^<]*)\s*<\/loc>/g
+  const locPattern = /<loc>\s*([^<]*\/tipsters\/performance-stats\/([^/?&<\s]+)[^<]*)\s*<\/loc>/g
   let match: RegExpExecArray | null
   while ((match = locPattern.exec(xml)) !== null) {
-    const slug = decodeURIComponent(match[2])
+    const url = decodeXmlEntities(match[1].trim())
+    const slug = safeDecodeSlug(decodeXmlEntities(match[2]))
     if (seen.has(slug)) continue
     seen.add(slug)
-    profiles.push({ slug, url: match[1].trim() })
+    profiles.push({ slug, url })
   }
   return profiles
 }

@@ -199,6 +199,12 @@ describe('parseProfilePage', () => {
     )
   })
 
+  it('throws when the stats block is present but empty', () => {
+    expect(() => parseProfilePage(profileHtml({ bets: '', profit: '', roi: '' }))).toThrow(
+      Bet2InvestParseError,
+    )
+  })
+
   it('throws on a malformed percent-encoded slug', () => {
     expect(() => parseProfilePage(profileHtml({ slug: '%E0%A4%A' }))).toThrow(Bet2InvestParseError)
   })
@@ -268,8 +274,8 @@ describe('parseListingPage', () => {
     expect(() => parseListingPage(challenge)).toThrow(Bet2InvestParseError)
   })
 
-  it('skips rows without a profile link inside a valid table', () => {
+  it('throws when a valid listing table yields no rows (no false success)', () => {
     const html = `<table>${LISTING_THEAD}<tr class="tipster-row"><td>empty</td></tr></table>`
-    expect(parseListingPage(html)).toEqual([])
+    expect(() => parseListingPage(html)).toThrow(Bet2InvestParseError)
   })
 })
