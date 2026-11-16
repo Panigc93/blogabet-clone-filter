@@ -92,6 +92,14 @@ describe('bet2investProfileToInsert: cuarentenas', () => {
     if (!m.ok) expect(m.reason).toContain('cuarentena[tipo-cuenta-desconocido]')
   })
 
+  it('free explícito persiste con isPaid=false; mismas puertas', () => {
+    const m = bet2investProfileToInsert(baseProfile({ accountType: 'free' }), OPTS)
+    expect(m.ok).toBe(true)
+    if (m.ok) expect(m.insert.isPaid).toBe(false)
+    const bad = bet2investProfileToInsert(baseProfile({ accountType: 'free', settledBets: 999 }), OPTS)
+    expect(bad.ok).toBe(false)
+  })
+
   it('periodo-no-all-time: other_period y unknown no persisten', () => {
     for (const statsScope of ['other_period', 'unknown'] as const) {
       const m = bet2investProfileToInsert(baseProfile({ statsScope, periodLabel: '3 months' }), OPTS)

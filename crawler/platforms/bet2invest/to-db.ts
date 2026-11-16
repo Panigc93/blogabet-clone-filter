@@ -77,11 +77,12 @@ export function bet2investProfileToInsert(
   p: Bet2InvestProfile,
   opts: Bet2InvestDbMappingOptions,
 ): Bet2InvestDbMapping {
-  // Tipo de cuenta primero: 'unknown' no es free y no se deja pasar.
-  if (p.accountType !== 'pro') {
+  // Tipo de cuenta primero: solo etiqueta explícita ('PRO Tipster' o 'Free
+  // Tipster' en og). 'unknown' (ninguna o ambas) no se deja pasar.
+  if (p.accountType !== 'pro' && p.accountType !== 'free') {
     return cuarentena(
       'tipo-cuenta-desconocido',
-      `accountType='${p.accountType}': la marca PRO sale del token PRO en og:title/description y su ausencia no prueba cuenta free; señal pendiente de validación en vivo`,
+      `accountType='${p.accountType}': sin etiqueta explícita PRO/Free en og:title/description; la ausencia de una no prueba la otra`,
     )
   }
   // Solo all-time persiste: otro periodo (o ausencia del grupo de periodo)
@@ -186,7 +187,7 @@ function buildInsert(
     avatarUrl: null, // el parser no captura avatar
     flagUrl: null,
     countryCode: null,
-    isPaid: true, // la puerta solo deja pasar accountType='pro'
+    isPaid: p.accountType === 'pro', // etiqueta explícita; 'free' = 'Free Tipster' (n=2 observados, sin botón Subscribe)
     price: null, // precio de suscripción no capturado: no se asume
     profitUnit: 'bet2invest-units',
     priceCurrency: 'eur', // default de esquema; price null la deja muda

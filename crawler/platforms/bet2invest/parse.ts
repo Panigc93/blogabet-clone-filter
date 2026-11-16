@@ -64,7 +64,7 @@ export interface Bet2InvestProfile {
   profileUrl: string
   periodLabel: string | null // active period button as shown, e.g. 'All'
   statsScope: Bet2InvestStatsScope // 'all_time' ONLY when the active label is 'All'
-  accountType: 'pro' | 'unknown'
+  accountType: 'pro' | 'free' | 'unknown' // explicit og label 'PRO Tipster' / 'Free Tipster' only
   audience: Bet2InvestAudience
   settledBets: number | null
   profitUnits: number | null // profile profit; stake basis inferred (page contrasts flat 1U), not labelled
@@ -193,15 +193,27 @@ function parseResults($: cheerio.CheerioAPI): Bet2InvestResultsSummary {
     lost: null,
   }
   const text = normalizeNumberText($('[data-testid="stats-results"]').text())
-  const pick = (pattern: RegExp): number | null => {
-    const match = text.match(pattern)
-    return match ? parseNumber(match[1]) : null
+  // Two renderings of the same figures (observed 2026-11-16): the headline
+  // line 'Label : N (p %)' lists only NON-ZERO categories on some profiles;
+  // the legend <li><span>Label</span><b>N</b>... lists all five, including
+  // explicit zeros. The headline wins; the legend (read by DOM, never from
+  // concatenated text) supplies the explicit count.
+  const legend = new Map<string, number>()
+  $('[data-testid="stats-results"] li').each((_, li) => {
+    const label = $(li).children('span').toArray().map((e) => $(e).text().trim()).find((t) => /[A-Za-z]/.test(t)) ?? ''
+    const n = parseNumber($(li).children('b').first().text())
+    if (label && n !== null) legend.set(label, n)
+  })
+  const pick = (label: string): number | null => {
+    const head = text.match(new RegExp(`${label}\\s*:\\s*([\\d,]+)`))
+    if (head) return parseNumber(head[1])
+    return legend.get(label) ?? null
   }
-  results.won = pick(/Bets won\s*:\s*([\d,]+)/)
-  results.halfWon = pick(/Half won bets\s*:\s*([\d,]+)/)
-  results.refunded = pick(/Refunded bets\s*:\s*([\d,]+)/)
-  results.halfLost = pick(/Half lost bets\s*:\s*([\d,]+)/)
-  results.lost = pick(/Lost bets\s*:\s*([\d,]+)/)
+  results.won = pick('Bets won')
+  results.halfWon = pick('Half won bets')
+  results.refunded = pick('Refunded bets')
+  results.halfLost = pick('Half lost bets')
+  results.lost = pick('Lost bets')
   return results
 }
 
@@ -317,7 +329,11 @@ export function parseProfilePage(html: string): Bet2InvestProfile {
   const ogText = `${$('meta[property="og:title"]').attr('content') ?? ''} ${$(
     'meta[property="og:description"]',
   ).attr('content') ?? ''}`
-  const accountType: 'pro' | 'unknown' = /\bPRO\b/.test(ogText) ? 'pro' : 'unknown'
+  // Explicit label only; both or neither present = unknown (never inferred
+  // from absence). Observed 2026-11-16: 'PRO Tipster' x2, 'Free Tipster' x2.
+  const isPro = /\bPRO Tipster\b/.test(ogText)
+  const isFree = /\bFree Tipster\b/.test(ogText)
+  const accountType: 'pro' | 'free' | 'unknown' = isPro === isFree ? 'unknown' : isPro ? 'pro' : 'free'
 
   const { periodLabel, statsScope } = parseStatsScope($)
   const avgMaxBet = parseMoney(testid($, 'stats-averageBetMax'))
