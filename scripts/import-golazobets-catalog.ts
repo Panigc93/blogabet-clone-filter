@@ -111,7 +111,8 @@ async function main() {
       txn.query(
         `INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
         ['golazobets', slug, CAPTURED_AT, 'importado[catalogo+perfil]',
-         'cabecera tipster_stats y serie mensual all-time del perfil (captura 2026-11-15); cierre verificado por puerta golazobetsClosureGate',
+         'cabecera tipster_stats y serie mensual all-time del perfil (captura 2026-11-15); cierre por solape de intervalos de redondeo (golazobetsClosureGate): '
+         + `diffs medidas picks=${gate.diffs.picks} profit=${gate.diffs.profit.toFixed(4)} yield=${gate.diffs.yield.toFixed(4)}pp, intervalo yield [${gate.diffs.yieldLo.toFixed(3)}, ${gate.diffs.yieldHi.toFixed(3)}] (${gate.diffs.months} filas); solape = compatibilidad con redondeo, no causalidad`,
          RUN_ID]
       ),
     ])

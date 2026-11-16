@@ -4,8 +4,8 @@ import { join } from 'node:path'
 import {
   golazobetsClosureGate,
   golazobetsCaptureToInsert,
-  GZB_PROFIT_TOL,
-  GZB_YIELD_TOL,
+  GZB_SUM_TOL,
+  GZB_YIELD_INTERVAL,
   type GzbProfileCapture,
 } from '@/crawler/platforms/golazobets/to-db'
 
@@ -37,14 +37,20 @@ describe('golazobetsClosureGate', () => {
     }
   })
 
-  it('candidatos limite reales dentro de cota pasan la puerta pero conservan diff medida', () => {
+  it('candidatos limite reales: compatibles con redondeo (solape de intervalos), NO causalidad; diffs conservadas', () => {
+    // Estos 4 quedan etiquetados en docs/golazobets-import.md: su compatibilidad
+    // es por amplitud de intervalo (volumen bajo), no por cierre exacto.
     for (const slug of ['Alexf1Bets', 'Barbosa97', 'FutbolEnCasa', 'GOLAZOBETS']) {
-      const r = golazobetsClosureGate(load(slug))
+      const cap = load(slug)
+      const r = golazobetsClosureGate(cap)
       expect(r.ok).toBe(true)
       if (r.ok) {
         // diffs registradas, no borradas: profit <= 0,02 y yield <= 0,1 medidos
         expect(Math.abs(r.diffs.profit)).toBeLessThanOrEqual(0.021)
         expect(Math.abs(r.diffs.yield)).toBeLessThanOrEqual(0.1)
+        // el intervalo derivado contiene la cabecera (motivo del pase)
+        expect(r.diffs.yieldLo).toBeLessThanOrEqual((cap.header.yield ?? 0) + 0.005 + 1e-9)
+        expect(r.diffs.yieldHi).toBeGreaterThanOrEqual((cap.header.yield ?? 0) - 0.005 - 1e-9)
       }
     }
   })
@@ -67,16 +73,35 @@ describe('golazobetsClosureGate', () => {
     if (!r.ok) expect(r.clase).toBe('cuarentena[cierre-profit]')
   })
 
-  it('profit dentro de cota de redondeo (0,005*meses+0,01) pasa', () => {
-    const cap = { ...base, header: { ...base.header, profit: 1.019 } } // 2 meses -> cota 0,02
-    expect(golazobetsClosureGate(cap).ok).toBe(true)
+  it('profit en el borde del solape de intervalos (0,005*(filas+1)): dentro pasa, fuera cuarentena', () => {
+    // 2 filas -> cota 0,005*2 + 0,005 = 0,015
+    expect(golazobetsClosureGate({ ...base, header: { ...base.header, profit: 1.014 } }).ok).toBe(true)
+    const r = golazobetsClosureGate({ ...base, header: { ...base.header, profit: 1.016 } })
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.clase).toBe('cuarentena[cierre-profit]')
   })
 
-  it('yield fuera de cota escalada -> cuarentena[cierre-yield]', () => {
-    const cap = { ...base, header: { ...base.header, yield: 12.0 } }
-    const r = golazobetsClosureGate(cap)
+  it('yield: fuera del intervalo derivado -> cuarentena[cierre-yield]; borde del intervalo pasa', () => {
+    const fuera = golazobetsClosureGate({ ...base, header: { ...base.header, yield: 12.0 } })
+    expect(fuera.ok).toBe(false)
+    if (!fuera.ok) expect(fuera.clase).toBe('cuarentena[cierre-yield]')
+    // intervalo derivado de base: [9,890, 10,111]; 10,11 solapa (+-0,005), 10,12 no
+    expect(golazobetsClosureGate({ ...base, header: { ...base.header, yield: 10.11 } }).ok).toBe(true)
+    const r = golazobetsClosureGate({ ...base, header: { ...base.header, yield: 10.12 } })
     expect(r.ok).toBe(false)
     if (!r.ok) expect(r.clase).toBe('cuarentena[cierre-yield]')
+  })
+
+  it('yield indeterminado con denominador bajo -> cuarentena[volumen-cero] (no se deriva, no es 0)', () => {
+    // suma total_bet 0,004 con 1 fila: el denominador real puede ser <= 0
+    const cap = {
+      ...base,
+      header: { ...base.header, number_bets: 1, total_bet: 0.004, profit: 0.001, yield: 25 },
+      monthly: [{ ...base.monthly[0], total_picks: 1, total_bet: 0.004, profit: 0.001 }],
+    }
+    const r = golazobetsClosureGate(cap)
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.clase).toBe('cuarentena[volumen-cero]')
   })
 
   it('tipo desconocido -> cuarentena[tipo-desconocido] (nunca free por defecto)', () => {
@@ -115,10 +140,18 @@ describe('golazobetsClosureGate', () => {
     if (!r.ok) expect(r.clase).toBe('cuarentena[volumen-cero]')
   })
 
-  it('cotas: profit crece con meses; yield decrece con volumen', () => {
-    expect(GZB_PROFIT_TOL(1)).toBeCloseTo(0.015)
-    expect(GZB_PROFIT_TOL(20)).toBeCloseTo(0.11)
-    expect(GZB_YIELD_TOL(100, 2)).toBeLessThan(GZB_YIELD_TOL(10, 2))
+  it('intervalos: la suma crece con filas; el intervalo de yield se estrecha con volumen; denominador dudoso -> null', () => {
+    expect(GZB_SUM_TOL(1)).toBeCloseTo(0.005)
+    expect(GZB_SUM_TOL(20)).toBeCloseTo(0.1)
+    const grande = GZB_YIELD_INTERVAL(10, 1000, 10)
+    const chico = GZB_YIELD_INTERVAL(0.1, 10, 10)
+    expect(grande).not.toBeNull()
+    expect(chico).not.toBeNull()
+    if (grande && chico) {
+      expect(grande.hi - grande.lo).toBeLessThan(chico.hi - chico.lo)
+    }
+    expect(GZB_YIELD_INTERVAL(0, 0.04, 10)).toBeNull() // s - 0,005*10 <= 0
+    expect(GZB_YIELD_INTERVAL(0, 0, 1)).toBeNull()
   })
 })
 

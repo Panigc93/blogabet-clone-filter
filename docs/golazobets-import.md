@@ -34,35 +34,42 @@ debe ejecutarse hasta autorización expresa de alcance y esta revisión.
 3. Serie mensual presente y sin nulls; si no →
    cuarentena[datos-mensuales-ausentes].
 4. picks: Σ mensual === cabecera (EXACTO); si no → cuarentena[cierre-picks].
-5. profit: |Σ − cabecera| < 0,005·n_meses + 0,01 → si no,
+5. profit: solape de intervalos. Cada fila mensual redondeada a 2 decimales
+   acota el valor real a ±0,005; Σ de m filas a ±0,005·m; la cabecera P a
+   ±0,005. Se acepta si |Σ−P| ≤ 0,005·(m+1); si no →
    cuarentena[cierre-profit].
-6. Σ total_bet > 0; si no → cuarentena[volumen-cero].
-7. yield derivado: |100·Σprofit/Σbet − cabecera| <
-   0,06 + 100·tol_profit/Σbet → si no, cuarentena[cierre-yield].
+6. yield: división de intervalos. p ∈ [Σprofit±0,005m], s ∈ [Σbet±0,005m];
+   f=100·p/s es monótona en cada variable con s>0, así que el intervalo son
+   las esquinas. Si Σbet−0,005m ≤ 0 el denominador real puede ser ≤0 →
+   cuarentena[volumen-cero] (yield indeterminado, no cero). Se acepta si el
+   intervalo derivado solapa con [Y±0,005] de cabecera; si no →
+   cuarentena[cierre-yield].
 
-## Derivación de cotas (bajo supuesto, no causalidad probada)
+## Derivación (intervalos de redondeo, sin constantes arbitrarias)
 
-La plataforma redondea cada fila mensual a 2 decimales; la cabecera parece
-agregar sin redondeo intermedio. Bajo ese supuesto, el error acumulado de Σ
-profit respecto a la cabecera está acotado por 0,005·n_meses (más 0,01 de
-margen). El error de yield se escala con 100/Σbet: perfiles con poco volumen
-amplifican el redondeo de profit en puntos porcentuales, por eso la cota de
-yield es volumen-dependiente. Es una COTA MATEMÁTICA bajo el supuesto de
-importes redondeados: no prueba que toda diferencia dentro de cota sea
-redondeo. Los valores fuente se conservan tal cual en las capturas.
+Revisión independiente 2026-11-16: se elimina el 0,06 aditivo anterior (sin
+fundamento) y toda fórmula aproximada. Cada cifra mostrada por la plataforma
+(2 decimales) acota el valor real a ±0,005; las cotas salen solo de eso:
+suma de m intervalos para profit/total_bet y división de intervalos para el
+yield, con manejo explícito de denominador bajo o cero. SOLAPE = existe un
+juego de valores reales consistente con todo lo mostrado: prueba
+compatibilidad con el redondeo, NO causalidad ni exactitud. Los valores
+fuente se conservan tal cual en las capturas.
 
-Candidatos límite medidos (dentro de cota, CONSERVADOS bajo revisión, no
-resueltos): Alexf1Bets (Δprofit +0,02, 907 picks exactos), Barbosa97
-(+0,02), FutbolEnCasa (Δyield +0,07pp), GOLAZOBETS (Δyield +0,09pp).
-Decisión pendiente de la revisión independiente: admitir yield derivado con
-cota escalada, o puerta solo sobre picks+profit con yield recalculado en
-importación.
+Casos compatibles por amplitud de intervalo (volumen bajo), CONSERVADOS
+etiquetados, no resueltos: Alexf1Bets (Δprofit +0,02, 907 picks exactos,
+yield intervalo [18,219, 18,256] ∋ cabecera 18,23), Barbosa97 (+0,02,
+[1,977, 2,043] ∋ 2,00), FutbolEnCasa (Δyield puntual +0,07pp, intervalo
+[10,820, 10,973] ∋ 10,83), GOLAZOBETS (+0,09pp, [37,748, 39,597] ∋ 38,58).
+Su motivo queda en import_validation_log por fila (diffs + intervalo);
+solape ≠ causalidad.
 
 ## Resultado medido de la puerta sobre las 284 capturas
 
-284/284 dentro de cota (picks exactos en 284/284). 0 cuarentenas en este
-lote. Los 566 sin stats no son importables (ausente=null): irían a
-cuarentena[stats-ausentes] si se intentara.
+284/284 compatibles por intervalos (picks exactos en 284/284). 0 cuarentenas
+en este lote: es un RESULTADO MEDIDO, no un cierre aprobado (pendiente de
+revisión independiente). Los 566 sin stats no son importables (ausente=null):
+irían a cuarentena[stats-ausentes] si se intentara.
 
 ## Garantías del orquestador
 

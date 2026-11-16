@@ -12,14 +12,20 @@
 // - Los valores mensuales vienen redondeados a 2 decimales por la plataforma;
 //   la cabecera parece calcularse sin ese redondeo intermedio.
 //
-// Puerta de cierre (bajo el supuesto documentado de redondeo mensual a 2
-// decimales; las diferencias medidas se conservan y los candidatos limite
-// quedan listados para revision independiente en docs/golazobets-import.md):
-//   picks:  sum(monthly.total_picks) === header.number_bets      (EXACTO)
-//   profit: |sum(monthly.profit) - header.profit|
-//             < 0,005 * n_meses + 0,01                            (cota de redondeo)
-//   yield:  |100*sum(profit)/sum(total_bet) - header.yield|
-//             < 0,06 + 100 * tol_profit / sum(total_bet)          (cota escalada por volumen)
+// Puerta de cierre por INTERVALOS DE REDONDEO (revision independiente
+// 2026-11-16: sin constantes arbitrarias; cada cifra mostrada a 2 decimales
+// acota el valor real a +-0,005):
+//   picks:  sum(monthly.total_picks) === header.number_bets       (EXACTO)
+//   profit: las sumas de m filas redondeadas acotan el total real a
+//           +-0,005*m; la cabecera P a +-0,005. Se acepta si los intervalos
+//           [suma+-0,005m] y [P+-0,005] se solapan (|suma-P| <= 0,005*(m+1)).
+//   yield:  division de intervalos sobre p in [sumaP+-0,005m] y
+//           s in [sumaB+-0,005m] (esquinas; f=100p/s es monotona en cada
+//           variable con s>0). Si s-0,005m <= 0 el denominador puede ser 0:
+//           yield indeterminado -> cuarentena[volumen-cero]. Se acepta si el
+//           intervalo derivado solapa con [Y+-0,005] de cabecera.
+// Solape = existe un juego de valores reales consistente con TODO lo mostrado;
+// no prueba causalidad ni exactitud, solo compatibilidad con el redondeo.
 // Cualquier dato ausente es null (nunca 0) y lleva a cuarentena con clase.
 import type { TipsterInsert } from '@/db/schema'
 
@@ -52,12 +58,34 @@ export interface GzbProfileCapture {
 }
 
 export type GzbGateResult =
-  | { ok: true; diffs: { picks: number; profit: number; yield: number; months: number } }
+  | { ok: true; diffs: { picks: number; profit: number; yield: number; months: number; yieldLo: number; yieldHi: number } }
   | { ok: false; clase: string; razon: string }
 
-export const GZB_PROFIT_TOL = (months: number): number => 0.005 * Math.max(1, months) + 0.01
-export const GZB_YIELD_TOL = (totalBet: number, months: number): number =>
-  0.06 + (100 * GZB_PROFIT_TOL(months)) / Math.max(totalBet, 0.01)
+// Redondeo a 2 decimales: cada valor mostrado acota el real a +-0,005.
+export const GZB_ROUND = 0.005
+const EPS = 1e-9 // flotante: los bordes de intervalo se comparan con holgura de redondeo binario
+
+// Suma de `rows` valores redondeados: el total real esta a +-0,005*rows de la
+// suma de lo mostrado.
+export const GZB_SUM_TOL = (rows: number): number => GZB_ROUND * Math.max(1, rows)
+
+// Intervalo del yield derivado de sumas redondeadas, por division de
+// intervalos con denominador estrictamente positivo. null si el denominador
+// puede ser <= 0 (yield indeterminado: no derivable, no cero).
+export const GZB_YIELD_INTERVAL = (
+  sumProfit: number,
+  sumBet: number,
+  rows: number,
+): { lo: number; hi: number } | null => {
+  const t = GZB_SUM_TOL(rows)
+  const pLo = sumProfit - t
+  const pHi = sumProfit + t
+  const sLo = sumBet - t
+  const sHi = sumBet + t
+  if (sLo <= 0) return null
+  const corners = [(100 * pLo) / sLo, (100 * pLo) / sHi, (100 * pHi) / sLo, (100 * pHi) / sHi]
+  return { lo: Math.min(...corners), hi: Math.max(...corners) }
+}
 
 export function golazobetsClosureGate(cap: GzbProfileCapture): GzbGateResult {
   if (cap.type !== 'free' && cap.type !== 'premium') {
@@ -85,21 +113,23 @@ export function golazobetsClosureGate(cap: GzbProfileCapture): GzbGateResult {
   if (dPicks !== 0) {
     return { ok: false, clase: 'cuarentena[cierre-picks]', razon: `suma mensual picks ${sumPicks} != cabecera ${h.number_bets} (exacto exigido)` }
   }
+  const rows = cap.monthly.length
   const dProfit = Math.abs(sumProfit - h.profit)
-  const tolP = GZB_PROFIT_TOL(cap.monthly.length)
-  if (dProfit >= tolP) {
-    return { ok: false, clase: 'cuarentena[cierre-profit]', razon: `|sum profit ${sumProfit.toFixed(2)} - cabecera ${h.profit}| = ${dProfit.toFixed(3)} >= cota ${tolP.toFixed(3)} (${cap.monthly.length} meses)` }
+  const tolP = GZB_SUM_TOL(rows) + GZB_ROUND // solape de [suma+-0,005m] con [cabecera+-0,005]
+  if (dProfit > tolP + EPS) {
+    return { ok: false, clase: 'cuarentena[cierre-profit]', razon: `|sum profit ${sumProfit.toFixed(2)} - cabecera ${h.profit}| = ${dProfit.toFixed(3)} > cota de solape ${tolP.toFixed(3)} (${rows} filas mensuales)` }
   }
-  if (sumBet <= 0) {
-    return { ok: false, clase: 'cuarentena[volumen-cero]', razon: 'suma total_bet <= 0: yield no derivable' }
+  const interval = GZB_YIELD_INTERVAL(sumProfit, sumBet, rows)
+  if (interval === null) {
+    return { ok: false, clase: 'cuarentena[volumen-cero]', razon: `suma total_bet ${sumBet} con ${rows} filas: el denominador real puede ser <= 0, yield indeterminado` }
   }
   const derivedYield = (100 * sumProfit) / sumBet
-  const dYield = Math.abs(derivedYield - h.yield)
-  const tolY = GZB_YIELD_TOL(sumBet, cap.monthly.length)
-  if (dYield >= tolY) {
-    return { ok: false, clase: 'cuarentena[cierre-yield]', razon: `|yield derivado ${derivedYield.toFixed(2)} - cabecera ${h.yield}| = ${dYield.toFixed(3)} >= cota ${tolY.toFixed(3)}` }
+  const yLo = h.yield - GZB_ROUND
+  const yHi = h.yield + GZB_ROUND
+  if (interval.lo > yHi + EPS || interval.hi < yLo - EPS) {
+    return { ok: false, clase: 'cuarentena[cierre-yield]', razon: `yield derivado en [${interval.lo.toFixed(3)}, ${interval.hi.toFixed(3)}] no solapa con cabecera ${h.yield}+-0,005` }
   }
-  return { ok: true, diffs: { picks: dPicks, profit: sumProfit - h.profit, yield: derivedYield - h.yield, months: cap.monthly.length } }
+  return { ok: true, diffs: { picks: dPicks, profit: sumProfit - h.profit, yield: derivedYield - h.yield, months: rows, yieldLo: interval.lo, yieldHi: interval.hi } }
 }
 
 export type GzbDbMapping = { ok: true; insert: TipsterInsert } | { ok: false; reason: string }
