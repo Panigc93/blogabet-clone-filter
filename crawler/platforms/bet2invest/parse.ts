@@ -3,8 +3,11 @@
 // nothing in this module runs on a schedule.
 //
 // Shape verified 2026-11-16 on two public profiles and the public listing.
-// The 'Profit by month' section was observed only in its empty state, so
-// monthly rows are NOT parsed (monthlyAvailable flags the state).
+// 'Profit by month': populated sections expose one button per month whose
+// aria-label is plain text ("1/2025 · 190 bets · +20.86 U"); parsed strictly
+// into monthly[] (profit and bets only: the page shows NO stake, so no
+// monthly yield exists). Public 'Subscribe · $X/Month' button text is
+// parsed literally into subscribePrice (currency as displayed, no FX).
 //
 // Fail-closed rules:
 // - A challenge page (Cloudflare), a page without a stats block, a summary
@@ -73,6 +76,22 @@ export interface Bet2InvestProfile {
   results: Bet2InvestResultsSummary
   bySport: Bet2InvestSummaryRow[]
   monthlyAvailable: boolean // false when the section shows its empty state
+  monthly?: Bet2InvestMonthRow[] | null // null: absent/empty/unparseable; never partial
+  subscribePrice?: Bet2InvestSubscribePrice | null // null: not shown or not matching the strict pattern
+}
+
+export interface Bet2InvestMonthRow {
+  year: number
+  month: number // 1-12
+  bets: number
+  profitUnits: number // Bet2Invest units; no stake shown, so no yield
+}
+
+export interface Bet2InvestSubscribePrice {
+  amount: number
+  currency: '$' // literal symbol as displayed to an anonymous visitor; unverified beyond that
+  period: 'Month'
+  text: string
 }
 
 export interface Bet2InvestListingRow {
@@ -235,6 +254,55 @@ function parseSummaryRows($: cheerio.CheerioAPI): Bet2InvestSummaryRow[] {
   return rows
 }
 
+const MONTH_LABEL = /^(\d{1,2})\/(\d{4}) · (\d+) bets · ([+-]\d+(?:\.\d+)?) U$/
+
+// All-or-nothing: one malformed, out-of-range, duplicated or non-contiguous
+// bar discards the whole series (null), never a partial one.
+export function parseMonthly($: cheerio.CheerioAPI): Bet2InvestMonthRow[] | null {
+  const bars = $('[data-testid="stats-monthly"] [data-testid="stats-month"]')
+  if (bars.length === 0) return null
+  const rows: Bet2InvestMonthRow[] = []
+  for (const el of bars.toArray()) {
+    const m = MONTH_LABEL.exec(($(el).attr('aria-label') ?? '').trim())
+    if (!m) return null
+    const month = Number(m[1])
+    if (month < 1 || month > 12) return null
+    const row = { year: Number(m[2]), month, bets: Number(m[3]), profitUnits: Number(m[4]) }
+    if (!Number.isFinite(row.profitUnits)) return null
+    rows.push(row)
+  }
+  for (let i = 1; i < rows.length; i++) {
+    const prev = rows[i - 1].year * 12 + rows[i - 1].month
+    if (rows[i].year * 12 + rows[i].month - prev !== 1) return null
+  }
+  return rows
+}
+
+// Closure of the monthly series against the all-time totals: bets exact,
+// profit within the rounding interval (0.005 per rounded figure).
+export function monthlyClosesWithTotals(p: Bet2InvestProfile): boolean {
+  if (!p.monthly || p.monthly.length === 0) return false
+  if (p.settledBets === null || p.profitUnits === null) return false
+  if (p.statsScope !== 'all_time') return false
+  const bets = p.monthly.reduce((a, r) => a + r.bets, 0)
+  const profit = p.monthly.reduce((a, r) => a + r.profitUnits, 0)
+  return bets === p.settledBets && Math.abs(profit - p.profitUnits) <= 0.005 * (p.monthly.length + 1) + 1e-9
+}
+
+const SUBSCRIBE_PRICE = /^Subscribe\s*·\s*\$\s?(\d+(?:\.\d{1,2})?)\s*\/\s*Month$/
+
+export function parseSubscribePrice($: cheerio.CheerioAPI): Bet2InvestSubscribePrice | null {
+  const found = new Set<string>()
+  $('button, a').each((_, el) => {
+    const t = $(el).text().replace(/\s+/g, ' ').trim()
+    if (/^Subscribe\b/.test(t) && SUBSCRIBE_PRICE.test(t)) found.add(t)
+  })
+  if (found.size !== 1) return null // none, or ambiguous
+  const text = Array.from(found)[0]
+  const m = SUBSCRIBE_PRICE.exec(text)!
+  return { amount: Number(m[1]), currency: '$', period: 'Month', text }
+}
+
 export function parseProfilePage(html: string): Bet2InvestProfile {
   const $ = cheerio.load(html)
   const username = usernameFromCanonical($)
@@ -283,6 +351,8 @@ export function parseProfilePage(html: string): Bet2InvestProfile {
     results: parseResults($),
     bySport: parseSummaryRows($),
     monthlyAvailable,
+    monthly: monthlyAvailable ? parseMonthly($) : null,
+    subscribePrice: parseSubscribePrice($),
   }
 }
 
