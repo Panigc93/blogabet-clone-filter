@@ -1,3 +1,5 @@
+import { parseActivity } from '@/lib/activity'
+import { activityWarning } from '@/lib/activity-query'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
@@ -9,6 +11,7 @@ const PAGE_SIZE = 50
 export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams
 
+  const activity = parseActivity(p.get('activity'))
   const filters: TipsterFilters = {
     // Default stays Blogabet-only: zero change for the current UI unless a
     // platform is explicitly chosen. platform=tipstrr opts in; platform=all
@@ -19,7 +22,8 @@ export async function GET(req: NextRequest) {
     minYield:       p.has('minYield')  ? Number(p.get('minYield'))  : undefined,
     maxYield:       p.has('maxYield')  ? Number(p.get('maxYield'))  : undefined,
     minPicks:       p.has('minPicks')  ? Number(p.get('minPicks'))  : undefined,
-    activityMonths: p.has('activity')  ? Number(p.get('activity'))  : undefined,
+    activityMonths: typeof activity === 'number' ? activity : undefined,
+    activityUnknown: activity === 'unknown',
     minYears:       p.has('minYears') ? Number(p.get('minYears')) : undefined,
     priceMin:       p.has('priceMin')  ? Number(p.get('priceMin'))  : undefined,
     priceMax:       p.has('priceMax')  ? Number(p.get('priceMax'))  : undefined,
@@ -41,6 +45,8 @@ export async function GET(req: NextRequest) {
     .offset(page * PAGE_SIZE)
 
   const warnings: string[] = []
+  const activityNote = activityWarning(filters.activityMonths, filters.activityUnknown)
+  if (activityNote) warnings.push(activityNote)
   const ignored = ignoredWarning(filters)
   if (ignored) {
     warnings.push(ignored)
