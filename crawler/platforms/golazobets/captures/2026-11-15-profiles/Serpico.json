@@ -1,0 +1,62 @@
+{
+ "tipster_id": 1070,
+ "type": "free",
+ "sport_id": 1,
+ "header": {
+  "number_bets": 203,
+  "total_bet": 412.5,
+  "profit": 11.02,
+  "yield": 2.67,
+  "win_rate": 49.75,
+  "average_stake": 2.03,
+  "average_odds": 2.06
+ },
+ "monthly": [
+  {
+   "year": 2026,
+   "month": 9,
+   "total_picks": 66,
+   "total_bet": 122,
+   "profit": 8.1,
+   "yield": 6.64,
+   "win_rate": 46.97,
+   "average_stake": 1.85,
+   "average_odds": 2.15
+  },
+  {
+   "year": 2026,
+   "month": 10,
+   "total_picks": 103,
+   "total_bet": 208.5,
+   "profit": 3.03,
+   "yield": 1.45,
+   "win_rate": 50.49,
+   "average_stake": 2.02,
+   "average_odds": 2.05
+  },
+  {
+   "year": 2026,
+   "month": 11,
+   "total_picks": 34,
+   "total_bet": 82,
+   "profit": -0.12,
+   "yield": -0.14,
+   "win_rate": 52.94,
+   "average_stake": 2.41,
+   "average_odds": 1.92
+  }
+ ],
+ "picks_total": 207,
+ "recent_results": [
+  "won",
+  "lost",
+  "lost",
+  "won",
+  "won",
+  "won",
+  "lost",
+  "lost",
+  "lost",
+  "lost"
+ ]
+}
