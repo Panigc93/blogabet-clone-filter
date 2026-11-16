@@ -1,0 +1,37 @@
+{
+  "slug": "neon-track",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 3.810635,
+      "bspAverageOdds": 3.801872,
+      "profit": 20.6311,
+      "bspProfit": -2.58447,
+      "levelStakeProfit": 20.6311,
+      "levelStakeBspProfit": -2.58447,
+      "staked": 299,
+      "bspStaked": 298,
+      "tips": 299,
+      "bspTips": 298,
+      "tipBets": 299,
+      "bspTipBets": 298,
+      "win": 86,
+      "winHalf": 0,
+      "bspWin": 86,
+      "lose": 213,
+      "bspLose": 212,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 0,
+      "winPercentage": 29,
+      "bspWinPercentage": 29,
+      "roi": 6.9,
+      "bspROI": -0.87,
+      "levelStakeROI": 6.9,
+      "levelStakeBspROI": -0.87
+    }
+  ]
+}

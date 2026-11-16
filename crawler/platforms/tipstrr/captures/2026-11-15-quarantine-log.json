@@ -1,459 +1,1570 @@
 {
- "_meta": {
-  "purpose": "motivo de la última validación fallida por slug, fuera de la fila persistida",
-  "run": "seed-tipstrr-catalog (aislado PGlite)",
-  "captured": "2026-11-15"
- },
- "rejected": 111,
- "quarantineClasses": {
-  "cobertura-sin-cierre": 100,
-  "contradiccion-numerica": 9,
-  "ventana-posterior-alta": 2
- },
- "detail": [
-  {
-   "slug": "-25",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "10-streak",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "1086",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "60-seconds",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "acca4life-m6aay",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "alexbaseball",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "alpheratz",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "alucard-bgxpo",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "argentina-horse",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "baby-cash",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "basket-ligas",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "betsmartsports",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "betsmasher",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "betting-master20",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "bill444",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "blue-fire",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "brekky-movers",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "broncoxl",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "chels",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "chicken-dinner",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "chris1",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "chrisbestbets",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "closing-line-journal",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "combined",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "correctscore-9k0lv",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "crown-form-ratings",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "dario",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "docjw",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "draw-magic-picks",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "drev",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "ea-picks",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "eclipse-bloodlines",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "edgefooty",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "eplcorrectscores-8ugml",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "erniegolds",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "foot-handicap",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "football-profit-tips",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "footballpunter",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "futeblog-tips",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "golf-master-pro",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "groundpig",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "hola-tips",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "honest-jim",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "honeybadgerbets",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "indianbet",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "isonemybet-kthpl",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "iverius",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "ixmael",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "jampizza",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "jeandeniss",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "jelenius",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "joydi",
-   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "kalibasa",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "kingfisher-sports-hub",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "lucra",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "mameibet",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "marshalbasketbet",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "match-score-analytics",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "matchmind-gold",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "mb-sports-tips",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "michaels-world",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "mihaib",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "moth-tips",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "neon-track",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "nieder",
-   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "niin-betting",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "niin-tennis",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "on-target-tips",
-   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "on-the-bob",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "on-the-money-tips",
-   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "one3q",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "out-bank",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "parabola-bets",
-   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "penkofan22",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "predzone",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "profitgr",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "qweetix",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "racing-edge-uk",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "ravi-predictz",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "redondo",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "revenue-faq",
-   "reason": "cuarentena[ventana-posterior-alta]: la ventana del overview empieza después de la fecha de alta (periodStartDate > alta o ausente): la igualdad tips == suma no confirma el total histórico: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "rogue-excellence",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "rorschachs-bet",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "rosenstein",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "sangarjvbasket",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "sgtipster",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "sharpsh0t",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "sharpslayer",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "shrewd-tips",
-   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "sniiperman",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "spain-football",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "stitch-betting-lab",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "straight-sets",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "strategy7tips",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "svb-tips",
-   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "tennisexplorer",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "the-acca-blueprint",
-   "reason": "cuarentena[ventana-posterior-alta]: la ventana del overview empieza después de la fecha de alta (periodStartDate > alta o ausente): la igualdad tips == suma no confirma el total histórico: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "the-second-serve",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "thebanker",
-   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "thebestbets",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "thunderbirdsrgo1",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "trust-me",
-   "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "ultimate-draw",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "value-wins",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "venecash",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "victor-binotti",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "weightshift-pro",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "xgoal-over-pro",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "xvalue-edge-pro",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "zambrano",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  },
-  {
-   "slug": "zenyatta",
-   "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados"
-  }
- ]
+  "_meta": {
+    "purpose": "motivo de la última validación fallida por slug, fuera de la fila persistida",
+    "run": "seed-tipstrr-catalog (aislado PGlite)",
+    "captured": "2026-11-15",
+    "closure": "2026-11-15: cierre de 3 cifras via /stats/sport/6 (advised, all-time) recogido a ritmo ~12.5s; 101/111 cierran, 10 mantenidos (ver closure-report)"
+  },
+  "rejected": 111,
+  "quarantineClasses": {
+    "cobertura-sin-cierre": 100,
+    "contradiccion-numerica": 9,
+    "ventana-posterior-alta": 2
+  },
+  "detail": [
+    {
+      "slug": "-25",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 500,
+        "closureTips": 500,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "10-streak",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 513,
+        "closureTips": 513,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "1086",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 563,
+        "closureTips": 563,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "60-seconds",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1079,
+        "closureTips": 1079,
+        "dTips": 0,
+        "dStaked": -0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "acca4life-m6aay",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 134,
+        "closureTips": 134,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "alexbaseball",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 801,
+        "closureTips": 801,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "alpheratz",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 2453,
+        "closureTips": 2453,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "alucard-bgxpo",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 726,
+        "closureTips": 726,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "argentina-horse",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 208,
+        "closureTips": 208,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "baby-cash",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 164,
+        "closureTips": 164,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "basket-ligas",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 147,
+        "closureTips": 147,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "betsmartsports",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 465,
+        "closureTips": 465,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "betsmasher",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 154,
+        "closureTips": 154,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "betting-master20",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 364,
+        "closureTips": 364,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "bill444",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": false,
+        "seriesTips": 2616,
+        "closureTips": 2615,
+        "dTips": -1,
+        "dStaked": -0.1,
+        "dProfit": -0.075,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "cuarentena-mantenida"
+    },
+    {
+      "slug": "blue-fire",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 3830,
+        "closureTips": 3830,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "brekky-movers",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 709,
+        "closureTips": 709,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "broncoxl",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 358,
+        "closureTips": 358,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "chels",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 751,
+        "closureTips": 751,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "chicken-dinner",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": false,
+        "seriesTips": 1291,
+        "closureTips": 1307,
+        "dTips": 16,
+        "dStaked": 18.0,
+        "dProfit": -2.5,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "cuarentena-mantenida"
+    },
+    {
+      "slug": "chris1",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1293,
+        "closureTips": 1293,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "chrisbestbets",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 88,
+        "closureTips": 88,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "closing-line-journal",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 283,
+        "closureTips": 283,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "combined",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 418,
+        "closureTips": 418,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "correctscore-9k0lv",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 177,
+        "closureTips": 177,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "crown-form-ratings",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 239,
+        "closureTips": 239,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "dario",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 21583,
+        "closureTips": 21583,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "docjw",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1022,
+        "closureTips": 1022,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "draw-magic-picks",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 310,
+        "closureTips": 310,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "drev",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 462,
+        "closureTips": 462,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "ea-picks",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 185,
+        "closureTips": 185,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "eclipse-bloodlines",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 134,
+        "closureTips": 134,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "edgefooty",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 207,
+        "closureTips": 207,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "eplcorrectscores-8ugml",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1203,
+        "closureTips": 1203,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "erniegolds",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 2136,
+        "closureTips": 2136,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "foot-handicap",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 218,
+        "closureTips": 218,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "football-profit-tips",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1500,
+        "closureTips": 1500,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "footballpunter",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 190,
+        "closureTips": 190,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "futeblog-tips",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 2431,
+        "closureTips": 2431,
+        "dTips": 0,
+        "dStaked": -0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "golf-master-pro",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": false,
+        "seriesTips": 292,
+        "closureTips": 302,
+        "dTips": 10,
+        "dStaked": 20,
+        "dProfit": 5.95,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "cuarentena-mantenida"
+    },
+    {
+      "slug": "groundpig",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 170,
+        "closureTips": 170,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "hola-tips",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1256,
+        "closureTips": 1256,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "honest-jim",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 3422,
+        "closureTips": 3422,
+        "dTips": 0,
+        "dStaked": -0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "honeybadgerbets",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 4314,
+        "closureTips": 4314,
+        "dTips": 0,
+        "dStaked": -0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "indianbet",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": false,
+        "seriesTips": 3032,
+        "closureTips": 3030,
+        "dTips": -2,
+        "dStaked": -2.0,
+        "dProfit": 0.07,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "cuarentena-mantenida"
+    },
+    {
+      "slug": "isonemybet-kthpl",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 682,
+        "closureTips": 682,
+        "dTips": 0,
+        "dStaked": -0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "iverius",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 2740,
+        "closureTips": 2740,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "ixmael",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1275,
+        "closureTips": 1275,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "jampizza",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 491,
+        "closureTips": 491,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "jeandeniss",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1648,
+        "closureTips": 1648,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "jelenius",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 122,
+        "closureTips": 122,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "joydi",
+      "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 6950,
+        "closureTips": 6950,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "kalibasa",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1573,
+        "closureTips": 1573,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "kingfisher-sports-hub",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1475,
+        "closureTips": 1475,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "lucra",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 885,
+        "closureTips": 885,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "mameibet",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 881,
+        "closureTips": 881,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "marshalbasketbet",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1138,
+        "closureTips": 1138,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "match-score-analytics",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 666,
+        "closureTips": 666,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "matchmind-gold",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 261,
+        "closureTips": 261,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "mb-sports-tips",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 127,
+        "closureTips": 127,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "michaels-world",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": false,
+        "seriesTips": 1263,
+        "closureTips": 1277,
+        "dTips": 14,
+        "dStaked": 14,
+        "dProfit": 10.347,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "cuarentena-mantenida"
+    },
+    {
+      "slug": "mihaib",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1665,
+        "closureTips": 1665,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "moth-tips",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1480,
+        "closureTips": 1480,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "neon-track",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 299,
+        "closureTips": 299,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "nieder",
+      "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": false,
+        "seriesTips": 16975,
+        "closureTips": 16973,
+        "dTips": -2,
+        "dStaked": -2.0,
+        "dProfit": 2.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "cuarentena-mantenida"
+    },
+    {
+      "slug": "niin-betting",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 451,
+        "closureTips": 451,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "niin-tennis",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 63,
+        "closureTips": 63,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "on-target-tips",
+      "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 13931,
+        "closureTips": 13931,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "on-the-bob",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 826,
+        "closureTips": 826,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "on-the-money-tips",
+      "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 6742,
+        "closureTips": 6742,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "one3q",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 237,
+        "closureTips": 237,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "out-bank",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 80,
+        "closureTips": 80,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "parabola-bets",
+      "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 4397,
+        "closureTips": 4397,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "penkofan22",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 926,
+        "closureTips": 926,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "predzone",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 129,
+        "closureTips": 129,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "profitgr",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1937,
+        "closureTips": 1937,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "qweetix",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 2245,
+        "closureTips": 2245,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "racing-edge-uk",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1310,
+        "closureTips": 1310,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "ravi-predictz",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 134,
+        "closureTips": 134,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "redondo",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 4093,
+        "closureTips": 4093,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "revenue-faq",
+      "reason": "cuarentena[ventana-posterior-alta]: la ventana del overview empieza después de la fecha de alta (periodStartDate > alta o ausente): la igualdad tips == suma no confirma el total histórico: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 139,
+        "closureTips": 139,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "rogue-excellence",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1180,
+        "closureTips": 1180,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "rorschachs-bet",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1688,
+        "closureTips": 1688,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "rosenstein",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 618,
+        "closureTips": 618,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "sangarjvbasket",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 3942,
+        "closureTips": 3942,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "sgtipster",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 606,
+        "closureTips": 606,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "sharpsh0t",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": false,
+        "seriesTips": 838,
+        "closureTips": 837,
+        "dTips": -1,
+        "dStaked": -0.2,
+        "dProfit": 0.2,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "cuarentena-mantenida"
+    },
+    {
+      "slug": "sharpslayer",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 112,
+        "closureTips": 112,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "shrewd-tips",
+      "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 13973,
+        "closureTips": 13973,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "sniiperman",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1546,
+        "closureTips": 1546,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "spain-football",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 763,
+        "closureTips": 763,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "stitch-betting-lab",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 2148,
+        "closureTips": 2148,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "straight-sets",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 352,
+        "closureTips": 352,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "strategy7tips",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 343,
+        "closureTips": 343,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "svb-tips",
+      "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 16561,
+        "closureTips": 16561,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "tennisexplorer",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 159,
+        "closureTips": 159,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "the-acca-blueprint",
+      "reason": "cuarentena[ventana-posterior-alta]: la ventana del overview empieza después de la fecha de alta (periodStartDate > alta o ausente): la igualdad tips == suma no confirma el total histórico: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 156,
+        "closureTips": 156,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "the-second-serve",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 226,
+        "closureTips": 226,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "thebanker",
+      "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": false,
+        "seriesTips": 5578,
+        "closureTips": 5581,
+        "dTips": 3,
+        "dStaked": 1.5,
+        "dProfit": 1.25,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "cuarentena-mantenida"
+    },
+    {
+      "slug": "thebestbets",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 432,
+        "closureTips": 432,
+        "dTips": 0,
+        "dStaked": -0.0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "thunderbirdsrgo1",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 1873,
+        "closureTips": 1873,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "trust-me",
+      "reason": "cuarentena[contradiccion-numerica]: overview all-time sin cierre contra la serie (tips/roi/profit): registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": false,
+        "seriesTips": 1044,
+        "closureTips": 1043,
+        "dTips": -1,
+        "dStaked": -1.0,
+        "dProfit": -0.316,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "cuarentena-mantenida"
+    },
+    {
+      "slug": "ultimate-draw",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 545,
+        "closureTips": 545,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "value-wins",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 172,
+        "closureTips": 172,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "venecash",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": false,
+        "seriesTips": 1784,
+        "closureTips": 1782,
+        "dTips": -2,
+        "dStaked": -0.2,
+        "dProfit": -0.176,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "cuarentena-mantenida"
+    },
+    {
+      "slug": "victor-binotti",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 2528,
+        "closureTips": 2528,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "weightshift-pro",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 244,
+        "closureTips": 244,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": -0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "xgoal-over-pro",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 696,
+        "closureTips": 696,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "xvalue-edge-pro",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 755,
+        "closureTips": 755,
+        "dTips": 0,
+        "dStaked": -0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "zambrano",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 12455,
+        "closureTips": 12455,
+        "dTips": 0,
+        "dStaked": 0.0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    },
+    {
+      "slug": "zenyatta",
+      "reason": "cuarentena[cobertura-sin-cierre]: overview no all-time; el total histórico dependería de completitud inferida de la serie: registro NO persistido, captura y motivo conservados",
+      "closure20261115": {
+        "closes": true,
+        "seriesTips": 137,
+        "closureTips": 137,
+        "dTips": 0,
+        "dStaked": 0,
+        "dProfit": 0.0,
+        "source": "sport/6 advised all-time vs serie mensual capturada (2026-11-15-closure-report.json)"
+      },
+      "status": "validado-cierre-sport6"
+    }
+  ]
 }

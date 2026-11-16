@@ -1,0 +1,37 @@
+{
+  "slug": "crown-form-ratings",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 4.39661,
+      "bspAverageOdds": 4.39661,
+      "profit": 3.6802,
+      "bspProfit": -7.797705,
+      "levelStakeProfit": 3.6802,
+      "levelStakeBspProfit": -7.797705,
+      "staked": 239,
+      "bspStaked": 239,
+      "tips": 239,
+      "bspTips": 239,
+      "tipBets": 239,
+      "bspTipBets": 239,
+      "win": 55,
+      "winHalf": 0,
+      "bspWin": 55,
+      "lose": 184,
+      "bspLose": 184,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 0,
+      "winPercentage": 23,
+      "bspWinPercentage": 23,
+      "roi": 1.54,
+      "bspROI": -3.26,
+      "levelStakeROI": 1.54,
+      "levelStakeBspROI": -3.26
+    }
+  ]
+}

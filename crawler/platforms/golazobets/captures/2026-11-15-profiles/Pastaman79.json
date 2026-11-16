@@ -1,0 +1,163 @@
+{
+ "tipster_id": 706,
+ "type": "free",
+ "sport_id": 1,
+ "header": {
+  "number_bets": 210,
+  "total_bet": 1515.75,
+  "profit": -13.8,
+  "yield": -0.91,
+  "win_rate": 52.38,
+  "average_stake": 7.22,
+  "average_odds": 1.9
+ },
+ "monthly": [
+  {
+   "year": 2026,
+   "month": 2,
+   "total_picks": 2,
+   "total_bet": 15,
+   "profit": -15,
+   "yield": -100,
+   "win_rate": 0,
+   "average_stake": 7.5,
+   "average_odds": 1.57
+  },
+  {
+   "year": 2026,
+   "month": 3,
+   "total_picks": 6,
+   "total_bet": 41.5,
+   "profit": -27.25,
+   "yield": -65.66,
+   "win_rate": 16.67,
+   "average_stake": 6.92,
+   "average_odds": 1.58
+  },
+  {
+   "year": 2026,
+   "month": 4,
+   "total_picks": 10,
+   "total_bet": 72,
+   "profit": -6.7,
+   "yield": -9.3,
+   "win_rate": 50,
+   "average_stake": 7.2,
+   "average_odds": 1.78
+  },
+  {
+   "year": 2026,
+   "month": 4,
+   "total_picks": 2,
+   "total_bet": 15,
+   "profit": 3.96,
+   "yield": 26.4,
+   "win_rate": 50,
+   "average_stake": 7.5,
+   "average_odds": 2.74
+  },
+  {
+   "year": 2026,
+   "month": 5,
+   "total_picks": 11,
+   "total_bet": 79,
+   "profit": -28.84,
+   "yield": -36.5,
+   "win_rate": 36.36,
+   "average_stake": 7.18,
+   "average_odds": 1.86
+  },
+  {
+   "year": 2026,
+   "month": 5,
+   "total_picks": 1,
+   "total_bet": 10,
+   "profit": 4,
+   "yield": 40,
+   "win_rate": 100,
+   "average_stake": 10,
+   "average_odds": 1.4
+  },
+  {
+   "year": 2026,
+   "month": 6,
+   "total_picks": 11,
+   "total_bet": 85.5,
+   "profit": 1.05,
+   "yield": 1.23,
+   "win_rate": 54.55,
+   "average_stake": 7.77,
+   "average_odds": 1.83
+  },
+  {
+   "year": 2026,
+   "month": 7,
+   "total_picks": 7,
+   "total_bet": 56.75,
+   "profit": -32.15,
+   "yield": -56.65,
+   "win_rate": 28.57,
+   "average_stake": 8.11,
+   "average_odds": 1.72
+  },
+  {
+   "year": 2026,
+   "month": 8,
+   "total_picks": 2,
+   "total_bet": 13,
+   "profit": 8.2,
+   "yield": 63.08,
+   "win_rate": 100,
+   "average_stake": 6.5,
+   "average_odds": 1.7
+  },
+  {
+   "year": 2026,
+   "month": 9,
+   "total_picks": 63,
+   "total_bet": 467,
+   "profit": 15.39,
+   "yield": 3.3,
+   "win_rate": 49.21,
+   "average_stake": 7.41,
+   "average_odds": 1.98
+  },
+  {
+   "year": 2026,
+   "month": 10,
+   "total_picks": 67,
+   "total_bet": 489,
+   "profit": 40.36,
+   "yield": 8.25,
+   "win_rate": 55.22,
+   "average_stake": 7.3,
+   "average_odds": 2
+  },
+  {
+   "year": 2026,
+   "month": 11,
+   "total_picks": 28,
+   "total_bet": 172,
+   "profit": 23.17,
+   "yield": 13.47,
+   "win_rate": 71.43,
+   "average_stake": 6.14,
+   "average_odds": 1.65
+  }
+ ],
+ "picks_total": 212,
+ "recent_results": [
+  "won",
+  "won",
+  "lost",
+  "won",
+  "won",
+  "lost",
+  "won",
+  "lost",
+  "lost",
+  "won"
+ ],
+ "since_year_first_pick": 2026,
+ "avatar_url": "https://golazobets.com/storage/img/users/avatars/1771759814.webp"
+}

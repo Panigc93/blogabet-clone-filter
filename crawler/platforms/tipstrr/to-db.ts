@@ -263,6 +263,25 @@ export function planTipstrrUpsert(
   return { action: 'update', merged: mergeTipstrrUpdate(existing, mapping.insert) }
 }
 
+export type Sport6BatchPlan =
+  | { action: 'insert'; insert: TipsterInsert }
+  | { action: 'skip'; reason: string }
+  | { action: 'skip-existing' }
+
+// Regla del lote de recuperación sport/6 (2026-11-15), fijada en revisión:
+// SOLO ALTAS. Una fila existente se preserva intacta y se salta SIEMPRE, sin
+// depender de que la captura sea "no más reciente": el run esperado es 100
+// inserts y 0 updates (97+TLE existentes, 10 cuarentena, 1 excluido).
+export function planSport6Batch(
+  existing: TipsterInsert | null,
+  mapping: TipstrrDbMapping
+): Sport6BatchPlan {
+  if (existing) return { action: 'skip-existing' }
+  const plan = planTipstrrUpsert(null, mapping)
+  if (plan.action === 'update') throw new Error('update sin fila existente: imposible')
+  return plan
+}
+
 // Fecha de captura ordenable o null. Acepta Date o string; una cadena
 // inválida produce NaN, que se trata como ausente (conservador).
 function parseCapturedAt(v: unknown): number | null {

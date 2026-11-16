@@ -1,0 +1,37 @@
+{
+  "slug": "golf-master-pro",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 19,
+      "averageOdds": 43.886092,
+      "bspAverageOdds": 0,
+      "profit": 293.1524,
+      "bspProfit": 0,
+      "levelStakeProfit": 293.1524,
+      "levelStakeBspProfit": 0,
+      "staked": 604,
+      "bspStaked": 0,
+      "tips": 302,
+      "bspTips": 0,
+      "tipBets": 604,
+      "bspTipBets": 0,
+      "win": 7,
+      "winHalf": 0,
+      "bspWin": 0,
+      "lose": 271,
+      "bspLose": 0,
+      "loseHalf": 0,
+      "place": 24,
+      "bspPlace": 0,
+      "void": 0,
+      "winPercentage": 2,
+      "bspWinPercentage": 0,
+      "roi": 48.54,
+      "bspROI": 0,
+      "levelStakeROI": 48.54,
+      "levelStakeBspROI": 0
+    }
+  ]
+}

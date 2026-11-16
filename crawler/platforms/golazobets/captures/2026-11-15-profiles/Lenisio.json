@@ -1,0 +1,119 @@
+{
+ "tipster_id": 221,
+ "type": "free",
+ "sport_id": 4,
+ "header": {
+  "number_bets": 44,
+  "total_bet": 52.25,
+  "profit": -13.47,
+  "yield": -25.77,
+  "win_rate": 40.91,
+  "average_stake": 1.19,
+  "average_odds": 1.99
+ },
+ "monthly": [
+  {
+   "year": 2025,
+   "month": 11,
+   "total_picks": 1,
+   "total_bet": 0.5,
+   "profit": -0.5,
+   "yield": -100,
+   "win_rate": 0,
+   "average_stake": 0.5,
+   "average_odds": 1.83
+  },
+  {
+   "year": 2026,
+   "month": 1,
+   "total_picks": 6,
+   "total_bet": 6,
+   "profit": -2.83,
+   "yield": -47.17,
+   "win_rate": 33.33,
+   "average_stake": 1,
+   "average_odds": 1.72
+  },
+  {
+   "year": 2026,
+   "month": 2,
+   "total_picks": 15,
+   "total_bet": 14.5,
+   "profit": -0.52,
+   "yield": -3.59,
+   "win_rate": 53.33,
+   "average_stake": 0.97,
+   "average_odds": 1.91
+  },
+  {
+   "year": 2026,
+   "month": 3,
+   "total_picks": 9,
+   "total_bet": 8.5,
+   "profit": -0.08,
+   "yield": -0.88,
+   "win_rate": 55.56,
+   "average_stake": 0.94,
+   "average_odds": 1.88
+  },
+  {
+   "year": 2026,
+   "month": 4,
+   "total_picks": 6,
+   "total_bet": 6,
+   "profit": -2.84,
+   "yield": -47.33,
+   "win_rate": 33.33,
+   "average_stake": 1,
+   "average_odds": 1.81
+  },
+  {
+   "year": 2026,
+   "month": 5,
+   "total_picks": 3,
+   "total_bet": 2.25,
+   "profit": -2.25,
+   "yield": -100,
+   "win_rate": 0,
+   "average_stake": 0.75,
+   "average_odds": 1.82
+  },
+  {
+   "year": 2026,
+   "month": 9,
+   "total_picks": 2,
+   "total_bet": 8,
+   "profit": -8,
+   "yield": -100,
+   "win_rate": 0,
+   "average_stake": 4,
+   "average_odds": 2.07
+  },
+  {
+   "year": 2026,
+   "month": 11,
+   "total_picks": 2,
+   "total_bet": 6.5,
+   "profit": 3.55,
+   "yield": 54.62,
+   "win_rate": 50,
+   "average_stake": 3.25,
+   "average_odds": 4.73
+  }
+ ],
+ "picks_total": 44,
+ "recent_results": [
+  "lost",
+  "won",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost"
+ ],
+ "since_year_first_pick": 2025,
+ "avatar_url": null
+}

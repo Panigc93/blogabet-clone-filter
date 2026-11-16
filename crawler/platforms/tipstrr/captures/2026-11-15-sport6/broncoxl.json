@@ -1,0 +1,37 @@
+{
+  "slug": "broncoxl",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 1,
+      "averageOdds": 2.19215,
+      "bspAverageOdds": 0,
+      "profit": 19.071,
+      "bspProfit": 0,
+      "levelStakeProfit": 19.0615,
+      "levelStakeBspProfit": 0,
+      "staked": 357.1,
+      "bspStaked": 0,
+      "tips": 358,
+      "bspTips": 0,
+      "tipBets": 358,
+      "bspTipBets": 0,
+      "win": 164,
+      "winHalf": 5,
+      "bspWin": 0,
+      "lose": 158,
+      "bspLose": 0,
+      "loseHalf": 2,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 29,
+      "winPercentage": 50,
+      "bspWinPercentage": 0,
+      "roi": 5.34,
+      "bspROI": 0,
+      "levelStakeROI": 5.32,
+      "levelStakeBspROI": 0
+    }
+  ]
+}

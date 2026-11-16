@@ -1,0 +1,37 @@
+{
+  "slug": "spain-football",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 1,
+      "averageOdds": 1.946186,
+      "bspAverageOdds": 0,
+      "profit": 51.701,
+      "bspProfit": 0,
+      "levelStakeProfit": 51.701,
+      "levelStakeBspProfit": 0,
+      "staked": 763,
+      "bspStaked": 0,
+      "tips": 763,
+      "bspTips": 0,
+      "tipBets": 763,
+      "bspTipBets": 0,
+      "win": 321,
+      "winHalf": 78,
+      "bspWin": 0,
+      "lose": 279,
+      "bspLose": 0,
+      "loseHalf": 19,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 66,
+      "winPercentage": 46,
+      "bspWinPercentage": 0,
+      "roi": 6.78,
+      "bspROI": 0,
+      "levelStakeROI": 6.78,
+      "levelStakeBspROI": 0
+    }
+  ]
+}

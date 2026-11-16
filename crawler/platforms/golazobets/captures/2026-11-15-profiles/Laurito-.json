@@ -1,0 +1,53 @@
+{
+ "tipster_id": 1183,
+ "type": "free",
+ "sport_id": 1,
+ "header": {
+  "number_bets": 51,
+  "total_bet": 70.25,
+  "profit": -3.2,
+  "yield": -4.55,
+  "win_rate": 51.96,
+  "average_stake": 1.38,
+  "average_odds": 1.85
+ },
+ "monthly": [
+  {
+   "year": 2026,
+   "month": 10,
+   "total_picks": 26,
+   "total_bet": 39.5,
+   "profit": -11.93,
+   "yield": -30.2,
+   "win_rate": 38.46,
+   "average_stake": 1.52,
+   "average_odds": 1.88
+  },
+  {
+   "year": 2026,
+   "month": 11,
+   "total_picks": 25,
+   "total_bet": 30.75,
+   "profit": 8.73,
+   "yield": 28.39,
+   "win_rate": 66,
+   "average_stake": 1.23,
+   "average_odds": 1.81
+  }
+ ],
+ "picks_total": 51,
+ "recent_results": [
+  "won",
+  "won",
+  "lost",
+  "won",
+  "won",
+  "half_won",
+  "lost",
+  "lost",
+  "lost",
+  "lost"
+ ],
+ "avatar_url": "https://golazobets.com/storage/img/users/avatars/1791365369.webp",
+ "since_year_first_pick": 2026
+}

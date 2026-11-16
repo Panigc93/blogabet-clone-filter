@@ -9,7 +9,7 @@ export const tipsters = pgTable('tipsters', {
   // Money semantics: `profit`/`price` are only comparable within the same
   // unit. BB stores EUR; Tipstrr stores UNITS (its "10/10" scale) and its
   // subscription price is GBP. Queries must not mix units (lib/query.ts).
-  profitUnit:  text('profit_unit').notNull().default('eur'), // 'eur' | 'units'
+  profitUnit:  text('profit_unit').notNull().default('eur'), // 'eur' | 'units' | 'golazobets-units' (no equivalente a las anteriores: no ordenar ni comparar profit entre unidades)
   priceCurrency: text('price_currency').notNull().default('eur'), // 'eur' | 'gbp'
   avatarUrl:   text('avatar_url'),
   flagUrl:     text('flag_url'),

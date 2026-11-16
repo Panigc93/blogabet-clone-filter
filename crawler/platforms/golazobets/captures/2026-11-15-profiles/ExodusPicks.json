@@ -1,0 +1,42 @@
+{
+ "tipster_id": 546,
+ "type": "free",
+ "sport_id": 1,
+ "header": {
+  "number_bets": 18,
+  "total_bet": 63.75,
+  "profit": -24.82,
+  "yield": -38.94,
+  "win_rate": 27.78,
+  "average_stake": 3.54,
+  "average_odds": 2.25
+ },
+ "monthly": [
+  {
+   "year": 2025,
+   "month": 11,
+   "total_picks": 18,
+   "total_bet": 63.75,
+   "profit": -24.82,
+   "yield": -38.94,
+   "win_rate": 27.78,
+   "average_stake": 3.54,
+   "average_odds": 2.25
+  }
+ ],
+ "picks_total": 18,
+ "recent_results": [
+  "won",
+  "lost",
+  "lost",
+  "won",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "won"
+ ],
+ "avatar_url": "https://golazobets.com/storage/img/users/avatars/1763572440.webp",
+ "since_year_first_pick": 2025
+}

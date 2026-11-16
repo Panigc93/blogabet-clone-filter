@@ -121,3 +121,13 @@ SELECT count(*) AS n, md5(string_agg(h, '' ORDER BY id)) AS fp FROM (
   ruta de recuperación verificable es esta tabla de backup.
 - Nunca restaurar filas BB viejas salvo huella rota confirmada; nunca
   inyectar fixtures.
+
+## Run de recuperación sport/6 (pendiente de autorización)
+
+El importador aplica automáticamente el override sport/6 cuando existe
+`captures/2026-11-15-sport6/<slug>.json` (solo los 111 recuperados): sustituye
+el overview por los totales all-time advised de `/api/portfolio/<slug>/stats/sport/6`
+y la puerta estricta re-verifica el cierre de 3 cifras contra la serie embebida.
+`revenue-faq` está excluido por revisión (serie empieza ~1 año tras el alta).
+Resultado esperado del run: 100 inserts nuevos, 10 cuarentena, 1 excluido,
+97+TLE skip no-más-reciente. Mismo procedimiento --apply y verificación post-import.

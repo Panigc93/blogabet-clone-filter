@@ -7,6 +7,7 @@ import { and } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 import { buildFilters, sortOrder, priceFilterIgnored } from '@/lib/query'
 import { tipstrrSnapshotToInsert, type TipstrrDbMapping } from '@/crawler/platforms/tipstrr/to-db'
+import { golazobetsCaptureToInsert, type GzbProfileCapture } from '@/crawler/platforms/golazobets/to-db'
 const mustMap = (m: TipstrrDbMapping) => {
   if (!m.ok) throw new Error(m.reason)
   return m.insert
@@ -66,19 +67,29 @@ beforeAll(async () => {
     mustMap(tipstrrSnapshotToInsert(TLE_SNAPSHOT, { id: -221629, idSource: 'source-captured', slug: 'the-least-expected', subscriptionPriceGbp: 39, isPaid: true })),
     mustMap(tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, { id: -999999, idSource: 'isolated-fixture', slug: 'statmind', subscriptionPriceGbp: null, isPaid: false })),
   ])
+  // Fila Golazobets desde captura REAL (FutbolEnCasa, 2026-11-15): yield de
+  // cabecera 10,83 (la UI redondea a '+11%') y unidad propia. Sirve para
+  // probar que el filtro numerico NO se deja llevar por el redondeo de
+  // pantalla y que la ordenacion por beneficio agrupa por unidad.
+  const gzbCap = JSON.parse(
+    readFileSync(join(__dirname, '../../crawler/platforms/golazobets/captures/2026-11-15-profiles/FutbolEnCasa.json'), 'utf8'),
+  ) as GzbProfileCapture
+  const gzbMap = golazobetsCaptureToInsert('FutbolEnCasa', gzbCap, { capturedAt: '2026-11-15T00:00:00.000Z' })
+  if (!gzbMap.ok) throw new Error(gzbMap.reason)
+  await db.insert(tipsters).values({ ...gzbMap.insert, id: -700001 })
 })
 
 afterAll(async () => {
   await pg.close()
 })
 
-async function runQuery(filters: Parameters<typeof buildFilters>[0], page = 0, pageSize = 50) {
+async function runQuery(filters: Parameters<typeof buildFilters>[0], page = 0, pageSize = 50, sort: Parameters<typeof sortOrder>[0] = 'yield') {
   const where = buildFilters(filters)
   return db
     .select()
     .from(tipsters)
     .where(where.length ? and(...where) : undefined)
-    .orderBy(...sortOrder('yield'))
+    .orderBy(...sortOrder(sort))
     .limit(pageSize)
     .offset(page * pageSize)
 }
@@ -143,7 +154,7 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
     // applied and the caller must signal it
     expect(priceFilterIgnored({ priceMin: 5, priceMax: 50 })).toBe(true)
     const all = await runQuery({ priceMin: 5, priceMax: 50 })
-    expect(all).toHaveLength(3) // BB + 2 Tipstrr: nothing hidden
+    expect(all).toHaveLength(4) // BB + 2 Tipstrr + 1 Golazobets: nothing hidden
     // explicit Tipstrr scope: same rule
     const params = { platform: 'tipstrr' as const, priceMin: 5, priceMax: 50 }
     expect(priceFilterIgnored(params)).toBe(true)
@@ -158,7 +169,7 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
     const tt = await runQuery({ ...bbOnly, platform: 'tipstrr' as const })
     expect(tt).toHaveLength(2) // both Tipstrr rows still listed
     const all = await runQuery(bbOnly) // combined view: nothing applied
-    expect(all).toHaveLength(3)
+    expect(all).toHaveLength(4) // BB + 2 Tipstrr + 1 Golazobets
   })
 
   it('pagination (LoadMore path) returns stable pages with negative ids', async () => {
@@ -169,6 +180,26 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
     expect(page0[0].slug).toBe('the-least-expected')
     expect(page1[0].slug).toBe('statmind')
     expect(page0[0].id).not.toBe(page1[0].id)
+  })
+
+  it('profit sort groups by unit (eur, golazobets-units, units), never a cross-unit ranking', async () => {
+    const rows = await runQuery({ platform: undefined }, 0, 50, 'profit')
+    expect(rows.map((r) => r.platform)).toEqual(['blogabet', 'golazobets', 'tipstrr', 'tipstrr'])
+    expect(rows[0].profitUnit).toBe('eur')
+    expect(rows[1].profitUnit).toBe('golazobets-units')
+    expect(rows[2].profitUnit).toBe('units')
+    // dentro de cada unidad, valor descendente
+    expect(Number(rows[2].profit)).toBeGreaterThan(Number(rows[3].profit))
+  })
+
+  it('minYield uses the real numeric value: 10.83 does not pass a threshold of 11 even though the card shows +11%', async () => {
+    const all = await runQuery({ platform: 'golazobets' })
+    expect(all).toHaveLength(1)
+    expect(all[0].yield).toBe('10.83')
+    const filtered = await runQuery({ platform: 'golazobets', minYield: 11 })
+    expect(filtered).toHaveLength(0)
+    const passes = await runQuery({ platform: 'golazobets', minYield: 10 })
+    expect(passes).toHaveLength(1)
   })
 
   it('absence is null in the database, never 0', async () => {
@@ -182,7 +213,7 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
 
   it('documented rollback removes Tipstrr rows and restores the BB-only shape', async () => {
     await pg.exec(`
-      DELETE FROM tipsters WHERE platform = 'tipstrr';
+      DELETE FROM tipsters WHERE platform IN ('tipstrr', 'golazobets');
       DROP INDEX ux_tipsters_platform_slug;
       DROP INDEX idx_tipsters_platform;
       ALTER TABLE tipsters DROP COLUMN platform, DROP COLUMN profit_unit, DROP COLUMN price_currency, DROP COLUMN signup_at, DROP COLUMN captured_at;

@@ -117,3 +117,67 @@ describe('fromTipstrrSnapshot (real captures)', () => {
     expect(sm.profitDisplay).toBe('-591,25 €')
   })
 })
+
+// FABRICATED Golazobets DB row: solo importa la forma; cifras inventadas.
+const GZB_ROW: Tipster = {
+  ...BB_ROW,
+  id: 900,
+  platform: 'golazobets',
+  slug: 'DemoGzb',
+  name: 'DemoGzb',
+  profitUnit: 'golazobets-units',
+  priceCurrency: 'eur', // esquema notNull con default; irrelevante mientras price sea null
+  signupAt: null,
+  capturedAt: new Date('2026-11-15T20:00:00Z'),
+  isPaid: false,
+  price: null,
+  sinceYear: null,
+  picks: 140,
+  profit: '55.63',
+  yield: '42.14',
+  verifiedPct: null,
+  isVerified: false,
+  followers: null,
+  resetCount: 0,
+  lastResetAt: null,
+  picks6mAvg: null,
+  yield3m: null,
+  yield6m: null,
+  yield12m: null,
+  picksFree3mAvg: null,
+  yieldFree3m: null,
+  statsUpdatedAt: new Date('2026-11-15T20:00:00Z'),
+  sourcePortfolioId: 123,
+}
+
+describe('fromDbTipster (Golazobets)', () => {
+  const c = fromDbTipster(GZB_ROW)
+  it('renders as a dated capture with its own non-equivalent unit label', () => {
+    expect(c.platform).toBe('golazobets')
+    expect(c.capturedAt).toBe('2026-11-15')
+    expect(c.sourceUrl).toBe('https://golazobets.com/tipster/DemoGzb')
+    // Sufijo corto 'u' decidido por el usuario (16-nov); jamás '€' (BB) ni
+    // equivalencia con las 'u' de Tipstrr (esa distinción vive en el aviso
+    // contextual y en el tooltip del yield, no en la cifra).
+    expect(c.profitDisplay).toBe('+55,63 u')
+    expect(c.profitDisplay).not.toContain('€')
+    expect(c.yieldPct).toBe(42.14)
+    expect(c.yieldTitle).toContain('no son equivalentes')
+  })
+  it('nulls everything the platform does not expose (never 0)', () => {
+    expect(c.verifiedPct).toBeNull()
+    expect(c.followers).toBeNull()
+    expect(c.sinceYear).toBeNull()
+    expect(c.priceLabel).toBeNull()
+    expect(c.isVerified).toBeNull()
+    expect(c.showPeriodRow).toBe(false)
+  })
+})
+
+describe('fromDbTipster (Golazobets) URL de origen', () => {
+  it('codifica slugs con espacios/parentesis en la URL y los muestra legibles', () => {
+    const c = fromDbTipster({ ...GZB_ROW, slug: 'Abreu13 (CamiPicks)', name: 'Abreu13 (CamiPicks)' })
+    expect(c.sourceUrl).toBe('https://golazobets.com/tipster/Abreu13%20(CamiPicks)')
+    expect(c.sourceLabel).toBe('golazobets.com/tipster/Abreu13 (CamiPicks)')
+  })
+})

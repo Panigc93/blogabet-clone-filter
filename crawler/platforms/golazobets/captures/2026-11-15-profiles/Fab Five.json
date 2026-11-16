@@ -1,0 +1,75 @@
+{
+ "tipster_id": 283,
+ "type": "free",
+ "sport_id": 6,
+ "header": {
+  "number_bets": 39,
+  "total_bet": 38.5,
+  "profit": -2.23,
+  "yield": -5.78,
+  "win_rate": 51.28,
+  "average_stake": 0.99,
+  "average_odds": 1.85
+ },
+ "monthly": [
+  {
+   "year": 2025,
+   "month": 7,
+   "total_picks": 1,
+   "total_bet": 1,
+   "profit": 0.95,
+   "yield": 95,
+   "win_rate": 100,
+   "average_stake": 1,
+   "average_odds": 1.95
+  },
+  {
+   "year": 2025,
+   "month": 8,
+   "total_picks": 6,
+   "total_bet": 5.5,
+   "profit": -0.16,
+   "yield": -2.82,
+   "win_rate": 50,
+   "average_stake": 0.92,
+   "average_odds": 2.08
+  },
+  {
+   "year": 2025,
+   "month": 9,
+   "total_picks": 25,
+   "total_bet": 25,
+   "profit": -1.27,
+   "yield": -5.08,
+   "win_rate": 52,
+   "average_stake": 1,
+   "average_odds": 1.81
+  },
+  {
+   "year": 2026,
+   "month": 9,
+   "total_picks": 7,
+   "total_bet": 7,
+   "profit": -1.75,
+   "yield": -25,
+   "win_rate": 42.86,
+   "average_stake": 1,
+   "average_odds": 1.78
+  }
+ ],
+ "picks_total": 41,
+ "recent_results": [
+  "lost",
+  "lost",
+  "won",
+  "won",
+  "lost",
+  "lost",
+  "won",
+  "won",
+  "lost",
+  "lost"
+ ],
+ "avatar_url": "https://golazobets.com/storage/img/users/avatars/1753529406.webp",
+ "since_year_first_pick": 2025
+}

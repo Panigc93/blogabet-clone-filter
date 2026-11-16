@@ -26,13 +26,14 @@
 //
 // La cadena se lee de la variable de entorno; nunca se imprime. Rollback y
 // huella de integridad BB: docs/deploy-tipstrr-prod.md (runbook).
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { neon } from '@neondatabase/serverless'
 import { loadTipstrrCapture, type TipstrrStatsCapture } from '../crawler/platforms/tipstrr/load-capture'
+import { sport6Totals, applySport6AllTime, type Sport6Capture } from '../crawler/platforms/tipstrr/sport6'
 import {
   tipstrrSnapshotToInsert,
-  planTipstrrUpsert,
+  planSport6Batch,
   assertRealImportProvenance,
   type TipstrrIdSource,
 } from '../crawler/platforms/tipstrr/to-db'
@@ -44,27 +45,31 @@ const APPLY = process.argv.includes('--apply')
 const RUN_ID = `tipstrr-prod-20261115-${APPLY ? 'apply' : 'dryrun'}-${Date.now()}`
 const CAP_DIR = 'crawler/platforms/tipstrr/captures/2026-11-15-stats'
 const TLE_CAPTURE = 'crawler/platforms/tipstrr/captures/2026-11-15-tle-stats-state.json'
+// Totales all-time advised independientes (recuperación 2026-11-15 de los 111
+// cuyo overview embebido no era all-time). Solo existen para esos 111; cuando
+// hay captura sport/6, SUSTITUYE el overview y la puerta estricta re-verifica
+// el cierre de 3 cifras contra la serie mensual embebida.
+const SPORT6_DIR = 'crawler/platforms/tipstrr/captures/2026-11-15-sport6'
+const SPORT6_LABEL = 'captura 2026-11-15'
+const sport6Slugs = new Set(
+  existsSync(SPORT6_DIR) ? readdirSync(SPORT6_DIR).map((f) => f.replace(/\.json$/, '')) : []
+)
+// Cierre numérico OK pero histórico NO validado: revenue-faq cerró las 3
+// cifras y sin embargo su serie empieza ~1 año después del alta (duda del
+// revisor 2026-11-15). Se excluye de este run hasta verificación adicional.
+const EXCLUDED_AFTER_REVIEW: Record<string, string> = {
+  'revenue-faq': 'excluido[revision-historico]: cierra numericamente pero la serie empieza ~1 año tras el alta; pendiente verificación adicional',
+}
 // portfolioId real capturado del origen (PORTFOLIO_TIP_CACHED /results,
 // evidencia captures/2026-11-15-tle-results-page1-state.json). El resto:
 // id interno por secuencia (0005). Nunca un id de fixture.
 const SOURCE_PORTFOLIO_IDS: Record<string, number> = { 'the-least-expected': 221629 }
 
-// camelCase TipsterInsert -> columna SQL. updatedAt se omite: default NOW().
-const COLUMNS: [keyof TipsterInsert, string][] = [
-  ['platform', 'platform'], ['slug', 'slug'], ['name', 'name'],
-  ['profitUnit', 'profit_unit'], ['priceCurrency', 'price_currency'],
-  ['avatarUrl', 'avatar_url'], ['flagUrl', 'flag_url'], ['countryCode', 'country_code'],
-  ['isPaid', 'is_paid'], ['price', 'price'], ['sinceYear', 'since_year'],
-  ['picks', 'picks'], ['profit', 'profit'], ['yield', 'yield'],
-  ['verifiedPct', 'verified_pct'], ['isVerified', 'is_verified'],
-  ['followers', 'followers'], ['lastPickAt', 'last_pick_at'],
-  ['signupAt', 'signup_at'], ['capturedAt', 'captured_at'],
-  ['resetCount', 'reset_count'], ['lastResetAt', 'last_reset_at'],
-  ['picks6mAvg', 'picks_6m_avg'], ['yield3m', 'yield_3m'], ['yield6m', 'yield_6m'],
-  ['yield12m', 'yield_12m'], ['picksFree3mAvg', 'picks_free_3m_avg'],
-  ['yieldFree3m', 'yield_free_3m'], ['statsUpdatedAt', 'stats_updated_at'],
-  ['sourcePortfolioId', 'source_portfolio_id'],
-]
+// camelCase TipsterInsert -> columna SQL: COMPARTIDO en
+// crawler/platforms/tipstrr/insert-sql.ts (mismo builder probado que el
+// import de catálogo). updatedAt se omite: default NOW().
+import { COLUMNS, buildInsert as buildInsertShared, buildUpdate as buildUpdateShared, camelize } from '../crawler/platforms/tipstrr/insert-sql'
+export { COLUMNS }
 
 // Pertenencia free/premium medida en la pasada de catálogo (combos).
 const catalog = JSON.parse(
@@ -75,59 +80,10 @@ for (const [k, c] of Object.entries(catalog.combos)) {
   for (const p of c.pages) for (const s of p.slugs) if (k.endsWith(':premium')) premium.add(s)
 }
 
-// PG devuelve numeric como string: al camelizar una fila existente hay que
-// devolver esos campos a number o un update los reescribiría como texto.
-const NUMERIC_KEYS = new Set([
-  'price', 'profit', 'yield', 'verifiedPct',
-  'picks6mAvg', 'yield3m', 'yield6m', 'yield12m', 'picksFree3mAvg', 'yieldFree3m',
-])
-const camelize = (row: Record<string, unknown>): Record<string, unknown> => {
-  const out: Record<string, unknown> = {}
-  for (const [k, v] of Object.entries(row)) {
-    const key = k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())
-    out[key] = NUMERIC_KEYS.has(key) && typeof v === 'string' ? Number(v) : v
-  }
-  return out
-}
 
-export function buildInsert(insert: TipsterInsert, internalId: boolean): { text: string; params: unknown[] } {
-  const cols: string[] = ['id']
-  const vals: string[] = []
-  const params: unknown[] = []
-  if (internalId) {
-    // Id surrogate generado por la secuencia interna en la propia
-    // transacción del INSERT (sin placeholder).
-    vals.push(`nextval('tipsters_internal_id_seq')`)
-  } else {
-    params.push(insert.id)
-    vals.push(`$${params.length}`)
-  }
-  for (const [key, col] of COLUMNS) {
-    const v = insert[key]
-    if (v === undefined) continue // defaults de esquema
-    cols.push(col)
-    params.push(v)
-    vals.push(`$${params.length}`)
-  }
-  return {
-    text: `INSERT INTO tipsters (${cols.join(', ')}) VALUES (${vals.join(', ')})`,
-    params,
-  }
-}
 
-export function buildUpdate(id: number, merged: TipsterInsert): { text: string; params: unknown[] } {
-  const sets: string[] = []
-  const params: unknown[] = []
-  for (const [key, col] of COLUMNS) {
-    if (key === 'platform' || key === 'slug') continue // identidad inmutable
-    const v = merged[key]
-    if (v === undefined) continue
-    params.push(v)
-    sets.push(`${col} = $${params.length}`)
-  }
-  params.push(id)
-  return { text: `UPDATE tipsters SET ${sets.join(', ')} WHERE id = $${params.length}`, params }
-}
+export const buildInsert = buildInsertShared
+export const buildUpdate = buildUpdateShared
 
 const skipClass = (reason: string): string => {
   const m = reason.match(/cuarentena\[([^\]]+)\]/)
@@ -172,7 +128,21 @@ async function main() {
     const slug = f.includes('tle-stats-state')
       ? 'the-least-expected'
       : f.split('/').pop()!.replace(/\.json$/, '')
-    const snap = loadTipstrrCapture(cap, {
+    const excluded = EXCLUDED_AFTER_REVIEW[slug]
+    if (excluded) {
+      summary.skip++
+      skipDetail.push({ slug, klass: 'excluido[revision-historico]' })
+      if (APPLY) {
+        await sql.transaction((txn) => [
+          txn.query(
+            `INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
+            ['tipstrr', slug, capturedIso, 'excluido[revision-historico]', excluded, RUN_ID]
+          ),
+        ])
+      }
+      continue
+    }
+    let snap = loadTipstrrCapture(cap, {
       sourceUrl: cap._meta.source.split(' ')[0],
       capturedAt: cap._meta.captured,
       capturedAtDate: capturedIso,
@@ -188,6 +158,10 @@ async function main() {
         ],
       },
     })
+    if (sport6Slugs.has(slug)) {
+      const sp6 = JSON.parse(readFileSync(join(SPORT6_DIR, `${slug}.json`), 'utf8')) as Sport6Capture
+      snap = applySport6AllTime(snap, sport6Totals(sp6), SPORT6_LABEL)
+    }
     const portfolioId = SOURCE_PORTFOLIO_IDS[slug]
     const idSource: TipstrrIdSource = portfolioId ? 'source-captured' : 'internal-transactional'
     const mapping = tipstrrSnapshotToInsert(snap, {
@@ -210,8 +184,24 @@ async function main() {
       `SELECT * FROM tipsters WHERE platform = 'tipstrr' AND slug = $1`, [slug]
     )) as Record<string, unknown>[]
     const existing = existingRows.length > 0 ? (camelize(existingRows[0]) as TipsterInsert) : null
-    const plan = planTipstrrUpsert(existing, mapping)
+    // Lote sport/6: SOLO ALTAS (decisión de revisión 2026-11-15). Una fila
+    // existente se preserva intacta y se salta siempre; no depende de que la
+    // captura sea "no más reciente".
+    const plan = planSport6Batch(existing, mapping)
 
+    if (plan.action === 'skip-existing') {
+      summary.skip++
+      skipDetail.push({ slug, klass: 'skip[existente-preservado]' })
+      if (APPLY) {
+        await sql.transaction((txn) => [
+          txn.query(
+            `INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
+            ['tipstrr', slug, capturedIso, 'skip[existente-preservado]', 'lote sport/6 solo-altas: la fila existente se preserva intacta, sin update', RUN_ID]
+          ),
+        ])
+      }
+      continue
+    }
     if (plan.action === 'skip') {
       summary.skip++
       if (plan.reason.includes('cuarentena')) summary.quarantine++
@@ -226,19 +216,30 @@ async function main() {
       }
       continue
     }
+    // Solo queda 'insert' (lote solo-altas). Insert + log de procedencia
+    // sport/6 en UNA transacción: una caída no puede dejar la fila sin su
+    // fuente, y un reintento la verá existente y la saltará con el log ya
+    // escrito (o nada escrito en absoluto).
     if (!APPLY) {
-      summary[plan.action]++
+      summary.insert++
       continue
     }
-    if (plan.action === 'insert') {
-      const q = buildInsert(plan.insert, !portfolioId)
-      await sql.transaction((txn) => [txn.query(q.text, q.params)])
-      summary.insert++
-    } else {
-      const q = buildUpdate((existing as TipsterInsert).id as number, plan.merged)
-      await sql.transaction((txn) => [txn.query(q.text, q.params)])
-      summary.update++
-    }
+    const q = buildInsert(plan.insert, !portfolioId)
+    await sql.transaction((txn) => {
+      const batch = [txn.query(q.text, q.params)]
+      if (sport6Slugs.has(slug)) {
+        batch.push(
+          txn.query(
+            `INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
+            ['tipstrr', slug, capturedIso, 'importado[sport6-override]',
+             'overview all-time sustituido por totales advised de /api/portfolio/<slug>/stats/sport/6 (captura 2026-11-15); cierre de 3 cifras re-verificado por la puerta contra la serie mensual embebida',
+             RUN_ID]
+          )
+        )
+      }
+      return batch
+    })
+    summary.insert++
   }
 
   console.log(JSON.stringify({ runId: RUN_ID, apply: APPLY, summary, skipDetail }, null, 1))

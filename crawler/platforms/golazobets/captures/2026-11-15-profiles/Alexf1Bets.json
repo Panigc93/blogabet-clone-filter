@@ -1,0 +1,130 @@
+{
+ "tipster_id": 439,
+ "type": "free",
+ "sport_id": 4,
+ "header": {
+  "number_bets": 907,
+  "total_bet": 285.95,
+  "profit": 52.13,
+  "yield": 18.23,
+  "win_rate": 26.68,
+  "average_stake": 0.32,
+  "average_odds": 9.28
+ },
+ "monthly": [
+  {
+   "year": 2026,
+   "month": 3,
+   "total_picks": 56,
+   "total_bet": 18.5,
+   "profit": 5.17,
+   "yield": 27.92,
+   "win_rate": 23.21,
+   "average_stake": 0.33,
+   "average_odds": 9.35
+  },
+  {
+   "year": 2026,
+   "month": 6,
+   "total_picks": 1,
+   "total_bet": 0.5,
+   "profit": -0.5,
+   "yield": -100,
+   "win_rate": 0,
+   "average_stake": 0.5,
+   "average_odds": 15
+  },
+  {
+   "year": 2026,
+   "month": 5,
+   "total_picks": 48,
+   "total_bet": 17.75,
+   "profit": -0.8,
+   "yield": -4.51,
+   "win_rate": 20.83,
+   "average_stake": 0.37,
+   "average_odds": 6.47
+  },
+  {
+   "year": 2026,
+   "month": 6,
+   "total_picks": 87,
+   "total_bet": 20.1,
+   "profit": -11.25,
+   "yield": -55.97,
+   "win_rate": 6.9,
+   "average_stake": 0.23,
+   "average_odds": 13.96
+  },
+  {
+   "year": 2026,
+   "month": 7,
+   "total_picks": 129,
+   "total_bet": 46.9,
+   "profit": 8.85,
+   "yield": 18.86,
+   "win_rate": 27.91,
+   "average_stake": 0.36,
+   "average_odds": 8.61
+  },
+  {
+   "year": 2026,
+   "month": 8,
+   "total_picks": 82,
+   "total_bet": 33.3,
+   "profit": 5.36,
+   "yield": 16.09,
+   "win_rate": 32.93,
+   "average_stake": 0.41,
+   "average_odds": 7.38
+  },
+  {
+   "year": 2026,
+   "month": 9,
+   "total_picks": 138,
+   "total_bet": 44.3,
+   "profit": 16.8,
+   "yield": 37.92,
+   "win_rate": 31.88,
+   "average_stake": 0.32,
+   "average_odds": 8.11
+  },
+  {
+   "year": 2026,
+   "month": 10,
+   "total_picks": 234,
+   "total_bet": 68.9,
+   "profit": 12.29,
+   "yield": 17.83,
+   "win_rate": 25.64,
+   "average_stake": 0.29,
+   "average_odds": 9.19
+  },
+  {
+   "year": 2026,
+   "month": 11,
+   "total_picks": 132,
+   "total_bet": 35.7,
+   "profit": 16.23,
+   "yield": 45.46,
+   "win_rate": 34.85,
+   "average_stake": 0.27,
+   "average_odds": 10.4
+  }
+ ],
+ "picks_total": 927,
+ "recent_results": [
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "lost",
+  "won"
+ ],
+ "avatar_url": "https://golazobets.com/storage/img/users/avatars/1767203041.webp",
+ "since_year_first_pick": 2026
+}

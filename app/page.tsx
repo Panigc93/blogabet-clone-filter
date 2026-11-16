@@ -1,6 +1,6 @@
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, sortOrder, ignoredWarning, TipsterFilters, SortField } from '@/lib/query'
+import { buildFilters, sortOrder, ignoredWarning, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and, count } from 'drizzle-orm'
 import { FilterBar } from '@/components/FilterBar'
 import { LoadMore } from '@/components/LoadMore'
@@ -50,6 +50,11 @@ export default async function Home({ searchParams }: PageProps) {
     <>
       <FilterBar searchParams={searchParams} />
       <div id="page-content" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px' }}>
+        {profitSortWarning(sort, filters.platform) && (
+          <div style={{ margin: '8px 0 0', padding: '8px 12px', background: '#fcf8e3', border: '1px solid #faebcc', borderRadius: 4, fontSize: 13, color: '#8a6d3b' }}>
+            {profitSortWarning(sort, filters.platform)}
+          </div>
+        )}
         {ignoredWarning(filters) && (
           <div style={{ margin: '8px 0 0', padding: '8px 12px', background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: 4, fontSize: 13, color: '#856404' }}>
             {ignoredWarning(filters)}

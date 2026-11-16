@@ -7,7 +7,7 @@ import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
 // Tipstrr rows come from dated real captures (fromTipstrrSnapshot), never
 // presented as a sync: capturedAt is always shown.
 
-export type Platform = 'blogabet' | 'tipstrr'
+export type Platform = 'blogabet' | 'tipstrr' | 'golazobets'
 
 export interface PeriodStatView {
   valuePct: number | null
@@ -63,6 +63,7 @@ const fmtMoneyAbs = (units: number) => `${fmtEs.format(Math.abs(units) * 10)} �
 
 export function fromDbTipster(t: Tipster): TipsterCardData {
   if (t.platform === 'tipstrr') return tipstrrFromDbRow(t)
+  if (t.platform === 'golazobets') return golazobetsFromDbRow(t)
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -208,5 +209,55 @@ export function fromTipstrrSnapshot(s: FichaSnapshot): TipsterCardData {
     picksFree3mAvg: null, // split free/paid no evaluable: flag por tip liquidado no validado (control 15-11-2026); no es cuestión de cuenta
     yieldFree3m: null,
     showPeriodRow: p.yield3m !== null || p.yield6m !== null || p.yield12m !== null,
+  }
+}
+
+// DB-backed Golazobets row. Misma regla de honestidad que Tipstrr: capturedAt
+// siempre visible (captura fechada, no sync). El profit va etiquetado con su
+// unidad propia ('u' en la cifra): NO es equivalente a las 'u' de Tipstrr ni
+// a los € de Blogabet, y la ordenación por profit la agrupa aparte
+// (lib/query.ts). Campos no expuestos por la plataforma: null, nunca 0.
+function golazobetsFromDbRow(t: Tipster): TipsterCardData {
+  const num = (v: string | null): number | null => {
+    if (v === null) return null
+    const n = parseFloat(v)
+    return Number.isFinite(n) ? n : null
+  }
+  const profit = num(t.profit)
+  const captured = t.capturedAt ? new Date(t.capturedAt) : null
+  const empty = (): PeriodStatView => ({ valuePct: null, trace: null, complete: true })
+  return {
+    platform: 'golazobets',
+    name: t.name,
+    avatarUrl: t.avatarUrl,
+    // Usernames con espacios/parentesis/tildes ('Apuestas Tx', 'Abreu13
+    // (CamiPicks)', 'DOBLE ÁREA'): la URL va codificada, la etiqueta legible.
+    sourceUrl: `https://golazobets.com/tipster/${encodeURIComponent(t.slug)}`,
+    sourceLabel: `golazobets.com/tipster/${t.slug}`,
+    capturedAt: captured && !isNaN(captured.getTime()) ? captured.toISOString().slice(0, 10) : null,
+    sinceYear: t.sinceYear,
+    sinceTitle: 'Año de la primera apuesta registrada en Golazobets (no es la fecha de alta en la plataforma)',
+    picks: t.picks,
+    profitDisplay: profit !== null ? `${profit >= 0 ? '+' : ''}${fmtEs.format(profit)} u` : null,
+    yieldPct: num(t.yield),
+    yieldTitle: 'Yield publicado por Golazobets (beneficio / total apostado); las unidades Golazobets no son equivalentes a € ni a las unidades de Tipstrr',
+    verifiedPct: null, // win_rate no es % verificado: no se mezclan conceptos
+    followers: null, // no expuesto por la plataforma
+    isVerified: null,
+    isPaid: t.isPaid,
+    priceLabel: null, // precio premium no expuesto en lo capturado
+    priceCurrencySuffix: null,
+    resetCount: 0,
+    resetTitle: null,
+    flagUrl: null,
+    countryCode: null,
+    yield3m: empty(),
+    yield6m: empty(),
+    yield12m: empty(),
+    picks6mAvg: null,
+    picks6mTrace: null,
+    picksFree3mAvg: null,
+    yieldFree3m: null,
+    showPeriodRow: false,
   }
 }

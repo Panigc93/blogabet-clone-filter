@@ -1,0 +1,37 @@
+{
+  "slug": "closing-line-journal",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 5.67272,
+      "bspAverageOdds": 5.67272,
+      "profit": 2.4695,
+      "bspProfit": 0.797625,
+      "levelStakeProfit": 2.4695,
+      "levelStakeBspProfit": 0.797625,
+      "staked": 283,
+      "bspStaked": 283,
+      "tips": 283,
+      "bspTips": 283,
+      "tipBets": 283,
+      "bspTipBets": 283,
+      "win": 52,
+      "winHalf": 0,
+      "bspWin": 52,
+      "lose": 231,
+      "bspLose": 231,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 0,
+      "winPercentage": 18,
+      "bspWinPercentage": 18,
+      "roi": 0.87,
+      "bspROI": 0.28,
+      "levelStakeROI": 0.87,
+      "levelStakeBspROI": 0.28
+    }
+  ]
+}

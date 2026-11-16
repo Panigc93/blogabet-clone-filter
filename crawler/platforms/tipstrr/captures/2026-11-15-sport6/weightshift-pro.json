@@ -1,0 +1,37 @@
+{
+  "slug": "weightshift-pro",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 2,
+      "averageOdds": 6.553524,
+      "bspAverageOdds": 6.553524,
+      "profit": 3.1131,
+      "bspProfit": 7.092215,
+      "levelStakeProfit": 3.1131,
+      "levelStakeBspProfit": 7.092215,
+      "staked": 244,
+      "bspStaked": 244,
+      "tips": 244,
+      "bspTips": 244,
+      "tipBets": 244,
+      "bspTipBets": 244,
+      "win": 41,
+      "winHalf": 0,
+      "bspWin": 41,
+      "lose": 203,
+      "bspLose": 203,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 0,
+      "winPercentage": 17,
+      "bspWinPercentage": 17,
+      "roi": 1.28,
+      "bspROI": 2.91,
+      "levelStakeROI": 1.28,
+      "levelStakeBspROI": 2.91
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "niin-tennis",
+  "source": "tipstrr /api/portfolio/<slug>/stats/sport/6 (advised, all-time)",
+  "capturedAt": "2026-11-15",
+  "stats": [
+    {
+      "sportId": 16,
+      "averageOdds": 2.288412,
+      "bspAverageOdds": 0,
+      "profit": 9.262,
+      "bspProfit": 0,
+      "levelStakeProfit": 9.262,
+      "levelStakeBspProfit": 0,
+      "staked": 63,
+      "bspStaked": 0,
+      "tips": 63,
+      "bspTips": 0,
+      "tipBets": 63,
+      "bspTipBets": 0,
+      "win": 32,
+      "winHalf": 0,
+      "bspWin": 0,
+      "lose": 31,
+      "bspLose": 0,
+      "loseHalf": 0,
+      "place": 0,
+      "bspPlace": 0,
+      "void": 0,
+      "winPercentage": 51,
+      "bspWinPercentage": 0,
+      "roi": 14.7,
+      "bspROI": 0,
+      "levelStakeROI": 14.7,
+      "levelStakeBspROI": 0
+    }
+  ]
+}
