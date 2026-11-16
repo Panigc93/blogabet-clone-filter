@@ -14,7 +14,8 @@ let withoutPublication = 0
 for (const r of rows) {
   if (typeof r.slug !== 'string' || r.slug.includes('@') || seen.has(r.slug) || !allowed.has(r.slug)) throw new Error('Invalid or duplicate slug')
   seen.add(r.slug)
-  if (r.sourceUrl !== 'https://golazobets.com/tipster/' + encodeURIComponent(r.slug)) throw new Error('Source URL/slug mismatch')
+  const source = new URL(r.sourceUrl)
+  if (source.origin !== 'https://golazobets.com' || decodeURIComponent(source.pathname) !== '/tipster/' + r.slug || source.search || source.hash) throw new Error('Source URL/slug mismatch')
   const publications = (r.observedPicks ?? r.picks ?? [])
     .map((p: { created_at?: string }) => observedPublicationBounds(p.created_at, r.capturedAt))
     .filter((b: ReturnType<typeof observedPublicationBounds>) => b !== null)
@@ -23,7 +24,7 @@ for (const r of rows) {
   const e: ActivityEvidence = {
     platform: 'golazobets', slug: r.slug, sourceUrl: r.sourceUrl, capturedAt: r.capturedAt,
     publishedLower: publications[0].lower, publishedUpper: publications[0].upper,
-    precision: 'timezone-unknown', coverage: r.pagination?.last_page === 1 ? 'complete' : 'first-page'
+    precision: 'timezone-unknown', coverage: 'first-page'
   }
   if (!validEvidence(e)) throw new Error('Invalid source/date evidence')
   evidence.push(e)

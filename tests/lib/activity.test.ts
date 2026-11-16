@@ -79,3 +79,20 @@ it('284-profile evidence remains parameterized within PostgreSQL limits', () => 
   expect(query.sql).not.toContain('profile-283')
   expect(query.params).toContain('profile-283')
 })
+
+import capturedEvidence from '@/data/activity/evidence.json'
+import { readdirSync } from 'node:fs'
+it('final evidence matches all 284 original Golazobets identities without private identifiers', () => {
+  const allowed = readdirSync(join(process.cwd(), 'crawler/platforms/golazobets/captures/2026-11-15-profiles')).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5)).sort()
+  const rows = (capturedEvidence as ActivityEvidence[]).filter(e => e.platform === 'golazobets')
+  expect(rows.map(e => e.slug).sort()).toEqual(allowed)
+  expect(new Set(rows.map(e => e.slug)).size).toBe(284)
+  for (const e of rows) {
+    expect(validEvidence(e)).toBe(true)
+    expect(decodeURIComponent(new URL(e.sourceUrl).pathname)).toBe('/tipster/' + e.slug)
+    expect(Date.parse(e.publishedUpper)).toBeLessThanOrEqual(Date.parse(e.capturedAt))
+    expect(e.coverage).toBe('first-page')
+  }
+  const referenceNow = new Date('2026-11-16T12:33:00Z')
+  expect(rows.filter(e => provesRecent(e, monthsBefore(referenceNow, 1), referenceNow))).toHaveLength(93)
+})

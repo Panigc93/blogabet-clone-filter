@@ -23,6 +23,13 @@ describe('offline evidence preparer', () => {
     expect(r.status, r.error).toBe(0)
     expect(r.data[0]).toMatchObject({ slug: 'Apuestas Tx', publishedUpper: new Date(sample.capturedAt).toISOString(), coverage: 'first-page' })
   })
+  it('accepts equivalent percent encoding of parentheses without changing source URL', () => {
+    const sourceUrl = 'https://golazobets.com/tipster/Abreu13%20%28CamiPicks%29'
+    const r = prepare([{ ...sample, slug: 'Abreu13 (CamiPicks)', sourceUrl }])
+    expect(r.status, r.error).toBe(0)
+    expect(r.data[0].sourceUrl).toBe(sourceUrl)
+    expect(r.data[0].coverage).toBe('first-page')
+  })
   it('refuses encoded/unknown slug or wrong source URL rather than silently missing DB match', () => {
     expect(prepare([{ ...sample, slug: 'Apuestas%20Tx' }]).status).not.toBe(0)
     expect(prepare([{ ...sample, sourceUrl: 'https://golazobets.com/tipster/other' }]).status).not.toBe(0)
