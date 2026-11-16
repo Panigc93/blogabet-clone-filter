@@ -32,8 +32,7 @@ The old131 retained message is a flawed derived count, not audited row truth.
 
 Tests are offline with injected functions and no real sources/DB. Dedicated
 coverage includes checkpoint+mixed outcomes, no-data stop, denied response,
-all writes, unchanged control decisions. Base master0aac60c has a separate
-known suite issue: import-tipstrr-prod.ts runs main on import in two tests,
-causing two unhandled process.exit errors without DATABASE_URL. That fix
-lives in pending PR14, not this reporting PR. No real credentials are used
-to silence it.
+all writes, unchanged control decisions. The import-tipstrr-prod.ts import
+guard fix from PR14 is already merged in base903059e, so the full offline
+suite runs without the former unhandled process.exit errors. No real
+credentials are used to silence test failures.
