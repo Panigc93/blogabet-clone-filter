@@ -44,10 +44,20 @@ contact with the platform. Base: master `903059e`.
 
 - `https://bet2invest.com/__sitemap__/en-us.xml` lists 300 profile URLs.
   That is the located set the platform indexes, not a proven catalog total.
-- The listing page renders 51 rows under the default 'at least 200 bets'
-  filter with client-side infinite scroll; `?page=N` is ignored and no
-  public listing API was found (`/api/tipsters` -> 404). Total catalog size
-  and a legitimate enumeration route remain open pilot questions.
+- The listing page renders 50 data rows under the default 'at least 200
+  bets' filter (the parser extracts 50; a raw string count of 51 was a
+  stylesheet/script occurrence, not a row) with client-side infinite
+  scroll; `?page=N` is ignored and no public listing API was found
+  (`/api/tipsters` -> 404). Total catalog size and a legitimate
+  enumeration route remain open pilot questions.
+- The listing shows NO period label: its figures are stored with
+  `periodLabel: null` and carry no period claim.
+- The profile's profit/ROI stake basis is INFERRED (the page contrasts it
+  with the flat 'Profit (1U)' mode), not labelled on the page. The Cloudflare
+  challenge script is embedded even on complete pages, so the parser
+  fails closed on missing expected content (stats block / listing table),
+  not on the challenge marker alone. Test fixtures are fully synthetic;
+  captured figures are not committed in tests.
 
 ## Load estimate — pauses only, not a proven duration
 

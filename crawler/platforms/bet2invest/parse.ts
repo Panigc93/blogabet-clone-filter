@@ -4,17 +4,29 @@
 //
 // Shape verified 2026-11-16 on two public profiles and the public listing.
 // The 'Profit by month' section was observed only in its empty state, so
-// monthly rows are NOT parsed yet (monthlyAvailable flags the state).
+// monthly rows are NOT parsed (monthlyAvailable flags the state).
 //
-// Provenance rules (same as the other platform adapters):
-// - Absent fields are null, never 0.
-// - 'roiPct' is the platform's own real-stakes yield (their docs define it
-//   as profit / total staked). The staked denominator is NOT displayed on
-//   the page, so this figure is stored as reported, not recomputed.
+// Fail-closed rules:
+// - A challenge page (Cloudflare), a page without a stats block, a summary
+//   table with unrecognised headers or a malformed profile URL all raise
+//   Bet2InvestParseError. The parser never returns a quietly-empty record
+//   for a page it did not understand.
+// - Absent fields are null, never 0. Unknown stays unknown.
+// - The listing has NO visible period label: its figures are stored without
+//   a period claim (see docs/bet2invest-design.md).
+// - 'roiPct' is the platform's own yield (their docs: profit / total
+//   staked). The staked denominator is NOT displayed; the figure is stored
+//   as reported, not recomputed. The profile's stake basis is INFERRED
+//   (the page contrasts it with the flat 'Profit (1U)' mode), not labelled.
 // - The listing column 'Profit (1U)' is a FLAT-STAKE figure and is kept in
-//   its own field. It is never mixed with the real-stakes profit.
+//   its own field. It is never mixed with the profile profit.
+// - Money keeps its displayed currency symbol; no conversion, no invented
+//   units.
 
 import * as cheerio from 'cheerio'
+import type { AnyNode } from 'domhandler'
+
+export type Bet2InvestStatsScope = 'all_time' | 'other_period' | 'unknown'
 
 export interface Bet2InvestAudience {
   rating: number | null
@@ -39,7 +51,8 @@ export interface Bet2InvestSummaryRow {
   clvPct: number | null
   clevPct: number | null
   avgOdds: number | null
-  avgMaxBet: number | null // liquidity figure, displayed in $ by the platform
+  avgMaxBet: number | null // liquidity figure as displayed
+  avgMaxBetCurrency: string | null // symbol as displayed, e.g. '$'; never converted
 }
 
 export interface Bet2InvestProfile {
@@ -47,13 +60,15 @@ export interface Bet2InvestProfile {
   username: string
   profileUrl: string
   periodLabel: string | null // active period button as shown, e.g. 'All'
+  statsScope: Bet2InvestStatsScope // 'all_time' ONLY when the active label is 'All'
   accountType: 'pro' | 'unknown'
   audience: Bet2InvestAudience
   settledBets: number | null
-  profitUnits: number | null // real-stakes profit, as displayed
-  roiPct: number | null // real-stakes yield as reported (basis: platform total staked)
+  profitUnits: number | null // stake basis inferred real (page contrasts flat 1U), not labelled
+  roiPct: number | null // platform yield as reported (denominator not displayed)
   avgOdds: number | null
   avgMaxBet: number | null
+  avgMaxBetCurrency: string | null
   clvPct: number | null
   results: Bet2InvestResultsSummary
   bySport: Bet2InvestSummaryRow[]
@@ -63,8 +78,9 @@ export interface Bet2InvestProfile {
 export interface Bet2InvestListingRow {
   username: string
   profileUrl: string
+  periodLabel: null // the listing shows no period: figures carry no period claim
   followers: number | null
-  flatProfit1U: number | null // 'Profit (1U)': flat-stake mode, NOT the real-stakes profit
+  flatProfit1U: number | null // 'Profit (1U)': flat-stake mode, NOT the profile profit
   roiPct: number | null
   clvPct: number | null
   bets: number | null
@@ -74,27 +90,67 @@ export interface Bet2InvestListingRow {
 
 export class Bet2InvestParseError extends Error {}
 
+const KNOWN_PERIOD_LABELS = new Set(['All', '30 d', '3 months', '1 year'])
+
+function normalizeNumberText(text: string): string {
+  return text
+    .replace(/−/g, '-') // unicode minus
+    .replace(/[  ​]/g, '') // nbsp, narrow nbsp, zero-width space
+    .trim()
+}
+
 function parseNumber(text: string | undefined | null): number | null {
   if (!text) return null
-  const cleaned = text.replace(/[+$%\s]/g, '').replace(/,/g, '').replace(/U$/i, '')
+  const cleaned = normalizeNumberText(text)
+    .replace(/[+$%\s]/g, '')
+    .replace(/,/g, '')
+    .replace(/U$/i, '')
   if (cleaned === '' || cleaned === '-') return null
   const value = Number(cleaned)
   return Number.isFinite(value) ? value : null
 }
 
-// Handles both '$5,303' and '5,306 $' display orders.
-function parseMoney(text: string | undefined | null): number | null {
-  return parseNumber(text)
+// Splits a displayed money figure into value + raw currency symbol, either
+// order ('$4,100' or '4,100 $'). The symbol is kept as displayed.
+function parseMoney(text: string | undefined | null): { value: number | null; currency: string | null } {
+  if (!text) return { value: null, currency: null }
+  const normalized = normalizeNumberText(text)
+  const symbolMatch = normalized.match(/[^\d\s,.\-+()]/)
+  const withoutSymbol = symbolMatch ? normalized.replace(symbolMatch[0], '') : normalized
+  return { value: parseNumber(withoutSymbol), currency: symbolMatch ? symbolMatch[0] : null }
+}
+
+function safeDecode(component: string): string {
+  try {
+    return decodeURIComponent(component)
+  } catch {
+    throw new Bet2InvestParseError(`malformed URI component: ${component.slice(0, 40)}`)
+  }
+}
+
+// The Cloudflare challenge script is embedded even on fully-rendered pages,
+// so the marker alone means nothing: validity is decided per page type by
+// the presence of the expected content (stats block / listing table).
+function looksLikeChallenge(html: string): boolean {
+  return /challenge-platform|__CF\$cv\$params/.test(html)
 }
 
 function testid($: cheerio.CheerioAPI, id: string): string {
   return $(`[data-testid="${id}"]`).first().text().trim()
 }
 
-function usernameFromCanonical($: cheerio.CheerioAPI): string | null {
+function usernameFromCanonical($: cheerio.CheerioAPI): string {
   const href = $('link[rel="canonical"]').attr('href') ?? ''
   const match = href.match(/\/tipsters\/performance-stats\/([^/?#]+)/)
-  return match ? decodeURIComponent(match[1]) : null
+  if (!match) throw new Bet2InvestParseError('no performance-stats canonical link found')
+  return safeDecode(match[1])
+}
+
+function parseStatsScope($: cheerio.CheerioAPI): { periodLabel: string | null; statsScope: Bet2InvestStatsScope } {
+  const active = $('[data-testid="stats-period"] button[aria-pressed="true"]').first().text().trim()
+  if (!active) return { periodLabel: null, statsScope: 'unknown' }
+  if (active === 'All') return { periodLabel: active, statsScope: 'all_time' }
+  return { periodLabel: active, statsScope: KNOWN_PERIOD_LABELS.has(active) ? 'other_period' : 'unknown' }
 }
 
 function parseAudience($: cheerio.CheerioAPI): Bet2InvestAudience {
@@ -117,7 +173,7 @@ function parseResults($: cheerio.CheerioAPI): Bet2InvestResultsSummary {
     halfLost: null,
     lost: null,
   }
-  const text = $('[data-testid="stats-results"]').text()
+  const text = normalizeNumberText($('[data-testid="stats-results"]').text())
   const pick = (pattern: RegExp): number | null => {
     const match = text.match(pattern)
     return match ? parseNumber(match[1]) : null
@@ -130,24 +186,50 @@ function parseResults($: cheerio.CheerioAPI): Bet2InvestResultsSummary {
   return results
 }
 
+// Maps header labels to column indexes for the active summary table.
+// Throws when the table's headers are not the known set: a layout change
+// must fail loudly, never shift values into the wrong field.
+const SUMMARY_HEADERS = ['sport', 'bets', 'win rate', 'profit', 'roi', 'clv', 'clev', 'avg odds', 'avg max bet']
+
+function summaryColumnMap($: cheerio.CheerioAPI, table: cheerio.Cheerio<AnyNode>): Map<string, number> {
+  const headers = table
+    .find('thead th')
+    .map((_, th) => $(th).text().trim().toLowerCase())
+    .get()
+  const map = new Map<string, number>()
+  headers.forEach((h, i) => map.set(h, i))
+  const missing = SUMMARY_HEADERS.filter((h) => !map.has(h))
+  if (missing.length > 0) {
+    throw new Bet2InvestParseError(`summary table headers not recognised: missing ${missing.join(', ')}`)
+  }
+  return map
+}
+
 function parseSummaryRows($: cheerio.CheerioAPI): Bet2InvestSummaryRow[] {
+  const section = $('[data-testid="stats-summary"]').first()
+  if (section.length === 0) return []
+  const table = section.find('table').first()
+  if (table.length === 0) return []
+  const col = summaryColumnMap($, table)
   const rows: Bet2InvestSummaryRow[] = []
-  $('[data-testid="summary-row"]').each((_, el) => {
+  table.find('[data-testid="summary-row"]').each((_, el) => {
     const cells = $(el).find('td')
     if (cells.length < 2) return
-    const label = $(cells[0]).text().trim()
+    const label = $(cells[col.get('sport')!]).text().trim()
     if (!label) return
-    const at = (i: number): string => $(cells[i]).text().trim()
+    const at = (name: string): string => $(cells[col.get(name)!]).text().trim()
+    const money = parseMoney(at('avg max bet'))
     rows.push({
       label,
-      bets: parseNumber(at(1)),
-      winRatePct: parseNumber(at(2)),
-      profitUnits: parseNumber(at(3)),
-      roiPct: parseNumber(at(4)),
-      clvPct: parseNumber(at(5)),
-      clevPct: parseNumber(at(6)),
-      avgOdds: parseNumber(at(7)),
-      avgMaxBet: parseMoney(at(8)),
+      bets: parseNumber(at('bets')),
+      winRatePct: parseNumber(at('win rate')),
+      profitUnits: parseNumber(at('profit')),
+      roiPct: parseNumber(at('roi')),
+      clvPct: parseNumber(at('clv')),
+      clevPct: parseNumber(at('clev')),
+      avgOdds: parseNumber(at('avg odds')),
+      avgMaxBet: money.value,
+      avgMaxBetCurrency: money.currency,
     })
   })
   return rows
@@ -156,13 +238,21 @@ function parseSummaryRows($: cheerio.CheerioAPI): Bet2InvestSummaryRow[] {
 export function parseProfilePage(html: string): Bet2InvestProfile {
   const $ = cheerio.load(html)
   const username = usernameFromCanonical($)
-  if (!username) throw new Bet2InvestParseError('no performance-stats canonical link found')
+  if ($('[data-testid="stats-settledBetsNumber"]').length === 0) {
+    throw new Bet2InvestParseError(
+      looksLikeChallenge(html)
+        ? 'challenge page: no stats delivered'
+        : 'profile page without a stats block: refusing to emit an empty record',
+    )
+  }
 
-  const ogDescription = $('meta[property="og:description"]').attr('content') ?? ''
-  const accountType: 'pro' | 'unknown' = /\bPRO\b/i.test(ogDescription) ? 'pro' : 'unknown'
+  const ogText = `${$('meta[property="og:title"]').attr('content') ?? ''} ${$(
+    'meta[property="og:description"]',
+  ).attr('content') ?? ''}`
+  const accountType: 'pro' | 'unknown' = /\bPRO\b/.test(ogText) ? 'pro' : 'unknown'
 
-  const periodLabel =
-    $('[data-testid="stats-period"] button[aria-pressed="true"]').first().text().trim() || null
+  const { periodLabel, statsScope } = parseStatsScope($)
+  const avgMaxBet = parseMoney(testid($, 'stats-averageBetMax'))
 
   const monthlySection = $('[data-testid="stats-monthly"]')
   const monthlyAvailable =
@@ -173,13 +263,15 @@ export function parseProfilePage(html: string): Bet2InvestProfile {
     username,
     profileUrl: `https://bet2invest.com/tipsters/performance-stats/${encodeURIComponent(username)}`,
     periodLabel,
+    statsScope,
     accountType,
     audience: parseAudience($),
     settledBets: parseNumber(testid($, 'stats-settledBetsNumber')),
     profitUnits: parseNumber(testid($, 'stats-profit')),
     roiPct: parseNumber(testid($, 'stats-roi')),
     avgOdds: parseNumber(testid($, 'stats-averagePrice')),
-    avgMaxBet: parseMoney(testid($, 'stats-averageBetMax')),
+    avgMaxBet: avgMaxBet.value,
+    avgMaxBetCurrency: avgMaxBet.currency,
     clvPct: parseNumber(testid($, 'stats-clv')),
     results: parseResults($),
     bySport: parseSummaryRows($),
@@ -187,32 +279,71 @@ export function parseProfilePage(html: string): Bet2InvestProfile {
   }
 }
 
+// Listing columns are mapped by header text, never by raw position: an
+// unexpected table layout throws instead of shifting values across fields.
+const LISTING_HEADERS: Array<{ key: string; patterns: RegExp[] }> = [
+  { key: 'flatProfit1U', patterns: [/^profit \(1u\)$/i] },
+  { key: 'roiPct', patterns: [/^roi$/i] },
+  { key: 'clvPct', patterns: [/^clv$/i] },
+  { key: 'bets', patterns: [/^bets$/i] },
+  { key: 'subscribers', patterns: [/^subscribers$/i] },
+  { key: 'sinceYear', patterns: [/^since$/i] },
+]
+
+// A valid listing page must carry a table whose thead matches at least two
+// known columns; anything else (challenge, error, redesign) throws.
 export function parseListingPage(html: string): Bet2InvestListingRow[] {
   const $ = cheerio.load(html)
   const rows: Bet2InvestListingRow[] = []
-  $('tr.tipster-row').each((_, el) => {
-    const href = $(el).find('a[href*="/tipsters/performance-stats/"]').attr('href') ?? ''
-    const match = href.match(/\/tipsters\/performance-stats\/([^/?#]+)/)
-    if (!match) return
-    const username = decodeURIComponent(match[1])
-    const cells = $(el).find('td')
-    // Column order follows the listing thead: identity, Profit (1U), ROI,
-    // CLV, Bets, Subscribers, Since. Read by position, keep flat vs real apart.
-    const at = (i: number): string => $(cells[i]).text().trim()
-    const identityText = at(0)
-    const followersMatch = identityText.match(/([\d,]+)\s+followers/i)
-    const sinceMatch = at(6).match(/(\d{4})/)
-    rows.push({
-      username,
-      profileUrl: `https://bet2invest.com/tipsters/performance-stats/${encodeURIComponent(username)}`,
-      followers: followersMatch ? parseNumber(followersMatch[1]) : null,
-      flatProfit1U: parseNumber(at(1)),
-      roiPct: parseNumber(at(2)),
-      clvPct: parseNumber(at(3)),
-      bets: parseNumber(at(4)),
-      subscribers: parseNumber(at(5)),
-      sinceYear: sinceMatch ? parseNumber(sinceMatch[1]) : null,
+  let validTables = 0
+  $('table').each((_, tableEl) => {
+    const table = $(tableEl)
+    const headers = table
+      .find('thead th')
+      .map((_, th) => $(th).text().trim())
+      .get()
+    const col = new Map<string, number>()
+    headers.forEach((h, i) => {
+      for (const { key, patterns } of LISTING_HEADERS) {
+        if (patterns.some((p) => p.test(h))) col.set(key, i)
+      }
+    })
+    if (col.size < 2) return // not the listing table
+    validTables += 1
+    table.find('tr.tipster-row').each((__, el) => {
+
+      const href = $(el).find('a[href*="/tipsters/performance-stats/"]').attr('href') ?? ''
+      const match = href.match(/\/tipsters\/performance-stats\/([^/?#]+)/)
+      if (!match) return
+      const username = safeDecode(match[1])
+      const cells = $(el).find('td')
+      const at = (key: string): string => {
+        const i = col.get(key)
+        return i === undefined ? '' : $(cells[i]).text().trim()
+      }
+      const identityText = $(cells[0]).text().trim()
+      const followersMatch = identityText.match(/([\d,]+)\s+followers/i)
+      const sinceMatch = at('sinceYear').match(/(\d{4})/)
+      rows.push({
+        username,
+        profileUrl: `https://bet2invest.com/tipsters/performance-stats/${encodeURIComponent(username)}`,
+        periodLabel: null,
+        followers: followersMatch ? parseNumber(followersMatch[1]) : null,
+        flatProfit1U: parseNumber(at('flatProfit1U')),
+        roiPct: parseNumber(at('roiPct')),
+        clvPct: parseNumber(at('clvPct')),
+        bets: parseNumber(at('bets')),
+        subscribers: parseNumber(at('subscribers')),
+        sinceYear: sinceMatch ? parseNumber(sinceMatch[1]) : null,
+      })
     })
   })
+  if (validTables === 0) {
+    throw new Bet2InvestParseError(
+      looksLikeChallenge(html)
+        ? 'challenge page: no listing delivered'
+        : 'listing table not found or headers not recognised',
+    )
+  }
   return rows
 }
