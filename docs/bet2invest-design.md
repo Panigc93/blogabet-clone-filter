@@ -166,3 +166,18 @@ Alcance de las observaciones: 2 perfiles Free y 2 PRO. El parser reconoce las et
 ## Rastreador (preparado, no ejecutado)
 
 `crawler/platforms/bet2invest/crawl.ts`: inyección de fetch/sleep/reloj, >=10,1 s entre peticiones, parada total ante 403/429 o fallo de transporte (reset/timeout), fail-closed por perfil, un resultado con clase por slug. Sin workflow, cron ni DB.
+
+## Estado de la preparación offline y restricciones de uso (solo documentación)
+
+Este apartado es documentación: no cambia código ni concede permiso. La revisión independiente cubre los deltas hasta b0215b1 sobre a5c61f8 (PR #17 sigue en a5c61f8).
+
+Revisado offline: parser (PRO/Free por etiqueta explícita, mensual, precio literal sin validar sobre HTML real), mapeo con puerta, rastreador y runner con fetch inyectado, almacén local de capturas, pausa global persistente, adaptador HTTP probado solo contra loopback, lock por directorio y barrera de ritmo persistente.
+
+NO existe: conexión de una ruta de ejecución, comando, orquestación, escrituras a DB, workflow/cron ni merge. Ninguna petición a Bet2Invest se ha hecho con este código.
+
+Restricciones de uso al conectar una ejecución futura:
+- Un único directorio de almacén autorizado para Bet2Invest y un único ejecutor. El lock (`crawl.lock`), la pausa (`pause.json`) y la barrera de ritmo (`last-request.json`) viven en ese directorio: no son una exclusión ni un límite global del sitio ni están distribuidos. Dos directorios o dos máquinas pueden pedir a la vez.
+- Un lock huérfano o una pausa solo se levantan con decisión explícita (`forceReleaseLock`, `resume`), nunca por tiempo.
+- Los parámetros de política (refresco, backoff, lote), el timeout, el tope de bytes, el User-Agent y el origen no tienen valores por defecto: los elige quien autorice la ejecución.
+- La identidad remota efectiva (`remoteAddress` en el log del adaptador) no se verifica más allá de registrarla.
+- Estas notas no autorizan ejecutar contra el catálogo ni escribir en DB.
