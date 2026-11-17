@@ -31,6 +31,11 @@ export interface TipsterCardData {
   profitDisplay: string | null // already formatted, with currency
   yieldPct: number | null
   yieldTitle: string | null // provenance note for the yield figure
+  mainScopeNote?: string // visible sample scope, never an all-time claim
+  mainBasisNote?: string // visible profit/yield basis when not conventional
+  picksLabel?: string
+  profitLabel?: string
+  yieldLabel?: string
   verifiedPct: number | null // null = not exposed by the platform (never 0)
   followers: number | null // null = not exposed
   isVerified: boolean | null // null = concept not exposed
@@ -66,11 +71,11 @@ const fmtMoneyAbs = (units: number) => `${fmtEs.format(Math.abs(units) * 10)} â‚
 
 export type TipsterReadRow = Omit<Tipster, 'picks' | 'isPaid' | 'isVerified' | 'resetCount' | 'priceCurrency'> & {
   picks: number | null; isPaid: boolean | null; isVerified: boolean | null
-  resetCount: number | null; priceCurrency: string | null; olbgEvidence?: unknown
+  resetCount: number | null; priceCurrency: string | null; olbgEvidence?: unknown; olbgObserved?: unknown; olbgJoinedAt?: string | null
 } & AuditedTipster
 
 export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardData {
-  if (t.platform === 'olbg') return fromOlbgReadRow(t, now) ?? unknownOlbgCard(t.name, t.slug)
+  if (t.platform === 'olbg') return fromOlbgReadRow(t, now) ?? unknownOlbgCard(t.name, t.slug, t.olbgJoinedAt)
   if (t.platform === 'tipstrr') return tipstrrFromDbRow(t)
   if (t.platform === 'golazobets') return golazobetsFromDbRow(t)
   if (t.platform === 'bet2invest') return bet2investFromDbRow(t, now)

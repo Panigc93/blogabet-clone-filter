@@ -96,6 +96,35 @@ describe('OLBG reversible local persistence/read preparation',()=>{
   const json=JSON.stringify(rows.find(r=>r.slug==='565069')!.olbgEvidence)
   expect(json).not.toContain('sha256');expect(json).not.toContain('bytes');expect(json).not.toContain('source":')
  })
+ it('projects only the selected active observed sample, keeps all-time masks and registration provenance separate',async()=>{
+  const {c,select}=query();const rows=await select().orderBy(...c.order('yield6m'))
+  for(const record of records){
+   const row=rows.find(r=>r.slug===String(record.profileId))!
+   const tips=record.months.reduce((n,m)=>n+m.tips,0),lsp=Math.round(record.months.reduce((n,m)=>n+m.levelStakeProfit,0)*100)/100
+   expect(row.olbgObserved).toEqual({covered:record.months.map(m=>m.month).sort(),tips,lsp})
+   expect(row.picks).toBeNull();expect(row.profit).toBeNull();expect(row.yield).toBeNull()
+   const card=fromDbTipster(row,now)
+   expect(card.picks).toBe(tips);expect(card.profitDisplay).toContain(Math.abs(lsp).toFixed(2));expect(card.yieldPct).toBeCloseTo(100*lsp/tips)
+   expect(card.mainScopeNote).toContain('No es el histórico completo');expect(card.mainScopeNote).toContain('nov 2026 parcial')
+   expect(card.mainBasisNote).toContain('LSP / picks');expect(card.yieldLabel).toBe('Yield obs.')
+   expect(card.sinceYear).toBe(record.profileId===342919?2014:2020)
+   expect(card.sinceTitle).toContain('Alta en OLBG:')
+   const json=JSON.stringify(row);expect(json).not.toContain('joinDate');expect(json).not.toContain('httpDate');expect(json).not.toContain('record_sha256')
+  }
+  expect(fromDbTipster(rows.find(r=>r.slug==='342919')!,now).mainScopeNote).toContain('faltan jun 2026')
+  expect(rows.find(r=>r.slug==='bb')!.olbgObserved).toBeNull()
+  expect(rows.find(r=>r.slug==='1')!.olbgJoinedAt).toBeNull()
+  const sql=select().orderBy(...c.order('yield6m')).limit(2).toSQL()
+  expect(sql.sql).toContain('observed_snapshot.profile_id=')
+  expect((sql.sql.match(/jsonb_to_recordset/g)||[])).toHaveLength(1) // existing B2I audit only
+  const explain=await pg.query('EXPLAIN (ANALYZE,FORMAT JSON) '+sql.sql,sql.params)
+  const plan=JSON.stringify(explain.rows)
+  expect(plan).toContain('SubPlan 1')
+  const aggregates:number[]=[]
+  const walk=(x:any)=>{if(x&&typeof x==='object'){if(x['Subplan Name']==='SubPlan 1')aggregates.push(x['Actual Loops']);Object.values(x).forEach(walk)}}
+  walk(explain.rows);expect(aggregates).toEqual([1]) // two selected rows: one OLBG, one Blogabet
+  expect((await query(now,false).select()).every(r=>r.olbgObserved===null)).toBe(true)
+ })
  it('masks accidental compact corruption before ranking and restores exact trusted projection',async()=>{
   const old=(await pg.query<{compact:unknown;compact_md5:string}>('SELECT compact,compact_md5 FROM olbg_monthly_active WHERE profile_id=565069')).rows[0]
   await pg.query("UPDATE olbg_monthly_active SET compact=jsonb_set(compact,'{windows,1,lsp}','999999') WHERE profile_id=565069")
@@ -113,8 +142,8 @@ describe('OLBG reversible local persistence/read preparation',()=>{
   expect(count[0].n).toBe(2)
   expect((await select().where(and(...c.filters({tipo:'free'})))).some(r=>r.platform==='olbg')).toBe(false)
   expect(c.warnings({platform:'blogabet'})).toEqual([])
-  expect(c.warnings({platform:'olbg',minPicks:0})).toHaveLength(1)
-  expect(c.warnings({platform:'olbg'})).toEqual([])
+  expect(c.warnings({platform:'olbg',minPicks:0})).toHaveLength(2)
+  expect(c.warnings({platform:'olbg'})).toHaveLength(1)
  })
  it('fails closed on missing evidence, identity/capture mismatch, invalid records and month rollover',async()=>{
   const {c,select}=query(new Date('2026-12-01T00:00:00Z'))
