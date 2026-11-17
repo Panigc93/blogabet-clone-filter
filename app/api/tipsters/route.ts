@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
   const readAt = continuationAnchor(p.get('periodAnchor'), new Date())
   if (!readAt) return NextResponse.json({ reset: true, reason: 'period-anchor-expired' }, { status: 409 })
   const periods = await tipsterReadContext(await loadDatabasePeriodAudits(readAt), readAt)
-  if (periods.changedSinceAnchor) return NextResponse.json({ reset: true, reason: 'olbg-evidence-updated' }, { status: 409 })
+  if (periods.changedSinceAnchor || p.has('olbgRevision') && p.get('olbgRevision') !== periods.revisionToken) return NextResponse.json({ reset: true, reason: 'olbg-evidence-updated' }, { status: 409 })
   const where = periods.filters(filters)
 
   const rows = await db

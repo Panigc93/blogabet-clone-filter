@@ -60,3 +60,28 @@ describe('inert OLBG executor, disposable local SQL only',()=>{
   expect(called).toBe(false)
  })
 })
+
+describe('new-only pilot rollback in disposable SQL',()=>{
+ const pilot=()=>{const i=input('pilot-new');i.records[0].profileId=777;i.records[0].profileUrl='https://www.olbg.com/tipsters/about/777';i.records[0].source.url='https://www.olbg.com/tipsters/performance/month/777/__data.json';return {...i,newOnly:true}}
+ it('restores no-catalog/no-active state, retains evidence and prevents replay after rollback',async()=>{
+  const {rollbackOlbgNewPilot}=await import('@/crawler/platforms/olbg/rollback-pilot')
+  const i=pilot();await executeOlbgPreparedBatch(db,i)
+  const snapshots=(await pg.query('SELECT * FROM olbg_monthly_snapshots WHERE profile_id=777')).rows.length
+  expect((await rollbackOlbgNewPilot(db,i)).state).toBe('rolled-back')
+  expect((await pg.query("SELECT * FROM tipsters WHERE platform='olbg' AND slug='777'")).rows).toHaveLength(0)
+  expect((await pg.query('SELECT * FROM olbg_monthly_active WHERE profile_id=777')).rows).toHaveLength(0)
+  expect((await pg.query('SELECT * FROM olbg_monthly_snapshots WHERE profile_id=777')).rows).toHaveLength(snapshots)
+  expect((await reconcileOlbgRun(pg,i)).state).toBe('rolled-back')
+  await expect(executeOlbgPreparedBatch(db,i)).rejects.toThrow('already rolled back')
+  expect((await rollbackOlbgNewPilot(db,i)).state).toBe('rolled-back')
+ })
+ it('refuses rollback of a refreshed identity and refuses new-only import over existing catalog',async()=>{
+  const {rollbackOlbgNewPilot}=await import('@/crawler/platforms/olbg/rollback-pilot')
+  const i=pilot();i.runId='pilot-new-2';i.records[0].profileId=778;i.records[0].profileUrl='https://www.olbg.com/tipsters/about/778';i.records[0].source.url='https://www.olbg.com/tipsters/performance/month/778/__data.json'
+  await executeOlbgPreparedBatch(db,i)
+  const next=structuredClone(i);next.runId='pilot-refresh';next.newOnly=false;next.records[0].capturedAt='2026-11-17T23:00:00.000Z';next.records[0].source.capturedAt=next.records[0].capturedAt
+  await executeOlbgPreparedBatch(db,next)
+  await expect(rollbackOlbgNewPilot(db,i)).rejects.toThrow('changed since import')
+  const blocked=structuredClone(i);blocked.runId='blocked-new-only';await expect(executeOlbgPreparedBatch(db,blocked)).rejects.toThrow('new-only')
+ })
+})

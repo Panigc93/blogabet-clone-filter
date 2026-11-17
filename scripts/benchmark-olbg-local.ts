@@ -2,21 +2,38 @@
 // network, no live URLs opened, no production account/database access.
 import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
+import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres'
+import { Client } from 'pg'
+import { userInfo } from 'node:os'
+import { transactionAdapter } from '../crawler/platforms/bet2invest/transaction-adapter'
 import { readFileSync,writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { sql } from 'drizzle-orm'
 import { tipsters } from '../db/schema'
 import { parseOlbgPerformance } from '../crawler/platforms/olbg/reader'
 import { prepareOlbgProfile } from '../crawler/platforms/olbg/prepare'
 import { monthlyRecord } from '../crawler/platforms/olbg/monthly-record'
 import { OLBG_LOCAL_SCHEMA,olbgRecordDigest } from '../crawler/platforms/olbg/persistence-plan'
 import { executeOlbgPreparedBatch } from '../crawler/platforms/olbg/execute-prepared'
-import { readOlbgActiveRecords } from '../crawler/platforms/olbg/active-read'
+import { recordSummaries } from '../crawler/platforms/olbg/monthly-record'
 import { periodReadContext } from '../lib/bet2invest-period-read'
 import { olbgReadContext } from '../lib/olbg-read-context'
 async function main(){
  if(process.env.DATABASE_URL||process.env.DATABASE_URL_DIRECT)throw Error('No live DB URLs permitted')
- const pg=new PGlite();const db=drizzle(pg);const at=new Date('2026-11-18T12:00:00Z')
- const metrics:Record<string,unknown>={synthetic:true,count:867,retainedHistoryRows:30000,engine:'single-process disposable PGlite; NOT Neon/PostgreSQL multi-connection benchmark'}
+ const socket=process.env.OLBG_LOCAL_PG_SOCKET
+ if(socket&&!/^\/tmp\/olbg-local-pg-[a-zA-Z0-9-]+$/.test(socket))throw Error('Local socket required')
+ let pg:PGlite,db:ReturnType<typeof drizzle>
+ if(socket){
+  const c=new Client({host:socket,port:55440,database:'olbg_executor_test',user:userInfo().username,connectionTimeoutMillis:1000})
+  await c.connect();const schema='olbg_scale_'+process.pid
+  await c.query(`CREATE SCHEMA ${schema}`);await c.query(`SET search_path TO ${schema},public`)
+  await c.query("SET statement_timeout='10000ms'")
+  const adapter=transactionAdapter({query:async(t,p)=>({rows:(await c.query(t,p)).rows}),discard:async()=>{await c.end()}},{statementMs:2000,idleMs:2000,budgetMs:5000})
+  pg={query:c.query.bind(c),exec:async(t:string)=>c.query(t),transaction:adapter.transaction,close:async()=>{await c.query(`DROP SCHEMA ${schema} CASCADE`);await c.end()}} as unknown as PGlite
+  db=drizzlePg(c) as unknown as ReturnType<typeof drizzle>
+ }else{pg=new PGlite();db=drizzle(pg)}
+ const at=new Date('2026-11-18T12:00:00Z')
+ const metrics:Record<string,unknown>={synthetic:true,count:867,retainedHistoryRows:30000,engine:socket?'real local PostgreSQL by UNIX socket, no network latency':'single-process disposable PGlite, no network latency'}
  try{
   for(const f of ['0000_sudden_jazinda.sql','0001_add_last_reset_at.sql','0002_add_is_verified.sql','0003_naive_dormammu.sql','0004_multi_platform.sql','0005_tipstrr_internal_pk.sql'])for(const q of readFileSync(join('drizzle',f),'utf8').split('--> statement-breakpoint'))if(q.trim())await pg.exec(q)
   await pg.exec(OLBG_LOCAL_SCHEMA)
@@ -28,22 +45,34 @@ async function main(){
   const started=performance.now()
   for(let i=0;i<records.length;i+=50){const t=performance.now();const result=await executeOlbgPreparedBatch(txdb,{runId:'synthetic-'+i,reviewedAt:at.toISOString(),records:records.slice(i,i+50)});if(result.state!=='committed')throw Error('not committed');batches.push(performance.now()-t)}
   metrics.importMs=performance.now()-started;metrics.batchMs=batches;metrics.queryCount=queryCount
-  // Historical copies are deliberately synthetic; not active and not evidence
-  // of real captures. Same shape and retained bytes, distinct old timestamps.
+  const samples=[]
+  const base=periodReadContext([],at),c=olbgReadContext(base,true,at)
+  const selection=()=>db.select(c.projection).from(tipsters).leftJoin(base.source,base.joinOn).leftJoin(c.source,c.joinOn).orderBy(...c.order('yield6m')).limit(50)
+  const before=await selection();metrics.pageBytesBeforeHistory=Buffer.byteLength(JSON.stringify(before))
+  const q=selection().toSQL();metrics.queryParameterBytes=Buffer.byteLength(JSON.stringify(q.params));metrics.querySqlBytes=Buffer.byteLength(q.sql)
   for(let offset=0;offset<30000;offset+=1000){
    const history=Array.from({length:1000},(_,i)=>{const r=structuredClone(records[0]);r.capturedAt=new Date(Date.UTC(2026,10,1,0,0,offset+i)).toISOString();r.source.capturedAt=r.capturedAt;return {profile_id:r.profileId,captured_at:r.capturedAt,record:r,record_sha256:olbgRecordDigest(r)}})
    await pg.query('INSERT INTO olbg_monthly_snapshots SELECT h.profile_id,h.captured_at,h.record,h.record_sha256 FROM jsonb_to_recordset($1::jsonb) AS h(profile_id bigint,captured_at timestamptz,record jsonb,record_sha256 text)',[JSON.stringify(history)])
   }
-  const samples=[]
+  const countQuery=db.select({n:sql<number>`count(*)::int`}).from(tipsters).leftJoin(c.source,c.joinOn).toSQL()
+  const countStart=performance.now();const countRows=await pg.query(countQuery.sql,countQuery.params)
+  metrics.countMs=performance.now()-countStart;metrics.countBytes=Buffer.byteLength(JSON.stringify(countRows.rows))
+  metrics.countExplain=(await pg.query('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) '+countQuery.sql,countQuery.params)).rows
+  metrics.explain=(await pg.query('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) '+q.sql,q.params)).rows
   for(let i=0;i<5;i++){
-   const start=performance.now();const active=await readOlbgActiveRecords(pg,at);const decoded=performance.now();if(active.records.length!==867)throw Error('active count')
-   const base=periodReadContext([],at);const c=olbgReadContext(base,active.records,at);const planned=performance.now()
-   const first=await db.select(c.projection).from(tipsters).leftJoin(base.source,base.joinOn).leftJoin(c.source,c.joinOn).orderBy(...c.order('yield6m')).limit(50)
+   const start=performance.now();const first=await selection()
    if(first.length!==50||first.some(r=>r.yield6m===null))throw Error('read projection')
-   samples.push({readValidateMs:decoded-start,planMs:planned-decoded,sqlMs:performance.now()-planned,totalMs:performance.now()-start})
+   samples.push({sqlPageMs:performance.now()-start,pageBytes:Buffer.byteLength(JSON.stringify(first))})
   }
-  metrics.readSamples=samples;metrics.activeRecordBytes=Buffer.byteLength(JSON.stringify(records));metrics.historyRows=(await pg.query<{n:number}>('SELECT count(*)::int n FROM olbg_monthly_snapshots')).rows[0].n
-  writeFileSync('/tmp/olbg/synthetic-scale-result.json',JSON.stringify(metrics,null,2));console.log(JSON.stringify(metrics))
+  const every=await db.select(c.projection).from(tipsters).leftJoin(base.source,base.joinOn).leftJoin(c.source,c.joinOn)
+  const expected=recordSummaries(records[0])[1].derivedLevelStakesYieldPct!
+  if(every.length!==867||every.some(r=>Math.abs(Number(r.yield6m)-expected)>1e-10))throw Error('867-way equivalence')
+  const rev=(await pg.query('SELECT revision::text,changed_at FROM olbg_revision WHERE singleton=true')).rows
+  metrics.revisionBytes=Buffer.byteLength(JSON.stringify(rev));metrics.readSamples=samples
+  metrics.pageBytesAfterHistory=samples[0].pageBytes;metrics.equivalenceChecked=every.length
+  metrics.activeRecordBytes=Buffer.byteLength(JSON.stringify(records));metrics.historyRows=(await pg.query<{n:number}>('SELECT count(*)::int n FROM olbg_monthly_snapshots')).rows[0].n
+  metrics.compactStorageBytes=(await pg.query('SELECT sum(pg_column_size(compact))::int bytes FROM olbg_monthly_active')).rows[0]
+  writeFileSync(socket?'/tmp/olbg/compact-pg-scale-result.json':'/tmp/olbg/synthetic-scale-result.json',JSON.stringify(metrics,null,2));console.log(JSON.stringify(metrics))
  }finally{await pg.close()}
 }
 main().catch(e=>{console.error(e);process.exitCode=1})

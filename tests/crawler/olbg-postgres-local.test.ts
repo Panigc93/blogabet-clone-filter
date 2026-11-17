@@ -5,6 +5,7 @@ import { Client } from 'pg'
 import { userInfo } from 'node:os'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { rollbackOlbgNewPilot } from '@/crawler/platforms/olbg/rollback-pilot'
 import { executeOlbgPreparedBatch,reconcileOlbgRun } from '@/crawler/platforms/olbg/execute-prepared'
 import { OLBG_LOCAL_SCHEMA } from '@/crawler/platforms/olbg/persistence-plan'
 import { monthlyRecord } from '@/crawler/platforms/olbg/monthly-record'
@@ -12,7 +13,7 @@ import { parseOlbgPerformance } from '@/crawler/platforms/olbg/reader'
 import { prepareOlbgProfile } from '@/crawler/platforms/olbg/prepare'
 import { transactionAdapter } from '@/crawler/platforms/bet2invest/transaction-adapter'
 import { readOlbgActiveRecords } from '@/crawler/platforms/olbg/active-read'
-import { makeOlbgRevisionGuard } from '@/lib/olbg-revision'
+import { compactRevisionGuard } from '@/lib/olbg-revision'
 const socket=process.env.OLBG_LOCAL_PG_SOCKET
 if(socket&&!/^\/tmp\/olbg-local-pg-[a-zA-Z0-9-]+$/.test(socket))throw Error('Explicit OLBG local socket directory required')
 const schema='olbg_review_'+process.pid
@@ -59,13 +60,23 @@ describe.skipIf(!socket)('OLBG real local PostgreSQL concurrent connections',()=
  it('refresh committed on another connection invalidates read barrier and preserves newest pointer',async()=>{
   const now=new Date('2026-11-18T12:00:00Z')
   const reader={query:async<T>(t:string,p:unknown[])=>({rows:(await a.query(t,p)).rows as T[]})}
-  const first=await readOlbgActiveRecords(reader,now)
-  const guard=makeOlbgRevisionGuard(first,now,()=>now,()=>readOlbgActiveRecords(reader,now))
+  const loadRevision=async()=>{const r=(await a.query('SELECT revision::text,changed_at FROM olbg_revision')).rows[0];return {status:'ok' as const,revision:r.revision,changedAt:new Date(r.changed_at).toISOString()}}
+  const first=await loadRevision()
+  const guard=compactRevisionGuard(first,now,()=>now,loadRevision)
   const update=input('concurrent-refresh');update.records[0].capturedAt='2026-11-17T23:00:00.000Z';update.records[0].source.capturedAt=update.records[0].capturedAt
   await executeOlbgPreparedBatch(wrap(b),update)
   expect(await guard.revisionUnchanged()).toBe(false)
   const old=await executeOlbgPreparedBatch(wrap(a),input('old-arrives-after'));if(old.state==='committed')expect(old.summary.skippedOlder).toBe(1)
   expect((await readOlbgActiveRecords(reader,now)).records[0].capturedAt).toBe(update.records[0].capturedAt)
+ })
+ it('new-only pilot rollback removes catalog and active pointer, retains durable snapshots and receipt',async()=>{
+  const i={...input('pg-pilot-rollback'),newOnly:true};const r=i.records[0];r.profileId=888;r.profileUrl='https://www.olbg.com/tipsters/about/888';r.source.url='https://www.olbg.com/tipsters/performance/month/888/__data.json'
+  await executeOlbgPreparedBatch(wrap(a),i)
+  await rollbackOlbgNewPilot(wrap(b),i)
+  expect((await b.query("SELECT count(*)::int n FROM tipsters WHERE platform='olbg' AND slug='888'")).rows[0].n).toBe(0)
+  expect((await b.query('SELECT count(*)::int n FROM olbg_monthly_active WHERE profile_id=888')).rows[0].n).toBe(0)
+  expect((await b.query('SELECT count(*)::int n FROM olbg_monthly_snapshots WHERE profile_id=888')).rows[0].n).toBe(1)
+  expect((await reconcileOlbgRun({query:async(t,p)=>({rows:(await b.query(t,p)).rows})},i)).state).toBe('rolled-back')
  })
  it('lost COMMIT acknowledgment is unknown, then read-only reconciliation confirms committed run',async()=>{
   const c=await connect();await c.query(`SET search_path TO ${schema},public`)

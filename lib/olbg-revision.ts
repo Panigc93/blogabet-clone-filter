@@ -1,11 +1,11 @@
-import { olbgRecordDigest } from '@/crawler/platforms/olbg/persistence-plan'
-import type { OlbgMonthlyRecord } from '@/crawler/platforms/olbg/monthly-record'
-interface State { status:string; rejected:number; records:OlbgMonthlyRecord[] }
-export function makeOlbgRevisionGuard(initial:State,anchor:Date,clock:()=>Date,load:()=>Promise<State>){
- const revision=(s:State)=>JSON.stringify([s.status,s.rejected,s.records.map(r=>[r.profileId,r.capturedAt,olbgRecordDigest(r)]).sort((a,b)=>String(a[0]).localeCompare(String(b[0])))])
- const first=revision(initial)
+export interface OlbgRevision { status:'ok'|'unavailable'|'disabled'; revision:string; changedAt:string }
+export function compactRevisionGuard(initial:OlbgRevision,anchor:Date,clock:()=>Date,load:()=>Promise<OlbgRevision>){
  return {
-  changedSinceAnchor:initial.records.some(r=>r.capturedAt>anchor.toISOString()),
-  revisionUnchanged:async()=>anchor.toISOString().slice(0,7)===clock().toISOString().slice(0,7)&&first===revision(await load()),
+  changedSinceAnchor:initial.status==='ok'&&initial.changedAt>anchor.toISOString(),
+  revisionUnchanged:async()=>{
+   if(anchor.toISOString().slice(0,7)!==clock().toISOString().slice(0,7))return false
+   const next=await load()
+   return initial.status===next.status&&initial.revision===next.revision
+  },
  }
 }

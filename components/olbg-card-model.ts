@@ -1,6 +1,6 @@
 import type { TipsterCardData, PeriodStatView } from './tipster-card-model'
 import type { OlbgPreparedProfile } from '../crawler/platforms/olbg/prepare'
-import { olbgEvidenceSummaries, validOlbgReadEvidence } from '../lib/olbg-read-evidence'
+import { validCompactOlbg } from '../crawler/platforms/olbg/compact'
 
 type OlbgCardSource = Pick<OlbgPreparedProfile, 'username' | 'profileId' | 'profileUrl' | 'summaries'> & { sources: { capturedAt: string }[] }
 
@@ -37,17 +37,24 @@ export function fromOlbgPrepared(p: OlbgCardSource): TipsterCardData {
   }
 }
 
-// Local read-path counterpart. It does not trust independently supplied scalar
-// yields: values are recomputed from the public monthly evidence after identity,
-// capturedAt and freshness checks. Not activated by fromDbTipster yet.
-export function fromOlbgReadRow(row: { slug: string; capturedAt: Date | string | null; olbgEvidence?: unknown }, now: Date): TipsterCardData | null {
-  const e = row.olbgEvidence
-  const at = row.capturedAt ? new Date(row.capturedAt) : null
-  if (!validOlbgReadEvidence(e) || row.slug !== String(e.profileId) || !at || !Number.isFinite(at.getTime()) || !Number.isFinite(now.getTime()) || at.toISOString() !== e.capturedAt) return null
-  const card = fromOlbgPrepared({ ...e, sources: [{ capturedAt: e.capturedAt }], summaries: olbgEvidenceSummaries(e) })
-  if (e.capturedAt > now.toISOString() || e.sourceMonth !== now.toISOString().slice(0, 7)) {
-    for (const key of ['yield3m','yield6m','yield12m'] as const) card[key] = { valuePct: null, complete: false, trace: 'Captura de otro periodo o futura; yield sin dato para esta ventana.' }
-    card.picks6mAvg = null; card.picks6mTrace = null
+// Compact period evidence is formula-versioned and validated. Full monthly
+// source ROI remains in the private snapshot, not in a full-catalog payload.
+export function fromOlbgReadRow(row: { name:string; slug:string; capturedAt:Date|string|null; olbgEvidence?:unknown },now:Date):TipsterCardData|null {
+  const e=row.olbgEvidence,at=row.capturedAt?new Date(row.capturedAt):null
+  if(!validCompactOlbg(e,true)||row.slug!==String(e.profileId)||!at||!Number.isFinite(at.getTime())||!Number.isFinite(now.getTime())||at.toISOString()!==e.capturedAt)return null
+  const summaries=e.windows.map(w=>({
+    closedMonths:w.n,fromMonth:w.from,throughMonth:w.through,
+    presentMonths:Array(w.present).fill('retained-in-snapshot'),missingMonths:w.missing,
+    tips:w.tips,levelStakeProfit:w.lsp,roiPct:null,
+    derivedLevelStakesYieldPct:w.missing.length||w.tips===null||w.tips===0?null:100*w.lsp!/w.tips,
+    derivedLevelStakesBasis:{scope:'global-all-tips' as const,unitStakePerTip:1 as const,eachWayUnitsPerLeg:0.5 as const,
+      denominatorUnits:w.tips,approximate:true as const,sourceLspResolutionUnits:0.01 as const,
+      conditionalQuantizationAllowancePct:w.tips?100*w.n*0.01/w.tips:null,allowanceAssumption:'Conditional source quantization',limitation:'Own calculated yield, not published ROI'},
+  }))
+  const card=fromOlbgPrepared({username:row.name,profileId:e.profileId,profileUrl:e.profileUrl,sources:[{capturedAt:e.capturedAt}],summaries})
+  if(e.capturedAt>now.toISOString()||e.sourceMonth!==now.toISOString().slice(0,7)){
+    for(const k of ['yield3m','yield6m','yield12m']as const)card[k]={valuePct:null,complete:false,trace:'Captura de otro periodo o futura; sin dato.'}
+    card.picks6mAvg=null;card.picks6mTrace=null
   }
   return card
 }

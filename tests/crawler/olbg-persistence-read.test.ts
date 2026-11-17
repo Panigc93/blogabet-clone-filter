@@ -40,8 +40,8 @@ beforeAll(async()=>{
  ])
 })
 afterAll(()=>pg.close())
-const query = (date=now, source=records) => {
- const base = periodReadContext([b2i],date);const c=olbgReadContext(base,source,date)
+const query = (date=now, enabled=true) => {
+ const base = periodReadContext([b2i],date);const c=olbgReadContext(base,enabled,date)
  const select=()=>db.select(c.projection).from(tipsters).leftJoin(base.source,base.joinOn).leftJoin(c.source,c.joinOn)
  return {c,select}
 }
@@ -89,10 +89,19 @@ describe('OLBG reversible local persistence/read preparation',()=>{
   expect([...first,...second].map(r=>r.slug)).toEqual(rows.slice(0,4).map(r=>r.slug))
   const card=fromOlbgReadRow(rows.find(r=>r.slug==='565069')!,now)!
   expect(card.yield6m.valuePct).toBeCloseTo(33.037397)
+  expect(JSON.stringify(rows[1].olbgEvidence)).not.toContain('months')
+  expect(JSON.stringify(rows[1].olbgEvidence)).not.toContain('snapshotHash')
   expect(fromDbTipster(rows.find(r=>r.slug==='565069')!,now).yield6m.valuePct).toBeCloseTo(33.037397)
   expect(fromDbTipster(rows.find(r=>r.slug==='b2i')!,now).yield6m.valuePct).toBe(10)
   const json=JSON.stringify(rows.find(r=>r.slug==='565069')!.olbgEvidence)
   expect(json).not.toContain('sha256');expect(json).not.toContain('bytes');expect(json).not.toContain('source":')
+ })
+ it('masks accidental compact corruption before ranking and restores exact trusted projection',async()=>{
+  const old=(await pg.query<{compact:unknown;compact_md5:string}>('SELECT compact,compact_md5 FROM olbg_monthly_active WHERE profile_id=565069')).rows[0]
+  await pg.query("UPDATE olbg_monthly_active SET compact=jsonb_set(compact,'{windows,1,lsp}','999999') WHERE profile_id=565069")
+  expect((await query().select()).find(r=>r.slug==='565069')!.yield6m).toBeNull()
+  await pg.query('UPDATE olbg_monthly_active SET compact=$1::jsonb,compact_md5=$2 WHERE profile_id=565069',[JSON.stringify(old.compact),old.compact_md5])
+  expect(Number((await query().select()).find(r=>r.slug==='565069')!.yield6m)).toBeCloseTo(33.037397)
  })
  it('filters and counts against the same masked all-time metric, not internal zero or period yield',async()=>{
   const {c,select}=query()
@@ -117,7 +126,6 @@ describe('OLBG reversible local persistence/read preparation',()=>{
   expect(fromOlbgReadRow({...good,slug:'other'},now)).toBeNull()
   expect(fromOlbgReadRow({...good,capturedAt:'bad'},now)).toBeNull()
   expect(fromOlbgReadRow(good,new Date('2026-12-01'))!.yield6m.valuePct).toBeNull()
-  expect(()=>query(now,[...records,records[0]])).toThrow('Duplicate')
-  expect(query(now,[{...records[0],months:[{...records[0].months[0],tips:-1}]}]).c.acceptedRecords).toBe(0)
+  expect((await query(now,false).select()).filter(r=>r.platform==='olbg').every(r=>r.yield6m===null)).toBe(true)
  })
 })

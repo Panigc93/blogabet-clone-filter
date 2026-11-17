@@ -59,6 +59,7 @@ export default async function Home({ searchParams }: PageProps) {
   const hasMore = rows.length === PAGE_SIZE
   const continuation = new URLSearchParams(searchParams as Record<string, string>)
   continuation.set('periodAnchor', readAt.toISOString())
+  if (periods.revisionToken !== null) continuation.set('olbgRevision', periods.revisionToken)
   const searchString = continuation.toString()
 
   return (

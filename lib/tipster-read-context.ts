@@ -1,38 +1,33 @@
-import { sql, and, ne } from 'drizzle-orm'
+import { sql,ne } from 'drizzle-orm'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
 import { periodReadContext } from './bet2invest-period-read'
 import { olbgReadContext } from './olbg-read-context'
-import { decodeOlbgActiveRows, olbgActiveRange, unavailableOlbgRecords } from '@/crawler/platforms/olbg/active-read'
-import { makeOlbgRevisionGuard } from './olbg-revision'
+import { compactRevisionGuard,type OlbgRevision } from './olbg-revision'
 import type { PeriodAudit } from './bet2invest-period-contract'
 import type { TipsterFilters } from './query'
-
-// This review switch can only use the existing disposable local database path.
-// It cannot enable OLBG on Neon. Production enablement remains a separate review.
-export function olbgLocalReviewEnabled(env: { OLBG_LOCAL_REVIEW?: string; USE_PGLITE?: string } = { OLBG_LOCAL_REVIEW: process.env.OLBG_LOCAL_REVIEW, USE_PGLITE: process.env.USE_PGLITE }) {
-  return env.OLBG_LOCAL_REVIEW === '1' && env.USE_PGLITE === '1'
+export function olbgLocalReviewEnabled(env:{OLBG_LOCAL_REVIEW?:string;USE_PGLITE?:string}={OLBG_LOCAL_REVIEW:process.env.OLBG_LOCAL_REVIEW,USE_PGLITE:process.env.USE_PGLITE}){
+ return env.OLBG_LOCAL_REVIEW==='1'&&env.USE_PGLITE==='1'
 }
-async function loadLocalOlbgRecords(now: Date) {
-  const [start,next,at]=olbgActiveRange(now)
-  try {
-    const rows=await db.select({profile_id:sql<string>`a.profile_id`,captured_at:sql<Date>`a.captured_at`,record:sql<unknown>`s.record`,record_sha256:sql<string>`s.record_sha256`})
-      .from(sql`olbg_monthly_active a`).innerJoin(sql`olbg_monthly_snapshots s`,sql`s.profile_id=a.profile_id AND s.captured_at=a.captured_at`)
-      .where(and(sql`a.captured_at >= ${start}::timestamptz`,sql`a.captured_at < ${next}::timestamptz`,sql`a.captured_at <= ${at}::timestamptz`))
-    return decodeOlbgActiveRows(rows)
-  } catch { return unavailableOlbgRecords() }
+async function loadRevision():Promise<OlbgRevision>{
+ try{
+  const rows=await db.select({revision:sql<string>`revision::text`,changedAt:sql<Date>`changed_at`}).from(sql`olbg_revision`).where(sql`singleton=true`).limit(2)
+  if(rows.length!==1||!/^\d+$/.test(rows[0].revision))throw Error('Revision unavailable')
+  return {status:'ok',revision:rows[0].revision,changedAt:new Date(rows[0].changedAt).toISOString()}
+ }catch{return {status:'unavailable',revision:'',changedAt:''}}
 }
-export async function tipsterReadContext(audits: PeriodAudit[], now: Date) {
-  const base=periodReadContext(audits,now)
-  const enabled=olbgLocalReviewEnabled()
-  const state=enabled?await loadLocalOlbgRecords(new Date()):{status:'disabled' as const,records:[],rejected:0}
-  const guard=makeOlbgRevisionGuard(state,now,()=>new Date(),()=>loadLocalOlbgRecords(new Date()))
-  const olbg=olbgReadContext(base,state.records,now)
-  return {
-    base, olbg, projection:olbg.projection, order:olbg.order, enabled, changedSinceAnchor:enabled && guard.changedSinceAnchor,
-    revisionUnchanged:async()=>!enabled || guard.revisionUnchanged(),
-    filters:(p:TipsterFilters)=>[...olbg.filters(p),...enabled?[]:[ne(tipsters.platform,'olbg')]],
-    warnings:(p:TipsterFilters)=>enabled && (p.platform === undefined || p.platform === 'olbg')?[...olbg.warnings(p),...state.status==='ok'?[]:['OLBG: evidencia mensual no disponible o parcialmente inválida; valores no confirmados ocultos.']]:[],
-    state:state.status,
-  }
+export async function tipsterReadContext(audits:PeriodAudit[],now:Date){
+ const base=periodReadContext(audits,now),enabled=olbgLocalReviewEnabled()
+ const state:OlbgRevision=enabled?await loadRevision():{status:'disabled',revision:'',changedAt:''}
+ const guard=compactRevisionGuard(state,now,()=>new Date(),loadRevision)
+ const olbg=olbgReadContext(base,enabled&&state.status==='ok',now)
+ return {
+  base,olbg,projection:olbg.projection,order:olbg.order,enabled,
+  revisionToken:state.status==='ok'?state.revision:null,
+  changedSinceAnchor:enabled&&guard.changedSinceAnchor,
+  revisionUnchanged:async()=>!enabled||guard.revisionUnchanged(),
+  filters:(p:TipsterFilters)=>[...olbg.filters(p),...enabled?[]:[ne(tipsters.platform,'olbg')]],
+  warnings:(p:TipsterFilters)=>enabled&&(p.platform===undefined||p.platform==='olbg')?[...olbg.warnings(p),...state.status==='ok'?[]:['OLBG: evidencia mensual no disponible; valores no confirmados ocultos.']]:[],
+  state:state.status,
+ }
 }

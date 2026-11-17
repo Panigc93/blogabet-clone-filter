@@ -1,3 +1,4 @@
+import { compactOlbg } from './compact'
 import { createHash } from 'node:crypto'
 import { validMonthlyRecord, type OlbgMonthlyRecord } from './monthly-record'
 
@@ -19,12 +20,18 @@ CREATE TABLE olbg_monthly_snapshots (
 CREATE TABLE olbg_monthly_active (
  profile_id bigint PRIMARY KEY,
  captured_at timestamptz NOT NULL,
+ compact jsonb NOT NULL,
+ compact_md5 text NOT NULL,
  FOREIGN KEY(profile_id,captured_at) REFERENCES olbg_monthly_snapshots(profile_id,captured_at)
 );
+CREATE INDEX olbg_active_capture ON olbg_monthly_active(captured_at);
+CREATE TABLE olbg_revision (singleton boolean PRIMARY KEY DEFAULT true CHECK(singleton), revision bigint NOT NULL, changed_at timestamptz NOT NULL);
+INSERT INTO olbg_revision VALUES(true,0,'1970-01-01');
 CREATE TABLE olbg_import_runs (
  run_id text PRIMARY KEY,
  input_sha256 text NOT NULL,
  summary jsonb NOT NULL,
+ rolled_back_at timestamptz,
  committed_at timestamptz NOT NULL DEFAULT NOW()
 );`
 export interface OlbgPersistenceState {
@@ -51,8 +58,9 @@ export function planOlbgPersistence(r: OlbgMonthlyRecord, state: OlbgPersistence
     action: 'proposed-transaction' as const,
     preconditions: ['Authority to write production still required', 'Schema explicitly provisioned', 'Lock exact catalog platform=olbg, slug=source numeric ID; re-read state under lock', 'Catalog fields are not an all-time statistic; reads and filters must use OLBG masks', 'All statements and catalog capturedAt update in one bounded transaction'],
     statements: [
+      { text: 'UPDATE olbg_revision SET revision=revision+1,changed_at=clock_timestamp() WHERE singleton=true', params: [] },
       ...state.sameSnapshot ? [] : [{ text: 'INSERT INTO olbg_monthly_snapshots(profile_id,captured_at,record,record_sha256) VALUES ($1,$2,$3::jsonb,$4)', params: [r.profileId, r.capturedAt, JSON.stringify(r), olbgRecordDigest(r)] }],
-      { text: 'INSERT INTO olbg_monthly_active(profile_id,captured_at) VALUES ($1,$2) ON CONFLICT(profile_id) DO UPDATE SET captured_at=EXCLUDED.captured_at WHERE olbg_monthly_active.captured_at < EXCLUDED.captured_at', params: [r.profileId, r.capturedAt] },
+      { text: 'INSERT INTO olbg_monthly_active(profile_id,captured_at,compact,compact_md5) VALUES ($1,$2,$3::jsonb,md5(($3::jsonb)::text)) ON CONFLICT(profile_id) DO UPDATE SET captured_at=EXCLUDED.captured_at,compact=EXCLUDED.compact,compact_md5=EXCLUDED.compact_md5 WHERE olbg_monthly_active.captured_at < EXCLUDED.captured_at', params: [r.profileId, r.capturedAt, JSON.stringify(compactOlbg(r,olbgRecordDigest(r)))] },
       { text: "UPDATE tipsters SET captured_at=$1 WHERE id=$2 AND platform='olbg' AND slug=$3", params: [r.capturedAt, state.catalogSurrogateId, String(r.profileId)] },
     ],
   }
