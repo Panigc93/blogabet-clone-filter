@@ -1,9 +1,12 @@
+import { continuationAnchor } from '@/lib/period-pagination-anchor'
+import { periodReadContext } from '@/lib/bet2invest-period-read'
+import { loadDatabasePeriodAudits } from '@/lib/bet2invest-period-index'
 import { parseActivity } from '@/lib/activity'
 import { activityWarning } from '@/lib/activity-query'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, sortOrder, ignoredWarning, TipsterFilters, SortField } from '@/lib/query'
+import { buildFilters, ignoredWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and } from 'drizzle-orm'
 
 const PAGE_SIZE = 50
@@ -34,13 +37,17 @@ export async function GET(req: NextRequest) {
   const sort = (p.get('sort') as SortField) ?? 'yield'
   const page = Number(p.get('page') ?? 0)
 
+  const readAt = continuationAnchor(p.get('periodAnchor'), new Date())
+  if (!readAt) return NextResponse.json({ reset: true, reason: 'period-anchor-expired' }, { status: 409 })
+  const periods = periodReadContext(await loadDatabasePeriodAudits(readAt), readAt)
   const where = buildFilters(filters)
 
   const rows = await db
-    .select()
+    .select(periods.projection)
     .from(tipsters)
+    .leftJoin(periods.source, periods.joinOn)
     .where(where.length ? and(...where) : undefined)
-    .orderBy(...sortOrder(sort))
+    .orderBy(...periods.order(sort))
     .limit(PAGE_SIZE)
     .offset(page * PAGE_SIZE)
 

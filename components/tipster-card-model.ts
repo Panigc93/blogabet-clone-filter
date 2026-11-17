@@ -1,3 +1,4 @@
+import { periodEligible, type AuditedTipster } from '@/lib/bet2invest-period-contract'
 import type { Tipster } from '@/db/schema'
 import type { FichaSnapshot } from '@/app/lab/tipstrr/ficha/fixtures'
 import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
@@ -7,12 +8,13 @@ import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
 // Tipstrr rows come from dated real captures (fromTipstrrSnapshot), never
 // presented as a sync: capturedAt is always shown.
 
-export type Platform = 'blogabet' | 'tipstrr' | 'golazobets'
+export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest'
 
 export interface PeriodStatView {
   valuePct: number | null
   trace: string | null // e.g. '+£816.00 beneficio / 320u apostadas · ago 2026 – oct 2026 · 3/3 meses'
   complete: boolean
+  note?: string // compact sample/date/caveats inside existing B2I period cells
 }
 
 export interface TipsterCardData {
@@ -61,9 +63,10 @@ const fmtEs = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximum
 const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}${fmtEs.format(Math.abs(units) * 10)} €`
 const fmtMoneyAbs = (units: number) => `${fmtEs.format(Math.abs(units) * 10)} €`
 
-export function fromDbTipster(t: Tipster): TipsterCardData {
+export function fromDbTipster(t: Tipster & AuditedTipster, now = new Date()): TipsterCardData {
   if (t.platform === 'tipstrr') return tipstrrFromDbRow(t)
   if (t.platform === 'golazobets') return golazobetsFromDbRow(t)
+  if (t.platform === 'bet2invest') return bet2investFromDbRow(t, now)
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -259,5 +262,65 @@ function golazobetsFromDbRow(t: Tipster): TipsterCardData {
     picksFree3mAvg: null,
     yieldFree3m: null,
     showPeriodRow: false,
+  }
+}
+
+// DB-backed Bet2Invest row. Misma regla de honestidad: capturedAt siempre
+// visible (captura fechada, no sync). El yield es el ROI PUBLICADO por la
+// fuente: la página no muestra el total apostado, así que no es una cifra
+// recalculada y su base de stake es inferida (la página la contrasta con el
+// modo plano 'Profit (1U)'). Las unidades Bet2Invest no son equivalentes a
+// € ni a las unidades de Tipstrr o Golazobets. Sin precio (no capturado),
+// sin 'since' (semántica de la columna del listado no verificada) y sin
+// periodos sin auditoría confirmada o de otro mes: null, nunca 0.
+function bet2investFromDbRow(t: Tipster & AuditedTipster, now: Date): TipsterCardData {
+  const num = (v: string | null): number | null => {
+    if (v === null) return null
+    const n = parseFloat(v)
+    return Number.isFinite(n) ? n : null
+  }
+  const profit = num(t.profit)
+  const captured = t.capturedAt ? new Date(t.capturedAt) : null
+  const empty = (): PeriodStatView => ({ valuePct: null, trace: null, complete: true })
+  const period = (n: 3 | 6 | 12): PeriodStatView => {
+    const value = n === 3 ? t.yield3m : n === 6 ? t.yield6m : t.yield12m
+    if (!t.b2iAudit || t.b2iAudit.slug !== t.slug || !periodEligible(t.capturedAt, t.b2iAudit, n, value, now)) return empty()
+    const w = t.b2iAudit.windows[n]
+    const range = `${fmtYm(w.from)} - ${fmtYm(w.to)}`
+    const sampleCount = `${w.bets} ${w.bets === 1 ? 'apuesta' : 'apuestas'}`
+    const sample = `${sampleCount} · ${w.months}/${n} meses con datos`
+    const reset = w.caveats.some((c) => c.startsWith('lastReset-null')) ? 'reinicio no confirmado' : 'posterior al reinicio'
+    return { valuePct: num(value), complete: w.months === n, trace: `${range} · ${sample} · ${reset}. Mes ausente no equivale a cero.`, note: sampleCount }
+  }
+  const periods = { yield3m: period(3), yield6m: period(6), yield12m: period(12) }
+  return {
+    platform: 'bet2invest',
+    name: t.name,
+    avatarUrl: t.avatarUrl,
+    sourceUrl: `https://bet2invest.com/tipsters/performance-stats/${encodeURIComponent(t.slug)}`,
+    sourceLabel: `bet2invest.com/tipsters/performance-stats/${t.slug}`,
+    capturedAt: captured && !isNaN(captured.getTime()) ? captured.toISOString().slice(0, 10) : null,
+    sinceYear: null,
+    sinceTitle: null,
+    picks: t.picks,
+    profitDisplay: profit !== null ? `${profit >= 0 ? '+' : ''}${fmtEs.format(profit)} u` : null,
+    yieldPct: num(t.yield),
+    yieldTitle: 'ROI publicado por Bet2Invest (beneficio / total apostado, según su documentación); la página no muestra el total apostado: cifra de la fuente con base de stake inferida, no recalculada. Las unidades Bet2Invest no son equivalentes a € ni a las de Tipstrr o Golazobets',
+    verifiedPct: null,
+    followers: t.followers,
+    isVerified: null,
+    isPaid: t.isPaid,
+    priceLabel: null, // precio de suscripción no capturado
+    priceCurrencySuffix: null,
+    resetCount: 0,
+    resetTitle: null,
+    flagUrl: null,
+    countryCode: null,
+    ...periods,
+    picks6mAvg: null,
+    picks6mTrace: null,
+    picksFree3mAvg: null,
+    yieldFree3m: null,
+    showPeriodRow: Object.values(periods).some((p) => p.valuePct !== null),
   }
 }

@@ -19,15 +19,16 @@ function StatCell({ value, label, colorClass, title }: { value: string; label: s
   )
 }
 
-function PeriodCell({ value, label, colorClass }: { value: string; label: string; colorClass?: string }) {
+function PeriodCell({ value, label, colorClass, note, title }: { value: string; label: string; colorClass?: string; note?: string; title?: string }) {
   return (
-    <div className="period-cell" style={{ textAlign: 'center' }}>
+    <div className="period-cell" style={note ? { textAlign: 'center', flex: 1, minWidth: 0, padding: '0 3px' } : { textAlign: 'center' }} title={title} aria-label={title}>
       <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: 14, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#555' }}>
         {value}
       </span>
       <span style={{ display: 'block', fontSize: 11, fontFamily: 'Roboto, sans-serif', fontWeight: 600, color: '#999', marginTop: 1, textTransform: 'uppercase' }}>
         {label}
       </span>
+      {note && <span style={{ display: 'block', fontSize: 10, color: '#666', lineHeight: 1.35, marginTop: 3, overflowWrap: 'anywhere' }}>{note}</span>}
     </div>
   )
 }
@@ -75,7 +76,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
             {t.sourceLabel}
           </a>
           {t.capturedAt && (
-            <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{t.platform === 'golazobets' ? 'Golazobets' : 'Tipstrr'} · captura {t.capturedAt} (no es sincronización)</div>
+            <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{t.platform === 'golazobets' ? 'Golazobets' : t.platform === 'bet2invest' ? 'Bet2Invest' : 'Tipstrr'} · captura {t.capturedAt} (no es sincronización)</div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
             {t.isVerified !== null && (
@@ -130,16 +131,22 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
             <PeriodCell
               value={fmtYield(t.yield3m.valuePct)}
               label="Yield 3m"
+              note={t.platform === 'bet2invest' ? t.yield3m.note : undefined}
+              title={t.platform === 'bet2invest' ? t.yield3m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield3m.valuePct)}
             />
             <PeriodCell
               value={fmtYield(t.yield6m.valuePct)}
               label="Yield 6m"
+              note={t.platform === 'bet2invest' ? t.yield6m.note : undefined}
+              title={t.platform === 'bet2invest' ? t.yield6m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield6m.valuePct)}
             />
             <PeriodCell
               value={fmtYield(t.yield12m.valuePct)}
               label="Yield 12m"
+              note={t.platform === 'bet2invest' ? t.yield12m.note : undefined}
+              title={t.platform === 'bet2invest' ? t.yield12m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield12m.valuePct)}
             />
             <PeriodCell
@@ -170,8 +177,8 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
       <div className="tipster-right" style={t.platform === 'golazobets'
         ? { background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6, minWidth: 174, width: 174 }
         : { background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6 }}>
-        <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : '#82daca', color: '#fff', border: `1px solid ${t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : '#4dbfa2'}`, borderBottomWidth: 3, borderBottomColor: t.platform === 'tipstrr' ? '#2c5878' : t.platform === 'golazobets' ? '#2b3841' : '#4dbfa2', borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
-          <i className="fa fa-external-link"></i> VER EN {t.platform === 'blogabet' ? 'BLOGABET' : t.platform === 'tipstrr' ? 'TIPSTRR' : 'GOLAZOBETS'}
+        <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#6a5aa8' : '#82daca', color: '#fff', border: `1px solid ${t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#6a5aa8' : '#4dbfa2'}`, borderBottomWidth: 3, borderBottomColor: t.platform === 'tipstrr' ? '#2c5878' : t.platform === 'golazobets' ? '#2b3841' : t.platform === 'bet2invest' ? '#4f4180' : '#4dbfa2', borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
+          <i className="fa fa-external-link"></i> VER EN {t.platform === 'blogabet' ? 'BLOGABET' : t.platform === 'tipstrr' ? 'TIPSTRR' : t.platform === 'golazobets' ? 'GOLAZOBETS' : 'BET2INVEST'}
         </a>
         {t.isPaid && t.priceLabel && (
           <div style={{ fontSize: 14, fontWeight: 700, color: '#333', textAlign: 'center', width: '100%', cursor: 'default', userSelect: 'none', whiteSpace: 'nowrap' }}>

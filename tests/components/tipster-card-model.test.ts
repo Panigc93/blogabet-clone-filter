@@ -181,3 +181,67 @@ describe('fromDbTipster (Golazobets) URL de origen', () => {
     expect(c.sourceLabel).toBe('golazobets.com/tipster/Abreu13 (CamiPicks)')
   })
 })
+
+// FABRICATED Bet2Invest DB row: solo importa la forma; cifras inventadas.
+const B2I_ROW: Tipster = {
+  ...BB_ROW,
+  id: 901,
+  platform: 'bet2invest',
+  slug: 'DemoB2I',
+  name: 'DemoB2I',
+  profitUnit: 'bet2invest-units',
+  priceCurrency: 'eur', // default de esquema; price null la deja muda
+  signupAt: null,
+  capturedAt: new Date('2026-11-16T10:00:00Z'),
+  isPaid: true,
+  price: null, // precio de suscripción no capturado
+  sinceYear: null, // 'Since' del listado: semántica no verificada
+  picks: 812,
+  profit: '37.42',
+  yield: '6.31',
+  verifiedPct: null,
+  isVerified: false,
+  followers: 1200,
+  resetCount: 0,
+  lastResetAt: null,
+  picks6mAvg: null,
+  yield3m: null,
+  yield6m: null,
+  yield12m: null,
+  picksFree3mAvg: null,
+  yieldFree3m: null,
+  statsUpdatedAt: new Date('2026-11-16T10:00:00Z'),
+  sourcePortfolioId: null,
+}
+
+describe('fromDbTipster (Bet2Invest)', () => {
+  const c = fromDbTipster(B2I_ROW)
+  it('renders as a dated capture with its own non-equivalent unit label', () => {
+    expect(c.platform).toBe('bet2invest')
+    expect(c.capturedAt).toBe('2026-11-16')
+    expect(c.sourceUrl).toBe('https://bet2invest.com/tipsters/performance-stats/DemoB2I')
+    expect(c.sourceLabel).toBe('bet2invest.com/tipsters/performance-stats/DemoB2I')
+    expect(c.profitDisplay).toBe('+37,42 u')
+    expect(c.profitDisplay).not.toContain('€')
+    expect(c.yieldPct).toBe(6.31)
+    expect(c.followers).toBe(1200)
+    // El tooltip declara la procedencia honesta: cifra de la fuente, base
+    // inferida, NO recalculada (la página no muestra el total apostado).
+    expect(c.yieldTitle).toContain('no recalculada')
+    expect(c.yieldTitle).toContain('no son equivalentes')
+  })
+  it('nulls everything not captured or not verified (never 0)', () => {
+    expect(c.sinceYear).toBeNull()
+    expect(c.priceLabel).toBeNull()
+    expect(c.verifiedPct).toBeNull()
+    expect(c.isVerified).toBeNull()
+    expect(c.showPeriodRow).toBe(false)
+    expect(c.picks6mAvg).toBeNull()
+    expect(c.yield3m.valuePct).toBeNull()
+  })
+  it('codifica el slug en la URL de origen', () => {
+    const c2 = fromDbTipster({ ...B2I_ROW, slug: 'Demo B2I (Pro)', name: 'Demo B2I (Pro)' })
+    expect(c2.sourceUrl).toBe('https://bet2invest.com/tipsters/performance-stats/Demo%20B2I%20(Pro)')
+    expect(c2.sourceLabel).toBe('bet2invest.com/tipsters/performance-stats/Demo B2I (Pro)')
+  })
+})

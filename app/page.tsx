@@ -1,8 +1,10 @@
+import { periodReadContext } from '@/lib/bet2invest-period-read'
+import { loadDatabasePeriodAudits } from '@/lib/bet2invest-period-index'
 import { parseActivity } from '@/lib/activity'
 import { ActivityNotice } from '@/components/ActivityNotice'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, sortOrder, ignoredWarning, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
+import { buildFilters, ignoredWarning, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and, count } from 'drizzle-orm'
 import { FilterBar } from '@/components/FilterBar'
 import { LoadMore } from '@/components/LoadMore'
@@ -36,19 +38,23 @@ export default async function Home({ searchParams }: PageProps) {
   }
 
   const sort = (searchParams.sort as SortField) ?? 'yield'
+  const readAt = new Date()
+  const periods = periodReadContext(await loadDatabasePeriodAudits(readAt), readAt)
   const where = buildFilters(filters)
   const whereClause = where.length ? and(...where) : undefined
 
   const [rows, [{ value: total }]] = await Promise.all([
-    db.select().from(tipsters)
+    db.select(periods.projection).from(tipsters).leftJoin(periods.source, periods.joinOn)
       .where(whereClause)
-      .orderBy(...sortOrder(sort))
+      .orderBy(...periods.order(sort))
       .limit(PAGE_SIZE),
     db.select({ value: count() }).from(tipsters).where(whereClause),
   ])
 
   const hasMore = rows.length === PAGE_SIZE
-  const searchString = new URLSearchParams(searchParams as Record<string, string>).toString()
+  const continuation = new URLSearchParams(searchParams as Record<string, string>)
+  continuation.set('periodAnchor', readAt.toISOString())
+  const searchString = continuation.toString()
 
   return (
     <>
@@ -65,7 +71,7 @@ export default async function Home({ searchParams }: PageProps) {
             {ignoredWarning(filters)}
           </div>
         )}
-        <LoadMore key={searchString} initialRows={rows} initialHasMore={hasMore} total={total} searchString={searchString} />
+        <LoadMore key={searchString} initialRows={rows} initialHasMore={hasMore} total={total} searchString={searchString} periodAnchor={readAt.toISOString()} />
       </div>
     </>
   )
