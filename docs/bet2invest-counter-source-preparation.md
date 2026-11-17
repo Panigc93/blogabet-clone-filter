@@ -134,3 +134,13 @@ uses existing storage without a new index/migration, so historical growth
 can still increase database scan work. No production latency is claimed.
 The full 441-test/build evidence above predates this small reader follow-up;
 a new full suite/build and independent review remain required.
+
+Measured follow-up gate: full suite is now 442 passed (8 opt-in skipped),
+tsc/build pass on 7bdbf130. However, the JSON scan is NOT accepted as the
+habitual reader: local PGlite measurements for 969 current profiles are
+125-140 ms at 969 retained receipts, 1873-1941 ms at 9690 and 5769-5849 ms
+at 29070. It still returns only 969 active records, but historical scans grow.
+No cloud-provider latency claim. See scripts/bet2invest-benchmark-active.ts
+and the separately transferred JSON/EXPLAIN report. Integration remains
+blocked on an efficient bounded active-receipt lookup, not on data custody.
+Do not release the scan as a solved habitual-update path.
