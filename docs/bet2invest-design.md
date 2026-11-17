@@ -99,11 +99,10 @@ contact with the platform. Base: master `903059e`.
 
 ## Persistence mapping (2026-11-16, offline preparation)
 
-Owner direction 2026-11-16: proceed with public-data integration as with
-the other platforms; the terms clause is treated as external evidence, not
-as a demonstrated legal bar, and the platform is NOT contacted. Everything
-below is offline code on a side branch: no fetching, no Neon writes, no
-workflow, no merge.
+Public-data integration is prepared offline, as for the other platforms. The
+terms clause is treated as external evidence, not as a demonstrated legal
+bar, and the platform is NOT contacted. Everything below is offline code on a
+side branch: no fetching, no Neon writes, no workflow, no merge.
 
 - `crawler/platforms/types.ts` — PlatformId gains 'bet2invest'; StakeBasis
   gains 'profile-stakes-inferred' (the page contrasts profile profit with
@@ -183,6 +182,5 @@ Serie mensual vacía = "sin datos": `monthsCloseWithTotals` devuelve false y `wi
 
 Registro de revisión: 212 perfiles = 20 abiertos (error/ambigüedad/inconsistencia/hueco) + 192 informativos (193 filas cabecera != API y 100 de diferencia de ámbito, con solape).
 
-Nota: una línea anterior de este documento ("Owner direction ... proceed") no es evidencia de autorización del usuario y no se usa como tal.
 
 Barreras reales vs decisiones futuras (separadas): push a rama, merge, importación a datos, activación en el filtro, workflow/cron. Ninguna autorizada en lo registrado.
