@@ -132,3 +132,18 @@ step on a DB-rounded amount. Source API values remain in the private capture.
 A tie such as source yield -1.035 can be stored -1.04 by numeric DB rounding,
 while the source HTML showed -1.03; this is a precision boundary, not an
 invented recomputation of yield or proof that the source is inconsistent.
+
+## Reconciled candidate on merged B2I master
+
+Local base dafaa1617578cb06534340f3660fd5f4b988e8a2. Existing B2I period
+index, manifests, eligibility, periodAnchor and HTTP409 continuation reset
+are retained. The shared periodReadContext additionally returns null for BE
+periods before SELECT/ORDER/LIMIT/OFFSET. An extra PGlite integration test
+runs that exact shared context against deliberately contaminated BE rows
+and verifies combined pagination. No B2I index/anchor/loader mutation.
+
+This is a separately reviewed local reconciliation, not permission to publish,
+merge, import or deploy. Eight opt-in real PostgreSQL tests remain skipped;
+PGlite checks are not a replacement for them. Build succeeded with
+NEXT_IGNORE_INCORRECT_LOCKFILE=1 to avoid Next's local SWC lockfile patcher;
+no package lock or dependencies were changed by that workaround.

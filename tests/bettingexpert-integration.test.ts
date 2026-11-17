@@ -69,3 +69,11 @@ it('mapper rejects rejected records and numeric overflow', () => {
   expect(() => bettingexpertToInsert({ ...row, yieldPct: 10000 }, 1)).toThrow()
   expect(() => bettingexpertToInsert(row, 0)).toThrow()
 })
+
+it('shared B2I read context masks BE before combined pagination while preserving anchor-independent source contract', async () => {
+  const { periodReadContext } = await import('@/lib/bet2invest-period-read')
+  const context = periodReadContext([], new Date('2026-11-17T18:00:00Z'))
+  const rows = await db.select(context.projection).from(tipsters).leftJoin(context.source, context.joinOn).orderBy(...context.order('yield6m')).limit(4)
+  expect(rows.slice(0, 3).map(r => r.platform)).toEqual(['golazobets', 'tipstrr', 'blogabet'])
+  expect(rows[3]).toMatchObject({ platform: 'bettingexpert', yield3m: null, yield6m: null, yield12m: null, picks6mAvg: null, b2iAudit: null })
+})
