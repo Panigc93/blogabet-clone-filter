@@ -1,18 +1,19 @@
 'use client'
+import type { AuditedTipster } from '@/lib/bet2invest-period-contract'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Tipster } from '@/db/schema'
 import { TipsterRow } from './TipsterRow'
 import { fromDbTipster } from './tipster-card-model'
 
 interface LoadMoreProps {
-  initialRows: Tipster[]
+  initialRows: (Tipster & AuditedTipster)[]
   initialHasMore: boolean
   total: number
   searchString: string
 }
 
 export function LoadMore({ initialRows, initialHasMore, total, searchString }: LoadMoreProps) {
-  const [extraRows, setExtraRows] = useState<Tipster[]>([])
+  const [extraRows, setExtraRows] = useState<(Tipster & AuditedTipster)[]>([])
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [loading, setLoading] = useState(false)
   const pageRef = useRef(1)

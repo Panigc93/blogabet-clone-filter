@@ -1,3 +1,4 @@
+import { periodEligible, type AuditedTipster } from '@/lib/bet2invest-period-contract'
 import type { Tipster } from '@/db/schema'
 import type { FichaSnapshot } from '@/app/lab/tipstrr/ficha/fixtures'
 import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
@@ -13,6 +14,7 @@ export interface PeriodStatView {
   valuePct: number | null
   trace: string | null // e.g. '+£816.00 beneficio / 320u apostadas · ago 2026 – oct 2026 · 3/3 meses'
   complete: boolean
+  note?: string // compact sample/date/caveats inside existing B2I period cells
 }
 
 export interface TipsterCardData {
@@ -61,10 +63,10 @@ const fmtEs = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximum
 const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}${fmtEs.format(Math.abs(units) * 10)} €`
 const fmtMoneyAbs = (units: number) => `${fmtEs.format(Math.abs(units) * 10)} €`
 
-export function fromDbTipster(t: Tipster): TipsterCardData {
+export function fromDbTipster(t: Tipster & AuditedTipster, now = new Date()): TipsterCardData {
   if (t.platform === 'tipstrr') return tipstrrFromDbRow(t)
   if (t.platform === 'golazobets') return golazobetsFromDbRow(t)
-  if (t.platform === 'bet2invest') return bet2investFromDbRow(t)
+  if (t.platform === 'bet2invest') return bet2investFromDbRow(t, now)
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -270,8 +272,8 @@ function golazobetsFromDbRow(t: Tipster): TipsterCardData {
 // modo plano 'Profit (1U)'). Las unidades Bet2Invest no son equivalentes a
 // € ni a las unidades de Tipstrr o Golazobets. Sin precio (no capturado),
 // sin 'since' (semántica de la columna del listado no verificada) y sin
-// periodos (sección mensual solo observada vacía): null, nunca 0.
-function bet2investFromDbRow(t: Tipster): TipsterCardData {
+// periodos sin auditoría confirmada o de otro mes: null, nunca 0.
+function bet2investFromDbRow(t: Tipster & AuditedTipster, now: Date): TipsterCardData {
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -280,6 +282,16 @@ function bet2investFromDbRow(t: Tipster): TipsterCardData {
   const profit = num(t.profit)
   const captured = t.capturedAt ? new Date(t.capturedAt) : null
   const empty = (): PeriodStatView => ({ valuePct: null, trace: null, complete: true })
+  const period = (n: 3 | 6 | 12): PeriodStatView => {
+    const value = n === 3 ? t.yield3m : n === 6 ? t.yield6m : t.yield12m
+    if (!t.b2iAudit || t.b2iAudit.slug !== t.slug || !periodEligible(t.capturedAt, t.b2iAudit, n, value, now)) return empty()
+    const w = t.b2iAudit.windows[n]
+    const range = `${fmtYm(w.from)} - ${fmtYm(w.to)}`
+    const sample = `${w.bets} apuestas · ${w.months}/${n} meses con datos`
+    const reset = w.caveats.some((c) => c.startsWith('lastReset-null')) ? 'reinicio no confirmado' : 'posterior al reinicio'
+    return { valuePct: num(value), complete: w.months === n, trace: `${range} · ${sample} · ${reset}. Mes ausente no equivale a cero.`, note: `${w.bets} apuestas` }
+  }
+  const periods = { yield3m: period(3), yield6m: period(6), yield12m: period(12) }
   return {
     platform: 'bet2invest',
     name: t.name,
@@ -303,13 +315,11 @@ function bet2investFromDbRow(t: Tipster): TipsterCardData {
     resetTitle: null,
     flagUrl: null,
     countryCode: null,
-    yield3m: empty(),
-    yield6m: empty(),
-    yield12m: empty(),
+    ...periods,
     picks6mAvg: null,
     picks6mTrace: null,
     picksFree3mAvg: null,
     yieldFree3m: null,
-    showPeriodRow: false,
+    showPeriodRow: Object.values(periods).some((p) => p.valuePct !== null),
   }
 }

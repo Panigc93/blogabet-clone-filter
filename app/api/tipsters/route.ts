@@ -1,9 +1,11 @@
+import { periodReadContext } from '@/lib/bet2invest-period-read'
+import { loadCommittedAudits } from '@/crawler/platforms/bet2invest/audit-manifest'
 import { parseActivity } from '@/lib/activity'
 import { activityWarning } from '@/lib/activity-query'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, sortOrder, ignoredWarning, TipsterFilters, SortField } from '@/lib/query'
+import { buildFilters, ignoredWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and } from 'drizzle-orm'
 
 const PAGE_SIZE = 50
@@ -34,13 +36,15 @@ export async function GET(req: NextRequest) {
   const sort = (p.get('sort') as SortField) ?? 'yield'
   const page = Number(p.get('page') ?? 0)
 
+  const periods = periodReadContext(loadCommittedAudits(process.env.B2I_AUDIT_DIR))
   const where = buildFilters(filters)
 
   const rows = await db
-    .select()
+    .select(periods.projection)
     .from(tipsters)
+    .leftJoin(periods.source, periods.joinOn)
     .where(where.length ? and(...where) : undefined)
-    .orderBy(...sortOrder(sort))
+    .orderBy(...periods.order(sort))
     .limit(PAGE_SIZE)
     .offset(page * PAGE_SIZE)
 

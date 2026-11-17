@@ -19,15 +19,16 @@ function StatCell({ value, label, colorClass, title }: { value: string; label: s
   )
 }
 
-function PeriodCell({ value, label, colorClass }: { value: string; label: string; colorClass?: string }) {
+function PeriodCell({ value, label, colorClass, note, title }: { value: string; label: string; colorClass?: string; note?: string; title?: string }) {
   return (
-    <div className="period-cell" style={{ textAlign: 'center' }}>
+    <div className="period-cell" style={note ? { textAlign: 'center', flex: 1, minWidth: 0, padding: '0 3px' } : { textAlign: 'center' }} title={title} aria-label={title}>
       <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: 14, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#555' }}>
         {value}
       </span>
       <span style={{ display: 'block', fontSize: 11, fontFamily: 'Roboto, sans-serif', fontWeight: 600, color: '#999', marginTop: 1, textTransform: 'uppercase' }}>
         {label}
       </span>
+      {note && <span style={{ display: 'block', fontSize: 10, color: '#666', lineHeight: 1.35, marginTop: 3, overflowWrap: 'anywhere' }}>{note}</span>}
     </div>
   )
 }
@@ -130,16 +131,22 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
             <PeriodCell
               value={fmtYield(t.yield3m.valuePct)}
               label="Yield 3m"
+              note={t.platform === 'bet2invest' ? t.yield3m.note : undefined}
+              title={t.platform === 'bet2invest' ? t.yield3m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield3m.valuePct)}
             />
             <PeriodCell
               value={fmtYield(t.yield6m.valuePct)}
               label="Yield 6m"
+              note={t.platform === 'bet2invest' ? t.yield6m.note : undefined}
+              title={t.platform === 'bet2invest' ? t.yield6m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield6m.valuePct)}
             />
             <PeriodCell
               value={fmtYield(t.yield12m.valuePct)}
               label="Yield 12m"
+              note={t.platform === 'bet2invest' ? t.yield12m.note : undefined}
+              title={t.platform === 'bet2invest' ? t.yield12m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield12m.valuePct)}
             />
             <PeriodCell

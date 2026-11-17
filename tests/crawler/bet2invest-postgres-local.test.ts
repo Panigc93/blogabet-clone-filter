@@ -1,5 +1,6 @@
 // Opt-in real PostgreSQL test. Only a Unix socket directory with the explicit
 // test database is accepted. No DATABASE_URL, TCP host or production adapter.
+import { transactionAdapter } from '@/crawler/platforms/bet2invest/transaction-adapter'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { userInfo } from 'node:os'
 import { Client } from 'pg'
@@ -151,6 +152,18 @@ describe.skipIf(!enabled)('real local PostgreSQL independent sessions and timeou
     expect((await observer.query("SELECT * FROM tipsters WHERE platform != 'bet2invest' ORDER BY id")).rows).toEqual(before)
     events.push({ test: 'full-corpus-real-postgres', total: rows.length, first: first.counts, replay: replay.counts, firstTransactionMs: firstMs, firstLockHeldUpperBoundMs: lockHeldMs, replayTransactionMs: replayMs, otherPlatformsUnchanged: true, allNumericValuesAndCaptureDatesVerified: true })
   }, 120000)
+  it('inert explicit adapter commits and rolls back against a real pinned connection', async () => {
+    const pinned = { query: async <T extends Record<string, unknown>>(text: string, params?: unknown[]) => ({ rows: (await a.query(text, params)).rows as T[] }), discard: async () => { await a.end() } }
+    const ctrl = new AbortController()
+    const explicit = transactionAdapter(pinned, { statementMs: 100, idleMs: 1000, budgetMs: 1000, signal: ctrl.signal })
+    expect((await executeOfflineImport(explicit, input('explicit-adapter'))).counts.insert).toBe(1)
+    await expect(explicit.transaction(async (tx) => { await tx.query('UPDATE tipsters SET picks=999 WHERE id=1'); ctrl.abort(); await tx.query('SELECT 1') })).rejects.toThrow('cancelled')
+    expect((await observer.query('SELECT picks FROM tipsters WHERE id=1')).rows[0].picks).toBe(123)
+    const timeoutDb = transactionAdapter(pinned, { statementMs: 50, idleMs: 1000, budgetMs: 1000 })
+    await expect(timeoutDb.transaction(async (tx) => { await tx.query('SELECT pg_sleep(0.2)') })).rejects.toMatchObject({ code: '57014' })
+    expect((await a.query('SELECT 1 AS ok')).rows[0].ok).toBe(1)
+    events.push({ test: 'explicit-inert-adapter-real-pin', commit: true, cancelledTransactionRolledBack: true, statementTimeoutRolledBack: true })
+  })
   it('cooperative whole-transaction budget aborts many individually short queries', async () => {
     let n = 0
     const start = performance.now()
