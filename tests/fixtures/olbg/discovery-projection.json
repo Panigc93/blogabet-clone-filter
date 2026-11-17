@@ -1,0 +1,48 @@
+{
+  "projection": true,
+  "originalReceipt": {
+    "url": "https://www.olbg.com/tipsters/tables/data?id=t-117&o=0&v=1",
+    "startedAt": "2026-11-17T18:15:44.709118+00:00",
+    "capturedAt": "2026-11-17T18:15:45.310884+00:00",
+    "httpDate": "Tue, 17 Nov 2026 18:15:45 GMT",
+    "status": 200,
+    "sha256": "b0af149ef86346edbb5f98cb3f16750c83e4eec6d3b652f7326e166c7f1cf606",
+    "bytes": 39733
+  },
+  "data": {
+    "tableId": 117,
+    "tableType": "t",
+    "crtView": 1,
+    "monthYear": "2026-11",
+    "monthApplied": false,
+    "pageReady": true,
+    "tableComment": "Only tipsters with 1 or more tips in the month are shown in this table",
+    "currentTables": [
+      {
+        "id": 519476,
+        "tipster": "Frka Tipuje"
+      },
+      {
+        "id": 625544,
+        "tipster": "Ojwang"
+      },
+      {
+        "id": 582450,
+        "tipster": "Best21"
+      },
+      {
+        "id": 612688,
+        "tipster": "wahyd6"
+      },
+      {
+        "id": 309396,
+        "tipster": "marussell"
+      },
+      {
+        "id": 37196,
+        "tipster": "wald"
+      }
+    ],
+    "pastTables": []
+  }
+}

@@ -4,9 +4,10 @@ import { useCallback, useTransition, useState, useEffect } from 'react'
 
 interface FilterBarProps {
   searchParams: Record<string, string | undefined>
+  olbgEnabled?: boolean
 }
 
-export function FilterBar({ searchParams }: FilterBarProps) {
+export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const sp = new URLSearchParams(
@@ -137,6 +138,7 @@ export function FilterBar({ searchParams }: FilterBarProps) {
               <option value="tipstrr">Tipstrr</option>
               <option value="golazobets">Golazobets</option>
               <option value="bet2invest">Bet2Invest</option>
+              {olbgEnabled && <option value="olbg">OLBG</option>}
               <option value="all">Todas</option>
             </select>
             <div style={{ display: 'flex', flexShrink: 0 }}>
