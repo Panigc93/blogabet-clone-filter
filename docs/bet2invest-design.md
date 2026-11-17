@@ -184,3 +184,16 @@ Registro de revisión: 212 perfiles = 20 abiertos (error/ambigüedad/inconsisten
 
 
 Barreras reales vs decisiones futuras (separadas): push a rama, merge, importación a datos, activación en el filtro, workflow/cron. Ninguna autorizada en lo registrado.
+
+
+## Simulacion de importacion sin conexion (2026-11-17, sobre capturas ya guardadas)
+
+`offline-import.ts` + `scripts/bet2invest-offline-import.ts`: lee SSR y meses ya descargados, selecciona bankroll, mapea a fila y calcula yields de ventana. Sin red, sin DB, sin escritura de filas.
+
+Reglas de ventana (3/6/12 meses completos antes de la captura; mes en curso excluido; suma profit / suma stake):
+- la serie mensual debe reproducir el ROI de cabecera dentro de 0.005+1e-9; si no, null (`meses-no-reproducen-roi-de-cabecera`);
+- bankroll con `lastReset`: solo se calcula si la ventana empieza despues del mes del reinicio; si no, null (`ventana-solapa-reinicio-semantica-no-verificada`). No se reconstruyen reinicios;
+- serie vacia o ausente, ventana sin actividad o stake 0: null con motivo, nunca 0;
+- candidatos y ambiguos no se mapean; tipo de cuenta desconocido va a cuarentena (no se asume Free).
+
+Resultado sobre 961 SSR (instantanea 16:27Z = 17:27 CET): 928 filas, 30 cuarentena (25 tipo de cuenta desconocido, 5 cierre profit por deporte), 3 no seleccionados (candidatos). Filas con las tres ventanas: 572. Ventanas con valor: 3m 637, 6m 646, 12m 648; el resto null con motivo (reinicio, sin actividad, serie vacia, meses no reproducen ROI). Es un resultado de simulacion, no una importacion.
