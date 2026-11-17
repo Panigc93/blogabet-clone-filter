@@ -8,7 +8,7 @@ import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
 // Tipstrr rows come from dated real captures (fromTipstrrSnapshot), never
 // presented as a sync: capturedAt is always shown.
 
-export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest'
+export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'olbg'
 
 export interface PeriodStatView {
   valuePct: number | null
@@ -64,6 +64,7 @@ const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}${fmtEs.format(Math
 const fmtMoneyAbs = (units: number) => `${fmtEs.format(Math.abs(units) * 10)} €`
 
 export function fromDbTipster(t: Tipster & AuditedTipster, now = new Date()): TipsterCardData {
+  if (t.platform === 'olbg') throw new Error('OLBG requires prepared monthly provenance; scalar DB rows are not supported')
   if (t.platform === 'tipstrr') return tipstrrFromDbRow(t)
   if (t.platform === 'golazobets') return golazobetsFromDbRow(t)
   if (t.platform === 'bet2invest') return bet2investFromDbRow(t, now)

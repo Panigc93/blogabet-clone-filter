@@ -3,7 +3,7 @@
 // records. Provenance is mandatory: a metric without its basis and period is
 // not comparable across platforms and must not be presented as if it were.
 
-export type PlatformId = 'blogabet' | 'golazobets' | 'tipstrr' | 'bet2invest'
+export type PlatformId = 'blogabet' | 'golazobets' | 'tipstrr' | 'bet2invest' | 'olbg'
 
 export type StakeBasis =
   | 'advised-stakes' // tipstrr default: the tipster's advised stake per tip
@@ -17,6 +17,19 @@ export interface StatSample {
   profitUnits: number | null
   yieldPct: number | null // the platform's own yield/ROI figure, not translated
   yieldBasis: StakeBasis
+  // Optional derived statistic. yieldPct retains its source-only meaning.
+  derivedYield?: {
+    valuePct: number | null
+    basis: 'level-stakes'
+    approximate: true
+    denominatorUnits: number | null
+    fromMonth: string
+    throughMonth: string
+    presentMonths: string[]
+    missingMonths: string[]
+    sourceLspResolutionUnits: 0.01
+    conditionalQuantizationAllowancePct: number | null
+  }
   winRatePct: number | null
   avgOdds: number | null
   periodLabel: string | null // as shown by the source, e.g. 'last 12 months'
