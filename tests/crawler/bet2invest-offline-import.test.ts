@@ -105,3 +105,33 @@ describe('planOfflineImport (puro, sin DB)', () => {
     expect(r.log[0].class).toBe('frescura')
   })
 })
+
+import { mergeBet2InvestUpdate } from '@/crawler/platforms/bet2invest/to-db'
+describe('derivados de ventana no se quedan obsoletos', () => {
+  const html = fx('b2i-e2e-ssr.html')
+  const months = JSON.parse(fx('b2i-e2e-months.json'))
+  it('una captura posterior con ventana null REEMPLAZA el yield viejo (no lo conserva)', () => {
+    const old = buildOfflineRow({ slug: 'a', html, monthsJson: months, capturedAt: NOW, surrogateId: -1 })
+    const later = buildOfflineRow({ slug: 'a', html, monthsJson: months, capturedAt: new Date('2027-06-15T00:00:00Z'), surrogateId: -1 })
+    if (old.status !== 'row' || later.status !== 'row') throw new Error('rows expected')
+    expect(old.insert.yield3m).toBe('-38.60')
+    expect(later.insert.yield3m).toBeNull()
+    const merged = mergeBet2InvestUpdate(old.insert, later.insert)
+    expect(merged.yield3m).toBeNull()
+    expect(merged.yield12m).toBe(later.insert.yield12m) // ventana nueva: 12m aun contiene oct-2026
+    expect(merged.capturedAt).toEqual(later.insert.capturedAt)
+  })
+  it('un campo no derivado ausente sigue preservando el valor guardado', () => {
+    const old = buildOfflineRow({ slug: 'a', html, monthsJson: months, capturedAt: NOW, surrogateId: -1 })
+    if (old.status !== 'row') throw new Error('row expected')
+    const merged = mergeBet2InvestUpdate({ ...old.insert, followers: 7 }, { ...old.insert, followers: null })
+    expect(merged.followers).toBe(7)
+  })
+  it('cobertura y reinicio: se conserva cuantos meses y apuestas respaldan la cifra y la incertidumbre', () => {
+    const r = buildOfflineRow({ slug: 'a', html, monthsJson: months, capturedAt: NOW, surrogateId: -1 })
+    if (r.status !== 'row') throw new Error('row expected')
+    expect(r.windows[6]).toMatchObject({ months: 1, bets: 12 })
+    expect(r.windows[6].caveats).toContain('cobertura-1-de-6-meses')
+    expect(r.windows[6].caveats.some((c) => c.startsWith('lastReset-null') || c === 'ventana-posterior-al-reinicio')).toBe(true)
+  })
+})

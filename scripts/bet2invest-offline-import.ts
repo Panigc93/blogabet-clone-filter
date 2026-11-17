@@ -11,7 +11,7 @@ if (!dir || !at || !out || !Number.isFinite(new Date(at).getTime())) {
 }
 const { report, rows } = simulateImport(dir, new Date(at))
 const detail = rows.map((r) =>
-  r.status === 'row' ? { slug: r.slug, status: r.status, basis: r.basis, yield: r.insert.yield, yield3m: r.insert.yield3m, yield6m: r.insert.yield6m, yield12m: r.insert.yield12m, windowReasons: Object.fromEntries(([3, 6, 12] as const).map((n) => [`${n}m`, r.windows[n].reason])) } : r,
+  r.status === 'row' ? { slug: r.slug, status: r.status, basis: r.basis, yield: r.insert.yield, yield3m: r.insert.yield3m, yield6m: r.insert.yield6m, yield12m: r.insert.yield12m, windowReasons: Object.fromEntries(([3, 6, 12] as const).map((n) => [`${n}m`, r.windows[n].reason])), windowCoverage: Object.fromEntries(([3, 6, 12] as const).map((n) => [`${n}m`, { months: r.windows[n].months, bets: r.windows[n].bets, caveats: r.windows[n].caveats }])), picks: r.insert.picks } : r,
 )
 writeFileSync(out, JSON.stringify({ report, detail }, null, 1))
 console.log(JSON.stringify(report))

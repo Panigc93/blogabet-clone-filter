@@ -33,17 +33,16 @@
 //   (el HTML de servidor no lo trae); aquí NO se mapea: precio sin validar. Los objetos Stripe del
 //   payload Nuxt no se interpretan como precio. priceCurrency queda en su default y no afirma divisa
 //   (price null la hace muda).
-// - isPaid SOLO con accountType resuelto ('pro' => true). 'unknown' va a
-//   cuarentena[tipo-cuenta-desconocido]: no se asume free por defecto
-//   (precedente golazobets tipo-desconocido). La detección actual es por
-//   token PRO en og:title/description; la AUSENCIA de marca no es evidencia
-//   de cuenta free. Consecuencia conocida: con la señal sin verificar en
-//   vivo, la mayoría de perfiles irían a cuarentena hasta que la señal se
-//   valide; es un gap factual pendiente, no una decisión del propietario.
+// - isPaid SOLO con etiqueta explicita coherente en og:title y og:description: 'pro' y 'paid' => true, 'free'
+//   => false. 'unknown' (sin etiqueta, o campos que discrepan, o dos clases en un campo) va a
+//   cuarentena[tipo-cuenta-desconocido]: no se asume free por defecto. 'paid' dice cuenta de pago; no dice
+//   precio, suscripcion ni acceso (price sigue null). Que 'paid' equivalga a 'PRO' no esta verificado.
 // - sinceYear null: la columna 'Since' del listado tiene semántica NO
 //   verificada (¿alta? ¿primera apuesta?): no se mezcla con el sinceYear BB.
-// - yields de periodo y picks6mAvg null: la sección 'Profit by month' solo
-//   se ha observado en estado vacío (monthlyAvailable); null no es 0.
+// - yield3m/6m/12m: este mapeo los deja null; offline-import.ts los rellena desde la serie mensual de la API solo
+//   cuando la serie reproduce el ROI de cabecera y la ventana no toca el mes del reinicio (si no, null con motivo).
+//   picks6mAvg sigue null. Se recalculan en cada captura (mergeBet2InvestUpdate los sustituye aunque sean null).
+//   `picks` y `yield` son las cifras de la cabecera/pagina, nunca la suma de meses de la API.
 // - followers desde audience del perfil cuando la página lo expone.
 import type { TipsterInsert } from '@/db/schema'
 import type { Bet2InvestProfile } from './parse'
@@ -55,7 +54,7 @@ export const B2I_ROUND = 0.005
 // expone id numérico de origen, así que la clave operativa es
 // (platform, slug) y el id es SIEMPRE surrogate: o lo genera la única ruta
 // de import real en su transacción (secuencia tipsters_internal_id_seq,
-// borrador 0005 NO aplicado), o es un fixture del entorno aislado que debe
+// creada por la migración 0005, que la lectura de catálogo de Neon del 2026-11-17 muestra aplicada), o es un fixture del entorno aislado que debe
 // rechazarse antes de cualquier escritura real.
 export type Bet2InvestIdSource = 'internal-transactional' | 'isolated-fixture'
 
@@ -222,11 +221,16 @@ function buildInsert(
 // presentes sí actualizan. Pura: no toca la DB. Misma política que
 // mergeTipstrrUpdate. NO usar directamente: pasar por planBet2InvestUpsert,
 // que aplica las guardas de cuarentena y frescura.
+const B2I_DERIVED_WINDOW_KEYS = new Set(['yield3m', 'yield6m', 'yield12m', 'picks6mAvg'])
+
 export function mergeBet2InvestUpdate(existing: TipsterInsert, next: TipsterInsert): TipsterInsert {
   const merged: Record<string, unknown> = { ...existing }
   for (const [key, value] of Object.entries(next)) {
-    if (key === 'capturedAt' || key === 'statsUpdatedAt') {
-      merged[key] = value // la frescura la valida planBet2InvestUpsert antes
+    if (key === 'capturedAt' || key === 'statsUpdatedAt' || B2I_DERIVED_WINDOW_KEYS.has(key)) {
+      // Frescura validada antes por planBet2InvestUpsert. Los derivados de ventana (yield3m/6m/12m, picks6mAvg) se
+      // recalculan en cada captura: un null nuevo (sin datos, reinicio, serie que no cierra) REEMPLAZA al valor viejo,
+      // porque conservarlo dejaria un yield de otra ventana presentado como actual.
+      merged[key] = value
     } else if (value !== null && value !== undefined) {
       merged[key] = value
     }

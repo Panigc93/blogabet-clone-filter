@@ -14,7 +14,9 @@ import type { TipsterInsert } from '@/db/schema'
 export const B2I_WINDOWS = [3, 6, 12] as const
 export type B2IWindow = (typeof B2I_WINDOWS)[number]
 
-export type WindowYield = { value: string | null; reason: string | null; months: number; bets: number }
+// months/bets = coverage of the window (months WITH rows and their bets). A month without a row is absent, not zero.
+// caveats keeps uncertainty that does not block a figure (e.g. lastReset null does not prove no reset happened).
+export type WindowYield = { value: string | null; reason: string | null; months: number; bets: number; caveats: string[] }
 
 const ym = (y: number, m: number) => y * 12 + (m - 1)
 
@@ -28,7 +30,7 @@ export function windowYieldOrNull(
   now: Date,
   ctx: { headerRoiPct: number | null; lastReset: string | null; selected: boolean },
 ): WindowYield {
-  const no = (reason: string): WindowYield => ({ value: null, reason, months: 0, bets: 0 })
+  const no = (reason: string): WindowYield => ({ value: null, reason, months: 0, bets: 0, caveats: [] })
   if (!ctx.selected) return no('bankroll-no-vinculado')
   if (months === null) return no('sin-serie-mensual')
   if (months.length === 0) return no('serie-mensual-vacia')
@@ -50,7 +52,13 @@ export function windowYieldOrNull(
   if (used.length === 0) return no('sin-actividad-en-ventana')
   if (!(stake > 0)) return no('stake-cero-en-ventana')
   const profit = used.reduce((a, r) => a + r.profitUnits, 0)
-  return { value: ((100 * profit) / stake).toFixed(2), reason: null, months: used.length, bets: used.reduce((a, r) => a + r.bets, 0) }
+  return {
+    value: ((100 * profit) / stake).toFixed(2),
+    reason: null,
+    months: used.length,
+    bets: used.reduce((a, r) => a + r.bets, 0),
+    caveats: [ctx.lastReset === null ? 'lastReset-null-no-prueba-ausencia-de-reinicio' : 'ventana-posterior-al-reinicio', ...(used.length < n ? [`cobertura-${used.length}-de-${n}-meses`] : [])],
+  }
 }
 
 export type OfflineRow =
