@@ -85,6 +85,7 @@ export function monthsCloseWithTotals(
   profitUnits: number,
   totalsPrecision: 'rounded2' | 'full',
 ): boolean {
+  if (months.length === 0) return false // an empty series is "no data", never a zero that closes against zero totals
   const bets = months.reduce((a, r) => a + r.bets, 0)
   const profit = months.reduce((a, r) => a + r.profitUnits, 0)
   const tol = totalsPrecision === 'rounded2' ? 0.005 + 1e-9 : 1e-6
@@ -196,4 +197,52 @@ export function selectProfileIds(html: string): Bet2InvestBankrollSelection {
 export function extractProfileIds(html: string): Bet2InvestProfileIds | null {
   const r = selectProfileIds(html)
   return r.status === 'selected' ? r.ids : null // candidate or ambiguous: never guess
+}
+
+export interface Bet2InvestStatBlock {
+  roi: number | null
+  profit: number | null
+  betsNumber: number | null
+}
+
+/** One public bankroll as published in the page payload. `current` and `lastStatistics` are kept apart: never summed or merged. */
+export interface Bet2InvestBankrollBlocks {
+  bankrollId: number | null
+  isDefault: boolean | null
+  lastReset: string | null
+  current: Bet2InvestStatBlock | null
+  lastStatistics: Bet2InvestStatBlock | null // block before the last reset, when the payload carries one. Meaning is unverified.
+}
+
+/**
+ * Reads the per-bankroll counter blocks as they are, with no interpretation. Whether a reset block belongs in any
+ * aggregate is an open semantic decision (observed: some bankrolls show current 0 bets with a non-zero lastStatistics).
+ */
+export function extractBankrollBlocks(html: string): Bet2InvestBankrollBlocks[] | null {
+  const raw = cheerio.load(html)('script#__NUXT_DATA__').first().text()
+  if (!raw) return null
+  let d: unknown[]
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return null
+    d = parsed
+  } catch {
+    return null
+  }
+  const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x)
+  const val = (v: unknown): unknown => (typeof v === 'number' && v >= 0 && v < d.length && (typeof d[v] !== 'object' || d[v] === null) ? d[v] : v)
+  const n = (v: unknown): number | null => (typeof val(v) === 'number' ? (val(v) as number) : null)
+  const block = (ref: unknown): Bet2InvestStatBlock | null => {
+    const o = typeof ref === 'number' ? d[ref] : null
+    return isObj(o) ? { roi: n(o.roi), profit: n(o.profit), betsNumber: n(o.betsNumber) } : null
+  }
+  return d
+    .filter((x): x is Record<string, unknown> => isObj(x) && 'lastReset' in x && 'isMutable' in x && val(x.type) === 'public')
+    .map((b) => ({
+      bankrollId: n(b.id),
+      isDefault: typeof val(b.default) === 'boolean' ? (val(b.default) as boolean) : null,
+      lastReset: typeof val(b.lastReset) === 'string' ? (val(b.lastReset) as string) : null,
+      current: block(b.statistics),
+      lastStatistics: block(b.lastStatistics),
+    }))
 }

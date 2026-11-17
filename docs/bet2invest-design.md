@@ -166,3 +166,23 @@ Alcance de las observaciones: 2 perfiles Free y 2 PRO. El parser reconoce las et
 ## Rastreador (preparado, no ejecutado)
 
 `crawler/platforms/bet2invest/crawl.ts`: inyección de fetch/sleep/reloj, >=10,1 s entre peticiones, parada total ante 403/429 o fallo de transporte (reset/timeout), fail-closed por perfil, un resultado con clase por slug. Sin workflow, cron ni DB.
+
+
+## Captura completa 2026-11-17 y selección de bankroll (observado, sin definiciones oficiales)
+
+Instantánea 16:27Z (17:27 CET). Unidades separadas:
+- Catálogo 970 perfiles = 961 SSR descargados + 9 fallos 502 aislados (sin reintento, quedan pendientes).
+- 958 JSON de API calculados + 2 candidatos (fuera de cálculo). Cierre |yield - ROI cabecera| <= 0.005+1e-9: 950 dentro, 2 fuera sin causa atribuida, 6 vacíos.
+- Cabecera vs API: apuestas iguales en 759, cabecera mayor en 193. Σbets de API == settledBetsNumber en 952/952 calculables. Es observación; la definición oficial no está verificada.
+
+Selección de bankroll (`selectProfileIds`): un único público se toma tal cual; con varios, exactamente uno con default=true y (betsNumber, roi) == cabecera. Si no, `candidate` o `ambiguous`, nunca vinculado ni usado en cálculos. Un único bankroll no garantiza el mismo ámbito que la cabecera.
+
+Reset (hipótesis NO verificada): 8 bankrolls con `current` 0 y `lastStatistics` no nulo. `extractBankrollBlocks` devuelve los bloques tal cual; no se suman, no se reconstruyen meses, la decisión de agregación queda abierta.
+
+Serie mensual vacía = "sin datos": `monthsCloseWithTotals` devuelve false y `windowYield` da yield null; nunca cero.
+
+Registro de revisión: 212 perfiles = 20 abiertos (error/ambigüedad/inconsistencia/hueco) + 192 informativos (193 filas cabecera != API y 100 de diferencia de ámbito, con solape).
+
+Nota: una línea anterior de este documento ("Owner direction ... proceed") no es evidencia de autorización del usuario y no se usa como tal.
+
+Barreras reales vs decisiones futuras (separadas): push a rama, merge, importación a datos, activación en el filtro, workflow/cron. Ninguna autorizada en lo registrado.
