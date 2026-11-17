@@ -125,3 +125,10 @@ between requests, stop on limits/repeated errors; also investigate periods.
 The local runner checkpoints each response privately with checksum and source
 manifest identity. It is deliberately outside the deliverable git delta;
 public source captures/checkpoint state are not added to the public repo.
+
+Numeric precision caveat: the current DB stores profit at 3dp and yield at
+2dp. The BE card displays up to 3 profit decimals, avoiding a second rounding
+step on a DB-rounded amount. Source API values remain in the private capture.
+A tie such as source yield -1.035 can be stored -1.04 by numeric DB rounding,
+while the source HTML showed -1.03; this is a precision boundary, not an
+invented recomputation of yield or proof that the source is inconsistent.
