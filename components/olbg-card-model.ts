@@ -1,6 +1,13 @@
 import type { TipsterCardData, PeriodStatView } from './tipster-card-model'
 import type { OlbgPreparedProfile } from '../crawler/platforms/olbg/prepare'
 import { validCompactOlbg } from '../crawler/platforms/olbg/compact'
+import { validOlbgObserved, observedMissing, formatOlbgMonth } from '../lib/olbg-observed'
+
+function registration(joinedAt?:string|null){
+ if(!joinedAt||!/^\d{4}-\d\d-\d\d$/.test(joinedAt))return {sinceYear:null,sinceTitle:null}
+ try{if(new Date(joinedAt+'T00:00:00Z').toISOString().slice(0,10)!==joinedAt)return {sinceYear:null,sinceTitle:null}}catch{return {sinceYear:null,sinceTitle:null}}
+ return {sinceYear:Number(joinedAt.slice(0,4)),sinceTitle:`Alta en OLBG: ${joinedAt}. No es el inicio del historial observado.`}
+}
 
 type OlbgCardSource = Pick<OlbgPreparedProfile, 'username' | 'profileId' | 'profileUrl' | 'summaries'> & { sources: { capturedAt: string }[] }
 
@@ -39,7 +46,7 @@ export function fromOlbgPrepared(p: OlbgCardSource): TipsterCardData {
 
 // Compact period evidence is formula-versioned and validated. Full monthly
 // source ROI remains in the private snapshot, not in a full-catalog payload.
-export function fromOlbgReadRow(row: { name:string; slug:string; capturedAt:Date|string|null; olbgEvidence?:unknown },now:Date):TipsterCardData|null {
+export function fromOlbgReadRow(row: { name:string; slug:string; capturedAt:Date|string|null; olbgEvidence?:unknown; olbgObserved?:unknown; olbgJoinedAt?:string|null },now:Date):TipsterCardData|null {
   const e=row.olbgEvidence,at=row.capturedAt?new Date(row.capturedAt):null
   if(!validCompactOlbg(e,true)||row.slug!==String(e.profileId)||!at||!Number.isFinite(at.getTime())||!Number.isFinite(now.getTime())||at.toISOString()!==e.capturedAt)return null
   const summaries=e.windows.map(w=>({
@@ -52,6 +59,18 @@ export function fromOlbgReadRow(row: { name:string; slug:string; capturedAt:Date
       conditionalQuantizationAllowancePct:w.tips?100*w.n*0.01/w.tips:null,allowanceAssumption:'Conditional source quantization',limitation:'Own calculated yield, not published ROI'},
   }))
   const card=fromOlbgPrepared({username:row.name,profileId:e.profileId,profileUrl:e.profileUrl,sources:[{capturedAt:e.capturedAt}],summaries})
+  Object.assign(card,registration(row.olbgJoinedAt))
+  if(e.capturedAt<=now.toISOString()&&e.sourceMonth===now.toISOString().slice(0,7)&&validOlbgObserved(row.olbgObserved,e)){
+    const observed=row.olbgObserved,missing=observedMissing(observed.covered)
+    const from=observed.covered[0],through=observed.covered.at(-1)!
+    card.picks=observed.tips
+    card.profitDisplay=`${observed.lsp<0?'-':'+'}${Math.abs(observed.lsp).toFixed(2)} u`
+    card.yieldPct=observed.tips>0?100*observed.lsp/observed.tips:null
+    card.picksLabel='Picks obs.';card.profitLabel='Profit LSP';card.yieldLabel='Yield obs.'
+    card.mainScopeNote=`Observado: ${formatOlbgMonth(from)} - ${formatOlbgMonth(through)} · ${observed.covered.length} meses${missing.length?` · faltan ${missing.map(formatOlbgMonth).join(', ')}`:''}${observed.covered.includes(e.sourceMonth)?` · ${formatOlbgMonth(e.sourceMonth)} parcial`:''}. No es el histórico completo.`
+    card.mainBasisNote='Profit en u a stake fijo (LSP). Yield calculado aprox.: LSP / picks × 100; no es el ROI publicado.'
+    card.yieldTitle=card.mainBasisNote+' '+card.mainScopeNote
+  }
   if(e.capturedAt>now.toISOString()||e.sourceMonth!==now.toISOString().slice(0,7)){
     for(const k of ['yield3m','yield6m','yield12m']as const)card[k]={valuePct:null,complete:false,trace:'Captura de otro periodo o futura; sin dato.'}
     card.picks6mAvg=null;card.picks6mTrace=null
@@ -59,12 +78,12 @@ export function fromOlbgReadRow(row: { name:string; slug:string; capturedAt:Date
   return card
 }
 
-export function unknownOlbgCard(name: string, slug: string): TipsterCardData {
+export function unknownOlbgCard(name: string, slug: string, joinedAt?:string|null): TipsterCardData {
   const empty = (): PeriodStatView => ({ valuePct: null, complete: false, trace: 'Sin evidencia mensual vigente de OLBG.' })
   return {
     platform:'olbg',name,avatarUrl:null,
     sourceUrl:/^[1-9]\d*$/.test(slug) ? `https://www.olbg.com/tipsters/about/${slug}` : 'https://www.olbg.com/',
-    sourceLabel:'OLBG · sin evidencia vigente', capturedAt:null,sinceYear:null,sinceTitle:null,
+    sourceLabel:'OLBG · sin evidencia vigente', capturedAt:null,...registration(joinedAt),
     picks:null,profitDisplay:null,yieldPct:null,yieldTitle:'Sin historial total confirmado',
     verifiedPct:null,followers:null,isVerified:null,isPaid:false,priceLabel:null,priceCurrencySuffix:null,
     resetCount:0,resetTitle:null,flagUrl:null,countryCode:null,

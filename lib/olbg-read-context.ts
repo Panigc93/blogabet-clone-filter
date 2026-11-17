@@ -1,6 +1,8 @@
 import { sql, and, eq, gte, lte, type SQL } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 import { buildFilters, type TipsterFilters, type SortField } from './query'
+import registrations from '@/data/olbg/pilot-registrations.json'
+import { validOlbgRegistration } from '@/crawler/platforms/olbg/registration'
 import { periodReadContext } from './bet2invest-period-read'
 
 
@@ -23,8 +25,24 @@ export function olbgReadContext(base: ReturnType<typeof periodReadContext>, enab
   }
   const emptyAllTime = <T>(column: SQL<T> | object) => sql<T | null>`CASE WHEN ${tipsters.platform} = 'olbg' THEN NULL ELSE ${column} END`
   const period = (n: number, column: SQL<string | null>) => sql<string | null>`CASE WHEN ${tipsters.platform} = 'olbg' THEN ${value(n)} ELSE ${column} END`
+  // Small, source-dated registration facts for the approved pilot. No dates
+  // are inferred from monthly coverage. Raw receipts are retained privately.
+  const joinedDates = Object.fromEntries(registrations.filter(validOlbgRegistration).map(r=>[String(r.profileId),r.joinedAt]))
+  // Correlated aggregate is in the SELECT projection only, not FROM/order/
+  // filters/count. Only selected page rows read their exact retained snapshot;
+  // the browser receives labels/counts/totals, never the monthly record.
+  const observed = sql<unknown>`CASE WHEN ${tipsters.platform}='olbg' THEN
+    (SELECT jsonb_build_object('covered',jsonb_agg(m->>'month' ORDER BY m->>'month'),
+       'tips',sum((m->>'tips')::bigint),'lsp',sum((m->>'levelStakeProfit')::numeric))
+     FROM olbg_monthly_snapshots observed_snapshot
+     CROSS JOIN LATERAL jsonb_array_elements(observed_snapshot.record->'months') m
+     WHERE observed_snapshot.profile_id=(olbg_stats.compact->>'profileId')::bigint
+       AND observed_snapshot.captured_at=olbg_stats.captured_at
+       AND observed_snapshot.record_sha256=olbg_stats.compact->>'snapshotHash') ELSE NULL END`
   const projection = {
     ...base.projection,
+    olbgJoinedAt: sql<string|null>`CASE WHEN ${tipsters.platform}='olbg' THEN (${JSON.stringify(joinedDates)}::jsonb)->>${tipsters.slug} ELSE NULL END`,
+    olbgObserved: enabled ? observed : sql<unknown>`NULL::jsonb`,
     picks: emptyAllTime<number>(tipsters.picks),
     profit: emptyAllTime<string>(tipsters.profit),
     profitUnit: sql<string>`CASE WHEN ${tipsters.platform} = 'olbg' THEN 'olbg-level-stakes-units' ELSE ${tipsters.profitUnit} END`,
@@ -65,8 +83,11 @@ export function olbgReadContext(base: ReturnType<typeof periodReadContext>, enab
       return column ? [sql`${column} DESC NULLS LAST`, sql`${tipsters.id} DESC`] : base.order(sort)
     },
     warnings: (p: TipsterFilters) => p.platform !== undefined && p.platform !== 'olbg' ? []
-      : p.minPicks !== undefined || p.minYield !== undefined || p.maxYield !== undefined || p.tipo === 'free' || p.tipo === 'paid'
-        ? ['OLBG: los filtros totales y free/paid excluyen sus datos desconocidos; no equivalen a cero. Los periodos son yield calculado aproximado a stake fijo, separado del ROI publicado.'] : [],
+      : [
+          'OLBG: las cifras principales son acumulados observados con su rango, no el histórico completo. Los filtros y el orden históricos no usan esos acumulados; los periodos 3/6/12m se mantienen separados.',
+          ...(p.minPicks !== undefined || p.minYield !== undefined || p.maxYield !== undefined || p.tipo === 'free' || p.tipo === 'paid'
+            ? ['OLBG: los filtros históricos y free/paid excluyen sus datos desconocidos; no equivalen a cero. El yield es calculado aproximado a stake fijo, separado del ROI publicado.'] : []),
+        ],
 
   }
 }

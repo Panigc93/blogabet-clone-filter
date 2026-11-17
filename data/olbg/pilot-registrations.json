@@ -1,0 +1,41 @@
+[
+  {
+    "version": 1,
+    "profileId": 565069,
+    "username": "ewanvrs",
+    "joinedAt": "2020-12-14",
+    "source": {
+      "url": "https://www.olbg.com/tipsters/about/565069/__data.json",
+      "capturedAt": "2026-11-17T21:29:28.322Z",
+      "httpDate": "Tue, 17 Nov 2026 21:29:28 GMT",
+      "sha256": "7569e25f0998a94b04324d03b0f2d301e716cf71959dc1ce180ecb59a3de1d4a",
+      "bytes": 6888
+    }
+  },
+  {
+    "version": 1,
+    "profileId": 342919,
+    "username": "ToofanExpress",
+    "joinedAt": "2014-10-24",
+    "source": {
+      "url": "https://www.olbg.com/tipsters/about/342919/__data.json",
+      "capturedAt": "2026-11-17T21:29:49.541Z",
+      "httpDate": "Tue, 17 Nov 2026 21:29:49 GMT",
+      "sha256": "41768c90b45a8e7c2a5c94da17eebea1ad02cc780b10d4c6c3ef7396bde7d3f4",
+      "bytes": 10449
+    }
+  },
+  {
+    "version": 1,
+    "profileId": 535122,
+    "username": "Fjori",
+    "joinedAt": "2020-04-16",
+    "source": {
+      "url": "https://www.olbg.com/tipsters/about/535122/__data.json",
+      "capturedAt": "2026-11-17T21:29:38.734Z",
+      "httpDate": "Tue, 17 Nov 2026 21:29:38 GMT",
+      "sha256": "cec4c71fab48cbb68ffc15bab7e815cb134df49147a9e48cf6c100589f8ff7b1",
+      "bytes": 12359
+    }
+  }
+]

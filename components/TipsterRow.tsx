@@ -7,10 +7,10 @@ function fmtYield(v: number | null): string {
   return v >= 0 ? `+${v.toFixed(1)}%` : `${v.toFixed(1)}%`
 }
 
-function StatCell({ value, label, colorClass, title }: { value: string; label: string; colorClass?: string; title?: string }) {
+function StatCell({ value, label, colorClass, title, compact }: { value: string; label: string; colorClass?: string; title?: string; compact?:boolean }) {
   return (
     <div className="stat-cell" style={{ textAlign: 'center' }} title={title}>
-      <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: 22.5, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#333' }}>
+      <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: compact ? 17 : 22.5, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#333' }}>
         {value}
       </span>
       <span style={{ display: 'block', fontSize: 15, fontFamily: 'Roboto, sans-serif', fontWeight: 700, color: '#333', marginTop: 2 }}>
@@ -101,16 +101,18 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
       <div className="tipster-middle" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 4px' }}>
         {/* Row 1: alltime stats */}
         <div className="tipster-stats-alltime" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '14px 0 4px' }}>
-          <StatCell value={String(t.sinceYear ?? '—')} label="Since" title={t.sinceTitle ?? undefined} />
-          <StatCell value={t.picks !== null ? String(t.picks) : '—'} label="Picks" />
+          <StatCell value={String(t.sinceYear ?? '—')} label={t.platform==='olbg'?'Alta OLBG':'Since'} title={t.sinceTitle ?? undefined} />
+          <StatCell value={t.picks !== null ? String(t.picks) : '—'} label={t.picksLabel ?? 'Picks'} title={t.mainScopeNote} />
           <StatCell
             value={t.profitDisplay ?? '—'}
-            label="Profit"
+            label={t.profitLabel ?? 'Profit'}
+            compact={t.platform==='olbg'}
+            title={t.mainBasisNote ? `${t.mainBasisNote} ${t.mainScopeNote}` : undefined}
             colorClass={t.profitDisplay ? (t.profitDisplay.startsWith('-') ? 'text-danger' : 'text-success') : ''}
           />
           <StatCell
-            value={t.yieldPct !== null ? (t.yieldPct >= 0 ? `+${Math.round(t.yieldPct)}%` : `${Math.round(t.yieldPct)}%`) : '—'}
-            label="Yield"
+            value={t.yieldPct !== null ? (t.platform==='olbg'?fmtYield(t.yieldPct):(t.yieldPct >= 0 ? `+${Math.round(t.yieldPct)}%` : `${Math.round(t.yieldPct)}%`)) : '—'}
+            label={t.yieldLabel ?? 'Yield'}
             colorClass={numColorClass(t.yieldPct)}
             title={t.yieldTitle ?? undefined}
           />
@@ -125,6 +127,8 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
           />
           <StatCell value={t.followers !== null ? String(t.followers) : '—'} label="Followers" />
         </div>
+        {t.mainScopeNote && <div style={{padding:'3px 6px 2px',fontSize:11,lineHeight:1.4,color:'#666',textAlign:'center'}}>{t.mainScopeNote}</div>}
+        {t.mainBasisNote && <div style={{padding:'0 6px 6px',fontSize:11,lineHeight:1.4,color:'#666',textAlign:'center'}}>{t.mainBasisNote}</div>}
         {/* Row 2: period stats (only if available) */}
         {t.showPeriodRow && (
           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', borderTop: '1px dashed #eee' }}>
