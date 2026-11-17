@@ -1,4 +1,5 @@
 // Server-only: a single metadata lookup on the existing app database.
+import { activeManifestPredicate } from './bet2invest-active-manifests'
 import { and, eq, sql } from 'drizzle-orm'
 import { db } from '@/db'
 import { importValidationLog } from '@/db/schema'
@@ -19,8 +20,9 @@ async function readDatabasePeriodAudits(now: Date) {
   const records = await db.select({ reason: importValidationLog.reason, runId: importValidationLog.runId })
     .from(importValidationLog).where(and(
       eq(importValidationLog.platform, 'bet2invest'), eq(importValidationLog.klass, MANIFEST_CLASS),
+      activeManifestPredicate(),
       sql`${importValidationLog.capturedAt} >= ${from} AND ${importValidationLog.capturedAt} < ${to}`,
     )).limit(1001)
-  if (records.length > 1000) throw new Error('current-month manifest retention requires review')
+  if (records.length > 1000) throw new Error('current active manifest population requires review')
   return databaseAudits(records)
 }

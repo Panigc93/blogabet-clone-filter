@@ -115,3 +115,22 @@ Final ordinary suite: 48 test files, 441 tests passed; eight opt-in PostgreSQL
 tests skipped by default. Separate real PostgreSQL short harness: seven
 passed, full-corpus test skipped. tsc and production Next build pass. This
 is local execution evidence, not approval or verification of deployment.
+
+## Follow-up: successive refreshes
+
+The reader now selects only manifests whose private rows array still matches
+at least one CURRENT tipster by platform, slug and exact capturedAt. Old
+receipts and empty replay manifests stay stored but no longer consume the
+1000 returned-record budget. Each refresh can replace its current receipt
+without deleting history or changing source dates. Existing 8 MiB integrity
+and 10000 profile bounds still apply to the active metadata index.
+
+A PGlite regression advances a stored capture, retains the old manifest plus
+1007 empty replays (1009 total records), and verifies only the new current
+receipt is selected. Targeted test and tsc pass. This supersedes the earlier
+1000-total-retained-manifest limitation: the count bound now applies to active
+receipts. It is not an indexed query-performance guarantee: JSON row matching
+uses existing storage without a new index/migration, so historical growth
+can still increase database scan work. No production latency is claimed.
+The full 441-test/build evidence above predates this small reader follow-up;
+a new full suite/build and independent review remain required.
