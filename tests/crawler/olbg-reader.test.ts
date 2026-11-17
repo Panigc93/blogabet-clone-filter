@@ -65,6 +65,39 @@ describe('OLBG public statistical reader, real projected captures', () => {
     expect(p.summaries.find(x => x.closedMonths === 12)).toMatchObject({ tips: null, levelStakeProfit: null })
     expect(p.summaries.find(x => x.closedMonths === 12)!.missingMonths).toContain('2026-03')
   })
+  it('derives approximate fixed-stake yield only from complete disjoint global months', () => {
+    const p = prepareOlbgProfile(performance(565069, 'month'), performance(565069, 'table-1'), performance(565069, 'table-2'))
+    const six = p.summaries.find(x => x.closedMonths === 6)!
+    expect(six.derivedLevelStakesYieldPct).toBeCloseTo(100 * 441.71 / 1337, 10)
+    expect(six.derivedLevelStakesBasis).toMatchObject({
+      approximate: true, scope: 'global-all-tips', unitStakePerTip: 1,
+      eachWayUnitsPerLeg: 0.5, denominatorUnits: 1337, sourceLspResolutionUnits: 0.01,
+    })
+    expect(six.derivedLevelStakesBasis.conditionalQuantizationAllowancePct).toBeCloseTo(6 / 1337, 10)
+    expect(six.roiPct).toBeNull()
+    expect(p.globalYieldPct).toBeNull()
+    expect(p.summaries.find(x => x.closedMonths === 12)!.derivedLevelStakesYieldPct).toBeNull()
+    const changedTables = structuredClone(performance(565069, 'table-1'))
+    changedTables.tables.forEach(x => { x.levelStakeProfit = 99999; x.roiPct = 999 })
+    const changed = prepareOlbgProfile(performance(565069, 'month'), changedTables, performance(565069, 'table-2'))
+    expect(changed.summaries).toEqual(p.summaries)
+  })
+  it('handles negative, zero-denominator and missing-month derived values without zero filling', () => {
+    const monthly = performance(535122, 'month')
+    const prepare = () => prepareOlbgProfile(monthly, performance(535122, 'table-1'), performance(535122, 'table-2'))
+    monthly.months.forEach(x => { if (!x.currentMonth) x.levelStakeProfit = -Math.abs(x.levelStakeProfit) })
+    expect(prepare().summaries.find(x => x.closedMonths === 3)!.derivedLevelStakesYieldPct).toBeLessThan(0)
+    monthly.months.forEach(x => { if (!x.currentMonth) { x.tips = 0; x.levelStakeProfit = 0 } })
+    expect(prepare().summaries.find(x => x.closedMonths === 3)).toMatchObject({
+      tips: 0, derivedLevelStakesYieldPct: null,
+      derivedLevelStakesBasis: { denominatorUnits: 0, conditionalQuantizationAllowancePct: null },
+    })
+    monthly.months = monthly.months.filter(x => x.month !== '2026-09')
+    expect(prepare().summaries.find(x => x.closedMonths === 3)).toMatchObject({
+      tips: null, derivedLevelStakesYieldPct: null, missingMonths: ['2026-09'],
+      derivedLevelStakesBasis: { denominatorUnits: null },
+    })
+  })
   it('does not turn absent June into zero activity or a complete six-month window', () => {
     const p = prepareOlbgProfile(performance(342919, 'month'), performance(342919, 'table-1'), performance(342919, 'table-2'))
     expect(p.summaries.find(x => x.closedMonths === 6)).toMatchObject({ tips: null, missingMonths: ['2026-06'] })
@@ -110,6 +143,23 @@ describe('OLBG public statistical reader, real projected captures', () => {
     twelve.tables[0].throughMonth = '2026-09'
     expect(() => prepareOlbgProfile(performance(565069, 'month'), performance(565069, 'table-1'), twelve)).toThrow('anchors')
   })
+})
+
+describe('OLBG current-month source reconciliation, not a historical ROI formula', () => {
+  for (const pilot of fixture('history-reconciliation')) {
+    it(`reconciles current reported count, voids and EW stake for ${pilot.id}`, () => {
+      const rows = pilot.rows as { tipid: number; stake: number; winew: string; profit: number; result: string }[]
+      expect(new Set(rows.map(x => x.tipid)).size).toBe(rows.length)
+      expect(rows.filter(x => x.result !== 'Void')).toHaveLength(pilot.reported.tips)
+      expect(rows.filter(x => x.result === 'Void').every(x => x.profit === 0)).toBe(true)
+      expect(rows.some(x => x.winew === 'EW')).toBe(true)
+      const totalStake = (x: typeof rows[number]) => x.stake * (x.winew === 'EW' ? 2 : 1)
+      expect(rows.every(x => totalStake(x) === 50)).toBe(true)
+      expect(rows.reduce((v, x) => v + x.profit / totalStake(x), 0)).toBeCloseTo(pilot.reported.lsp, 10)
+      // At fixed virtual stake both ROI candidates coincide. This deliberately
+      // does not assert which denominator the historical published ROI uses.
+    })
+  }
 })
 
 describe('OLBG bounded directory discovery', () => {

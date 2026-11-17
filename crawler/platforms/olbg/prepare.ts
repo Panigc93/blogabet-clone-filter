@@ -9,6 +9,18 @@ export interface OlbgClosedSummary {
   tips: number | null
   levelStakeProfit: number | null
   roiPct: null
+  derivedLevelStakesYieldPct: number | null
+  derivedLevelStakesBasis: {
+    scope: 'global-all-tips'
+    unitStakePerTip: 1
+    eachWayUnitsPerLeg: 0.5
+    denominatorUnits: number | null
+    approximate: true
+    sourceLspResolutionUnits: 0.01
+    conditionalQuantizationAllowancePct: number | null
+    allowanceAssumption: string
+    limitation: string
+  }
 }
 
 // Read-only preparation for a later database/UI integration. Deliberately NOT a
@@ -32,11 +44,28 @@ export function prepareOlbgProfile(monthly: OlbgPerformance, six: OlbgPerformanc
     const window = Array.from({ length: n }, (_, i) => shift(through, i - n + 1))
     const presentMonths = window.filter(m => byMonth.has(m))
     const missingMonths = window.filter(m => !byMonth.has(m))
+    const tips = missingMonths.length ? null : window.reduce((v, m) => v + byMonth.get(m)!.tips, 0)
+    const lsp = missingMonths.length ? null : Math.round(window.reduce((v, m) => v + byMonth.get(m)!.levelStakeProfit, 0) * 100) / 100
+    const hasDenominator = tips !== null && tips > 0
     return {
       closedMonths: n, fromMonth: window[0], throughMonth: through, presentMonths, missingMonths,
-      tips: missingMonths.length ? null : window.reduce((v, m) => v + byMonth.get(m)!.tips, 0),
-      levelStakeProfit: missingMonths.length ? null : Math.round(window.reduce((v, m) => v + byMonth.get(m)!.levelStakeProfit, 0) * 100) / 100,
+      tips,
+      levelStakeProfit: lsp,
       roiPct: null,
+      derivedLevelStakesYieldPct: hasDenominator ? 100 * lsp! / tips! : null,
+      derivedLevelStakesBasis: {
+        scope: 'global-all-tips' as const,
+        unitStakePerTip: 1 as const,
+        eachWayUnitsPerLeg: 0.5 as const,
+        denominatorUnits: tips,
+        approximate: true as const,
+        sourceLspResolutionUnits: 0.01 as const,
+        // Conditional allowance for rounded OR truncated monthly inputs. This
+        // is not a guaranteed source-error bound or an OLBG rounding policy.
+        conditionalQuantizationAllowancePct: hasDenominator ? n * 0.01 * 100 / tips! : null,
+        allowanceAssumption: 'Each monthly LSP differs from its unquantized value by at most 0.01 units; source policy unverified',
+        limitation: 'Own fixed-stake metric, not published ROI; non-void count reconciled on two current pilot months, not every historical month',
+      },
     }
   })
   const names = Array.from(new Set([monthly, six, twelve].map(x => x.username)))
@@ -47,7 +76,7 @@ export function prepareOlbgProfile(monthly: OlbgPerformance, six: OlbgPerformanc
     // No averaged ROI, hidden zero-fill, inferred all-time or backdated activity.
     globalYieldPct: null, allTime: null, lastPickAt: null, followers: null,
     databaseReady: false as const,
-    blockers: ['No verified aggregate yield/total-staked denominator', 'Existing scalar row needs explicit statistic scope before integration'],
+    blockers: ['Published aggregate ROI denominator unavailable; derived fixed-stake yield requires an explicit comparison decision', 'Existing scalar row needs explicit statistic scope before integration'],
   }
 }
 

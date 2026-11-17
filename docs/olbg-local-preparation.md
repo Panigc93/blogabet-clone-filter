@@ -50,9 +50,9 @@ Fuentes de contraste:
 ## Archivos
 
 - `crawler/platforms/olbg/reader.ts`: parser puro, referencias Svelte sin eval; identidad, URL, ámbito, periodo y cifras validados.
-- `crawler/platforms/olbg/prepare.ts`: preparación explícitamente no lista para DB, sin yield global ni all-time inventados.
+- `crawler/platforms/olbg/prepare.ts`: preparación no lista para DB. Conserva yield de producción null; añade rendimiento derivado aproximado a stake fijo, separado y con base/ventana. Véase `docs/olbg-denominator-investigation.md`.
 - `scripts/prepare-olbg-local.ts`: lee capturas privadas existentes y genera plan JSON local. Ningún acceso de red/DB.
-- `tests/fixtures/olbg/`: diez PROYECCIONES estadísticas de respuestas reales. No son respuestas completas. Se excluyen campos incidentales de cuenta, premios, moderación, tracking y propietario del avatar.
+- `tests/fixtures/olbg/`: diez proyecciones iniciales y una proyección de conciliación de historial de dos pilotos. No son respuestas completas. Se excluyen campos incidentales de cuenta, premios, moderación, tracking y propietario del avatar.
 - `components/olbg/OlbgStats.tsx`: prototipo no aprobado para integrarse. No está importado en rutas existentes. Se conserva solo para revisar el ámbito de las cifras.
 - `scripts/preview-olbg.tsx`: genera HTML local usando esas proyecciones. No publica nada.
 
@@ -60,7 +60,7 @@ Las capturas completas y el inventario de867IDs quedan FUERA del repositorio pú
 
 ## Verificación
 
-- 281 tests de30archivos pasaron, incluidos21nuevos específicosOLBG.
+- 285 tests de 30 archivos pasaron tras añadir el derivado, incluidos 25 específicos OLBG.
 - `npx tsc --noEmit` pasó.
 - `NEXT_IGNORE_INCORRECT_LOCKFILE=1 npm run build` pasó. La ejecución normal llegó a compilar pero el reparador automático del lockfile SWC falló intentando parchear dependencias preexistentes y agotó el turno; no se cambiaron lockfile ni versiones.
 - Render local con React y componente real, inspeccionado a1280y390px. No desbordamiento horizontal en390. Positivos, negativos y desconocidos diferenciados. No es una captura de producción ni diseño aprobado.
@@ -69,6 +69,6 @@ Las capturas completas y el inventario de867IDs quedan FUERA del repositorio pú
 
 El escalar actual de `tipsters` asume un conjunto global de métricas. No cabe mapear una tabla deportiva a ese escalar como si fuera historial total. Esta preparación no oculta ese problema con nulls ambiguos ni altera la consulta compartida.
 
-Siguiente decisión técnica: soportar ámbito explícito de estadística en la presentación existente, manteniendo ranking global sin dato cuando no exista agregado verificable, o conseguir total apostado/ROI global exacto de una fuente pública adicional. Antes de publicar: revisión independiente del lector, modelo de ámbito, persistencia privada con procedencia real por captura y tests SQL/API/mapper con las otras plataformas.
+Siguiente decisión técnica: aceptar o no un rendimiento propio aproximado a stake fijo como métrica comparable, sin llamarlo ROI publicado ni cambiar silenciosamente el contrato compartido. Ya se prepara por separado en ventanas completas; no resuelve los huecos de meses ni la falta del denominador del ROI publicado. Antes de publicar: revisión independiente del lector, decisión explícita de base/ámbito, persistencia privada con procedencia por captura y tests SQL/API/mapper con las otras plataformas.
 
 Posibles ampliaciones de descubrimiento: órdenes públicos alternativos y meses anteriores, de forma acotada y deduplicada. No se han recorrido todavía ni justifican anunciar exhaustividad. No se ha iniciado la descarga masiva de867perfiles.
