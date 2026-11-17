@@ -1,0 +1,118 @@
+{
+  "projection": true,
+  "originalReceipt": {
+    "url": "https://www.olbg.com/tipsters/performance/table/342919/__data.json?p=2",
+    "startedAt": "2026-11-17T18:22:33.768258+00:00",
+    "capturedAt": "2026-11-17T18:22:34.628646+00:00",
+    "httpDate": "Tue, 17 Nov 2026 18:22:34 GMT",
+    "sha256": "6ce26480c3979b7bb107fb864e96c242e636725a53999e22659910b5b565d670",
+    "bytes": 6424,
+    "status": 200
+  },
+  "node": {
+    "type": "data",
+    "data": [
+      {
+        "effectiveTipsterId": 1,
+        "mode": 2,
+        "tipsterUsername": 3,
+        "monthFilterSelected": 4,
+        "sportPeriodSelected": 5,
+        "sportPeriodOptions": 6,
+        "monthRows": 16,
+        "sportRows": 17
+      },
+      342919,
+      "table",
+      "ToofanExpress",
+      60,
+      2,
+      [
+        7,
+        10,
+        13
+      ],
+      {
+        "id": 8,
+        "label": 9
+      },
+      0,
+      "November",
+      {
+        "id": 11,
+        "label": 12
+      },
+      1,
+      "Previous Six Months",
+      {
+        "id": 14,
+        "label": 15
+      },
+      2,
+      "Previous Twelve Months",
+      [],
+      [
+        18,
+        25,
+        32,
+        39
+      ],
+      {
+        "tableName": 19,
+        "tips": 20,
+        "lsp": 21,
+        "roi": 22,
+        "strike": 23,
+        "profit": 24
+      },
+      "Horse Racing All Tips",
+      "617",
+      "60.24",
+      "10%",
+      "21%",
+      "3,012",
+      {
+        "tableName": 26,
+        "tips": 27,
+        "lsp": 28,
+        "roi": 29,
+        "strike": 30,
+        "profit": 31
+      },
+      "Horse Racing",
+      "209",
+      "29.66",
+      "14%",
+      "25%",
+      "1,483",
+      {
+        "tableName": 33,
+        "tips": 34,
+        "lsp": 35,
+        "roi": 36,
+        "strike": 37,
+        "profit": 38
+      },
+      "Irish Horse Racing",
+      "26",
+      "-0.66",
+      "-3%",
+      "27%",
+      "-33",
+      {
+        "tableName": 40,
+        "tips": 41,
+        "lsp": 42,
+        "roi": 43,
+        "strike": 44,
+        "profit": 45
+      },
+      "Horse Racing NAP",
+      "53",
+      "-21.32",
+      "-40%",
+      "25%",
+      "-1,066"
+    ]
+  }
+}

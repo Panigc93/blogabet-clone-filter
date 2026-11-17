@@ -1,0 +1,223 @@
+{
+  "projection": true,
+  "originalReceipt": {
+    "url": "https://www.olbg.com/tipsters/performance/month/342919/__data.json",
+    "startedAt": "2026-11-17T18:22:11.945481+00:00",
+    "capturedAt": "2026-11-17T18:22:12.928740+00:00",
+    "httpDate": "Tue, 17 Nov 2026 18:22:12 GMT",
+    "sha256": "a3def5097e23b675cf7f623afee37c5a2f942f6c4e61687e8ec9d2a88b2cd3bc",
+    "bytes": 9353,
+    "status": 200
+  },
+  "node": {
+    "type": "data",
+    "data": [
+      {
+        "effectiveTipsterId": 1,
+        "mode": 2,
+        "tipsterUsername": 3,
+        "monthFilterSelected": 4,
+        "sportPeriodSelected": 5,
+        "sportPeriodOptions": 6,
+        "monthRows": 16,
+        "sportRows": 94
+      },
+      342919,
+      "month",
+      "ToofanExpress",
+      60,
+      0,
+      [
+        7,
+        10,
+        13
+      ],
+      {
+        "id": 8,
+        "label": 9
+      },
+      0,
+      "November",
+      {
+        "id": 11,
+        "label": 12
+      },
+      1,
+      "Previous Six Months",
+      {
+        "id": 14,
+        "label": 15
+      },
+      2,
+      "Previous Twelve Months",
+      [
+        17,
+        24,
+        31,
+        38,
+        45,
+        52,
+        59,
+        66,
+        73,
+        80,
+        87
+      ],
+      {
+        "date": 18,
+        "tips": 19,
+        "lsp": 20,
+        "roi": 21,
+        "strike": 22,
+        "profit": 23
+      },
+      "Nov 2026",
+      "530",
+      "51.54",
+      "10%",
+      "34%",
+      "2,577",
+      {
+        "date": 25,
+        "tips": 26,
+        "lsp": 27,
+        "roi": 28,
+        "strike": 29,
+        "profit": 30
+      },
+      "Oct 2026",
+      "33",
+      "2.20",
+      "7%",
+      "18%",
+      "110",
+      {
+        "date": 32,
+        "tips": 33,
+        "lsp": 34,
+        "roi": 35,
+        "strike": 36,
+        "profit": 37
+      },
+      "Sep 2026",
+      "37",
+      "-16.76",
+      "-45%",
+      "11%",
+      "-838",
+      {
+        "date": 39,
+        "tips": 40,
+        "lsp": 41,
+        "roi": 42,
+        "strike": 43,
+        "profit": 44
+      },
+      "Aug 2026",
+      "29",
+      "20.50",
+      "71%",
+      "17%",
+      "1,025",
+      {
+        "date": 46,
+        "tips": 47,
+        "lsp": 48,
+        "roi": 49,
+        "strike": 50,
+        "profit": 51
+      },
+      "Jul 2026",
+      "23",
+      "26.18",
+      "114%",
+      "57%",
+      "1,309",
+      {
+        "date": 53,
+        "tips": 54,
+        "lsp": 55,
+        "roi": 56,
+        "strike": 57,
+        "profit": 58
+      },
+      "May 2026",
+      "28",
+      "8.72",
+      "31%",
+      "18%",
+      "436",
+      {
+        "date": 60,
+        "tips": 61,
+        "lsp": 62,
+        "roi": 63,
+        "strike": 64,
+        "profit": 65
+      },
+      "Apr 2026",
+      "115",
+      "13.06",
+      "11%",
+      "19%",
+      "653",
+      {
+        "date": 67,
+        "tips": 68,
+        "lsp": 69,
+        "roi": 70,
+        "strike": 71,
+        "profit": 72
+      },
+      "Mar 2026",
+      "163",
+      "-46.58",
+      "-29%",
+      "17%",
+      "-2,329",
+      {
+        "date": 74,
+        "tips": 75,
+        "lsp": 76,
+        "roi": 77,
+        "strike": 78,
+        "profit": 79
+      },
+      "Feb 2026",
+      "125",
+      "-0.06",
+      "0%",
+      "26%",
+      "-3",
+      {
+        "date": 81,
+        "tips": 82,
+        "lsp": 83,
+        "roi": 84,
+        "strike": 85,
+        "profit": 86
+      },
+      "Jan 2026",
+      "49",
+      "41.42",
+      "85%",
+      "16%",
+      "2,071",
+      {
+        "date": 88,
+        "tips": 89,
+        "lsp": 90,
+        "roi": 91,
+        "strike": 92,
+        "profit": 93
+      },
+      "Dec 2025",
+      "15",
+      "11.56",
+      "77%",
+      "47%",
+      "578",
+      []
+    ]
+  }
+}
