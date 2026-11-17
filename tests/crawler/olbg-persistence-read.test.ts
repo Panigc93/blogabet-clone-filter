@@ -51,7 +51,7 @@ describe('OLBG reversible local persistence/read preparation',()=>{
   expect(recordSummaries(r)[1].derivedLevelStakesYieldPct).toBeCloseTo(33.037397)
   expect(r.months.find(m=>m.month==='2026-05')!.roiPct).toBe(40)
   for(const bad of [{...r,profileId:1},{...r,scope:'sport'}, {...r,months:[...r.months,r.months[0]]},{...r,secret:'unexpected'}]) expect(validMonthlyRecord(bad)).toBe(false)
-  expect(()=>planOlbgPersistence(r,{catalogSurrogateId:-1,activeCapturedAt:null,sameSnapshot:null})).toThrow('surrogate')
+  expect(()=>planOlbgPersistence(r,{catalogSurrogateId:0,activeCapturedAt:null,sameSnapshot:null})).toThrow('surrogate')
   expect(()=>planOlbgPersistence(r,{catalogSurrogateId:3,activeCapturedAt:r.capturedAt,sameSnapshot:{...r,username:'changed'}})).toThrow('conflict')
   expect(planOlbgPersistence(r,{catalogSurrogateId:3,activeCapturedAt:r.capturedAt,sameSnapshot:r}).action).toBe('no-op')
   expect(planOlbgPersistence(r,{catalogSurrogateId:3,activeCapturedAt:now.toISOString(),sameSnapshot:null}).action).toBe('skip-older')

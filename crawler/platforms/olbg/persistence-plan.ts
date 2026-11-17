@@ -20,6 +20,12 @@ CREATE TABLE olbg_monthly_active (
  profile_id bigint PRIMARY KEY,
  captured_at timestamptz NOT NULL,
  FOREIGN KEY(profile_id,captured_at) REFERENCES olbg_monthly_snapshots(profile_id,captured_at)
+);
+CREATE TABLE olbg_import_runs (
+ run_id text PRIMARY KEY,
+ input_sha256 text NOT NULL,
+ summary jsonb NOT NULL,
+ committed_at timestamptz NOT NULL DEFAULT NOW()
 );`
 export interface OlbgPersistenceState {
   catalogSurrogateId: number
@@ -36,7 +42,7 @@ export function olbgRecordDigest(r: OlbgMonthlyRecord) {
 }
 export function planOlbgPersistence(r: OlbgMonthlyRecord, state: OlbgPersistenceState) {
   if (!validMonthlyRecord(r)) throw new Error('Invalid record')
-  if (!Number.isSafeInteger(state.catalogSurrogateId) || state.catalogSurrogateId <= 0) throw new Error('Existing allocated catalog surrogate required; never use source ID as surrogate')
+  if (!Number.isSafeInteger(state.catalogSurrogateId) || state.catalogSurrogateId === 0 || state.catalogSurrogateId < -2147483648 || state.catalogSurrogateId > 2147483647) throw new Error('Existing allocated catalog surrogate required; never use source ID as surrogate')
   if (state.activeCapturedAt !== null && (!Number.isFinite(Date.parse(state.activeCapturedAt)) || new Date(state.activeCapturedAt).toISOString() !== state.activeCapturedAt)) throw new Error('Invalid active timestamp')
   if (state.sameSnapshot && canonicalOlbgJson(state.sameSnapshot) !== canonicalOlbgJson(r)) throw new Error('Immutable snapshot identity conflict')
   if (state.activeCapturedAt && state.activeCapturedAt > r.capturedAt) return { action: 'skip-older' as const, statements: [] }

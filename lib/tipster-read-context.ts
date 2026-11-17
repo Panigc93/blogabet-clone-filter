@@ -4,7 +4,7 @@ import { tipsters } from '@/db/schema'
 import { periodReadContext } from './bet2invest-period-read'
 import { olbgReadContext } from './olbg-read-context'
 import { decodeOlbgActiveRows, olbgActiveRange, unavailableOlbgRecords } from '@/crawler/platforms/olbg/active-read'
-import { olbgRecordDigest } from '@/crawler/platforms/olbg/persistence-plan'
+import { makeOlbgRevisionGuard } from './olbg-revision'
 import type { PeriodAudit } from './bet2invest-period-contract'
 import type { TipsterFilters } from './query'
 
@@ -26,13 +26,11 @@ export async function tipsterReadContext(audits: PeriodAudit[], now: Date) {
   const base=periodReadContext(audits,now)
   const enabled=olbgLocalReviewEnabled()
   const state=enabled?await loadLocalOlbgRecords(new Date()):{status:'disabled' as const,records:[],rejected:0}
-  const revision = (s: typeof state) => JSON.stringify([s.status,s.rejected,s.records.map(r=>[r.profileId,r.capturedAt,olbgRecordDigest(r)]).sort((a,b)=>String(a[0]).localeCompare(String(b[0])))])
-  const initialRevision=revision(state)
-  const changedSinceAnchor=enabled && state.records.some(r=>r.capturedAt > now.toISOString())
+  const guard=makeOlbgRevisionGuard(state,now,()=>new Date(),()=>loadLocalOlbgRecords(new Date()))
   const olbg=olbgReadContext(base,state.records,now)
   return {
-    base, olbg, projection:olbg.projection, order:olbg.order, enabled, changedSinceAnchor,
-    revisionUnchanged:async()=>!enabled || (now.toISOString().slice(0,7) === new Date().toISOString().slice(0,7) && initialRevision===revision(await loadLocalOlbgRecords(new Date()))),
+    base, olbg, projection:olbg.projection, order:olbg.order, enabled, changedSinceAnchor:enabled && guard.changedSinceAnchor,
+    revisionUnchanged:async()=>!enabled || guard.revisionUnchanged(),
     filters:(p:TipsterFilters)=>[...olbg.filters(p),...enabled?[]:[ne(tipsters.platform,'olbg')]],
     warnings:(p:TipsterFilters)=>enabled && (p.platform === undefined || p.platform === 'olbg')?[...olbg.warnings(p),...state.status==='ok'?[]:['OLBG: evidencia mensual no disponible o parcialmente inválida; valores no confirmados ocultos.']]:[],
     state:state.status,
