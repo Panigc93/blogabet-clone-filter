@@ -49,7 +49,7 @@ describe('shared Bet2Invest period eligibility before pagination', () => {
     expect(second.slice(1).every((r) => r.yield6m === null)).toBe(true)
     const card = fromDbTipster(second[0] as Tipster & { b2iAudit: PeriodAudit }, now)
     expect(card.yield6m.valuePct).toBe(10)
-    expect(card.yield6m.note).toContain('1 apuestas')
+    expect(card.yield6m.note).toContain('1 apuesta')
     expect(card.yield6m.trace).toContain('may 2026 - oct 2026')
     expect(card.yield6m.trace).toContain('reinicio no confirmado')
   })

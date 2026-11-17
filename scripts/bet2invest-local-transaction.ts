@@ -4,6 +4,9 @@ import { PGlite } from '@electric-sql/pglite'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { simulateImport } from '../crawler/platforms/bet2invest/offline-import'
+import { executeDatabaseAuditedImport, reconcileRun, MANIFEST_CLASS } from '../crawler/platforms/bet2invest/database-manifest'
+import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { executeOfflineImport, type ImportDatabase } from '../crawler/platforms/bet2invest/execute-offline-import'
 
 async function main() {
@@ -25,8 +28,11 @@ async function main() {
     }
     const before = (await pg.query("SELECT * FROM tipsters WHERE platform != 'bet2invest' ORDER BY id")).rows
     const db: ImportDatabase = { transaction: (fn) => pg.transaction((tx) => fn(tx)) }
+    const provenance = { codeRevision: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: resolve(__dirname, '..'), encoding: 'utf8' }).trim(), inputSha256: createHash('sha256').update(JSON.stringify(rows)).digest('hex'), calculatedAt: new Date() }
     const firstStart = performance.now()
-    const first = await executeOfflineImport(db, { rows, capturedAt, runId: 'local-first' })
+    const firstResult = await executeDatabaseAuditedImport(db, { rows, capturedAt, runId: 'local-first' }, provenance)
+    if (!firstResult.committed || !firstResult.plan) throw new Error('local first import not committed')
+    const first = firstResult.plan
     const firstTransactionMs = Math.round(performance.now() - firstStart)
     // Compare every persisted field against the transaction's plan.
     for (const item of first.plans) {
@@ -39,13 +45,18 @@ async function main() {
       if (new Date(row.captured_at as string).getTime() !== capturedAt.getTime()) throw new Error('capture time changed')
     }
     const replayStart = performance.now()
-    const second = await executeOfflineImport(db, { rows, capturedAt, runId: 'local-replay' })
+    const secondResult = await executeDatabaseAuditedImport(db, { rows, capturedAt, runId: 'local-replay' }, provenance)
+    if (!secondResult.committed || !secondResult.plan) throw new Error('local replay not committed')
+    const second = secondResult.plan
     const replayTransactionMs = Math.round(performance.now() - replayStart)
     const after = (await pg.query("SELECT * FROM tipsters WHERE platform != 'bet2invest' ORDER BY id")).rows
     if (JSON.stringify(before) !== JSON.stringify(after)) throw new Error('other platform changed')
     const persisted = (await pg.query("SELECT count(*)::int AS rows, count(yield_3m)::int AS yield3m, count(yield_6m)::int AS yield6m, count(yield_12m)::int AS yield12m FROM tipsters WHERE platform='bet2invest'")).rows
     const logs = (await pg.query('SELECT run_id, class, count(*)::int AS count FROM import_validation_log GROUP BY run_id, class ORDER BY run_id, class')).rows
-    const result = { mode: 'local-memory-only', firstTransactionMs, replayTransactionMs, sourceReport: report, first: first.counts, replay: second.counts, persisted, logs, otherPlatformsUnchanged: true, allPersistedValuesVerified: true, executedAt: new Date().toISOString(), capturedAt: capturedAt.toISOString(), caveat: 'Windows remain anchored to capturedAt, not executedAt. This does not refresh a stale capture.', windowAudit: rows.filter((r) => r.status === 'row').map((r) => ({ slug: r.slug, windows: r.windows })) }
+    const manifestReceipt = await reconcileRun(pg, 'local-first')
+    if (!manifestReceipt || manifestReceipt.sha256 !== firstResult.receipt?.sha256) throw new Error('manifest receipt mismatch')
+    const manifestCount = (await pg.query('SELECT count(*)::int AS n FROM import_validation_log WHERE platform=$1 AND class=$2', ['bet2invest', MANIFEST_CLASS])).rows
+    const result = { mode: 'local-memory-only', manifestReceipt, manifestCount, firstTransactionMs, replayTransactionMs, sourceReport: report, first: first.counts, replay: second.counts, persisted, logs, otherPlatformsUnchanged: true, allPersistedValuesVerified: true, executedAt: new Date().toISOString(), capturedAt: capturedAt.toISOString(), caveat: 'Windows remain anchored to capturedAt, not executedAt. This does not refresh a stale capture.', windowAudit: rows.filter((r) => r.status === 'row').map((r) => ({ slug: r.slug, windows: r.windows })) }
     writeFileSync(out, JSON.stringify(result, null, 2))
     console.log(JSON.stringify({ ...result, windowAudit: `${result.windowAudit.length} records in report` }, null, 2))
   } finally {

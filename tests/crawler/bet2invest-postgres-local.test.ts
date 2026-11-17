@@ -1,5 +1,6 @@
 // Opt-in real PostgreSQL test. Only a Unix socket directory with the explicit
 // test database is accepted. No DATABASE_URL, TCP host or production adapter.
+import { executeDatabaseAuditedImport, reconcileRun } from '@/crawler/platforms/bet2invest/database-manifest'
 import { transactionAdapter } from '@/crawler/platforms/bet2invest/transaction-adapter'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { userInfo } from 'node:os'
@@ -163,6 +164,18 @@ describe.skipIf(!enabled)('real local PostgreSQL independent sessions and timeou
     await expect(timeoutDb.transaction(async (tx) => { await tx.query('SELECT pg_sleep(0.2)') })).rejects.toMatchObject({ code: '57014' })
     expect((await a.query('SELECT 1 AS ok')).rows[0].ok).toBe(1)
     events.push({ test: 'explicit-inert-adapter-real-pin', commit: true, cancelledTransactionRolledBack: true, statementTimeoutRolledBack: true })
+  })
+  it('single database manifest commits atomically and reconciles on an independent backend', async () => {
+    const pinned = { query: async <T extends Record<string, unknown>>(text: string, params?: unknown[]) => ({ rows: (await a.query(text, params)).rows as T[] }), discard: async () => { await a.end() } }
+    const explicit = transactionAdapter(pinned, { statementMs: 1000, idleMs: 2000, budgetMs: 3000 })
+    const provenance = { codeRevision: '8b27552', inputSha256: 'a'.repeat(64), calculatedAt: at }
+    const batch = input('atomic-db-manifest')
+    const result = await executeDatabaseAuditedImport(explicit, batch, provenance)
+    expect(result.receipt?.received).toBe(true)
+    const independent = { query: async <T extends Record<string, unknown>>(text: string, params?: unknown[]) => ({ rows: (await observer.query(text, params)).rows as T[] }) }
+    expect(await reconcileRun(independent, batch.runId)).toEqual(result.receipt)
+    expect((await executeDatabaseAuditedImport(explicit, batch, provenance)).alreadyCommitted).toBe(true)
+    events.push({ test: 'atomic-database-manifest-independent-readback', oneRunReceipt: true, replayNoNewWrites: true })
   })
   it('cooperative whole-transaction budget aborts many individually short queries', async () => {
     let n = 0

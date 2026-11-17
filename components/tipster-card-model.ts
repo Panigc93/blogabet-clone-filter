@@ -287,9 +287,10 @@ function bet2investFromDbRow(t: Tipster & AuditedTipster, now: Date): TipsterCar
     if (!t.b2iAudit || t.b2iAudit.slug !== t.slug || !periodEligible(t.capturedAt, t.b2iAudit, n, value, now)) return empty()
     const w = t.b2iAudit.windows[n]
     const range = `${fmtYm(w.from)} - ${fmtYm(w.to)}`
-    const sample = `${w.bets} apuestas · ${w.months}/${n} meses con datos`
+    const sampleCount = `${w.bets} ${w.bets === 1 ? 'apuesta' : 'apuestas'}`
+    const sample = `${sampleCount} · ${w.months}/${n} meses con datos`
     const reset = w.caveats.some((c) => c.startsWith('lastReset-null')) ? 'reinicio no confirmado' : 'posterior al reinicio'
-    return { valuePct: num(value), complete: w.months === n, trace: `${range} · ${sample} · ${reset}. Mes ausente no equivale a cero.`, note: `${w.bets} apuestas` }
+    return { valuePct: num(value), complete: w.months === n, trace: `${range} · ${sample} · ${reset}. Mes ausente no equivale a cero.`, note: sampleCount }
   }
   const periods = { yield3m: period(3), yield6m: period(6), yield12m: period(12) }
   return {

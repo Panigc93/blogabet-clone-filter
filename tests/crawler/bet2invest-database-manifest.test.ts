@@ -1,0 +1,80 @@
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { PGlite } from '@electric-sql/pglite'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { executeDatabaseAuditedImport, reconcileRun, databaseAudits, MANIFEST_CLASS } from '@/crawler/platforms/bet2invest/database-manifest'
+import { TransactionOutcomeUnknown } from '@/crawler/platforms/bet2invest/transaction-adapter'
+import { buildOfflineRow } from '@/crawler/platforms/bet2invest/offline-import'
+import type { ImportDatabase } from '@/crawler/platforms/bet2invest/execute-offline-import'
+const pg = new PGlite()
+const db: ImportDatabase = { transaction: (fn) => pg.transaction((tx) => fn(tx)) }
+const at = new Date('2026-11-17T16:27:00Z')
+const html = readFileSync(join(__dirname, 'fixtures/b2i-e2e-ssr.html'), 'utf8')
+const monthsJson = JSON.parse(readFileSync(join(__dirname, 'fixtures/b2i-e2e-months.json'), 'utf8'))
+const input = (runId: string, slug = runId) => ({ rows: [buildOfflineRow({ slug, html, monthsJson, capturedAt: at, surrogateId: -1 })], capturedAt: at, runId })
+const provenance = { codeRevision: '8b27552', inputSha256: 'a'.repeat(64), calculatedAt: at }
+const manifests = async () => (await pg.query<{ reason: string; run_id: string }>('SELECT reason, run_id FROM import_validation_log WHERE platform=$1 AND class=$2', ['bet2invest', MANIFEST_CLASS])).rows
+beforeAll(async () => {
+  for (const f of ['0000_sudden_jazinda.sql', '0001_add_last_reset_at.sql', '0002_add_is_verified.sql', '0003_naive_dormammu.sql', '0004_multi_platform.sql', '0005_tipstrr_internal_pk.sql']) {
+    for (const q of readFileSync(join(__dirname, '../../drizzle', f), 'utf8').split('--> statement-breakpoint')) if (q.trim()) await pg.exec(q)
+  }
+})
+afterAll(() => pg.close())
+describe('one atomic database manifest per Bet2Invest run', () => {
+  it('writes one manifest, verifies receipt, same-run replay returns existing receipt without new writes', async () => {
+    const result = await executeDatabaseAuditedImport(db, input('first', 'real-profile'), provenance)
+    expect(result.committed).toBe(true); expect(result.plan?.counts.insert).toBe(1)
+    expect(result.receipt?.received).toBe(true)
+    const before = await manifests()
+    expect(before).toHaveLength(1)
+    const replay = await executeDatabaseAuditedImport(db, input('first', 'real-profile'), provenance)
+    expect(replay.alreadyCommitted).toBe(true); expect(replay.receipt).toEqual(result.receipt)
+    expect(await manifests()).toEqual(before)
+    expect(await reconcileRun(pg, 'first')).toEqual(result.receipt)
+    const decoded = databaseAudits(before.map((r) => ({ reason: r.reason, runId: r.run_id })))
+    expect(decoded[0].slug).toBe('real-profile')
+    expect(JSON.stringify(decoded)).not.toContain('inputSha256')
+    expect(JSON.stringify(decoded)).not.toContain('codeRevision')
+  })
+  it('rejects run id provenance conflict, reserved log slug does not collide with actual tipster identity', async () => {
+    await expect(executeDatabaseAuditedImport(db, input('first', 'real-profile'), { ...provenance, inputSha256: 'b'.repeat(64) })).rejects.toThrow('conflicts')
+    await expect(executeDatabaseAuditedImport(db, input('first', 'different-payload'), provenance)).rejects.toThrow('conflicts')
+    await expect(executeDatabaseAuditedImport(db, input('../escape'), provenance)).rejects.toThrow('run id')
+    expect((await executeDatabaseAuditedImport(db, input('reserved', '__b2i_run__:first'), provenance)).committed).toBe(true)
+    const actual = await pg.query("SELECT * FROM tipsters WHERE slug='__b2i_run__:first'")
+    expect(actual.rows).toHaveLength(1)
+  })
+  it('manifest write failure rolls back tipsters and logs atomically, including no success receipt', async () => {
+    await pg.exec("ALTER TABLE import_validation_log ADD CONSTRAINT reject_manifest CHECK (run_id != 'fail-manifest')")
+    await expect(executeDatabaseAuditedImport(db, input('fail-manifest'), provenance)).rejects.toThrow()
+    expect((await pg.query("SELECT * FROM tipsters WHERE slug='fail-manifest'")).rows).toHaveLength(0)
+    expect(await reconcileRun(pg, 'fail-manifest')).toBeNull()
+    await pg.exec('ALTER TABLE import_validation_log DROP CONSTRAINT reject_manifest')
+  })
+  it('COMMIT acknowledgement loss is unknown; fresh read reconciles committed manifest without replay', async () => {
+    let writes = 0
+    const lost: ImportDatabase = { transaction: async (work) => { const result = await db.transaction(work); writes++; throw new TransactionOutcomeUnknown('synthetic dropped acknowledgement') } }
+    const result = await executeDatabaseAuditedImport(lost, input('unknown-commit'), provenance)
+    expect(result.state).toBe('unknown'); expect(result.committed).toBeNull()
+    expect((await reconcileRun(pg, 'unknown-commit'))?.received).toBe(true)
+    expect((await executeDatabaseAuditedImport(db, input('unknown-commit'), provenance)).alreadyCommitted).toBe(true)
+    expect(writes).toBe(1)
+    expect(await reconcileRun(pg, 'never-started')).toBeNull()
+  })
+  it('oversize manifest aborts whole batch without partial rows or log receipt', async () => {
+    const batch = input('too-big')
+    const rows = [...batch.rows, { slug: 'huge-quarantine', status: 'quarantine' as const, reason: 'x'.repeat(2 * 1024 * 1024) }]
+    await expect(executeDatabaseAuditedImport(db, { ...batch, rows }, provenance)).rejects.toThrow('exceeds 2 MiB')
+    expect((await pg.query("SELECT * FROM tipsters WHERE slug='too-big'")).rows).toHaveLength(0)
+    expect(await reconcileRun(pg, 'too-big')).toBeNull()
+  })
+  it('tamper and duplicate run identity fail closed; manifest class is separate from errors', async () => {
+    const rows = await manifests()
+    const body = JSON.parse(rows[0].reason); body.manifest.rows[0].windows[3].bets++
+    expect(() => databaseAudits([{ reason: JSON.stringify(body), runId: rows[0].run_id }])).toThrow('integrity')
+    await pg.query('INSERT INTO import_validation_log (platform,slug,class,reason,run_id) SELECT platform,slug,class,reason,run_id FROM import_validation_log WHERE run_id=$1', ['first'])
+    await expect(reconcileRun(pg, 'first')).rejects.toThrow('duplicate')
+    const errors = await pg.query<{ n: number }>('SELECT count(*)::int AS n FROM import_validation_log WHERE platform=$1 AND class<>$2', ['bet2invest', MANIFEST_CLASS])
+    expect(errors.rows[0].n).toBe(0)
+  })
+})

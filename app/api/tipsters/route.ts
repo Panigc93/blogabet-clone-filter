@@ -1,5 +1,5 @@
 import { periodReadContext } from '@/lib/bet2invest-period-read'
-import { loadCommittedAudits } from '@/crawler/platforms/bet2invest/audit-manifest'
+import { loadDatabasePeriodAudits } from '@/lib/bet2invest-period-index'
 import { parseActivity } from '@/lib/activity'
 import { activityWarning } from '@/lib/activity-query'
 import { NextRequest, NextResponse } from 'next/server'
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
   const sort = (p.get('sort') as SortField) ?? 'yield'
   const page = Number(p.get('page') ?? 0)
 
-  const periods = periodReadContext(loadCommittedAudits(process.env.B2I_AUDIT_DIR))
+  const periods = periodReadContext(await loadDatabasePeriodAudits())
   const where = buildFilters(filters)
 
   const rows = await db
