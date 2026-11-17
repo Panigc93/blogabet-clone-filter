@@ -82,8 +82,15 @@ describe('OLBG reversible local persistence/read preparation',()=>{
   const {c,select}=query(); const rows=await select().orderBy(...c.order('yield6m'))
   expect(rows.map(r=>r.slug)).toEqual(['bb','565069','b2i','535122','1','342919'])
   expect(rows.find(r=>r.slug==='b2i')!.yield6m).toBe('10.00')
-  expect(rows.filter(r=>r.platform==='olbg').every(r=>r.yield===null&&r.picks===null&&r.profit===null&&r.followers===null)).toBe(true)
+  expect(rows.filter(r=>r.platform==='olbg').every(r=>r.followers===null)).toBe(true)
   expect(rows.filter(r=>r.platform==='olbg').every(r=>r.profitUnit==='olbg-level-stakes-units')).toBe(true)
+  // OLBG main figures come from the observed partial sample; only the row without current evidence stays NULL
+  const noEvidence=rows.find(r=>r.slug==='1')!
+  expect(noEvidence.yield===null&&noEvidence.picks===null&&noEvidence.profit===null&&noEvidence.sinceYear===null).toBe(true)
+  const evRow=rows.find(r=>r.slug==='565069')!,evRec=records[0]
+  const evTips=evRec.months.reduce((n,m)=>n+m.tips,0),evLsp=Math.round(evRec.months.reduce((n,m)=>n+m.levelStakeProfit,0)*100)/100
+  expect(evRow.picks).toBe(evTips);expect(Number(evRow.profit)).toBeCloseTo(evLsp);expect(Number(evRow.yield)).toBeCloseTo(100*evLsp/evTips)
+  expect(evRow.sinceYear).toBe(2020)
   const first=await select().orderBy(...c.order('yield6m')).limit(2)
   const second=await select().orderBy(...c.order('yield6m')).limit(2).offset(2)
   expect([...first,...second].map(r=>r.slug)).toEqual(rows.slice(0,4).map(r=>r.slug))
@@ -102,27 +109,28 @@ describe('OLBG reversible local persistence/read preparation',()=>{
    const row=rows.find(r=>r.slug===String(record.profileId))!
    const tips=record.months.reduce((n,m)=>n+m.tips,0),lsp=Math.round(record.months.reduce((n,m)=>n+m.levelStakeProfit,0)*100)/100
    expect(row.olbgObserved).toEqual({covered:record.months.map(m=>m.month).sort(),tips,lsp})
-   expect(row.picks).toBeNull();expect(row.profit).toBeNull();expect(row.yield).toBeNull()
+   // the same observed figures drive filters and sort: picks/profit/yield/sinceYear are the visible card values
+   expect(row.picks).toBe(tips);expect(Number(row.profit)).toBeCloseTo(lsp);expect(Number(row.yield)).toBeCloseTo(100*lsp/tips)
+   expect(row.sinceYear).toBe(record.profileId===342919?2014:2020)
    const card=fromDbTipster(row,now)
    expect(card.picks).toBe(tips);expect(card.profitDisplay).toContain(Math.abs(lsp).toFixed(2));expect(card.yieldPct).toBeCloseTo(100*lsp/tips)
-   expect(card.mainScopeNote).toContain('No es el histórico completo');expect(card.mainScopeNote).toContain('nov 2026 parcial')
-   expect(card.mainBasisNote).toContain('LSP / picks');expect(card.yieldLabel).toBe('Yield obs.')
+   expect(card.mainScopeNote).toContain('No es el histórico completo');expect(card.mainScopeNote).toContain('nov 2026 en curso')
+   expect(card.mainBasisNote).toContain('LSP / picks')
    expect(card.sinceYear).toBe(record.profileId===342919?2014:2020)
    expect(card.sinceTitle).toContain('Alta en OLBG:')
    const json=JSON.stringify(row);expect(json).not.toContain('joinDate');expect(json).not.toContain('httpDate');expect(json).not.toContain('record_sha256')
   }
-  expect(fromDbTipster(rows.find(r=>r.slug==='342919')!,now).mainScopeNote).toContain('faltan jun 2026')
+  expect(fromDbTipster(rows.find(r=>r.slug==='342919')!,now).mainScopeNote).toContain('sin datos de jun 2026')
   expect(rows.find(r=>r.slug==='bb')!.olbgObserved).toBeNull()
   expect(rows.find(r=>r.slug==='1')!.olbgJoinedAt).toBeNull()
   const sql=select().orderBy(...c.order('yield6m')).limit(2).toSQL()
-  expect(sql.sql).toContain('observed_snapshot.profile_id=')
+  expect(sql.sql).toContain('osnap.profile_id=a.profile_id')
   expect((sql.sql.match(/jsonb_to_recordset/g)||[])).toHaveLength(1) // existing B2I audit only
+  expect((sql.sql.match(/jsonb_array_elements/g)||[])).toHaveLength(1) // observed sample computed once, inside olbg_stats
   const explain=await pg.query('EXPLAIN (ANALYZE,FORMAT JSON) '+sql.sql,sql.params)
-  const plan=JSON.stringify(explain.rows)
-  expect(plan).toContain('SubPlan 1')
-  const aggregates:number[]=[]
-  const walk=(x:any)=>{if(x&&typeof x==='object'){if(x['Subplan Name']==='SubPlan 1')aggregates.push(x['Actual Loops']);Object.values(x).forEach(walk)}}
-  walk(explain.rows);expect(aggregates).toEqual([1]) // two selected rows: one OLBG, one Blogabet
+  const loops:number[]=[]
+  const walk=(x:any)=>{if(x&&typeof x==='object'){if(typeof x['Subplan Name']==='string'&&x['Subplan Name'].startsWith('SubPlan'))loops.push(x['Actual Loops']);Object.values(x).forEach(walk)}}
+  walk(explain.rows);expect(Math.max(...loops)).toBeLessThanOrEqual(3) // bounded by the 3 active pilot rows
   expect((await query(now,false).select()).every(r=>r.olbgObserved===null)).toBe(true)
  })
  it('masks accidental compact corruption before ranking and restores exact trusted projection',async()=>{
@@ -132,18 +140,30 @@ describe('OLBG reversible local persistence/read preparation',()=>{
   await pg.query('UPDATE olbg_monthly_active SET compact=$1::jsonb,compact_md5=$2 WHERE profile_id=565069',[JSON.stringify(old.compact),old.compact_md5])
   expect(Number((await query().select()).find(r=>r.slug==='565069')!.yield6m)).toBeCloseTo(33.037397)
  })
- it('filters and counts against the same masked all-time metric, not internal zero or period yield',async()=>{
+ it('filters and sorts OLBG by the same observed figures the card shows',async()=>{
   const {c,select}=query()
-  const conditions=c.filters({minPicks:0,minYield:0})
-  expect((await select().where(and(...conditions))).map(r=>r.slug).sort()).toEqual(['b2i','bb'])
-  const all=await select().orderBy(...c.order('picks'))
-  expect(all.slice(0,2).map(r=>r.slug)).toEqual(['bb','b2i'])
-  const count=await db.select({n:sql<number>`count(*)::int`}).from(tipsters).leftJoin(c.source,c.joinOn).where(and(...conditions))
-  expect(count[0].n).toBe(2)
+  const tipsOf=(id:number)=>records.find(x=>x.profileId===id)!.months.reduce((n,m)=>n+m.tips,0)
+  const lspOf=(id:number)=>records.find(x=>x.profileId===id)!.months.reduce((n,m)=>n+m.levelStakeProfit,0)
+  // historical filters read the visible observed figures for OLBG
+  const minPicks=c.filters({platform:'olbg',minPicks:1200})
+  expect((await select().where(and(...minPicks))).map(r=>r.slug).sort()).toEqual(['342919','535122','565069'].filter(s=>tipsOf(Number(s))>=1200).sort())
+  const minYield=c.filters({platform:'olbg',minYield:0})
+  expect((await select().where(and(...minYield))).map(r=>r.slug).sort()).toEqual(['342919','535122','565069'].filter(s=>lspOf(Number(s))>0).sort())
+  // rows without current evidence never pass historical filters
+  expect((await select().where(and(...c.filters({platform:'olbg',minPicks:0})))).some(r=>r.slug==='1')).toBe(false)
+  // sorting by picks/yield/profit/since_year uses the visible figures too
+  const byPicks=await select().orderBy(...c.order('picks'))
+  expect(byPicks[0].slug).toBe(String(records.reduce((a,b)=>a.months.reduce((n,m)=>n+m.tips,0)>=b.months.reduce((n,m)=>n+m.tips,0)?a:b).profileId))
+  expect(byPicks.at(-1)!.picks).toBeNull()
+  const bySince=await select().orderBy(...c.order('since_year'))
+  expect(bySince.slice(0,3).map(r=>r.slug).sort()).toEqual(['342919','535122','565069']) // DESC by registration year: 2020, 2020, 2014
+  expect(bySince.slice(0,3).map(r=>r.sinceYear)).toEqual([2020,2020,2014])
+  const count=await db.select({n:sql<number>`count(*)::int`}).from(tipsters).leftJoin(c.source,c.joinOn).where(and(...minPicks))
+  expect(count[0].n).toBe(['342919','535122','565069'].filter(s=>tipsOf(Number(s))>=1200).length)
   expect((await select().where(and(...c.filters({tipo:'free'})))).some(r=>r.platform==='olbg')).toBe(false)
   expect(c.warnings({platform:'blogabet'})).toEqual([])
-  expect(c.warnings({platform:'olbg',minPicks:0})).toHaveLength(2)
-  expect(c.warnings({platform:'olbg'})).toHaveLength(1)
+  expect(c.warnings({platform:'olbg',minPicks:0})).toEqual([])
+  expect(c.warnings({platform:'olbg'})).toEqual([])
  })
  it('fails closed on missing evidence, identity/capture mismatch, invalid records and month rollover',async()=>{
   const {c,select}=query(new Date('2026-12-01T00:00:00Z'))

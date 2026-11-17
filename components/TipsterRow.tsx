@@ -77,7 +77,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
             {t.sourceLabel}
           </a>
           {t.capturedAt && (
-            <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{t.platform === 'olbg' ? 'OLBG' : t.platform === 'golazobets' ? 'Golazobets' : t.platform === 'bet2invest' ? 'Bet2Invest' : 'Tipstrr'} · captura {t.capturedAt} (no es sincronización)</div>
+            <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{t.platform === 'olbg' ? 'OLBG' : t.platform === 'golazobets' ? 'Golazobets' : t.platform === 'bet2invest' ? 'Bet2Invest' : 'Tipstrr'} · captura {t.capturedAt}</div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
             {t.isVerified !== null && (
@@ -101,18 +101,18 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
       <div className="tipster-middle" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 4px' }}>
         {/* Row 1: alltime stats */}
         <div className="tipster-stats-alltime" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '14px 0 4px' }}>
-          <StatCell value={String(t.sinceYear ?? '—')} label={t.platform==='olbg'?'Alta OLBG':'Since'} title={t.sinceTitle ?? undefined} />
-          <StatCell value={t.picks !== null ? String(t.picks) : '—'} label={t.picksLabel ?? 'Picks'} title={t.mainScopeNote} />
+          <StatCell value={String(t.sinceYear ?? '—')} label="Since" title={t.sinceTitle ?? undefined} />
+          <StatCell value={t.picks !== null ? String(t.picks) : '—'} label="Picks" />
           <StatCell
             value={t.profitDisplay ?? '—'}
-            label={t.profitLabel ?? 'Profit'}
+            label="Profit"
             compact={t.platform==='olbg'}
             title={t.mainBasisNote ? `${t.mainBasisNote} ${t.mainScopeNote}` : undefined}
             colorClass={t.profitDisplay ? (t.profitDisplay.startsWith('-') ? 'text-danger' : 'text-success') : ''}
           />
           <StatCell
             value={t.yieldPct !== null ? (t.platform==='olbg'?fmtYield(t.yieldPct):(t.yieldPct >= 0 ? `+${Math.round(t.yieldPct)}%` : `${Math.round(t.yieldPct)}%`)) : '—'}
-            label={t.yieldLabel ?? 'Yield'}
+            label="Yield"
             colorClass={numColorClass(t.yieldPct)}
             title={t.yieldTitle ?? undefined}
           />
@@ -127,8 +127,14 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
           />
           <StatCell value={t.followers !== null ? String(t.followers) : '—'} label="Followers" />
         </div>
-        {t.mainScopeNote && <div style={{padding:'3px 6px 2px',fontSize:11,lineHeight:1.4,color:'#666',textAlign:'center'}}>{t.mainScopeNote}</div>}
-        {t.mainBasisNote && <div style={{padding:'0 6px 6px',fontSize:11,lineHeight:1.4,color:'#666',textAlign:'center'}}>{t.mainBasisNote}</div>}
+        {t.mainScopeNote && (
+          <details style={{padding:'2px 6px 6px',fontSize:11,lineHeight:1.4,color:'#666',textAlign:'center'}}>
+            <summary style={{cursor:'pointer'}}>Historial parcial ⓘ</summary>
+            <div style={{paddingTop:2}}>{t.mainScopeNote}</div>
+            {t.mainBasisNote && <div>{t.mainBasisNote}</div>}
+            <div>Los filtros y el orden de esta vista usan estas cifras parciales para OLBG. Gratis/pago no aplica: OLBG no lo expone.</div>
+          </details>
+        )}
         {/* Row 2: period stats (only if available) */}
         {t.showPeriodRow && (
           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', borderTop: '1px dashed #eee' }}>

@@ -32,7 +32,24 @@ async function main(){
    const platform=platforms[i]
    await db.insert(tipsters).values({id:i+20,platform,slug:'synthetic-local-'+platform,name:'SYNTHETIC LOCAL '+platform,picks:100,yield:'10',yield6m:'10',capturedAt:new Date('2026-11-17T12:00:00Z')})
   }
-  writeFileSync('/tmp/olbg/local-smoke-state.json',JSON.stringify({dir,syntheticBaseline:true,pilotCount:3}))
+  // SYNTHETIC scale rows cloned from one fixture's shape (same pattern as
+  // benchmark-olbg-local.ts): two populations with distinct observed
+  // tips/yield so filter counts and pagination are exercisable end to end.
+  const tload=(m:string)=>{const f=JSON.parse(readFileSync(`tests/fixtures/olbg/profile-535122-${m}.json`,'utf8'));return parseOlbgPerformance(f.node,f.originalReceipt,535122,'2026-11')}
+  const template=monthlyRecord(prepareOlbgProfile(tload('month'),tload('table-1'),tload('table-2')))
+  for(let i=0;i<120;i++) {
+   const r=structuredClone(template)
+   const kt=i%2===0?4:1, kl=i%2===0?1:3
+   r.profileId=20000000+i
+   r.username='SYNTHETIC SCALE '+(i%2===0?'HI ':'LO ')+i
+   r.profileUrl=`https://www.olbg.com/tipsters/about/${r.profileId}`
+   r.source.url=`https://www.olbg.com/tipsters/performance/month/${r.profileId}/__data.json`
+   r.months=r.months.map(m=>({...m,tips:m.tips*kt,levelStakeProfit:Math.round(m.levelStakeProfit*kl*100)/100}))
+   await db.insert(tipsters).values({id:100+i,platform:'olbg',slug:String(r.profileId),name:r.username,capturedAt:new Date(r.capturedAt),picks:0})
+   const plan=planOlbgPersistence(r,{catalogSurrogateId:100+i,activeCapturedAt:null,sameSnapshot:null})
+   await pg.transaction(async tx=>{for(const q of plan.statements)await tx.query(q.text,q.params)})
+  }
+  writeFileSync('/tmp/olbg/local-smoke-state.json',JSON.stringify({dir,syntheticBaseline:true,pilotCount:3,syntheticScale:120}))
   console.log('Disposable local seed created; state in /tmp/olbg/local-smoke-state.json')
  }finally{await pg.close()}
 }

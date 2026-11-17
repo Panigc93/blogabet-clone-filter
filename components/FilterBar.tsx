@@ -167,7 +167,7 @@ export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps)
 
             {/* YIELD */}
             <div style={{ flex: 1, minWidth: 110, maxWidth: 130, marginBottom: 2 }}>
-              <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Yield{platform==='olbg'?' histórico':''} (%)</label>
+              <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Yield (%)</label>
               <div style={{ display: 'flex', gap: 4 }}>
                 <input type="number" placeholder="Mín" style={{ background: '#fff', color: '#333', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '6px 6px', fontSize: 13, width: '100%' }}
                   value={minYield}
@@ -180,7 +180,7 @@ export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps)
 
             {/* PICKS */}
             <div style={{ flex: 1, minWidth: 130, maxWidth: 150, marginBottom: 2 }}>
-              <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Nº de picks{platform==='olbg'?' históricos':''}</label>
+              <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Nº de picks</label>
               <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('minPicks') ?? '0'}
                 onChange={e => update('minPicks', e.target.value === '0' ? null : e.target.value)}>
@@ -233,12 +233,12 @@ export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps)
               <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('sort') ?? 'yield'}
                 onChange={e => update('sort', e.target.value)}>
-                <option value="yield">Yield (histórico)</option>
+                <option value="yield">Yield{platform==='olbg'?'':' (histórico)'}</option>
                 <option value="yield6m">Yield 6 meses</option>
                 <option value="yield12m">Yield 12 meses</option>
                 <option value="picks6m_avg">Picks/mes (6m)</option>
-                <option value="profit">Profit{platform==='olbg'?' histórico':''}</option>
-                <option value="picks">Nº de picks{platform==='olbg'?' históricos':''}</option>
+                <option value="profit">Profit</option>
+                <option value="picks">Nº de picks</option>
                 <option value="followers">Seguidores</option>
                 <option value="since_year">Año de registro</option>
                 <option value="price">Precio</option>

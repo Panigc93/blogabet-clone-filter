@@ -31,7 +31,7 @@ export async function tipsterReadContext(audits:PeriodAudit[],now:Date){
   changedSinceAnchor:enabled&&guard.changedSinceAnchor,
   revisionUnchanged:async()=>!enabled||guard.revisionUnchanged(),
   filters:(p:TipsterFilters)=>{const visibility=olbgVisibilityFilter(activation);return [...olbg.filters(p),...visibility?[visibility]:[]]},
-  warnings:(p:TipsterFilters)=>enabled&&(p.platform===undefined||p.platform==='olbg')?[...olbg.warnings(p),...state.status==='ok'?[]:['OLBG: evidencia mensual no disponible; valores no confirmados ocultos.']]:[],
+  warnings:(p:TipsterFilters)=>enabled&&(p.platform===undefined||p.platform==='olbg')?[...olbg.warnings(),...state.status==='ok'?[]:['OLBG: evidencia mensual no disponible; valores no confirmados ocultos.']]:[],
   state:state.status,
  }
 }

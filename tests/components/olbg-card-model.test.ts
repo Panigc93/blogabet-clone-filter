@@ -25,7 +25,7 @@ describe('OLBG local shared-contract adaptation', () => {
   it('uses existing card periods without turning a window into all-time stats', () => {
     const p = profile(565069); const card = fromOlbgPrepared(p)
     expect(card).toMatchObject({ platform: 'olbg', picks: null, profitDisplay: null, yieldPct: null, followers: null, verifiedPct: null })
-    expect(card.yield6m).toMatchObject({ valuePct: p.summaries[1].derivedLevelStakesYieldPct, complete: true, note: 'calculado aprox.' })
+    expect(card.yield6m).toMatchObject({ valuePct: p.summaries[1].derivedLevelStakesYieldPct, complete: true, note: undefined })
     expect(card.picks6mAvg).toBeCloseTo(1337 / 6)
 
   })
