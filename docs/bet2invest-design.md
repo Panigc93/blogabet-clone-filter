@@ -92,7 +92,77 @@ contact with the platform. Base: master `903059e`.
 - `tests/crawler/bet2invest-parse.test.ts`,
   `tests/crawler/bet2invest-catalog.test.ts` — fictional fixtures modelled
   on the captured shape; no real tipster data stored in tests.
-- Deliberately NOT included yet: fetch.ts, to-db.ts, workflow wiring, and
-  any change to shared `crawler/platforms/types.ts` (PlatformId /
-  StakeBasis need a 'bet2invest' entry (basis inferred, not labelled) when persistence is
-  designed, after the permission question is resolved).
+- Deliberately NOT included yet: fetch.ts, workflow wiring, and any
+  collection. The persistence mapping below is designed and tested offline
+  (fixtures only); applying it (migration + Neon) stays a separate owner
+  decision.
+
+## Persistence mapping (2026-11-16, offline preparation)
+
+Owner direction 2026-11-16: proceed with public-data integration as with
+the other platforms; the terms clause is treated as external evidence, not
+as a demonstrated legal bar, and the platform is NOT contacted. Everything
+below is offline code on a side branch: no fetching, no Neon writes, no
+workflow, no merge.
+
+- `crawler/platforms/types.ts` — PlatformId gains 'bet2invest'; StakeBasis
+  gains 'profile-stakes-inferred' (the page contrasts profile profit with
+  the flat 'Profit (1U)' mode; the basis is inferred, never labelled).
+- `crawler/platforms/bet2invest/to-db.ts` — profile record -> tipsters row
+  with a closure gate, quarantine classes and Tipstrr-style upsert
+  merge/plan (preserve-absents, freshness guards, surrogate-id provenance
+  guard). PURE: no fetch, no DB.
+- Gate closures WITHOUT the denominator (the page never shows total
+  staked): results summary sums exactly to settledBets; per-sport bets sum
+  exactly; per-sport profit overlaps the displayed total within the
+  rounding interval (±0.005 per 2-decimal figure). The implied-stake
+  (profit/roi) compatibility observed on one sample is documentary
+  evidence only: with rounded percentages it does not prove the
+  denominator, so it is NOT a gate — `yield` is stored as the source's
+  published ROI with the inferred-basis label, never presented as
+  recalculated.
+- Quarantine classes: tipo-cuenta-desconocido (accountType 'unknown' —
+  PRO absence in og:tags is not evidence of free; signal pending live
+  validation, so most profiles would quarantine until then),
+  periodo-no-all-time, stats-ausentes, resumen-incompleto,
+  resumen-no-cierra, desglose-ausente, cierre-deporte-bets,
+  cierre-deporte-profit, cero-inconsistente. Zero-real case (0 bets, all
+  zeros/absent) persists picks 0 with yield null.
+- Field discipline: profitUnit 'bet2invest-units' (not comparable with
+  Tipstrr 'units' or 'golazobets-units'; profit sort groups by unit);
+  price null (subscription price not captured; no currency assumed);
+  sinceYear null (listing 'Since' semantics unverified); followers from
+  the profile audience block or null; period yields and picks6mAvg null
+  (monthly section only observed empty); capturedAt = capture instant.
+- UI (same branch, not linked from the app until a real import exists):
+  platform option in FilterBar; card-model mapper with provenance tooltips;
+  'VER EN BET2INVEST' button in a proposed violet (#6a5aa8, owner's call,
+  reversible); profit-sort warning now names the fourth unit; isolated
+  preview at /lab/bet2invest with FULLY SYNTHETIC rows (no data, no real
+  captures), guarded: the route 404s unless LAB_PREVIEW=1 is set, so it
+  cannot be exposed by an accidental deploy ('not linked' is not enough —
+  a deployed route is public even when nothing links to it). Verified
+  2026-11-16: 404 without the env, 200 with it.
+- Shared-file deltas for regression review: `crawler/platforms/types.ts`
+  (additive union members only), `lib/query.ts` (platform union member,
+  warning text, comment), `components/tipster-card-model.ts` (new branch),
+  `components/TipsterRow.tsx` (label/colour ternaries),
+  `components/FilterBar.tsx` (one option). No Blogabet/Tipstrr/Golazobets
+  behaviour changes; BB-only filters stay BB-only.
+
+
+## Validación pública 2026-11-16 (7 GET anónimos con curl, sin navegador)
+
+Hechos (fuente: `b2i-validation-evidence.json`, adjunto a la revisión):
+- Listado, sitemap y perfiles devuelven HTML SSR completo por GET simple.
+- Listado `https://bet2invest.com/tipsters`: 50 filas, las 50 con badge PRO. Sitemap: 300 slugs, 47 en esas filas, 253 fuera.
+- Perfiles WinZone y Justx (fuera del listado): og `Free Tipster`, sin botón Subscribe, sección mensual vacía con 446/963 liquidadas. Cierres exactos (resumen, bets y profit por deporte). La causa de que no aparezcan en el listado NO está establecida.
+- followers 2 / rating 1 en ambos: posibles marcadores por defecto; no se persisten para Free.
+- La cabecera de resultados omite categorías a 0 en esos perfiles; la leyenda DOM las da explícitas (parser corregido).
+- GOALPROFESSOR: respuesta truncada por reset de conexión y luego timeout de 40 s con 0 bytes. Causa desconocida (no es 403/429); no se reintentó y no se declara bloqueo.
+
+Alcance de las observaciones: 2 perfiles Free y 2 PRO. El parser reconoce las etiquetas explícitas; persistir Free con isPaid=false descansa sobre esa observación n=2. Etiquetas desconocidas siguen en cuarentena.
+
+## Rastreador (preparado, no ejecutado)
+
+`crawler/platforms/bet2invest/crawl.ts`: inyección de fetch/sleep/reloj, >=10,1 s entre peticiones, parada total ante 403/429 o fallo de transporte (reset/timeout), fail-closed por perfil, un resultado con clase por slug. Sin workflow, cron ni DB.

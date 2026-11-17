@@ -181,6 +181,30 @@ describe('parseProfilePage', () => {
     expect(profile.accountType).toBe('unknown')
   })
 
+  it('reads an explicit Free Tipster label as free; ambiguous labels stay unknown', () => {
+    const free = parseProfilePage(
+      profileHtml({ ogTitle: 'TESTPUNTER, Free Tipster on Bet2Invest', ogDescription: 'Discover TESTPUNTER, a Free Tipster. 0.30% ROI on 446 tips.' }),
+    )
+    expect(free.accountType).toBe('free')
+    const both = parseProfilePage(
+      profileHtml({ ogTitle: 'TESTPUNTER, PRO Tipster on Bet2Invest', ogDescription: 'a Free Tipster' }),
+    )
+    expect(both.accountType).toBe('unknown')
+  })
+
+  it('reads explicit zero categories from the legend when the headline omits them', () => {
+    const base = profileHtml({})
+    const results = `<div data-testid="stats-results"><p>Betting summary</p><p>Bets won : 525 (54.5 %) Refunded bets : 10 (1.0 %) Lost bets : 428 (44.4 %)</p><ul>
+      <li><span class="sw"></span><span>Bets won</span><b>525</b><span>54.5 %</span></li>
+      <li><span class="sw"></span><span>Half won bets</span><b>0</b><span>0.0 %</span></li>
+      <li><span class="sw"></span><span>Refunded bets</span><b>10</b><span>1.0 %</span></li>
+      <li><span class="sw"></span><span>Half lost bets</span><b>0</b><span>0.0 %</span></li>
+      <li><span class="sw"></span><span>Lost bets</span><b>428</b><span>44.4 %</span></li></ul></div>`
+    const html = base.replace(/<[^>]*data-testid="stats-results"[\s\S]*?(?=<[^>]*data-testid="stats-(?!results)|<\/body>)/, results)
+    const p = parseProfilePage(html)
+    expect(p.results).toEqual({ won: 525, halfWon: 0, refunded: 10, halfLost: 0, lost: 428 })
+  })
+
   it('throws on a challenge page instead of emitting nulls', () => {
     const challenge = '<html><head><script>window.__CF$cv$params={}</script></head><body>challenge-platform</body></html>'
     expect(() => parseProfilePage(challenge)).toThrow(Bet2InvestParseError)
