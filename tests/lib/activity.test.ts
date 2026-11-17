@@ -68,7 +68,7 @@ it('SSR and paginated API both wire the same validated activity contract', () =>
     expect(text).toContain("activityUnknown: activity === 'unknown'")
     expect(text).toContain("activityMonths: typeof activity === 'number' ? activity : undefined")
     expect(text).toContain(file === 'app/page.tsx' ? '<ActivityNotice months={filters.activityMonths} unknown={filters.activityUnknown}' : 'activityWarning(filters.activityMonths, filters.activityUnknown)')
-    expect(text).toContain('buildFilters(filters)')
+    expect(text).toContain('periods.filters(filters)')
   }
 })
 

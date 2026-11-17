@@ -1,4 +1,5 @@
 import { periodEligible, type AuditedTipster } from '@/lib/bet2invest-period-contract'
+import { fromOlbgReadRow, unknownOlbgCard } from './olbg-card-model'
 import type { Tipster } from '@/db/schema'
 import type { FichaSnapshot } from '@/app/lab/tipstrr/ficha/fixtures'
 import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
@@ -63,8 +64,13 @@ const fmtEs = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximum
 const fmtMoney = (units: number) => `${units < 0 ? '-' : '+'}${fmtEs.format(Math.abs(units) * 10)} €`
 const fmtMoneyAbs = (units: number) => `${fmtEs.format(Math.abs(units) * 10)} €`
 
-export function fromDbTipster(t: Tipster & AuditedTipster, now = new Date()): TipsterCardData {
-  if (t.platform === 'olbg') throw new Error('OLBG requires prepared monthly provenance; scalar DB rows are not supported')
+export type TipsterReadRow = Omit<Tipster, 'picks' | 'isPaid' | 'isVerified' | 'resetCount' | 'priceCurrency'> & {
+  picks: number | null; isPaid: boolean | null; isVerified: boolean | null
+  resetCount: number | null; priceCurrency: string | null; olbgEvidence?: unknown
+} & AuditedTipster
+
+export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardData {
+  if (t.platform === 'olbg') return fromOlbgReadRow(t, now) ?? unknownOlbgCard(t.name, t.slug)
   if (t.platform === 'tipstrr') return tipstrrFromDbRow(t)
   if (t.platform === 'golazobets') return golazobetsFromDbRow(t)
   if (t.platform === 'bet2invest') return bet2investFromDbRow(t, now)
@@ -97,7 +103,7 @@ export function fromDbTipster(t: Tipster & AuditedTipster, now = new Date()): Ti
     verifiedPct: num(t.verifiedPct),
     followers: t.followers,
     isVerified: t.isVerified,
-    isPaid: t.isPaid,
+    isPaid: t.isPaid === true,
     priceLabel: t.price !== null ? String(parseFloat(t.price)) : null,
     priceCurrencySuffix: '€',
     resetCount,
@@ -121,7 +127,7 @@ export function fromDbTipster(t: Tipster & AuditedTipster, now = new Date()): Ti
 // DB-backed Tipstrr row: same honesty rules as the lab snapshot path —
 // capturedAt always shown (it is a dated capture, not a sync), profit in
 // units with 'u', price labeled with its own currency (£), since = signup.
-function tipstrrFromDbRow(t: Tipster): TipsterCardData {
+function tipstrrFromDbRow(t: TipsterReadRow): TipsterCardData {
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -145,7 +151,7 @@ function tipstrrFromDbRow(t: Tipster): TipsterCardData {
     verifiedPct: num(t.verifiedPct),
     followers: t.followers,
     isVerified: t.isVerified,
-    isPaid: t.isPaid,
+    isPaid: t.isPaid === true,
     priceLabel: t.price !== null ? String(parseFloat(t.price)) : null,
     priceCurrencySuffix: t.priceCurrency === 'gbp' ? ' £' : (t.priceCurrency === 'eur' ? ' €' : null),
     resetCount: 0,
@@ -221,7 +227,7 @@ export function fromTipstrrSnapshot(s: FichaSnapshot): TipsterCardData {
 // unidad propia ('u' en la cifra): NO es equivalente a las 'u' de Tipstrr ni
 // a los € de Blogabet, y la ordenación por profit la agrupa aparte
 // (lib/query.ts). Campos no expuestos por la plataforma: null, nunca 0.
-function golazobetsFromDbRow(t: Tipster): TipsterCardData {
+function golazobetsFromDbRow(t: TipsterReadRow): TipsterCardData {
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -248,7 +254,7 @@ function golazobetsFromDbRow(t: Tipster): TipsterCardData {
     verifiedPct: null, // win_rate no es % verificado: no se mezclan conceptos
     followers: null, // no expuesto por la plataforma
     isVerified: null,
-    isPaid: t.isPaid,
+    isPaid: t.isPaid === true,
     priceLabel: null, // precio premium no expuesto en lo capturado
     priceCurrencySuffix: null,
     resetCount: 0,
@@ -274,7 +280,7 @@ function golazobetsFromDbRow(t: Tipster): TipsterCardData {
 // € ni a las unidades de Tipstrr o Golazobets. Sin precio (no capturado),
 // sin 'since' (semántica de la columna del listado no verificada) y sin
 // periodos sin auditoría confirmada o de otro mes: null, nunca 0.
-function bet2investFromDbRow(t: Tipster & AuditedTipster, now: Date): TipsterCardData {
+function bet2investFromDbRow(t: TipsterReadRow, now: Date): TipsterCardData {
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -310,7 +316,7 @@ function bet2investFromDbRow(t: Tipster & AuditedTipster, now: Date): TipsterCar
     verifiedPct: null,
     followers: t.followers,
     isVerified: null,
-    isPaid: t.isPaid,
+    isPaid: t.isPaid === true,
     priceLabel: null, // precio de suscripción no capturado
     priceCurrencySuffix: null,
     resetCount: 0,

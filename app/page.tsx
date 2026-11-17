@@ -1,10 +1,11 @@
-import { periodReadContext } from '@/lib/bet2invest-period-read'
+import { redirect } from 'next/navigation'
+import { tipsterReadContext } from '@/lib/tipster-read-context'
 import { loadDatabasePeriodAudits } from '@/lib/bet2invest-period-index'
 import { parseActivity } from '@/lib/activity'
 import { ActivityNotice } from '@/components/ActivityNotice'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, ignoredWarning, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
+import { ignoredWarning, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and, count } from 'drizzle-orm'
 import { FilterBar } from '@/components/FilterBar'
 import { LoadMore } from '@/components/LoadMore'
@@ -39,18 +40,22 @@ export default async function Home({ searchParams }: PageProps) {
 
   const sort = (searchParams.sort as SortField) ?? 'yield'
   const readAt = new Date()
-  const periods = periodReadContext(await loadDatabasePeriodAudits(readAt), readAt)
-  const where = buildFilters(filters)
+  const periods = await tipsterReadContext(await loadDatabasePeriodAudits(readAt), readAt)
+  const refreshUrl = '/?' + new URLSearchParams(searchParams as Record<string, string>).toString()
+  if (periods.changedSinceAnchor) redirect(refreshUrl)
+  const where = periods.filters(filters)
   const whereClause = where.length ? and(...where) : undefined
 
   const [rows, [{ value: total }]] = await Promise.all([
-    db.select(periods.projection).from(tipsters).leftJoin(periods.source, periods.joinOn)
+    db.select(periods.projection).from(tipsters).leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn)
       .where(whereClause)
       .orderBy(...periods.order(sort))
       .limit(PAGE_SIZE),
-    db.select({ value: count() }).from(tipsters).where(whereClause),
+    db.select({ value: count() }).from(tipsters).leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn).where(whereClause),
   ])
 
+  if (!await periods.revisionUnchanged()) redirect(refreshUrl)
+  const filterWarning = [ignoredWarning(filters), ...periods.warnings(filters)].filter(Boolean).join(' ')
   const hasMore = rows.length === PAGE_SIZE
   const continuation = new URLSearchParams(searchParams as Record<string, string>)
   continuation.set('periodAnchor', readAt.toISOString())
@@ -58,7 +63,7 @@ export default async function Home({ searchParams }: PageProps) {
 
   return (
     <>
-      <FilterBar searchParams={searchParams} />
+      <FilterBar searchParams={searchParams} olbgEnabled={periods.enabled} />
       <div id="page-content" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px' }}>
         {profitSortWarning(sort, filters.platform) && (
           <div style={{ margin: '8px 0 0', padding: '8px 12px', background: '#fcf8e3', border: '1px solid #faebcc', borderRadius: 4, fontSize: 13, color: '#8a6d3b' }}>
@@ -66,9 +71,9 @@ export default async function Home({ searchParams }: PageProps) {
           </div>
         )}
         <ActivityNotice months={filters.activityMonths} unknown={filters.activityUnknown} />
-        {ignoredWarning(filters) && (
+        {filterWarning && (
           <div style={{ margin: '8px 0 0', padding: '8px 12px', background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: 4, fontSize: 13, color: '#856404' }}>
-            {ignoredWarning(filters)}
+            {filterWarning}
           </div>
         )}
         <LoadMore key={searchString} initialRows={rows} initialHasMore={hasMore} total={total} searchString={searchString} periodAnchor={readAt.toISOString()} />

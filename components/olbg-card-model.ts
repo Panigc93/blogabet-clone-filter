@@ -1,9 +1,12 @@
 import type { TipsterCardData, PeriodStatView } from './tipster-card-model'
 import type { OlbgPreparedProfile } from '../crawler/platforms/olbg/prepare'
+import { olbgEvidenceSummaries, validOlbgReadEvidence } from '../lib/olbg-read-evidence'
+
+type OlbgCardSource = Pick<OlbgPreparedProfile, 'username' | 'profileId' | 'profileUrl' | 'summaries'> & { sources: { capturedAt: string }[] }
 
 // Existing row presentation, local prepared source only. No database fallthrough:
 // the current DB does not persist OLBG basis/window/source-ROI provenance.
-export function fromOlbgPrepared(p: OlbgPreparedProfile): TipsterCardData {
+export function fromOlbgPrepared(p: OlbgCardSource): TipsterCardData {
   const period = (n: 3 | 6 | 12): PeriodStatView => {
     const s = p.summaries.find(x => x.closedMonths === n)!
     const complete = s.missingMonths.length === 0
@@ -31,5 +34,34 @@ export function fromOlbgPrepared(p: OlbgPreparedProfile): TipsterCardData {
     picks6mAvg: six.tips === null ? null : six.tips / 6,
     picks6mTrace: six.tips === null ? null : `${six.tips} tips / 6 meses cerrados`,
     picksFree3mAvg: null, yieldFree3m: null, showPeriodRow: true,
+  }
+}
+
+// Local read-path counterpart. It does not trust independently supplied scalar
+// yields: values are recomputed from the public monthly evidence after identity,
+// capturedAt and freshness checks. Not activated by fromDbTipster yet.
+export function fromOlbgReadRow(row: { slug: string; capturedAt: Date | string | null; olbgEvidence?: unknown }, now: Date): TipsterCardData | null {
+  const e = row.olbgEvidence
+  const at = row.capturedAt ? new Date(row.capturedAt) : null
+  if (!validOlbgReadEvidence(e) || row.slug !== String(e.profileId) || !at || !Number.isFinite(at.getTime()) || !Number.isFinite(now.getTime()) || at.toISOString() !== e.capturedAt) return null
+  const card = fromOlbgPrepared({ ...e, sources: [{ capturedAt: e.capturedAt }], summaries: olbgEvidenceSummaries(e) })
+  if (e.capturedAt > now.toISOString() || e.sourceMonth !== now.toISOString().slice(0, 7)) {
+    for (const key of ['yield3m','yield6m','yield12m'] as const) card[key] = { valuePct: null, complete: false, trace: 'Captura de otro periodo o futura; yield sin dato para esta ventana.' }
+    card.picks6mAvg = null; card.picks6mTrace = null
+  }
+  return card
+}
+
+export function unknownOlbgCard(name: string, slug: string): TipsterCardData {
+  const empty = (): PeriodStatView => ({ valuePct: null, complete: false, trace: 'Sin evidencia mensual vigente de OLBG.' })
+  return {
+    platform:'olbg',name,avatarUrl:null,
+    sourceUrl:/^[1-9]\d*$/.test(slug) ? `https://www.olbg.com/tipsters/about/${slug}` : 'https://www.olbg.com/',
+    sourceLabel:'OLBG · sin evidencia vigente', capturedAt:null,sinceYear:null,sinceTitle:null,
+    picks:null,profitDisplay:null,yieldPct:null,yieldTitle:'Sin historial total confirmado',
+    verifiedPct:null,followers:null,isVerified:null,isPaid:false,priceLabel:null,priceCurrencySuffix:null,
+    resetCount:0,resetTitle:null,flagUrl:null,countryCode:null,
+    yield3m:empty(),yield6m:empty(),yield12m:empty(),picks6mAvg:null,picks6mTrace:null,
+    picksFree3mAvg:null,yieldFree3m:null,showPeriodRow:true,
   }
 }

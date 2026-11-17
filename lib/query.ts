@@ -3,7 +3,7 @@ import { eq, gt, gte, ilike, isNotNull, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
 export interface TipsterFilters {
-  platform?: 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' // undefined = all platforms (callers: default to 'blogabet')
+  platform?: 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'olbg' // undefined = all platforms (callers: default to 'blogabet')
   search?: string
   tipo?: 'all' | 'free' | 'paid'
   minYield?: number
@@ -128,6 +128,7 @@ export function ignoredWarning(params: TipsterFilters): string | null {
   if (ignored.length === 0) return null
   const names = ignored.map(f => IGNORED_LABELS[f]).join(', ')
   const vista = params.platform === 'tipstrr' ? 'la vista Tipstrr'
+    : params.platform === 'olbg' ? 'la vista OLBG'
     : params.platform === 'bet2invest' ? 'la vista Bet2Invest'
     : 'la vista de todas las plataformas'
   const fx = ignored.includes('price')
