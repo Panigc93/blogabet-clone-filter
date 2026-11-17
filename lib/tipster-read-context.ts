@@ -1,4 +1,5 @@
-import { sql,ne } from 'drizzle-orm'
+import { sql,ne,or,inArray } from 'drizzle-orm'
+import { olbgActivation, OLBG_PILOT_IDS } from './olbg-activation'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
 import { periodReadContext } from './bet2invest-period-read'
@@ -16,8 +17,11 @@ async function loadRevision():Promise<OlbgRevision>{
   return {status:'ok',revision:rows[0].revision,changedAt:new Date(rows[0].changedAt).toISOString()}
  }catch{return {status:'unavailable',revision:'',changedAt:''}}
 }
+export function olbgVisibilityFilter(activation:ReturnType<typeof olbgActivation>){
+ return activation==='disabled'?ne(tipsters.platform,'olbg'):activation==='pilot-three'?or(ne(tipsters.platform,'olbg'),inArray(tipsters.slug,[...OLBG_PILOT_IDS]))!:undefined
+}
 export async function tipsterReadContext(audits:PeriodAudit[],now:Date){
- const base=periodReadContext(audits,now),enabled=olbgLocalReviewEnabled()
+ const base=periodReadContext(audits,now),activation=olbgActivation(),enabled=activation!=='disabled'
  const state:OlbgRevision=enabled?await loadRevision():{status:'disabled',revision:'',changedAt:''}
  const guard=compactRevisionGuard(state,now,()=>new Date(),loadRevision)
  const olbg=olbgReadContext(base,enabled&&state.status==='ok',now)
@@ -26,7 +30,7 @@ export async function tipsterReadContext(audits:PeriodAudit[],now:Date){
   revisionToken:state.status==='ok'?state.revision:null,
   changedSinceAnchor:enabled&&guard.changedSinceAnchor,
   revisionUnchanged:async()=>!enabled||guard.revisionUnchanged(),
-  filters:(p:TipsterFilters)=>[...olbg.filters(p),...enabled?[]:[ne(tipsters.platform,'olbg')]],
+  filters:(p:TipsterFilters)=>{const visibility=olbgVisibilityFilter(activation);return [...olbg.filters(p),...visibility?[visibility]:[]]},
   warnings:(p:TipsterFilters)=>enabled&&(p.platform===undefined||p.platform==='olbg')?[...olbg.warnings(p),...state.status==='ok'?[]:['OLBG: evidencia mensual no disponible; valores no confirmados ocultos.']]:[],
   state:state.status,
  }
