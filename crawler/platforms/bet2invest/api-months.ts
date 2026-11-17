@@ -73,11 +73,54 @@ export function parseMonthsResponse(json: unknown): Bet2InvestApiMonth[] | null 
   return out
 }
 
-/** Month series vs all-time header totals: bets exact, profit within rounding. */
-export function monthsCloseWithTotals(months: Bet2InvestApiMonth[], settledBets: number, profitUnits: number): boolean {
+/**
+ * Month series vs all-time totals. Bets must match exactly. Profit tolerance depends on the source of the totals:
+ * - 'rounded2': totals read from the page header (2 decimals) => half unit of the last digit, 0.005 + eps.
+ * - 'full': totals with full API precision => 1e-6 (float noise only).
+ * The caller must choose; there is no default.
+ */
+export function monthsCloseWithTotals(
+  months: Bet2InvestApiMonth[],
+  settledBets: number,
+  profitUnits: number,
+  totalsPrecision: 'rounded2' | 'full',
+): boolean {
   const bets = months.reduce((a, r) => a + r.bets, 0)
   const profit = months.reduce((a, r) => a + r.profitUnits, 0)
-  return bets === settledBets && Math.abs(profit - profitUnits) <= 0.005 * (months.length + 1) + 1e-9
+  const tol = totalsPrecision === 'rounded2' ? 0.005 + 1e-9 : 1e-6
+  return bets === settledBets && Math.abs(profit - profitUnits) <= tol
+}
+
+export interface Bet2InvestWindowYield {
+  months: number
+  bets: number
+  profitUnits: number
+  stakeUnits: number
+  yieldPct: number | null // sum(profit) / sum(stake) * 100; null when total stake is 0. NOT a mean of monthly yields.
+  excludedPartialMonth: boolean
+}
+
+/** Is this row the month containing `now` (UTC)? The API anchors keys at day 03; this only compares year/month. */
+export function isCurrentMonth(m: Pick<Bet2InvestApiMonth, 'year' | 'month'>, now: Date): boolean {
+  return m.year === now.getUTCFullYear() && m.month === now.getUTCMonth() + 1
+}
+
+/**
+ * Yield over a set of months as sum(profit)/sum(stake). The month in progress is excluded by default
+ * (it is partial and would bias the window); pass includePartial to keep it. Months without rows are not zeros.
+ */
+export function windowYield(months: Bet2InvestApiMonth[], now: Date, includePartial = false): Bet2InvestWindowYield {
+  const used = months.filter((m) => includePartial || !isCurrentMonth(m, now))
+  const profit = used.reduce((a, r) => a + r.profitUnits, 0)
+  const stake = used.reduce((a, r) => a + r.stakeUnits, 0)
+  return {
+    months: used.length,
+    bets: used.reduce((a, r) => a + r.bets, 0),
+    profitUnits: profit,
+    stakeUnits: stake,
+    yieldPct: stake > 0 ? (100 * profit) / stake : null,
+    excludedPartialMonth: !includePartial && used.length < months.length,
+  }
 }
 
 /** Resolve a Nuxt devalue payload reference one level (values are indexes into the array). */

@@ -29,8 +29,10 @@
 // - profit en UNIDADES propias: profitUnit='bet2invest-units'. No es
 //   equivalente a 'units' (Tipstrr) ni a 'golazobets-units': la ordenación
 //   por beneficio agrupa por unidad, nunca mezcla (lib/query.ts).
-// - price null: el parser no captura precio de suscripción; priceCurrency
-//   queda en su default y no afirma divisa (price null la hace muda).
+// - price null: el parser lee el botón literal 'Subscribe · $X/Month' solo si el DOM está hidratado
+//   (el HTML de servidor no lo trae); aquí NO se mapea: precio sin validar. Los objetos Stripe del
+//   payload Nuxt no se interpretan como precio. priceCurrency queda en su default y no afirma divisa
+//   (price null la hace muda).
 // - isPaid SOLO con accountType resuelto ('pro' => true). 'unknown' va a
 //   cuarentena[tipo-cuenta-desconocido]: no se asume free por defecto
 //   (precedente golazobets tipo-desconocido). La detección actual es por
@@ -188,7 +190,7 @@ function buildInsert(
     flagUrl: null,
     countryCode: null,
     isPaid: p.accountType === 'pro', // por etiqueta explícita; Free: ver docs/bet2invest-design.md (observación n=2, no un hecho general)
-    price: null, // precio de suscripción no capturado: no se asume
+    price: null, // precio sin validar (solo botón hidratado; Stripe del payload no interpretado): no se asume
     profitUnit: 'bet2invest-units',
     priceCurrency: 'eur', // default de esquema; price null la deja muda
     sinceYear: null, // 'Since' del listado: semántica no verificada
