@@ -1,0 +1,112 @@
+{
+  "data": {
+    "p0": {
+      "count": 5706,
+      "tips": [
+        {
+          "user": {
+            "guid": "5079f950-c41b-4725-ba39-1a06b9449182",
+            "username": "Black_Panther",
+            "stats": {
+              "profit": -139.27,
+              "yield": -0.281,
+              "tipsCount": 5635,
+              "winRate": null,
+              "rating": 3
+            }
+          }
+        }
+      ]
+    },
+    "p1": {
+      "count": 30557,
+      "tips": [
+        {
+          "user": {
+            "guid": "86adcbeb-a763-4065-9624-8f9745b597b6",
+            "username": "johnnyvee",
+            "stats": {
+              "profit": -82.3898,
+              "yield": -0.028,
+              "tipsCount": 30216,
+              "winRate": null,
+              "rating": 4
+            }
+          }
+        }
+      ]
+    },
+    "p2": {
+      "count": 62629,
+      "tips": [
+        {
+          "user": {
+            "guid": "a03ae133-3aae-4bb0-af63-531f40b1e0ad",
+            "username": "Abeyek",
+            "stats": {
+              "profit": -9449.1749,
+              "yield": -1.872,
+              "tipsCount": 62248,
+              "winRate": null,
+              "rating": 4
+            }
+          }
+        }
+      ]
+    },
+    "p3": {
+      "count": 143339,
+      "tips": [
+        {
+          "user": {
+            "guid": "a1769ed6-d435-4c72-8fcf-dbb24807dc58",
+            "username": "Intuition",
+            "stats": {
+              "profit": -14174.5289,
+              "yield": -1.035,
+              "tipsCount": 142672,
+              "winRate": null,
+              "rating": 4
+            }
+          }
+        }
+      ]
+    },
+    "p4": {
+      "count": 11430,
+      "tips": [
+        {
+          "user": {
+            "guid": "d68fd63d-f721-4972-862f-0e7ba65cd770",
+            "username": "Rubendrn1995",
+            "stats": {
+              "profit": -2962.6349,
+              "yield": -3.392,
+              "tipsCount": 11398,
+              "winRate": null,
+              "rating": 4
+            }
+          }
+        }
+      ]
+    },
+    "p5": {
+      "count": 8526,
+      "tips": [
+        {
+          "user": {
+            "guid": "1c045aef-4f49-4665-afbf-fcba0f46f591",
+            "username": "DelPiero28",
+            "stats": {
+              "profit": 703.4201,
+              "yield": 0.957,
+              "tipsCount": 8631,
+              "winRate": null,
+              "rating": 3
+            }
+          }
+        }
+      ]
+    }
+  }
+}
