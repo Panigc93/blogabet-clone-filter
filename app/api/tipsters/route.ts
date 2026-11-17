@@ -6,7 +6,7 @@ import { activityWarning } from '@/lib/activity-query'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, ignoredWarning, TipsterFilters, SortField } from '@/lib/query'
+import { buildFilters, ignoredWarning, bettingexpertApiProjection, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and } from 'drizzle-orm'
 
 const PAGE_SIZE = 50
@@ -52,6 +52,8 @@ export async function GET(req: NextRequest) {
     .offset(page * PAGE_SIZE)
 
   const warnings: string[] = []
+  const profitNote = profitSortWarning(sort, filters.platform)
+  if (profitNote) warnings.push(profitNote)
   const activityNote = activityWarning(filters.activityMonths, filters.activityUnknown)
   if (activityNote) warnings.push(activityNote)
   const ignored = ignoredWarning(filters)
@@ -59,5 +61,5 @@ export async function GET(req: NextRequest) {
     warnings.push(ignored)
   }
 
-  return NextResponse.json({ data: rows, page, hasMore: rows.length === PAGE_SIZE, ...(warnings.length ? { warnings } : {}) })
+  return NextResponse.json({ data: rows.map(bettingexpertApiProjection), page, hasMore: rows.length === PAGE_SIZE, ...(warnings.length ? { warnings } : {}) })
 }

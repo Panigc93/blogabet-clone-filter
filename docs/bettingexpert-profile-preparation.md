@@ -95,3 +95,33 @@ fetches. Edge-case mutations exist only in tests, never in real fixtures.
 
 No service credentials, cookies, database connections, account changes,
 production effects or bulk crawl occurred.
+
+## Local integration delta (not deployed)
+
+The follow-up delta adds the Bettingexpert selector option and source-specific
+card mapper, a pure insert mapper with an explicit caller-supplied internal ID,
+source units bettingexpert-points and pt BE display, and shared SQL period
+masking before ordering/pagination. The API strips all BE period fields even
+if stored rows were contaminated. Combined profit ordering remains grouped by
+profit_unit; the API now includes the same unit warning as the homepage.
+
+Only BE typography/widths and two-decimal yield display change; the existing
+card layout and all other source display paths stay unchanged. Activity,
+since, followers, verification and recent-period statistics remain unknown.
+No new page, control beyond the existing source selector, migration or remote
+write is introduced. Manual generic imports remain unchanged and do not gain
+permission to import Bettingexpert by this type extension.
+
+PGlite integration tests apply all six existing migrations and insert six
+real-capture BE rows plus synthetic BB/Tipstrr/Golazobets sentinels. Tests
+prove own-unit mapping, numeric DB rounding, same-slug platform isolation,
+null BE period ordering before LIMIT/OFFSET in the combined list, and API/card
+masking of deliberately contaminated period columns. PGlite is a local query
+compatibility test, not a production contention/latency test.
+
+Capture was authorized by Juan in the trusted 17 November 18:47 CET WhatsApp
+message: missing 9211 global-profile totals, six GUIDs per query, ten seconds
+between requests, stop on limits/repeated errors; also investigate periods.
+The local runner checkpoints each response privately with checksum and source
+manifest identity. It is deliberately outside the deliverable git delta;
+public source captures/checkpoint state are not added to the public repo.
