@@ -64,7 +64,8 @@ export interface Bet2InvestProfile {
   profileUrl: string
   periodLabel: string | null // active period button as shown, e.g. 'All'
   statsScope: Bet2InvestStatsScope // 'all_time' ONLY when the active label is 'All'
-  accountType: 'pro' | 'free' | 'unknown' // explicit og label 'PRO Tipster' / 'Free Tipster' only
+  accountType: 'pro' | 'free' | 'paid' | 'unknown' // explicit og label 'PRO Tipster' / 'Free Tipster' / 'Paid Tipster' only
+  accountLabel?: string | null // provenance: which og field(s) carried the label; null when unknown
   audience: Bet2InvestAudience
   settledBets: number | null
   profitUnits: number | null // profile profit; stake basis inferred (page contrasts flat 1U), not labelled
@@ -350,15 +351,22 @@ export function parseProfilePage(html: string): Bet2InvestProfile {
     )
   }
 
-  const ogText = `${$('meta[property="og:title"]').attr('content') ?? ''} ${$(
-    'meta[property="og:description"]',
-  ).attr('content') ?? ''}`
-  // Explicit label only; both or neither present = unknown (never inferred
-  // from absence). Recognising the label is parsing; what the label implies
-  // for persistence is decided in to-db.
-  const isPro = /\bPRO Tipster\b/.test(ogText)
-  const isFree = /\bFree Tipster\b/.test(ogText)
-  const accountType: 'pro' | 'free' | 'unknown' = isPro === isFree ? 'unknown' : isPro ? 'pro' : 'free'
+  // Explicit label only, read per field (og:title and og:description). Classes seen on 961 public pages
+  // (2026-11-17): 'PRO Tipster', 'Free Tipster' and 'Paid Tipster' (title) / 'paid tipster' (description).
+  // Conflicting classes across the two fields, or none, = unknown (never inferred from absence). 'paid' says the
+  // account is paid, nothing about price, subscription or access to paid content. What a label implies for
+  // persistence is decided in to-db.
+  const labelOf = (txt: string): 'pro' | 'free' | 'paid' | 'conflict' | null => {
+    const found = [/\bPRO Tipster\b/.test(txt) && 'pro', /\bFree Tipster\b/.test(txt) && 'free', /\bpaid tipster\b/i.test(txt) && 'paid'].filter(Boolean) as ('pro' | 'free' | 'paid')[]
+    return found.length === 0 ? null : found.length === 1 ? found[0] : 'conflict'
+  }
+  const ogTitle = $('meta[property="og:title"]').attr('content') ?? ''
+  const ogDesc = $('meta[property="og:description"]').attr('content') ?? ''
+  const labels = [labelOf(ogTitle), labelOf(ogDesc)]
+  const present = new Set(labels.filter((l): l is NonNullable<typeof l> => l !== null))
+  const accountType: 'pro' | 'free' | 'paid' | 'unknown' =
+    present.size === 1 && !present.has('conflict') ? (Array.from(present)[0] as 'pro' | 'free' | 'paid') : 'unknown'
+  const accountLabel = accountType === 'unknown' ? null : `og:${labels[0] !== null ? 'title' : ''}${labels[0] !== null && labels[1] !== null ? '+' : ''}${labels[1] !== null ? 'description' : ''}`
 
   const { periodLabel, statsScope } = parseStatsScope($)
   const avgMaxBet = parseMoney(testid($, 'stats-averageBetMax'))
@@ -381,6 +389,7 @@ export function parseProfilePage(html: string): Bet2InvestProfile {
     periodLabel,
     statsScope,
     accountType,
+    accountLabel,
     audience: parseAudience($),
     settledBets,
     profitUnits,

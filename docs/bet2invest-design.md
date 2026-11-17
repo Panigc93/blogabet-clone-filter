@@ -196,4 +196,10 @@ Reglas de ventana (3/6/12 meses completos antes de la captura; mes en curso excl
 - serie vacia o ausente, ventana sin actividad o stake 0: null con motivo, nunca 0;
 - candidatos y ambiguos no se mapean; tipo de cuenta desconocido va a cuarentena (no se asume Free).
 
-Resultado sobre 961 SSR (instantanea 16:27Z = 17:27 CET): 933 filas, 25 cuarentena (todas tipo de cuenta desconocido: og dice 'a paid tipster', etiqueta que el parser no mapea; sin suponer), 3 no seleccionados (candidatos Gerganaana, LeGrec, mattstph). Filas con las tres ventanas: 576. Ventanas con valor: 3m 641, 6m 650, 12m 652; el resto null con motivo (reinicio, sin actividad, serie vacia, meses no reproducen ROI). Una primera pasada dejo 5 perfiles en cuarentena por cierre de profit por deporte con diferencia exacta de 0.01: era ruido de coma flotante (falta de epsilon 1e-9 en la puerta), corregido. Es un resultado de simulacion, no una importacion.
+Resultado PROVISIONAL sobre 961 SSR (instantanea 16:27Z = 17:27 CET): 958 filas mapeables y 3 no seleccionados (candidatos Gerganaana, LeGrec, mattstph); 0 en cuarentena. Filas con las tres ventanas: 593. Ventanas con valor: 3m 662, 6m 669, 12m 669; el resto null con motivo (reinicio 133/164/209, sin actividad 155/117/72, serie vacia 6/6/6, meses no reproducen ROI 2/2/2).
+
+Dos correcciones respecto a una primera pasada (933 filas, 25 cuarentena):
+- 5 perfiles con un solo deporte caian en cuarentena por cierre de profit con diferencia exacta de 0.01: ruido de coma flotante (faltaba el epsilon 1e-9 en la puerta). Corregido sin ampliar el limite N x 0.005; con regresion sobre paginas reales (godknows, vokal) y un caso fuera del limite que sigue rechazandose.
+- 25 perfiles llevaban la etiqueta explicita 'Paid Tipster' (og:title) y 'paid tipster' (og:description), no mapeada. El parser la reconoce ahora como accountType 'paid' con procedencia (`accountLabel`); si los dos campos discrepan o hay dos clases en uno, sigue siendo unknown y cuarentena. isPaid pasa a true por la etiqueta literal; price y followers quedan null (no se supone importe ni se accede a contenido de pago). Que 'paid' signifique lo mismo que 'PRO' no esta verificado.
+
+Es un resultado de simulacion, no una importacion.

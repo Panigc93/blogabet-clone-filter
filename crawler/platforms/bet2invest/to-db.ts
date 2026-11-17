@@ -81,10 +81,10 @@ export function bet2investProfileToInsert(
 ): Bet2InvestDbMapping {
   // Tipo de cuenta primero: solo etiqueta explícita ('PRO Tipster' o 'Free
   // Tipster' en og). 'unknown' (ninguna o ambas) no se deja pasar.
-  if (p.accountType !== 'pro' && p.accountType !== 'free') {
+  if (p.accountType !== 'pro' && p.accountType !== 'free' && p.accountType !== 'paid') {
     return cuarentena(
       'tipo-cuenta-desconocido',
-      `accountType='${p.accountType}': sin etiqueta explícita PRO/Free en og:title/description; la ausencia de una no prueba la otra`,
+      `accountType='${p.accountType}': sin etiqueta explícita PRO/Free/Paid coherente en og:title/description; la ausencia de una no prueba la otra`,
     )
   }
   // Solo all-time persiste: otro periodo (o ausencia del grupo de periodo)
@@ -189,7 +189,7 @@ function buildInsert(
     avatarUrl: null, // el parser no captura avatar
     flagUrl: null,
     countryCode: null,
-    isPaid: p.accountType === 'pro', // por etiqueta explícita; Free: ver docs/bet2invest-design.md (observación n=2, no un hecho general)
+    isPaid: p.accountType === 'pro' || p.accountType === 'paid', // 'paid' = etiqueta literal 'Paid Tipster' (title) y 'paid tipster' (description): dice cuenta de pago, NO precio ni acceso; price sigue null; por etiqueta explícita; Free: ver docs/bet2invest-design.md (observación n=2, no un hecho general)
     price: null, // precio sin validar (solo botón hidratado; Stripe del payload no interpretado): no se asume
     profitUnit: 'bet2invest-units',
     priceCurrency: 'eur', // default de esquema; price null la deja muda
@@ -203,7 +203,7 @@ function buildInsert(
     isVerified: false,
     // Free: followers/rating observados (2/1 en ambos perfiles Free vistos) pueden ser
     // marcadores por defecto, no mediciones verificadas: no se persisten (null).
-    followers: p.accountType === 'pro' ? p.audience.followers : null, // null si la página no lo expone
+    followers: p.accountType === 'pro' ? p.audience.followers : null, // 'paid': no verificado, null; // null si la página no lo expone
     lastPickAt: null,
     resetCount: 0,
     lastResetAt: null,
