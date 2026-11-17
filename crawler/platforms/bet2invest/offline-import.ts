@@ -132,3 +132,68 @@ export function simulateImport(dir: string, capturedAt: Date): { report: Offline
   }
   return { report: rep, rows }
 }
+
+// ---- Import PLAN (pure). Decides insert/update/skip per row and the validation-log entries; it executes nothing.
+// A real executor would run this inside ONE transaction, allocating ids with the internal sequence
+// (idSource 'internal-transactional'). Until that route exists and is authorized, nothing calls it with real ids.
+import { assertBet2InvestRealImportProvenance, planBet2InvestUpsert, type Bet2InvestIdSource, type Bet2InvestUpsertPlan } from './to-db'
+
+export interface ValidationLogEntry {
+  platform: 'bet2invest'
+  slug: string
+  capturedAt: string
+  class: string
+  reason: string
+  runId: string
+}
+
+export interface ImportPlan {
+  plans: { slug: string; plan: Bet2InvestUpsertPlan }[]
+  log: ValidationLogEntry[]
+  counts: { insert: number; update: number; skip: number; notSelected: number; parseError: number }
+}
+
+export function planOfflineImport(p: {
+  rows: OfflineRow[]
+  existing: Map<string, TipsterInsert> // by slug, platform 'bet2invest' only
+  idSource: Bet2InvestIdSource
+  allocateId: () => number // called ONLY for new rows that will be inserted
+  capturedAt: Date
+  runId: string
+}): ImportPlan {
+  const out: ImportPlan = { plans: [], log: [], counts: { insert: 0, update: 0, skip: 0, notSelected: 0, parseError: 0 } }
+  const logIt = (slug: string, cls: string, reason: string) => out.log.push({ platform: 'bet2invest', slug, capturedAt: p.capturedAt.toISOString(), class: cls, reason, runId: p.runId })
+  for (const r of p.rows) {
+    if (r.status === 'not-selected') {
+      out.counts.notSelected++
+      logIt(r.slug, 'bankroll-no-vinculado', r.reason)
+      continue
+    }
+    if (r.status === 'parse-error') {
+      out.counts.parseError++
+      logIt(r.slug, 'parse-error', r.reason)
+      continue
+    }
+    if (r.status === 'quarantine') {
+      const plan = planBet2InvestUpsert(p.existing.get(r.slug) ?? null, { ok: false, reason: r.reason })
+      out.plans.push({ slug: r.slug, plan })
+      out.counts.skip++
+      logIt(r.slug, /cuarentena\[([^\]]+)\]/.exec(r.reason)?.[1] ?? 'cuarentena', r.reason)
+      continue
+    }
+    if (r.status !== 'row') continue // unreachable: narrows the union
+    assertBet2InvestRealImportProvenance(p.idSource, r.slug) // throws for isolated-fixture ids
+    const existing = p.existing.get(r.slug) ?? null
+    // The id is only taken for a genuinely new row; an existing row keeps its own id (mergeBet2InvestUpdate).
+    const insert = existing ? r.insert : { ...r.insert, id: p.allocateId() }
+    const plan = planBet2InvestUpsert(existing, { ok: true, insert })
+    out.plans.push({ slug: r.slug, plan })
+    if (plan.action === 'insert') out.counts.insert++
+    else if (plan.action === 'update') out.counts.update++
+    else {
+      out.counts.skip++
+      logIt(r.slug, 'frescura', plan.reason)
+    }
+  }
+  return out
+}

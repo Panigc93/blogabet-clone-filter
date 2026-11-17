@@ -73,3 +73,35 @@ describe('buildOfflineRow end to end (pagina real reducida + meses reales descar
     expect((r as { reason: string }).reason).toContain('tipo-cuenta-desconocido')
   })
 })
+
+import { planOfflineImport } from '@/crawler/platforms/bet2invest/offline-import'
+describe('planOfflineImport (puro, sin DB)', () => {
+  const html = fx('b2i-e2e-ssr.html')
+  const months = JSON.parse(fx('b2i-e2e-months.json'))
+  const good = buildOfflineRow({ slug: 'Apocalypse_55', html, monthsJson: months, capturedAt: NOW, surrogateId: -1 })
+  const quar = buildOfflineRow({ slug: 'x', html: html.replace(/(Free|PRO) Tipster/gi, 'Tipster'), monthsJson: months, capturedAt: NOW, surrogateId: -3 })
+  const cand = buildOfflineRow({ slug: 'Gerganaana', html: fx('b2i-select-multi-candidate.html'), monthsJson: null, capturedAt: NOW, surrogateId: -2 })
+  let next = -2000000000
+  const base = { existing: new Map(), allocateId: () => next--, capturedAt: NOW, runId: 'run-test' }
+  it('fila nueva se inserta con id asignado solo para ella; cuarentena y candidatos van al log y no consumen id', () => {
+    next = -2000000000
+    const r = planOfflineImport({ ...base, rows: [quar, cand, good], idSource: 'internal-transactional' })
+    expect(r.counts).toMatchObject({ insert: 1, skip: 1, notSelected: 1 })
+    const ins = r.plans.find((x) => x.slug === 'Apocalypse_55')!.plan
+    expect(ins.action === 'insert' && ins.insert.id).toBe(-2000000000)
+    expect(next).toBe(-2000000001)
+    expect(r.log.map((l) => l.class).sort()).toEqual(['bankroll-no-vinculado', 'tipo-cuenta-desconocido'])
+  })
+  it('ids de fixture aislado se rechazan antes de cualquier plan', () => {
+    expect(() => planOfflineImport({ ...base, rows: [good], idSource: 'isolated-fixture' })).toThrow(/import real rechazado/)
+  })
+  it('fila existente: no consume id, y una captura no mas reciente no retrocede nada', () => {
+    next = -5
+    const first = planOfflineImport({ ...base, rows: [good], idSource: 'internal-transactional' }).plans[0].plan
+    if (first.action !== 'insert') throw new Error('insert expected')
+    const r = planOfflineImport({ ...base, existing: new Map([['Apocalypse_55', first.insert]]), rows: [good], idSource: 'internal-transactional' })
+    expect(next).toBe(-6)
+    expect(r.counts.skip).toBe(1)
+    expect(r.log[0].class).toBe('frescura')
+  })
+})
