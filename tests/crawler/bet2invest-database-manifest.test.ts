@@ -1,3 +1,4 @@
+import { ACTIVE_CLASS } from '@/crawler/platforms/bet2invest/active-period-index'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { PGlite } from '@electric-sql/pglite'
 import { readFileSync } from 'node:fs'
@@ -82,13 +83,22 @@ describe('one atomic database manifest per Bet2Invest run', () => {
     expect((await pg.query("SELECT * FROM tipsters WHERE slug='too-big'")).rows).toHaveLength(0)
     expect(await reconcileRun(pg, 'too-big')).toBeNull()
   })
+  it('active index failure rolls back rows and historical manifest together', async () => {
+    const before=(await pg.query<{reason:string}>('SELECT reason FROM import_validation_log WHERE class=$1',[ACTIVE_CLASS])).rows
+    await pg.exec("ALTER TABLE import_validation_log ADD CONSTRAINT reject_active CHECK (class <> 'b2i-active-period-index-v1' OR position('fail-active' in reason)=0)")
+    await expect(executeDatabaseAuditedImport(db,input('fail-active'),provenance)).rejects.toThrow()
+    expect((await pg.query("SELECT slug FROM tipsters WHERE slug='fail-active'")).rows).toHaveLength(0)
+    expect(await reconcileRun(pg,'fail-active')).toBeNull()
+    expect((await pg.query<{reason:string}>('SELECT reason FROM import_validation_log WHERE class=$1',[ACTIVE_CLASS])).rows).toEqual(before)
+    await pg.exec('ALTER TABLE import_validation_log DROP CONSTRAINT reject_active')
+  })
   it('tamper and duplicate run identity fail closed; manifest class is separate from errors', async () => {
     const rows = await manifests()
     const body = JSON.parse(rows[0].reason); body.manifest.rows[0].windows[3].bets++
     expect(() => databaseAudits([{ reason: JSON.stringify(body), runId: rows[0].run_id }])).toThrow('integrity')
     await pg.query('INSERT INTO import_validation_log (platform,slug,class,reason,run_id) SELECT platform,slug,class,reason,run_id FROM import_validation_log WHERE run_id=$1', ['first'])
     await expect(reconcileRun(pg, 'first')).rejects.toThrow('duplicate')
-    const errors = await pg.query<{ n: number }>('SELECT count(*)::int AS n FROM import_validation_log WHERE platform=$1 AND class<>$2', ['bet2invest', MANIFEST_CLASS])
+    const errors = await pg.query<{ n: number }>('SELECT count(*)::int AS n FROM import_validation_log WHERE platform=$1 AND class NOT IN ($2,$3)', ['bet2invest', MANIFEST_CLASS, ACTIVE_CLASS])
     expect(errors.rows[0].n).toBe(0)
   })
 })

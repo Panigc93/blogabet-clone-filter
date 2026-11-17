@@ -1,3 +1,6 @@
+Current active lookup: see bet2invest-active-receipt-index.md. It supersedes
+the historical request-time reader described below, without deleting history.
+
 # Bet2Invest: counter corrections and source-ready local preparation
 
 Local review candidate only. No remote connection, production write, push,

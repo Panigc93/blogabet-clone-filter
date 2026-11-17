@@ -1,5 +1,6 @@
 // One private, versioned manifest per run in the EXISTING validation-log table.
 // No schema changes, no per-profile success logs, no filesystem dependency.
+import { updateActiveIndex } from './active-period-index'
 import { createHash } from 'node:crypto'
 import type { TipsterInsert } from '@/db/schema'
 import { PERIODS, validAudit, windowBounds, type PeriodAudit } from '@/lib/bet2invest-period-contract'
@@ -101,6 +102,7 @@ export async function executeDatabaseAuditedImport(db: ImportDatabase, input: Ex
       }
       const e = pack(manifest)
       await tx.query('INSERT INTO import_validation_log (platform, slug, captured_at, class, reason, run_id) VALUES ($1,$2,$3,$4,$5,$6)', ['bet2invest', runSlug(input.runId), input.capturedAt, MANIFEST_CLASS, JSON.stringify(e), input.runId])
+      await updateActiveIndex(tx, manifest.rows)
       const confirmed = await selectRun(tx, input.runId)
       if (!confirmed || confirmed.sha256 !== e.sha256) throw new Error('database manifest readback failed')
       // Receipt is returned only AFTER outer transaction COMMIT resolves.

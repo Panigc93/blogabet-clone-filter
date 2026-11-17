@@ -1,5 +1,7 @@
 // Opt-in real PostgreSQL test. Only a Unix socket directory with the explicit
 // test database is accepted. No DATABASE_URL, TCP host or production adapter.
+import { bootstrapActiveIndex } from '@/crawler/platforms/bet2invest/active-period-index'
+import { windowBounds } from '@/lib/bet2invest-period-contract'
 import { executeDatabaseAuditedImport, reconcileRun } from '@/crawler/platforms/bet2invest/database-manifest'
 import { transactionAdapter } from '@/crawler/platforms/bet2invest/transaction-adapter'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
@@ -170,6 +172,17 @@ describe.skipIf(!enabled)('real local PostgreSQL independent sessions and timeou
     const explicit = transactionAdapter(pinned, { statementMs: 1000, idleMs: 2000, budgetMs: 3000 })
     const provenance = { codeRevision: '8b27552', inputSha256: 'a'.repeat(64), calculatedAt: at }
     const batch = input('atomic-db-manifest')
+    // Explicit legacy bootstrap for rows created by earlier executor-only
+    // tests. They all use this same isolated fixture and original anchor.
+    await explicit.transaction(async tx => {
+      await tx.query('LOCK TABLE tipsters IN SHARE ROW EXCLUSIVE MODE NOWAIT')
+      const existing = (await tx.query<{slug:string}>('SELECT slug FROM tipsters WHERE platform=$1',['bet2invest'])).rows
+      await bootstrapActiveIndex(tx, existing.map(({slug})=>{
+        const r=row(slug)
+        if(r.status!=='row')throw Error('fixture row')
+        return {slug,capturedAt:at.toISOString(),windows:Object.fromEntries(([3,6,12] as const).map(n=>[n,{...r.windows[n],...windowBounds(at,n)}])) as import('@/lib/bet2invest-period-contract').PeriodAudit['windows']}
+      }))
+    })
     const result = await executeDatabaseAuditedImport(explicit, batch, provenance)
     expect(result.receipt?.received).toBe(true)
     const independent = { query: async <T extends Record<string, unknown>>(text: string, params?: unknown[]) => ({ rows: (await observer.query(text, params)).rows as T[] }) }

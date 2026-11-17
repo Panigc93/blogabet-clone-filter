@@ -1,3 +1,6 @@
+Current active lookup: see bet2invest-active-receipt-index.md. It supersedes
+the historical request-time reader described below, without deleting history.
+
 # Bet2Invest: one database manifest per run (local variant)
 
 This supersedes the default filesystem reader described in

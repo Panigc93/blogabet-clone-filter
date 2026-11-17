@@ -1,5 +1,6 @@
 // Combines parser checkpoints, splits exact capture anchors and tests every
 // sourced batch against one disposable local database. Never opens a URL.
+import { readActiveIndex } from '../crawler/platforms/bet2invest/active-period-index'
 import { PGlite } from '@electric-sql/pglite'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -7,7 +8,9 @@ import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { executeDatabaseAuditedImport, type SourceCapture } from '../crawler/platforms/bet2invest/database-manifest'
 import type { OfflineRow } from '../crawler/platforms/bet2invest/offline-import'
-const [out, ...files] = process.argv.slice(2)
+const [out, ...args] = process.argv.slice(2)
+const syntheticRefresh = args.includes('--synthetic-refresh')
+const files = args.filter(a=>a!=='--synthetic-refresh')
 const hash = (s: string) => createHash('sha256').update(s).digest('hex')
 type Entry = { capturedAt: string; row: OfflineRow; source: SourceCapture }
 async function main() {
@@ -45,7 +48,23 @@ async function main() {
    if(new Date(r.captured_at as string).toISOString()!==e.capturedAt)throw Error('source capture mismatch')
   }
   if(JSON.stringify(before)!==JSON.stringify((await pg.query("SELECT * FROM tipsters WHERE platform!='bet2invest' ORDER BY id")).rows))throw Error('sentinel changed')
-  const summary={profiles:entries.length+held.length,prepared:entries.length,batches:batches.length,counts,held,sourceBasis:entries.reduce((a,e)=>{a[e.source.ssr.basis]=(a[e.source.ssr.basis]??0)+1;return a},{}as Record<string,number>),persisted:(await pg.query("SELECT count(*)::int AS rows,count(yield_3m)::int AS y3,count(yield_6m)::int AS y6,count(yield_12m)::int AS y12 FROM tipsters WHERE platform='bet2invest'")).rows,manifestCount:receipts.length,receiptBytes:receipts.reduce((a,r)=>a+r.bytes,0),allValuesAndOriginalSsrAnchorsVerified:true,sameRunReplaysNoWrites:true,otherPlatformsUnchanged:true,sourceCut:'per-profile SSR and API evidence retained separately; no simultaneous-cut claim'}
+  let syntheticRefreshCounts:Record<string,number>|null=null
+  if(syntheticRefresh){
+   syntheticRefreshCounts={}
+   for(const b of batches){
+    const at=new Date(new Date(b.capturedAt).getTime()+1000)
+    const rows=JSON.parse(JSON.stringify(b.rows)) as OfflineRow[]
+    for(const r of rows)if(r.status==='row'){r.insert.capturedAt=at;r.insert.statsUpdatedAt=at}
+    const db={transaction:<T>(fn:(tx:any)=>Promise<T>)=>pg.transaction(fn)}
+    const result=await executeDatabaseAuditedImport(db,{rows,capturedAt:at,runId:'synthetic-refresh-'+b.runId},{codeRevision:revision,inputSha256:hash(JSON.stringify(rows)),calculatedAt:new Date()})
+    if(!result.plan||!result.committed)throw Error('synthetic second refresh failed')
+    for(const[k,v]of Object.entries(result.plan.counts))syntheticRefreshCounts[k]=(syntheticRefreshCounts[k]??0)+v
+   }
+   const active=await readActiveIndex(pg)
+   if(active?.length!==entries.filter(e=>e.row.status==='row').length)throw Error('active index population mismatch')
+   for(const e of entries)if(e.row.status==='row'&&active.find(a=>a.slug===e.row.slug)?.capturedAt!==new Date(Date.parse(e.capturedAt)+1000).toISOString())throw Error('second refresh anchor mismatch')
+  }
+  const summary={syntheticSecondRefresh:syntheticRefreshCounts,syntheticRefreshCaveat:syntheticRefresh?'second timestamps shifted 1s for isolated testing only, not source evidence':null,profiles:entries.length+held.length,prepared:entries.length,batches:batches.length,counts,held,sourceBasis:entries.reduce((a,e)=>{a[e.source.ssr.basis]=(a[e.source.ssr.basis]??0)+1;return a},{}as Record<string,number>),persisted:(await pg.query("SELECT count(*)::int AS rows,count(yield_3m)::int AS y3,count(yield_6m)::int AS y6,count(yield_12m)::int AS y12 FROM tipsters WHERE platform='bet2invest'")).rows,firstRunManifestReceipts:receipts.length,totalHistoricalManifests:(await pg.query<{n:number}>("SELECT count(*)::int n FROM import_validation_log WHERE class='b2i-run-manifest-v1'")).rows[0].n,activeIndexRows:(await readActiveIndex(pg))?.length??0,receiptBytes:receipts.reduce((a,r)=>a+r.bytes,0),allValuesAndOriginalSsrAnchorsVerified:true,sameRunReplaysNoWrites:true,otherPlatformsUnchanged:true,sourceCut:'per-profile SSR and API evidence retained separately; no simultaneous-cut claim'}
   writeFileSync(out+'.report.json',JSON.stringify(summary,null,2));console.log(JSON.stringify(summary,null,2))
  }finally{await pg.close()}
 }
