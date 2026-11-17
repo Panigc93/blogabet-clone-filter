@@ -203,3 +203,11 @@ Dos correcciones respecto a una primera pasada (933 filas, 25 cuarentena):
 - 25 perfiles llevaban la etiqueta explicita 'Paid Tipster' (og:title) y 'paid tipster' (og:description), no mapeada. El parser la reconoce ahora como accountType 'paid' con procedencia (`accountLabel`); si los dos campos discrepan o hay dos clases en uno, sigue siendo unknown y cuarentena. isPaid pasa a true por la etiqueta literal; price y followers quedan null (no se supone importe ni se accede a contenido de pago). Que 'paid' signifique lo mismo que 'PRO' no esta verificado.
 
 Es un resultado de simulacion, no una importacion.
+
+
+## Procedencia de `picks` y la diferencia badge Picks vs tarjeta Bets (aclaracion factual, 2026-11-17)
+
+- `picks` de la fila = `stats-settledBetsNumber` (tarjeta de estadisticas de la pagina) que lee `parseProfilePage` como `settledBets`. No es el contador de la cabecera/badge.
+- Los 193 perfiles con "cabecera > API" comparaban el badge Picks / "See all picks" (y el og "N tips") con la suma de los meses de la API. La tarjeta Bets coincide con la suma de meses en los 958 mapeables y con `settledBetsNumber` del payload. Ejemplos: AnonymousPronos badge 606, tarjeta 605, API 605; Focusgoalaway badge 766, tarjeta 757, API 757.
+- Que el badge incluya apuestas pendientes es compatible con el HTML observado pero NO esta confirmado como definicion oficial. Se conserva la incertidumbre; `picks` no se cambia.
+- El yield publicado (`yield`) es el ROI de cabecera (og); la puerta de ventanas lo compara con la serie mensual.
