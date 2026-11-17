@@ -29,6 +29,14 @@
 import * as cheerio from 'cheerio'
 import type { AnyNode } from 'domhandler'
 
+export function parseStatNumberText(text: string): number | null { return parseNumber(text) }
+
+export function displayedStatNumber(html: string, key: 'settledBetsNumber' | 'roi' | 'profit'): number | null {
+  const $ = cheerio.load(html)
+  const text = $(`[data-testid="stats-${key}"]`).first().text()
+  return parseNumber(text)
+}
+
 export type Bet2InvestStatsScope = 'all_time' | 'other_period' | 'unknown'
 
 export interface Bet2InvestAudience {

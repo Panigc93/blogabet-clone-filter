@@ -36,6 +36,20 @@ describe('one atomic database manifest per Bet2Invest run', () => {
     expect(JSON.stringify(decoded)).not.toContain('inputSha256')
     expect(JSON.stringify(decoded)).not.toContain('codeRevision')
   })
+  it('retains separate private SSR/API source dates, hashes and basis, rejects mismatched source replay', async () => {
+    const batch = input('sourced-private')
+    const ssr = { at: at.toISOString(), basis: 'http-date' as const, sha256: 'c'.repeat(64) }
+    const api = { at: '2026-11-17T17:44:19.000Z', basis: 'local-download-completed' as const, sha256: 'd'.repeat(64) }
+    const p = {...provenance,sourceCaptures:[{slug:'sourced-private',ssr,api}]}
+    const result = await executeDatabaseAuditedImport(db,batch,p)
+    expect(result.committed).toBe(true)
+    const record = (await manifests()).find(r=>r.run_id==='sourced-private')!
+    expect(JSON.parse(record.reason).manifest.sourceCaptures).toEqual(p.sourceCaptures)
+    expect(JSON.stringify(databaseAudits([{reason:record.reason,runId:record.run_id}]))).not.toContain('sourceCaptures')
+    await expect(executeDatabaseAuditedImport(db,batch,{...p,sourceCaptures:[{slug:'sourced-private',ssr,api:{...api,sha256:'e'.repeat(64)}}]})).rejects.toThrow('conflicts')
+    await expect(executeDatabaseAuditedImport(db,input('sourced-invalid'),{...p,sourceCaptures:[]})).rejects.toThrow('coverage')
+    await expect(executeDatabaseAuditedImport(db,batch,{...p,sourceCaptures:[{slug:'sourced-private',ssr:{...ssr,at:api.at},api}]})).rejects.toThrow('anchor')
+  })
   it('rejects run id provenance conflict, reserved log slug does not collide with actual tipster identity', async () => {
     await expect(executeDatabaseAuditedImport(db, input('first', 'real-profile'), { ...provenance, inputSha256: 'b'.repeat(64) })).rejects.toThrow('conflicts')
     await expect(executeDatabaseAuditedImport(db, input('first', 'different-payload'), provenance)).rejects.toThrow('conflicts')

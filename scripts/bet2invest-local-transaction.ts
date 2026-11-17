@@ -7,7 +7,7 @@ import { simulateImport } from '../crawler/platforms/bet2invest/offline-import'
 import { executeDatabaseAuditedImport, reconcileRun, MANIFEST_CLASS } from '../crawler/platforms/bet2invest/database-manifest'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { executeOfflineImport, type ImportDatabase } from '../crawler/platforms/bet2invest/execute-offline-import'
+import { type ImportDatabase } from '../crawler/platforms/bet2invest/execute-offline-import'
 
 async function main() {
   const [dir, at, out] = process.argv.slice(2)
@@ -21,7 +21,14 @@ async function main() {
       }
     }
     // Other-platform sentinels with the SAME slug as an imported profile.
-    const { report, rows } = simulateImport(dir, capturedAt)
+    const prepared = process.argv.includes('--prepared')
+    const loaded = prepared ? JSON.parse(readFileSync(dir, 'utf8')) as import('../crawler/platforms/bet2invest/offline-import').OfflineRow[] : null
+    if (loaded) for (const row of loaded) if (row.status === 'row') {
+      row.insert.capturedAt = new Date(row.insert.capturedAt!)
+      row.insert.statsUpdatedAt = new Date(row.insert.statsUpdatedAt!)
+    }
+    const rows = loaded ?? simulateImport(dir, capturedAt).rows
+    const report = { capturedAt: capturedAt.toISOString(), total: rows.length, rows: rows.filter((r) => r.status === 'row').length, byStatus: rows.reduce((a, r) => ({ ...a, [r.status]: (a[r.status] ?? 0) + 1 }), {} as Record<string, number>), preparedCheckpoint: prepared }
     const slug = rows.find((r) => r.status === 'row')?.slug ?? 'sentinel'
     for (const [id, platform] of [[1, 'blogabet'], [2, 'tipstrr'], [3, 'golazobets']] as const) {
       await pg.query('INSERT INTO tipsters (id, platform, slug, name, picks) VALUES ($1,$2,$3,$4,$5)', [id, platform, slug, 'sentinel', 123])

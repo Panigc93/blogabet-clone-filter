@@ -8,7 +8,7 @@ import fs from 'fs'
 import path from 'path'
 import { parseProfilePage } from './parse'
 import { bet2investProfileToInsert, type Bet2InvestDbMapping } from './to-db'
-import { B2I_HEADER_ROI_TOLERANCE, extractBankrollBlocks, parseMonthsResponse, selectProfileIds, type Bet2InvestApiMonth } from './api-months'
+import { B2I_HEADER_ROI_TOLERANCE, monthsCloseWithTotals, extractBankrollBlocks, parseMonthsResponse, selectProfileIds, type Bet2InvestApiMonth } from './api-months'
 import type { TipsterInsert } from '@/db/schema'
 
 export const B2I_WINDOWS = [3, 6, 12] as const
@@ -28,7 +28,7 @@ export function windowYieldOrNull(
   months: Bet2InvestApiMonth[] | null,
   n: B2IWindow,
   now: Date,
-  ctx: { headerRoiPct: number | null; lastReset: string | null; selected: boolean },
+  ctx: { headerRoiPct: number | null; lastReset: string | null; selected: boolean; payloadRoiPct?: number | null },
 ): WindowYield {
   const no = (reason: string): WindowYield => ({ value: null, reason, months: 0, bets: 0, caveats: [] })
   if (!ctx.selected) return no('bankroll-no-vinculado')
@@ -38,7 +38,14 @@ export function windowYieldOrNull(
   const stakeAll = months.reduce((a, r) => a + r.stakeUnits, 0)
   const profitAll = months.reduce((a, r) => a + r.profitUnits, 0)
   if (ctx.headerRoiPct === null || !(stakeAll > 0)) return no('sin-roi-de-cabecera-o-stake-cero')
-  if (Math.abs((100 * profitAll) / stakeAll - ctx.headerRoiPct) > B2I_HEADER_ROI_TOLERANCE) return no('meses-no-reproducen-roi-de-cabecera')
+  const computedRoi = (100 * profitAll) / stakeAll
+  const cardMatches = Math.abs(computedRoi - ctx.headerRoiPct) <= B2I_HEADER_ROI_TOLERANCE
+  // The verified selected-bankroll payload reports ROI rounded to at most
+  // four decimal places in this corpus. A HALF fourth-decimal interval is
+  // stricter than the card gate, not an expanded header tolerance. Caller
+  // must prove profile/scope/bets/profit identity before supplying it.
+  const preciseMatches = ctx.payloadRoiPct != null && Math.abs(computedRoi - ctx.payloadRoiPct) <= 0.00005 + 1e-9
+  if (!cardMatches && !preciseMatches) return no('meses-no-reproducen-roi-de-cabecera')
   const cur = ym(now.getUTCFullYear(), now.getUTCMonth() + 1)
   const start = cur - n
   if (ctx.lastReset !== null) {
@@ -65,6 +72,10 @@ export type OfflineRow =
   | { slug: string; status: 'row'; insert: TipsterInsert; windows: Record<B2IWindow, WindowYield>; basis: string }
   | { slug: string; status: 'quarantine' | 'not-selected' | 'parse-error'; reason: string }
 
+export function selectedBankrollMonthsClose(current: { settledBetsNumber?: number | null; profit: number | null }, months: Bet2InvestApiMonth[] | null): boolean {
+  return !!months && current.settledBetsNumber != null && current.profit !== null && monthsCloseWithTotals(months, current.settledBetsNumber, current.profit, 'full')
+}
+
 export function buildOfflineRow(p: {
   slug: string
   html: string
@@ -74,19 +85,35 @@ export function buildOfflineRow(p: {
 }): OfflineRow {
   const sel = selectProfileIds(p.html)
   if (sel.status !== 'selected') return { slug: p.slug, status: 'not-selected', reason: `${sel.status}: ${sel.why}` }
+  const months = p.monthsJson === null ? null : parseMonthsResponse(p.monthsJson)
+  const block = (extractBankrollBlocks(p.html) ?? []).find((b) => b.bankrollId === sel.ids.publicBankrollId)
+  const cur = block?.current
+  if (sel.basis === 'default-stats-equal-header' && cur && cur.betsNumber !== cur.settledBetsNumber) {
+    // Distinct counters are not themselves an error. Require the selected
+    // series to corroborate the explicit settled identity before importing.
+    if (!selectedBankrollMonthsClose(cur, months)) {
+      return { slug: p.slug, status: 'not-selected', reason: 'selected-bankroll-settled-vs-months-not-verified' }
+    }
+  }
   let mapping: Bet2InvestDbMapping
   let roi: number | null
+  let settled: number | null = null
+  let profit: number | null = null
+  let username: string | null = null
+  let scope: string | null = null
   try {
     const prof = parseProfilePage(p.html)
     roi = prof.roiPct
+    settled = prof.settledBets; profit = prof.profitUnits; username = prof.username; scope = prof.statsScope
     mapping = bet2investProfileToInsert(prof, { id: p.surrogateId, idSource: 'isolated-fixture', slug: p.slug, capturedAt: p.capturedAt })
   } catch (e) {
     return { slug: p.slug, status: 'parse-error', reason: e instanceof Error ? e.message : String(e) }
   }
   if (!mapping.ok) return { slug: p.slug, status: 'quarantine', reason: mapping.reason }
-  const months = p.monthsJson === null ? null : parseMonthsResponse(p.monthsJson)
-  const block = (extractBankrollBlocks(p.html) ?? []).find((b) => b.bankrollId === sel.ids.publicBankrollId)
-  const ctx = { headerRoiPct: roi, lastReset: block?.lastReset ?? null, selected: true }
+  const payloadIdentity = scope === 'all_time' && username === sel.ids.username && cur && cur.roi !== null && cur.settledBetsNumber === settled && profit !== null && cur.profit !== null
+    && Math.abs(cur.profit - profit) <= 0.005 + 1e-9 && roi !== null && Math.abs(cur.roi - roi) <= B2I_HEADER_ROI_TOLERANCE
+    && months !== null && monthsCloseWithTotals(months, cur.settledBetsNumber!, cur.profit, 'full')
+  const ctx = { headerRoiPct: roi, lastReset: block?.lastReset ?? null, selected: true, payloadRoiPct: payloadIdentity ? cur!.roi : null }
   const windows = Object.fromEntries(B2I_WINDOWS.map((n) => [n, windowYieldOrNull(months, n, p.capturedAt, ctx)])) as Record<B2IWindow, WindowYield>
   const insert: TipsterInsert = { ...mapping.insert, yield3m: windows[3].value, yield6m: windows[6].value, yield12m: windows[12].value }
   return { slug: p.slug, status: 'row', insert, windows, basis: sel.basis }

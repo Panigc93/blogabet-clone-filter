@@ -12,8 +12,8 @@ describe('Bet2Invest real fixtures: selection and blocks', () => {
     expect(selectProfileIds(html)).toMatchObject({ status: 'selected', basis: 'default-stats-equal-header' })
     expect(extractBankrollBlocks(html)!.length).toBeGreaterThan(1)
   })
-  it('multi-bankroll cuyo default no iguala la cabecera: candidate, extractProfileIds no lo vincula', () => {
-    expect(selectProfileIds(fx('b2i-select-multi-candidate.html')).status).toBe('candidate')
+  it('Gerganaana: settled card selects identity but row still needs corroborating months', () => {
+    expect(selectProfileIds(fx('b2i-select-multi-candidate.html')).status).toBe('selected')
   })
   it('caso reset: current 0 apuestas y cabecera 0; bloques leidos sin fusionar', () => {
     const blocks = extractBankrollBlocks(fx('b2i-reset-current-zero.html'))!

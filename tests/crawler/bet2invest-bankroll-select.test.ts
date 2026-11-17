@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { selectProfileIds, extractProfileIds } from '@/crawler/platforms/bet2invest/api-months'
 
 // Fully synthetic Nuxt payloads (no real tipster data). Shape: user object + public bankroll objects whose
-// `statistics` points to {betsNumber, roi}; header is the og:description "X% ROI on N tips".
+// `statistics` points to explicit settledBetsNumber/betsNumber + roi; card uses stable testids, og badge is not identity.
 type B = [id: number, dflt: boolean, stat: [number, number] | null, type?: string]
 function page(banks: B[], hdr: [number, number] | null = [606, 1.37]): string {
   const d: unknown[] = [{}]
@@ -12,14 +12,15 @@ function page(banks: B[], hdr: [number, number] | null = [606, 1.37]): string {
   ;(d[user] as Record<string, unknown>).username = add('synthetic')
   ;(d[user] as Record<string, unknown>).lastBetAt = add('2026-11-01T00:00:00.000Z')
   for (const [bid, dflt, stat, typ = 'public'] of banks) {
-    const sd = stat ? add({ betsNumber: add(stat[0]), roi: add(stat[1]) }) : null
+    const sd = stat ? add({ settledBetsNumber: add(stat[0]), betsNumber: add(stat[0]), roi: add(stat[1]) }) : null
     const b = add({ id: 0, default: 0, type: 0, statistics: sd, lastReset: null, isMutable: false })
     ;(d[b] as Record<string, unknown>).id = add(bid)
     ;(d[b] as Record<string, unknown>).default = add(dflt)
     ;(d[b] as Record<string, unknown>).type = add(typ)
   }
   const og = hdr ? `<meta property="og:description" content="Discover X, a PRO Tipster. ${hdr[1]}% ROI on ${hdr[0]} tips.">` : ''
-  return `${og}<script type="application/json" id="__NUXT_DATA__">${JSON.stringify(d)}</script>`
+  const card = hdr ? `<span data-testid="stats-settledBetsNumber">${hdr[0]}</span><span data-testid="stats-roi">${hdr[1]}%</span>` : ''
+  return `${og}${card}<script type="application/json" id="__NUXT_DATA__">${JSON.stringify(d)}</script>`
 }
 const st = (b: B[], h?: [number, number] | null) => selectProfileIds(page(b, h)).status
 

@@ -10,7 +10,13 @@ import type { ImportPlan } from './offline-import'
 export const MANIFEST_CLASS = 'b2i-run-manifest-v1'
 const SLUG_PREFIX = '__b2i_run__:'
 const MAX_BYTES = 2 * 1024 * 1024
+export interface SourceCapture {
+  slug: string
+  ssr: { at: string; basis: 'http-date' | 'local-download-completed' | 'local-request-recorded'; sha256: string }
+  api: { at: string; basis: 'http-date' | 'local-download-completed' | 'local-request-recorded'; sha256: string } | null
+}
 interface Manifest {
+  sourceCaptures?: SourceCapture[]
   schemaVersion: 1; platform: 'bet2invest'; runId: string; state: 'committed'
   capturedAt: string; calculatedAt: string; executedAt: string
   codeRevision: string; inputSha256: string; payloadSha256: string; counts: ImportPlan['counts']
@@ -56,10 +62,19 @@ export async function reconcileRun(reader: ImportTransaction, runId: string): Pr
 }
 
 export async function executeDatabaseAuditedImport(db: ImportDatabase, input: ExecuteOfflineImportInput, provenance: {
-  codeRevision: string; inputSha256: string; calculatedAt: Date
+  codeRevision: string; inputSha256: string; calculatedAt: Date; sourceCaptures?: SourceCapture[]
 }): Promise<{ committed: boolean | null; alreadyCommitted?: boolean; plan?: ImportPlan; receipt?: ManifestReceipt; state: 'committed' | 'rolled-back' | 'unknown' }> {
   runSlug(input.runId)
   if (!/^[a-f0-9]{7,40}$/.test(provenance.codeRevision) || !/^[a-f0-9]{64}$/.test(provenance.inputSha256)) throw new Error('invalid manifest provenance')
+  if (provenance.sourceCaptures) {
+    const sources = provenance.sourceCaptures
+    if (sources.length !== input.rows.length || new Set(sources.map(s => s.slug)).size !== sources.length) throw new Error('source coverage mismatch')
+    for (const r of input.rows) {
+      const s = sources.find(s => s.slug === r.slug)
+      if (!s || s.ssr.at !== input.capturedAt.toISOString()) throw new Error('source SSR anchor mismatch')
+      for (const capture of [s.ssr, s.api]) if (capture && (!/^[a-f0-9]{64}$/.test(capture.sha256) || !['http-date', 'local-download-completed', 'local-request-recorded'].includes(capture.basis) || !Number.isFinite(Date.parse(capture.at)))) throw new Error('invalid source capture')
+    }
+  }
   const rows: PeriodAudit[] = input.rows.flatMap((r) => r.status !== 'row' ? [] : [{ slug: r.slug, capturedAt: input.capturedAt.toISOString(), windows: Object.fromEntries(PERIODS.map((n) => [n, { ...r.windows[n], ...windowBounds(input.capturedAt, n) }])) as PeriodAudit['windows'] }])
   if (!rows.every(validAudit)) throw new Error('invalid audit windows')
   const payloadSha256 = hash(JSON.stringify(input.rows.map((r) => r.status === 'row' ? { ...r, insert: { ...r.insert, id: undefined } } : r)))
@@ -71,7 +86,7 @@ export async function executeDatabaseAuditedImport(db: ImportDatabase, input: Ex
       await tx.query('LOCK TABLE tipsters IN SHARE ROW EXCLUSIVE MODE NOWAIT')
       const previous = await selectRun(tx, input.runId)
       if (previous) {
-        if (previous.manifest.payloadSha256 !== payloadSha256 || previous.manifest.inputSha256 !== provenance.inputSha256 || previous.manifest.capturedAt !== input.capturedAt.toISOString() || previous.manifest.codeRevision !== provenance.codeRevision) throw new Error('run id conflicts with existing provenance')
+        if (previous.manifest.payloadSha256 !== payloadSha256 || previous.manifest.inputSha256 !== provenance.inputSha256 || previous.manifest.capturedAt !== input.capturedAt.toISOString() || previous.manifest.codeRevision !== provenance.codeRevision || JSON.stringify(previous.manifest.sourceCaptures) !== JSON.stringify(provenance.sourceCaptures)) throw new Error('run id conflicts with existing provenance')
         return { committed: true, alreadyCommitted: true, receipt: receipt(previous), state: 'committed' as const }
       }
       // Flat transaction wrapper, not a nested BEGIN. All writes remain in tx.
@@ -80,6 +95,7 @@ export async function executeDatabaseAuditedImport(db: ImportDatabase, input: Ex
       const manifest: Manifest = {
         schemaVersion: 1, platform: 'bet2invest', runId: input.runId, state: 'committed', capturedAt: input.capturedAt.toISOString(),
         calculatedAt: provenance.calculatedAt.toISOString(), executedAt, codeRevision: provenance.codeRevision, inputSha256: provenance.inputSha256, payloadSha256,
+        ...(provenance.sourceCaptures ? { sourceCaptures: provenance.sourceCaptures } : {}),
         counts: plan.counts, rows: rows.filter((r) => written.has(r.slug)),
         outcomes: input.rows.map((r) => { const p = plan.plans.find((i) => i.slug === r.slug)?.plan; return { slug: r.slug, status: p?.action ?? r.status, ...('reason' in r ? { reason: r.reason } : p?.action === 'skip' ? { reason: p.reason } : {}) } }),
       }

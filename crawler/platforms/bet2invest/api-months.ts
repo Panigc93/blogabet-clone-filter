@@ -4,6 +4,7 @@
 // Ids come from the Nuxt payload (<script id="__NUXT_DATA__">) of the server HTML.
 // Units are Bet2Invest units; no currency conversion. Pure functions only: no network here.
 import * as cheerio from 'cheerio'
+import { parseStatNumberText } from './parse'
 
 export const BET2INVEST_API_BASE = 'https://api.bet2invest.com'
 
@@ -135,7 +136,7 @@ export const B2I_HEADER_ROI_TOLERANCE = 0.005 + 1e-9
 /**
  * Chooses the public bankroll whose months to fetch. Rule (observed on 970 profiles, not an official definition):
  * a single public bankroll is taken as is; with several, exactly one must have default=true AND its payload
- * statistics (betsNumber, roi) must equal the header. Otherwise it is a candidate or ambiguous and is never linked.
+ * statistics (explicit settledBetsNumber, roi) must equal the statistics card. Otherwise it is a candidate or ambiguous and is never linked.
  * A single bankroll does not guarantee the same scope as the header (user/summary/bankroll counters can differ).
  */
 export function selectProfileIds(html: string): Bet2InvestBankrollSelection {
@@ -168,19 +169,23 @@ export function selectProfileIds(html: string): Bet2InvestBankrollSelection {
     const ids = mk(banks[0])
     return ids ? { status: 'selected', ids, basis: 'single-public-bankroll' } : { status: 'ambiguous', why: 'bankroll id missing' }
   }
-  const m = html.match(/og:description" content="[^"]*?(-?[\d.]+)% ROI on (\d+) tips/)
-  if (!m) return { status: 'ambiguous', why: 'header missing, several bankrolls' }
-  const hdrRoi = parseFloat(m[1])
-  const hdrBets = parseInt(m[2], 10)
+  // Compare the visible STATISTICS card, not og tips / Picks badge. Their
+  // counters differ in real pages; the identity used by the stored row is
+  // stats-settledBetsNumber. No fallback to the badge when card is absent.
+  const hdrRoi = parseStatNumberText($('[data-testid="stats-roi"]').first().text())
+  const hdrBets = parseStatNumberText($('[data-testid="stats-settledBetsNumber"]').first().text())
+  if (hdrRoi === null || hdrBets === null) return { status: 'ambiguous', why: 'statistics card missing, several bankrolls' }
   const defaults = banks.filter((b) => val(b.default) === true)
   if (defaults.length !== 1) return { status: 'ambiguous', why: `default absent or not unique (${defaults.length})` }
-  const stats = (b: Record<string, unknown>): { bets: unknown; roi: unknown } | null => {
+  const stats = (b: Record<string, unknown>): { bets: unknown; settled: unknown; roi: unknown } | null => {
     const st = typeof b.statistics === 'number' ? d[b.statistics] : null
-    return isObj(st) ? { bets: val(st.betsNumber), roi: val(st.roi) } : null
+    // Explicit settledBetsNumber wins. Missing it is NOT permission to use
+    // all-pick betsNumber for identity against the settled statistics card.
+    return isObj(st) ? { bets: val(st.betsNumber), settled: val(st.settledBetsNumber), roi: val(st.roi) } : null
   }
   const matches = (b: Record<string, unknown>): boolean => {
     const st = stats(b)
-    return !!st && st.bets === hdrBets && typeof st.roi === 'number' && Math.abs(st.roi - hdrRoi) <= B2I_HEADER_ROI_TOLERANCE
+    return !!st && st.settled === hdrBets && typeof st.roi === 'number' && Math.abs(st.roi - hdrRoi) <= B2I_HEADER_ROI_TOLERANCE
   }
   const dflt = defaults[0]
   const matching = banks.filter(matches)
@@ -190,7 +195,7 @@ export function selectProfileIds(html: string): Bet2InvestBankrollSelection {
   if (!ids) return { status: 'ambiguous', why: 'default bankroll id missing' }
   if (matching.length === 1) return { status: 'selected', ids, basis: 'default-stats-equal-header' }
   const st = stats(dflt)
-  return { status: 'candidate', ids, why: `default stats ${st ? `${String(st.bets)}/${String(st.roi)}` : 'absent'} vs header ${hdrBets}/${hdrRoi}` }
+  return { status: 'candidate', ids, why: `default stats ${st ? `${String(st.bets)}/${String(st.roi)}` : 'absent'} vs statistics-card ${hdrBets}/${hdrRoi}` }
 }
 
 /** Ids of the selected public bankroll, or null when the selection is a candidate or ambiguous. */
@@ -203,6 +208,7 @@ export interface Bet2InvestStatBlock {
   roi: number | null
   profit: number | null
   betsNumber: number | null
+  settledBetsNumber?: number | null // explicit settled counter, distinct from betsNumber
 }
 
 /** One public bankroll as published in the page payload. `current` and `lastStatistics` are kept apart: never summed or merged. */
@@ -234,7 +240,7 @@ export function extractBankrollBlocks(html: string): Bet2InvestBankrollBlocks[] 
   const n = (v: unknown): number | null => (typeof val(v) === 'number' ? (val(v) as number) : null)
   const block = (ref: unknown): Bet2InvestStatBlock | null => {
     const o = typeof ref === 'number' ? d[ref] : null
-    return isObj(o) ? { roi: n(o.roi), profit: n(o.profit), betsNumber: n(o.betsNumber) } : null
+    return isObj(o) ? { roi: n(o.roi), profit: n(o.profit), betsNumber: n(o.betsNumber), settledBetsNumber: n(o.settledBetsNumber) } : null
   }
   return d
     .filter((x): x is Record<string, unknown> => isObj(x) && 'lastReset' in x && 'isMutable' in x && val(x.type) === 'public')

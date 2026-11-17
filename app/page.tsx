@@ -38,7 +38,8 @@ export default async function Home({ searchParams }: PageProps) {
   }
 
   const sort = (searchParams.sort as SortField) ?? 'yield'
-  const periods = periodReadContext(await loadDatabasePeriodAudits())
+  const readAt = new Date()
+  const periods = periodReadContext(await loadDatabasePeriodAudits(readAt), readAt)
   const where = buildFilters(filters)
   const whereClause = where.length ? and(...where) : undefined
 
@@ -51,7 +52,9 @@ export default async function Home({ searchParams }: PageProps) {
   ])
 
   const hasMore = rows.length === PAGE_SIZE
-  const searchString = new URLSearchParams(searchParams as Record<string, string>).toString()
+  const continuation = new URLSearchParams(searchParams as Record<string, string>)
+  continuation.set('periodAnchor', readAt.toISOString())
+  const searchString = continuation.toString()
 
   return (
     <>
@@ -68,7 +71,7 @@ export default async function Home({ searchParams }: PageProps) {
             {ignoredWarning(filters)}
           </div>
         )}
-        <LoadMore key={searchString} initialRows={rows} initialHasMore={hasMore} total={total} searchString={searchString} />
+        <LoadMore key={searchString} initialRows={rows} initialHasMore={hasMore} total={total} searchString={searchString} periodAnchor={readAt.toISOString()} />
       </div>
     </>
   )

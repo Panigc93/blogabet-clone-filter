@@ -9,10 +9,11 @@ interface LoadMoreProps {
   initialRows: (Tipster & AuditedTipster)[]
   initialHasMore: boolean
   total: number
+  periodAnchor?: string
   searchString: string
 }
 
-export function LoadMore({ initialRows, initialHasMore, total, searchString }: LoadMoreProps) {
+export function LoadMore({ initialRows, initialHasMore, total, searchString, periodAnchor }: LoadMoreProps) {
   const [extraRows, setExtraRows] = useState<(Tipster & AuditedTipster)[]>([])
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [loading, setLoading] = useState(false)
@@ -28,6 +29,7 @@ export function LoadMore({ initialRows, initialHasMore, total, searchString }: L
     loadingRef.current = true
     setLoading(true)
     const res = await fetch(`/api/tipsters?${searchString}&page=${pageRef.current}`)
+    if (res.status === 409) { window.location.reload(); return }
     const json = await res.json()
     setExtraRows(prev => [...prev, ...json.data])
     hasMoreRef.current = json.hasMore
@@ -54,7 +56,7 @@ export function LoadMore({ initialRows, initialHasMore, total, searchString }: L
         <span style={{ fontStyle: 'italic', color: '#bbb', fontSize: 11 }}>stats mensuales calculados sobre meses cerrados</span>
       </div>
       <div>
-        {[...initialRows, ...extraRows].map(t => <TipsterRow key={t.id} tipster={fromDbTipster(t)} />)}
+        {[...initialRows, ...extraRows].map(t => <TipsterRow key={t.id} tipster={fromDbTipster(t, periodAnchor ? new Date(periodAnchor) : new Date())} />)}
         <div ref={sentinelRef} style={{ textAlign: 'center', padding: '14px 0', color: '#999', fontSize: 13 }}>
           {loading && 'Cargando...'}
           {!loading && !hasMore && extraRows.length > 0 && 'No hay más tipsters'}
