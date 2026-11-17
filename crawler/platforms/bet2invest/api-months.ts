@@ -123,29 +123,77 @@ export function windowYield(months: Bet2InvestApiMonth[], now: Date, includePart
   }
 }
 
-/** Resolve a Nuxt devalue payload reference one level (values are indexes into the array). */
-export function extractProfileIds(html: string): Bet2InvestProfileIds | null {
+export type Bet2InvestBankrollSelection =
+  | { status: 'selected'; ids: Bet2InvestProfileIds; basis: 'single-public-bankroll' | 'default-stats-equal-header' }
+  | { status: 'candidate'; ids: Bet2InvestProfileIds; why: string } // default bankroll found, but its stats do not equal the header: NOT linked
+  | { status: 'ambiguous'; why: string }
+
+// Header ROI is published with 2 decimals; the bankroll stats carry 3+. Same gate as the closing check.
+export const B2I_HEADER_ROI_TOLERANCE = 0.005 + 1e-9
+
+/**
+ * Chooses the public bankroll whose months to fetch. Rule (observed on 970 profiles, not an official definition):
+ * a single public bankroll is taken as is; with several, exactly one must have default=true AND its payload
+ * statistics (betsNumber, roi) must equal the header. Otherwise it is a candidate or ambiguous and is never linked.
+ * A single bankroll does not guarantee the same scope as the header (user/summary/bankroll counters can differ).
+ */
+export function selectProfileIds(html: string): Bet2InvestBankrollSelection {
   const $ = cheerio.load(html)
   const raw = $('script#__NUXT_DATA__').first().text()
-  if (!raw) return null
+  if (!raw) return { status: 'ambiguous', why: 'no payload' }
   let d: unknown[]
   try {
     const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return null
+    if (!Array.isArray(parsed)) return { status: 'ambiguous', why: 'payload not an array' }
     d = parsed
   } catch {
-    return null
+    return { status: 'ambiguous', why: 'payload not json' }
   }
   const val = (v: unknown): unknown => (typeof v === 'number' && v >= 0 && v < d.length && (typeof d[v] !== 'object' || d[v] === null) ? d[v] : v)
-  const users = d.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x) && 'lastBetAt' in (x as object) && 'username' in (x as object))
-  const banks = d.filter(
-    (x): x is Record<string, unknown> =>
-      !!x && typeof x === 'object' && !Array.isArray(x) && 'lastReset' in (x as object) && 'isMutable' in (x as object) && val((x as Record<string, unknown>).type) === 'public',
-  )
-  if (users.length !== 1 || banks.length !== 1) return null // ambiguous or absent: never guess
+  const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x)
+  const users = d.filter((x): x is Record<string, unknown> => isObj(x) && 'lastBetAt' in x && 'username' in x)
+  const banks = d.filter((x): x is Record<string, unknown> => isObj(x) && 'lastReset' in x && 'isMutable' in x && val(x.type) === 'public')
+  if (users.length !== 1) return { status: 'ambiguous', why: 'user absent or not unique' }
+  if (banks.length === 0) return { status: 'ambiguous', why: 'no public bankroll' }
   const userId = val(users[0].id)
-  const bankId = val(banks[0].id)
-  if (typeof userId !== 'number' || typeof bankId !== 'number') return null
+  if (typeof userId !== 'number') return { status: 'ambiguous', why: 'user id missing' }
   const s = (v: unknown) => (typeof val(v) === 'string' ? (val(v) as string) : null)
-  return { userId, publicBankrollId: bankId, username: s(users[0].username), createdAt: s(users[0].createdAt), lastBetAt: s(users[0].lastBetAt) }
+  const mk = (b: Record<string, unknown>): Bet2InvestProfileIds | null => {
+    const bankId = val(b.id)
+    if (typeof bankId !== 'number') return null
+    return { userId, publicBankrollId: bankId, username: s(users[0].username), createdAt: s(users[0].createdAt), lastBetAt: s(users[0].lastBetAt) }
+  }
+  if (banks.length === 1) {
+    const ids = mk(banks[0])
+    return ids ? { status: 'selected', ids, basis: 'single-public-bankroll' } : { status: 'ambiguous', why: 'bankroll id missing' }
+  }
+  const m = html.match(/og:description" content="[^"]*?(-?[\d.]+)% ROI on (\d+) tips/)
+  if (!m) return { status: 'ambiguous', why: 'header missing, several bankrolls' }
+  const hdrRoi = parseFloat(m[1])
+  const hdrBets = parseInt(m[2], 10)
+  const defaults = banks.filter((b) => val(b.default) === true)
+  if (defaults.length !== 1) return { status: 'ambiguous', why: `default absent or not unique (${defaults.length})` }
+  const stats = (b: Record<string, unknown>): { bets: unknown; roi: unknown } | null => {
+    const st = typeof b.statistics === 'number' ? d[b.statistics] : null
+    return isObj(st) ? { bets: val(st.betsNumber), roi: val(st.roi) } : null
+  }
+  const matches = (b: Record<string, unknown>): boolean => {
+    const st = stats(b)
+    return !!st && st.bets === hdrBets && typeof st.roi === 'number' && Math.abs(st.roi - hdrRoi) <= B2I_HEADER_ROI_TOLERANCE
+  }
+  const dflt = defaults[0]
+  const matching = banks.filter(matches)
+  if (matching.length >= 1 && !matching.includes(dflt)) return { status: 'ambiguous', why: 'header matches a non-default bankroll' }
+  if (matching.length > 1) return { status: 'ambiguous', why: 'several bankrolls match header' }
+  const ids = mk(dflt)
+  if (!ids) return { status: 'ambiguous', why: 'default bankroll id missing' }
+  if (matching.length === 1) return { status: 'selected', ids, basis: 'default-stats-equal-header' }
+  const st = stats(dflt)
+  return { status: 'candidate', ids, why: `default stats ${st ? `${String(st.bets)}/${String(st.roi)}` : 'absent'} vs header ${hdrBets}/${hdrRoi}` }
+}
+
+/** Ids of the selected public bankroll, or null when the selection is a candidate or ambiguous. */
+export function extractProfileIds(html: string): Bet2InvestProfileIds | null {
+  const r = selectProfileIds(html)
+  return r.status === 'selected' ? r.ids : null // candidate or ambiguous: never guess
 }
