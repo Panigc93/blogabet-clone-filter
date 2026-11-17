@@ -31,11 +31,8 @@ export interface TipsterCardData {
   profitDisplay: string | null // already formatted, with currency
   yieldPct: number | null
   yieldTitle: string | null // provenance note for the yield figure
-  mainScopeNote?: string // visible sample scope, never an all-time claim
-  mainBasisNote?: string // visible profit/yield basis when not conventional
-  picksLabel?: string
-  profitLabel?: string
-  yieldLabel?: string
+  mainScopeNote?: string // sample scope for the tappable detail, never an all-time claim
+  mainBasisNote?: string // profit/yield basis for the tappable detail, when not conventional
   verifiedPct: number | null // null = not exposed by the platform (never 0)
   followers: number | null // null = not exposed
   isVerified: boolean | null // null = concept not exposed

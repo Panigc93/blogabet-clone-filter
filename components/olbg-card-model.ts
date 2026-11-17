@@ -19,7 +19,9 @@ export function fromOlbgPrepared(p: OlbgCardSource): TipsterCardData {
     const complete = s.missingMonths.length === 0
     return {
       valuePct: complete ? s.derivedLevelStakesYieldPct : null, complete,
-      note: s.derivedLevelStakesYieldPct === null ? undefined : 'calculado aprox.',
+      // Basis (own fixed-stake calc, approximate, not published ROI) lives in the
+      // tooltip trace and the «Historial parcial» detail; keep the main view clean.
+      note: undefined,
       trace: `${s.fromMonth} - ${s.throughMonth} · ${s.presentMonths.length}/${n} meses. ` +
         (complete ? `${s.levelStakeProfit} u LSP / ${s.tips} u apostadas × 100; 1u por tip, EW 0,5+0,5. LSP mensual a 0,01u; aproximado, no ROI publicado.`
           : `Sin dato: faltan ${s.missingMonths.join(', ')}. Mes ausente no equivale a cero.`),
@@ -66,9 +68,8 @@ export function fromOlbgReadRow(row: { name:string; slug:string; capturedAt:Date
     card.picks=observed.tips
     card.profitDisplay=`${observed.lsp<0?'-':'+'}${Math.abs(observed.lsp).toFixed(2)} u`
     card.yieldPct=observed.tips>0?100*observed.lsp/observed.tips:null
-    card.picksLabel='Picks obs.';card.profitLabel='Profit LSP';card.yieldLabel='Yield obs.'
-    card.mainScopeNote=`Observado: ${formatOlbgMonth(from)} - ${formatOlbgMonth(through)} · ${observed.covered.length} meses${missing.length?` · faltan ${missing.map(formatOlbgMonth).join(', ')}`:''}${observed.covered.includes(e.sourceMonth)?` · ${formatOlbgMonth(e.sourceMonth)} parcial`:''}. No es el histórico completo.`
-    card.mainBasisNote='Profit en u a stake fijo (LSP). Yield calculado aprox.: LSP / picks × 100; no es el ROI publicado.'
+    card.mainScopeNote=`Observado: ${formatOlbgMonth(from)} - ${formatOlbgMonth(through)} · ${observed.covered.length} meses${missing.length?` · sin datos de ${missing.map(formatOlbgMonth).join(', ')}`:''}${observed.covered.includes(e.sourceMonth)?` · ${formatOlbgMonth(e.sourceMonth)} en curso`:''}. No es el histórico completo.`
+    card.mainBasisNote='Profit en unidades a stake fijo (1 unidad por pick). Yield propio: LSP / picks × 100; no es el ROI que publica OLBG.'
     card.yieldTitle=card.mainBasisNote+' '+card.mainScopeNote
   }
   if(e.capturedAt>now.toISOString()||e.sourceMonth!==now.toISOString().slice(0,7)){
