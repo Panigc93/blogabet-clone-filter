@@ -161,7 +161,7 @@ export function bet2investProfileToInsert(
     return cuarentena('cierre-deporte-profit', 'desglose con profit ausente en alguna fila')
   }
   const sumProfit = p.bySport.reduce((acc, s) => acc + (s.profitUnits as number), 0)
-  const tol = B2I_ROUND * (p.bySport.length + 1)
+  const tol = B2I_ROUND * (p.bySport.length + 1) + 1e-9 // +1e-9: a difference of exactly N*0.005 must not fail on float noise (e.g. 23.87-23.86)
   if (Math.abs(sumProfit - p.profitUnits) > tol) {
     return cuarentena(
       'cierre-deporte-profit',
