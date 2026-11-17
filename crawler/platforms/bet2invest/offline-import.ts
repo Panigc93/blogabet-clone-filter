@@ -142,8 +142,8 @@ export function simulateImport(dir: string, capturedAt: Date): { report: Offline
 }
 
 // ---- Import PLAN (pure). Decides insert/update/skip per row and the validation-log entries; it executes nothing.
-// A real executor would run this inside ONE transaction, allocating ids with the internal sequence
-// (idSource 'internal-transactional'). Until that route exists and is authorized, nothing calls it with real ids.
+// The local-tested executor in execute-offline-import.ts runs this inside ONE transaction with ids from the
+// internal sequence (idSource 'internal-transactional'). No production adapter or activation is provided here.
 import { assertBet2InvestRealImportProvenance, planBet2InvestUpsert, type Bet2InvestIdSource, type Bet2InvestUpsertPlan } from './to-db'
 
 export interface ValidationLogEntry {

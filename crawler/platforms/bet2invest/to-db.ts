@@ -299,8 +299,8 @@ function parseCapturedAt(v: unknown): number | null {
 // aislado (idSource 'isolated-fixture') deben rechazarse ANTES de cualquier
 // escritura real. El único origen válido es 'internal-transactional'
 // (surrogate de la propia transacción de import). Mismo contrato que
-// assertRealImportProvenance de Tipstrr. ESTADO: sin callers reales (solo
-// tests); no es efectiva hasta que la ruta de import real la invoque.
+// assertRealImportProvenance de Tipstrr. La invoca el ejecutor transaccional
+// local probado; todavía no hay adaptador ni activación de producción.
 export function assertBet2InvestRealImportProvenance(idSource: Bet2InvestIdSource, slug: string): void {
   if (idSource === 'isolated-fixture') {
     throw new Error(
