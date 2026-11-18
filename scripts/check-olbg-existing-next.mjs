@@ -79,7 +79,8 @@ try{
  assert.equal(new URL(page.url()).searchParams.get('platform'),'olbg')
  await page.goto('http://127.0.0.1:3751/?platform=olbg&search=Niffler',{waitUntil:'networkidle'})
  assert.equal(await page.locator('.tipster-block').count(),1)
- assert.match(await page.locator('.tipster-block').innerText(),/Yield estimado/)
+ assert.match(await page.locator('.tipster-block').innerText(),/est\./)
+ assert.doesNotMatch(await page.locator('.tipster-block').innerText(),/meses disponibles/)
  assert.match(await page.locator('.tipster-block').innerText(),/12,0%/)
  await page.screenshot({path:'/downloads/olbg-estimated-mobile.png'})
  await page.setViewportSize({width:1280,height:1000})
@@ -87,7 +88,8 @@ try{
  await page.locator('.tipster-block summary').click()
  await page.screenshot({path:'/downloads/olbg-estimated-detail-desktop.png'})
  await page.setViewportSize({width:390,height:1100})
- await page.screenshot({path:'/downloads/olbg-estimated-detail-mobile.png'})
+ await page.locator('.tipster-block details').scrollIntoViewIfNeeded()
+ await page.screenshot({path:'/downloads/olbg-estimated-detail-mobile.png',fullPage:true})
  const result={existingHome:true,existingAPI:true,baselineRegressionQueries:matrix.length,syntheticBlogabetTestRows:57,retainedTipstrrRows:2,olbgProfiles:561,total:620,pages:all.pages,october:511,SSRandAPIOrderEqual:true,clientLoadMore:true,changedQuery409:true,noExternalDatabase:true,dbDirectory:dir}
  fs.writeFileSync('/tmp/olbg-existing-result.json',JSON.stringify(result,null,2));console.log(result)
 }finally{if(browser)await browser.close();await stop()}

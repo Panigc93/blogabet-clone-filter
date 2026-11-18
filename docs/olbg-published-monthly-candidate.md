@@ -109,3 +109,13 @@ available-closed: 450 central estimates, 111 interval-only, all 561 retained
 identities. Niffler/638883: 12 months Nov2025–Oct2026, 2506 picks, Profit14537,
 central12.0305708630%, envelope[10.8951946077,13.4262186532]. UI shows12.0% and
 outward-rounded10.8–13.5%, not an exact reported OLBG global ROI.
+
+### User preview steering, 2026-11-18 14:04 local
+
+Main card now keeps the usual size/labels and shows a small `est.` beside the
+Yield percentage. The period/month-count band and extra estimated-mode controls
+are removed from the default list, with period/coverage/range retained in the
+existing Historial parcial detail. The ordinary Yield min/max and sort remain
+the only yield controls. No accounting or filter semantics changed in this
+visual-only revision. The published-month route mode remains available for
+review; the source table is always present in each estimated card's detail.

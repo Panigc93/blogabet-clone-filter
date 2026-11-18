@@ -49,7 +49,7 @@ export default async function Home({ searchParams }: PageProps) {
     params.set('periodAnchor',readAt.toISOString());params.delete('monthlyCursor')
     return <><FilterBar searchParams={searchParams} olbgEnabled monthlyCandidate estimatedCandidate={estimated} />
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 12px'}}>
-        <OlbgMonthlyControls key={params.toString()} params={searchParams} months={page.availableMonths}/>
+        {!estimated&&<OlbgMonthlyControls key={params.toString()} params={searchParams} months={page.availableMonths}/>}
         <ActivityNotice months={filters.activityMonths} unknown={filters.activityUnknown} />
         {warnings.length>0&&<p>{warnings.join(' ')}</p>}
         {ignoredWarning(filters)&&<p>{ignoredWarning(filters)}</p>}

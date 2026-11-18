@@ -73,5 +73,5 @@ export function commonMonthlyPage(baseline:CommonListEntry[],baselineRevision:st
  const total=rows.length,hasMore=start+q.pageSize<total
  return {rows:rows.slice(start,start+q.pageSize),total,revision,availableMonths:Array.from(new Set(snapshot.profiles.flatMap(p=>p.months.map(m=>m.month)))).sort().reverse(),
   nextCursor:hasMore?JSON.stringify({revision,query:identity,offset:start+q.pageSize}):null,
-  scopeNote:q.estimate?'OLBG: Yield estimado de los meses cerrados disponibles.':monthlyOnly?'Filtro y orden de resultados mensuales publicados OLBG, solo del mes indicado. No ranking cruzado de yield histórico.':'Listado común. Resultados OLBG mensuales con su mes visible; no son yield histórico común.'}
+  scopeNote:q.estimate?'':monthlyOnly?'Filtro y orden de resultados mensuales publicados OLBG, solo del mes indicado. No ranking cruzado de yield histórico.':'Listado común. Resultados OLBG mensuales con su mes visible; no son yield histórico común.'}
 }
