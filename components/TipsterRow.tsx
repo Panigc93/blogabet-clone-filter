@@ -159,7 +159,8 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
             />
             <PeriodCell
               value={t.picks6mAvg !== null ? `${Math.round(t.picks6mAvg)}` : '—'}
-              label="P/mes 6m"
+              label={t.platform === 'bettingexpert' ? 'Apuestas/mes 6m' : 'P/mes 6m'}
+              title={t.platform === 'bettingexpert' ? t.picks6mTrace ?? undefined : undefined}
               calculated={t.platform === 'olbg'}
             />
             {t.platform === 'blogabet' && t.isPaid && (
@@ -176,8 +177,8 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               </>
             )}
           </div>
-          {/* Trazas de cálculo: no van en la tabla (decisión de Juan, 15-11-2026);
-              la auditabilidad vive en /lab/tipstrr/ficha (diagnóstico) */}
+          {t.periodBasisNote && <div className="be-period-basis" style={{padding:'0 8px 6px',fontSize:10,lineHeight:1.4,color:'#666',textAlign:'center'}}>{t.periodBasisNote}</div>}
+          {/* Las trazas extensas se mantienen fuera de la tabla. */}
           </div>
         )}
       </div>

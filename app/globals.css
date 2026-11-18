@@ -105,3 +105,9 @@ a {
   .tipster-bettingexpert .stat-cell { min-width: 45px; }
   .tipster-bettingexpert .stat-cell:nth-child(3) { min-width: 116px; }
 }
+
+/* Give long BE point totals their own line on small cards, with safe wrapping. */
+@media (max-width: 768px) {
+  .tipster-bettingexpert .stat-cell:nth-child(3) { flex: 0 0 100%; padding: 6px 12px; box-sizing: border-box; }
+  .tipster-bettingexpert .stat-cell:nth-child(3) .number { white-space: normal; overflow-wrap: anywhere; }
+}
