@@ -27,6 +27,7 @@
 //   units.
 
 import * as cheerio from 'cheerio'
+import { registrationCreatedAt } from './registration'
 import type { AnyNode } from 'domhandler'
 
 export function parseStatNumberText(text: string): number | null { return parseNumber(text) }
@@ -73,6 +74,7 @@ export interface Bet2InvestProfile {
   periodLabel: string | null // active period button as shown, e.g. 'All'
   statsScope: Bet2InvestStatsScope // 'all_time' ONLY when the active label is 'All'
   accountType: 'pro' | 'free' | 'paid' | 'unknown' // explicit og label 'PRO Tipster' / 'Free Tipster' / 'Paid Tipster' only
+  registrationCreatedAt?: string | null // account creation from exact-identity Nuxt record, not first bet
   accountLabel?: string | null // provenance: which og field(s) carried the label; null when unknown
   audience: Bet2InvestAudience
   settledBets: number | null
@@ -394,6 +396,7 @@ export function parseProfilePage(html: string): Bet2InvestProfile {
     platform: 'bet2invest',
     username,
     profileUrl: `https://bet2invest.com/tipsters/performance-stats/${encodeURIComponent(username)}`,
+    registrationCreatedAt: registrationCreatedAt(html, username),
     periodLabel,
     statsScope,
     accountType,

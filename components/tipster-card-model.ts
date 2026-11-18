@@ -285,8 +285,8 @@ function golazobetsFromDbRow(t: TipsterReadRow): TipsterCardData {
 // recalculada y su base de stake es inferida (la página la contrasta con el
 // modo plano 'Profit (1U)'). Las unidades Bet2Invest no son equivalentes a
 // € ni a las unidades de Tipstrr o Golazobets. Sin precio (no capturado),
-// sin 'since' (semántica de la columna del listado no verificada) y sin
-// periodos sin auditoría confirmada o de otro mes: null, nunca 0.
+// Since = año de creación del registro B2I (no primera apuesta).
+// Periodos sin auditoría confirmada o de otro mes: null, nunca 0.
 function bet2investFromDbRow(t: TipsterReadRow, now: Date): TipsterCardData {
   const num = (v: string | null): number | null => {
     if (v === null) return null
@@ -314,8 +314,8 @@ function bet2investFromDbRow(t: TipsterReadRow, now: Date): TipsterCardData {
     sourceUrl: `https://bet2invest.com/tipsters/performance-stats/${encodeURIComponent(t.slug)}`,
     sourceLabel: `bet2invest.com/tipsters/performance-stats/${t.slug}`,
     capturedAt: captured && !isNaN(captured.getTime()) ? captured.toISOString().slice(0, 10) : null,
-    sinceYear: null,
-    sinceTitle: null,
+    sinceYear: t.sinceYear,
+    sinceTitle: 'Año de registro en Bet2Invest; no es la fecha de primera apuesta',
     picks: t.picks,
     profitDisplay: profit !== null ? `${profit >= 0 ? '+' : ''}${fmtEs.format(profit)} u` : null,
     yieldPct: num(t.yield),

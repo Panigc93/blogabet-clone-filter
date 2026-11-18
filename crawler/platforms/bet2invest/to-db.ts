@@ -37,13 +37,14 @@
 //   => false. 'unknown' (sin etiqueta, o campos que discrepan, o dos clases en un campo) va a
 //   cuarentena[tipo-cuenta-desconocido]: no se asume free por defecto. 'paid' dice cuenta de pago; no dice
 //   precio, suscripcion ni acceso (price sigue null). Que 'paid' equivalga a 'PRO' no esta verificado.
-// - sinceYear null: la columna 'Since' del listado tiene semántica NO
-//   verificada (¿alta? ¿primera apuesta?): no se mezcla con el sinceYear BB.
+// - sinceYear: año de creación del registro B2I (createdAt del usuario),
+//   verificado contra el renderer del listado. No es primera apuesta.
 // - yield3m/6m/12m: este mapeo los deja null; offline-import.ts los rellena desde la serie mensual de la API solo
 //   cuando la serie reproduce el ROI de cabecera y la ventana no toca el mes del reinicio (si no, null con motivo).
 //   picks6mAvg sigue null. Se recalculan en cada captura (mergeBet2InvestUpdate los sustituye aunque sean null).
 //   `picks` y `yield` son las cifras de la cabecera/pagina, nunca la suma de meses de la API.
 // - followers desde audience del perfil cuando la página lo expone.
+import { validRegistrationDate } from './registration'
 import type { TipsterInsert } from '@/db/schema'
 import type { Bet2InvestProfile } from './parse'
 
@@ -192,7 +193,7 @@ function buildInsert(
     price: null, // precio sin validar (solo botón hidratado; Stripe del payload no interpretado): no se asume
     profitUnit: 'bet2invest-units',
     priceCurrency: 'eur', // default de esquema; price null la deja muda
-    sinceYear: null, // 'Since' del listado: semántica no verificada
+    sinceYear: validRegistrationDate(p.registrationCreatedAt, opts.capturedAt) ? Number(p.registrationCreatedAt!.slice(0, 4)) : null,
     signupAt: null,
     capturedAt: opts.capturedAt,
     picks,

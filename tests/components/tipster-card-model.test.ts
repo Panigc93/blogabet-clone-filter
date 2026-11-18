@@ -195,7 +195,7 @@ const B2I_ROW: Tipster = {
   capturedAt: new Date('2026-11-16T10:00:00Z'),
   isPaid: true,
   price: null, // precio de suscripción no capturado
-  sinceYear: null, // 'Since' del listado: semántica no verificada
+  sinceYear: null, // missing account creation stays unknown
   picks: 812,
   profit: '37.42',
   yield: '6.31',
@@ -243,5 +243,16 @@ describe('fromDbTipster (Bet2Invest)', () => {
     const c2 = fromDbTipster({ ...B2I_ROW, slug: 'Demo B2I (Pro)', name: 'Demo B2I (Pro)' })
     expect(c2.sourceUrl).toBe('https://bet2invest.com/tipsters/performance-stats/Demo%20B2I%20(Pro)')
     expect(c2.sourceLabel).toBe('bet2invest.com/tipsters/performance-stats/Demo B2I (Pro)')
+  })
+})
+
+describe('Bet2Invest registration Since', () => {
+  it('shows stored registration year and explains it, without changing other fields', () => {
+    const empty = fromDbTipster(B2I_ROW)
+    const dated = fromDbTipster({ ...B2I_ROW, sinceYear: 2023 })
+    expect(dated.sinceYear).toBe(2023)
+    expect(dated.sinceTitle).toContain('registro en Bet2Invest')
+    expect(dated.sinceTitle).toContain('no es la fecha de primera apuesta')
+    expect({ ...dated, sinceYear: null }).toEqual(empty)
   })
 })

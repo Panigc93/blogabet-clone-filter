@@ -56,7 +56,7 @@ describe('bet2investProfileToInsert: camino OK', () => {
     expect(i.picks).toBe(812)
     expect(i.profit).toBe('37.42')
     expect(i.yield).toBe('6.31') // ROI publicado por la fuente, no recalculado
-    expect(i.sinceYear).toBeNull() // 'Since' del listado: semántica no verificada
+    expect(i.sinceYear).toBeNull() // no account creation in synthetic profile
     expect(i.followers).toBe(1200)
     expect(i.verifiedPct).toBeNull()
     expect(i.lastPickAt).toBeNull()
@@ -68,6 +68,14 @@ describe('bet2investProfileToInsert: camino OK', () => {
     expect(i.yieldFree3m).toBeNull()
     expect(i.capturedAt).toEqual(CAPTURED)
     expect(i.statsUpdatedAt).toEqual(CAPTURED)
+  })
+
+  it('maps only valid account creation year, never future dates', () => {
+    for (const [date, year] of [['2023-07-12T08:46:45.810Z', 2023], ['2027-01-01T00:00:00.000Z', null], ['invalid', null]] as const) {
+      const m = bet2investProfileToInsert(baseProfile({ registrationCreatedAt: date }), OPTS)
+      expect(m.ok).toBe(true)
+      if (m.ok) { expect(m.insert.sinceYear).toBe(year); expect(m.insert.signupAt).toBeNull() }
+    }
   })
 
   it('followers ausente queda null, nunca 0', () => {
