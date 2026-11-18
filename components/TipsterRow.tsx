@@ -7,7 +7,7 @@ function fmtYield(v: number | null): string {
   return v >= 0 ? `+${v.toFixed(1)}%` : `${v.toFixed(1)}%`
 }
 
-function StatCell({ value, label, colorClass, title, compact }: { value: string; label: string; colorClass?: string; title?: string; compact?:boolean }) {
+function StatCell({ value, label, colorClass, title, compact, note }: { note?:string; value: string; label: string; colorClass?: string; title?: string; compact?:boolean }) {
   return (
     <div className="stat-cell" style={{ textAlign: 'center' }} title={title}>
       <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: compact ? 17 : 22.5, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#333' }}>
@@ -16,6 +16,7 @@ function StatCell({ value, label, colorClass, title, compact }: { value: string;
       <span style={{ display: 'block', fontSize: 15, fontFamily: 'Roboto, sans-serif', fontWeight: 700, color: '#333', marginTop: 2 }}>
         {label.charAt(0).toUpperCase() + label.slice(1).toLowerCase()}
       </span>
+      {note && <span style={{display:'block',fontSize:10,color:'#777'}}>{note}</span>}
     </div>
   )
 }
@@ -101,7 +102,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
       <div className="tipster-middle" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 4px' }}>
         {/* Row 1: alltime stats */}
         <div className="tipster-stats-alltime" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '14px 0 4px' }}>
-          <StatCell value={String(t.sinceYear ?? '—')} label={t.platform==='olbg'?'Alta OLBG':'Since'} title={t.sinceTitle ?? undefined} />
+          <StatCell value={String(t.sinceYear ?? '—')} label={t.platform==='olbg'?'Alta OLBG':'Since'} title={t.sinceTitle ?? undefined} note={t.platform==='bettingexpert' && t.sinceYear===null ? 'Alta no disponible' : undefined} />
           <StatCell value={t.picks !== null ? String(t.picks) : '—'} label={t.picksLabel ?? 'Picks'} title={t.mainScopeNote} />
           <StatCell
             value={t.profitDisplay ?? '—'}

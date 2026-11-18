@@ -100,6 +100,7 @@ export function parseBlocks(html: string, lastActive = 12): TipsterInsert[] {
         sinceYear:   !sinceYear || isNaN(sinceYear) ? null : sinceYear,
         picks:       isNaN(picks) ? 0 : picks,
         profit,
+        profitUnit: 'blogabet-units', // source Profit is net stake units, not subscription EUR
         yield:       yieldVal,
         verifiedPct,
         isVerified,

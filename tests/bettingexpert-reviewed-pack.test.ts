@@ -6,7 +6,7 @@ import {beClientAudit}from '@/lib/bettingexpert-period-contract'
 const at='2026-11-18T08:00:00.000Z',anchor='2026-11-18T09:00:00.000Z',now=new Date('2026-11-18T10:00:00Z')
 function fixture(i:number,accepted:number){
  const g={ok:true,guid:`00000000-0000-4000-8000-${String(i).padStart(12,'0')}`,username:'Sample'+i,scope:'profile-overall',profitUnit:'bettingexpert-points',capturedAt:at}
- const windows:any={},reconciliation:any={};for(const [index,n]of [3,6,12].entries()){
+ const windows:any={},reconciliation:any={};for(const [index,n]of Array.from([3,6,12].entries())){
   const valid=index<accepted;windows[n+'m']={reason:valid?null:'unresolved_source_count',picks:valid?2:null,profit:valid?'2':null,stake:valid?'10':null,yield:valid?'20':null,from:n===3?'2026-08':n===6?'2026-05':'2025-11',to:'2026-10'}
   if(valid)reconciliation[n+'m']={ledger_closed_count:2,official_anchor_count_delta:2,ledger_net_profit:'2',official_anchor_profit_delta:'2',period_captured_at:at,anchor_response_ended_utc:anchor}
  }

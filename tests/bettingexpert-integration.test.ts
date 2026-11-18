@@ -48,7 +48,7 @@ it('API projection and mapper also hide contaminated BE periods', async () => {
   expect(bettingexpertApiProjection(row)).toMatchObject({ yield3m: null, yield6m: null, yield12m: null, picks6mAvg: null })
   const c = fromDbTipster(row)
   expect(c).toMatchObject({ platform: 'bettingexpert', showPeriodRow: false, sinceYear: null, isVerified: null })
-  expect(c.yield6m.valuePct).toBeNull(); expect(c.profitDisplay).toContain('pt BE'); expect(c.sourceUrl).toContain('www.bettingexpert.com/user/profile/')
+  expect(c.yield6m.valuePct).toBeNull(); expect(c.profitDisplay).toBe(new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:3,signDisplay:'exceptZero'}).format(Number(row.profit))); expect(c.profitLabel).toBe('Beneficio (u.)'); expect(c.profitDisplay).not.toContain('€'); expect(c.sourceUrl).toContain('www.bettingexpert.com/user/profile/')
 })
 it('BB default remains isolated with same-slug row preserved', async () => {
   const rows = await query('blogabet'); expect(rows).toHaveLength(1)
@@ -60,7 +60,7 @@ it('profit ordering groups source units, never money versus BE points as one ran
   const rows = await query(undefined, 0, 50, 'profit')
   const units = rows.map(x => x.profitUnit)
   expect(units).toEqual([...units].sort())
-  expect(profitSortWarning('profit', undefined)).toContain('pt BE')
+  expect(profitSortWarning('profit', undefined)).toContain('u Bettingexpert')
   expect(ignoredWarning({ platform: 'bettingexpert', priceMin: 1 })).toContain('vista Bettingexpert')
 })
 it('mapper rejects rejected records and numeric overflow', () => {

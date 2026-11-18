@@ -1,6 +1,6 @@
 import { sql, and, eq, gte, lte, type SQL } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
-import { buildFilters, type TipsterFilters, type SortField } from './query'
+import { effectiveProfitUnit, buildFilters, type TipsterFilters, type SortField } from './query'
 import registrations from '@/data/olbg/pilot-registrations.json'
 import { validOlbgRegistration } from '@/crawler/platforms/olbg/registration'
 import { periodReadContext } from './bet2invest-period-read'
@@ -45,7 +45,7 @@ export function olbgReadContext(base: ReturnType<typeof periodReadContext>, enab
     olbgObserved: enabled ? observed : sql<unknown>`NULL::jsonb`,
     picks: emptyAllTime<number>(tipsters.picks),
     profit: emptyAllTime<string>(tipsters.profit),
-    profitUnit: sql<string>`CASE WHEN ${tipsters.platform} = 'olbg' THEN 'olbg-level-stakes-units' ELSE ${tipsters.profitUnit} END`,
+    profitUnit: sql<string>`CASE WHEN ${tipsters.platform} = 'olbg' THEN 'olbg-level-stakes-units' ELSE ${effectiveProfitUnit()} END`,
     yield: emptyAllTime<string>(tipsters.yield),
     followers: emptyAllTime<number>(tipsters.followers),
     sinceYear: emptyAllTime<number>(tipsters.sinceYear),

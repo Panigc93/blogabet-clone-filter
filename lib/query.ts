@@ -140,11 +140,11 @@ export function ignoredWarning(params: TipsterFilters): string | null {
 
 // Aviso visible cuando la vista combinada ('Todas') se ordena por beneficio:
 // las unidades no comparten escala y la ordenacion las agrupa por profit_unit
-// en orden alfabetico ASC (bet2invest-units, eur, golazobets-units, units),
+// con Blogabet corregido en lectura aunque la BD conserve el metadato eur,
 // NO es un ranking global de beneficio.
 export function profitSortWarning(sort: SortField, platform: TipsterFilters['platform']): string | null {
   if (sort !== 'profit' || platform !== undefined) return null
-  return 'Orden por beneficio agrupado por unidad (u Bet2Invest, pt BE Bettingexpert, € Blogabet, u Golazobets, u Tipstrr): no son comparables entre si; no es un ranking global de beneficio.'
+  return 'Orden por beneficio agrupado por unidad (u Bet2Invest, u Bettingexpert, u Blogabet, u Golazobets, u Tipstrr): no son comparables entre si; no es un ranking global de beneficio.'
 }
 
 export function sortColumn(sort: SortField) {
@@ -161,14 +161,20 @@ export function sortColumn(sort: SortField) {
   }
 }
 
+// Read-only metadata correction. Never changes amounts or subscription currency.
+// Legacy profit_unit='eur' remains in storage until a separately approved migration.
+export function effectiveProfitUnit() {
+  return sql<string>`CASE WHEN ${tipsters.platform} = 'blogabet' THEN 'blogabet-units' ELSE ${tipsters.profitUnit} END`
+}
+
 export function sortOrder(sort: SortField): SQL[] {
   if (sort === 'profit') {
-    // El profit NO es comparable entre unidades ('eur' BB, 'units' Tipstrr,
+    // El profit NO es comparable entre unidades ('blogabet-units' BB, 'units' Tipstrr,
     // 'golazobets-units', 'bet2invest-units'): una ordenación cruzada
     // silenciosa sería un ranking falso. Se agrupa por unidad y se ordena
     // por valor dentro de cada una.
     return [
-      sql`${tipsters.profitUnit} ASC`,
+      sql`${effectiveProfitUnit()} ASC`,
       sql`${tipsters.profit} DESC NULLS LAST`,
       sql`${tipsters.id} DESC`,
     ]
