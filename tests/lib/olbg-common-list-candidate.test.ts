@@ -48,6 +48,24 @@ describe('candidate common-list read integration',()=>{
   expect(()=>commonMonthlyPage(baseline,'v1',snapshot,{...request,pageSize:0})).toThrow()
   expect(()=>commonMonthlyPage(baseline,'v1',snapshot,{...request,cursor:'{}'})).toThrow()
  })
+ it('keeps estimates labelled and uses their central values for common yield thresholds',()=>{
+  const q={...request,estimate:true,order:'yield-desc' as const,pageSize:50}
+  const all=commonMonthlyPage(baseline,'v1',snapshot,q)
+  expect(all.rows.filter(r=>r.card.platform==='olbg').every(r=>r.card.olbgEstimates&&r.card.olbgMonthly)).toBe(true)
+  for(const minCommonYield of [-100,0,10]){
+   const filtered=commonMonthlyPage(baseline,'v1',snapshot,{...q,minCommonYield})
+   expect(filtered.rows.every(r=>r.card.yieldPct!==null&&r.card.yieldPct>=minCommonYield)).toBe(true)
+   expect(filtered.rows.map(r=>r.key)).toEqual(all.rows.filter(r=>r.card.yieldPct!==null&&r.card.yieldPct>=minCommonYield).map(r=>r.key))
+  }
+ })
+ it('uses accumulated retained picks, not one selected monthly count, in estimated mode',()=>{
+  const q={...request,estimate:true,order:'yield-desc' as const,pageSize:50,minCommonPicks:300}
+  expect(commonMonthlyPage([], 'v1',snapshot,q).rows.every(r=>r.card.olbgEstimates!.global.picks>=300)).toBe(true)
+ })
+ it('pins estimated versus published-only semantics in pagination identity',()=>{
+  const first=commonMonthlyPage(baseline,'v1',snapshot,request)
+  expect(()=>commonMonthlyPage(baseline,'v1',snapshot,{...request,estimate:true,cursor:first.nextCursor!})).toThrow(/restart/)
+ })
  it('loads only pinned read-only source snapshots, rejects tampering and duplicates',async()=>{
   const dir=await fs.mkdtemp(path.join(os.tmpdir(),'olbg-read-'))
   try{

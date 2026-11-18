@@ -66,3 +66,46 @@ the original SQL/LoadMore branch remains active. No DB import or activation.
 - This revision precedes the subsequently approved estimated global metric.
   That estimator will be a separately reviewable delta, not silently added
   to this monthly-only checkpoint.
+
+## Approved estimated-yield candidate (still inactive)
+
+The later user decision adds an explicitly estimated global metric. Default
+existing-route candidate mode is now estimated, with an explicit switch back
+to the published-month view. The lab retains its earlier published-only mode.
+
+`lib/olbg-estimated-global.ts` has no network or DB effects. For each nonzero
+monthly ROI r and source Profit P, nominal inferred stake is 100P/r. The
+estimated combined yield is 100 sum(P) / sum(inferred stake), never a picks
+weighted mean or fixed-stake substitute. Profit exactness and the same
+accounting scale/denominator between months are assumptions, not source facts.
+
+Sensitivity intervals reproduce the reviewed nearest-integer and truncation
+toward-zero scenarios, enveloping both. A nonzero Profit with ROI 0 gives a
+lower stake bound but no upper stake bound. Zero Profit/zero ROI with positive
+picks also leaves stake upper-unbounded, never stake=0. Any such month suppresses
+the nominal central estimate but retains the one-sided conditional interval.
+Inconsistent sign or nonzero ROI with zero Profit suppresses the calculation.
+
+Global scope means all retained CLOSED monthly rows, not the whole career.
+Missing months remain listed, never imputed. The capture's current month stays
+excluded even if time later advances without a new capture. Fixed 3/6/12-month
+values require every row in the declared closed calendar window. The card
+shows period, retained pick count, source Profit sum and Yield estimado; original
+monthly source values, range and assumptions remain in Historial parcial.
+No currency conversion and no claim of certified real-error bounds.
+
+Common Yield filters/sort use the nominal estimate alongside the existing
+source-backed baseline, with OLBG marked estimated. An unavailable central
+value is NULL, last on sort and excluded by either yield threshold. Lifetime
+registration and source coverage remain separate. Numeric picks filtering
+uses the displayed retained-month total in estimated mode. Monthly-only mode
+keeps common accumulated metrics unknown. Existing non-OLBG SQL semantics
+remain untouched, with 21 baseline query regressions checked in the real app.
+
+Full retained-data validation (`scripts/check-olbg-estimates.ts SNAPSHOT
+REVIEWED_INTERVAL_RESULT`) reproduces 3,471 interval objects across all 3/6/12
+windows to 1e-10 against the previously reviewed independent analysis. Global
+available-closed: 450 central estimates, 111 interval-only, all 561 retained
+identities. Niffler/638883: 12 months Nov2025–Oct2026, 2506 picks, Profit14537,
+central12.0305708630%, envelope[10.8951946077,13.4262186532]. UI shows12.0% and
+outward-rounded10.8–13.5%, not an exact reported OLBG global ROI.

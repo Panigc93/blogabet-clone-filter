@@ -22,7 +22,8 @@ describe('existing routes monthly integration',()=>{
   expect(commonMonthlyPage(b,'base',source,q).rows.map(r=>r.key)).toEqual(['bb:2','bb:1'])
  })
  it('excludes monthly data from unsupported common lifetime numeric/type filters',()=>{
-  for(const f of [{minPicks:100},{tipo:'paid' as const},{activityMonths:3},{platform:'tipstrr' as const}])expect(monthlyExistingRequest(new URLSearchParams(),f,'picks').excludeMonthly).toBe(true)
+  for(const f of [{tipo:'paid' as const},{activityMonths:3},{platform:'tipstrr' as const}])expect(monthlyExistingRequest(new URLSearchParams(),f,'picks').excludeMonthly).toBe(true)
+  expect(monthlyExistingRequest(new URLSearchParams(),{minPicks:100},'picks')).toMatchObject({estimate:true,minCommonPicks:100,excludeMonthly:false})
  })
  it('is disabled by default in a test runtime',()=>{expect(monthlyExistingRoutesEnabled()).toBe(false)})
 })

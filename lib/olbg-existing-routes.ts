@@ -14,14 +14,15 @@ import type {TipsterReadRow} from '@/components/tipster-card-model'
 export const monthlyExistingRoutesEnabled=commonMonthlyLocalEnabled
 export function monthlyExistingRequest(p:URLSearchParams,filters:TipsterFilters,sort:SortField):CommonMonthlyRequest{
  const n=(k:string)=>p.has(k)&&p.get(k)!==''?Number(p.get(k)):undefined
+ const estimate=p.get('olbgView')!=='monthly'&&!p.has('olbgMonthlyOrder')&&!p.has('olbgRoiMin')&&!p.has('olbgProfitMin')&&!p.has('olbgPicksMin')
  const order=p.get('olbgMonthlyOrder')
  if(order&&!['roi-desc','profit-desc','picks-desc'].includes(order))throw Error('Invalid monthly order')
- return {order:order?`olbg-${order}` as CommonMonthlyRequest['order']:sort==='yield'?'yield-desc':sort,
+ return {estimate,minCommonPicks:estimate?filters.minPicks:undefined,order:order?`olbg-${order}` as CommonMonthlyRequest['order']:sort==='yield'?'yield-desc':sort,
   monthly:{month:p.get('olbgMonth')??'latest-available',roiMin:n('olbgRoiMin'),profitMin:n('olbgProfitMin'),picksMin:n('olbgPicksMin'),minResultMonths:n('olbgResultMonths')},
   search:filters.search,minCommonYield:filters.minYield,maxCommonYield:filters.maxYield,pageSize:50,cursor:p.get('monthlyCursor')??undefined,
   baselineFilterKey:JSON.stringify(Object.fromEntries(Object.entries(filters).filter(([,v])=>v!==undefined).sort(([a],[b])=>a.localeCompare(b)))),
   // Monthly picks are not lifetime picks; unknown type/activity cannot pass.
-  excludeMonthly:!!(filters.platform&&filters.platform!=='olbg'||filters.tipo&&filters.tipo!=='all'||filters.minPicks!==undefined||filters.activityMonths!==undefined)}
+  excludeMonthly:!!(filters.platform&&filters.platform!=='olbg'||filters.tipo&&filters.tipo!=='all'||!estimate&&filters.minPicks!==undefined||filters.activityMonths!==undefined)}
 }
 export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:TipsterFilters,sort:SortField,at:Date){
  if(!monthlyExistingRoutesEnabled())throw Error('Existing-route monthly candidate disabled')
@@ -38,7 +39,8 @@ export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:Tipste
   const revision=createHash('sha256').update(JSON.stringify(rows)).digest('hex')
   return {rows:rows as TipsterReadRow[],revision,complete:true as const,readAt:at.toISOString()}
  }
- const page=await loadCommonPublishedMonthlyPage({monthlyFile:file,monthlySha256:digest,request:monthlyExistingRequest(p,filters,sort),readBaseline:read,
+ const request=monthlyExistingRequest(p,filters,sort)
+ const page=await loadCommonPublishedMonthlyPage({monthlyFile:file,monthlySha256:digest,request,readBaseline:read,
   baselineUnchanged:async revision=>await context.revisionUnchanged()&&(await read()).revision===revision})
- return {page,warnings:context.warnings(filters)}
+ return {page,estimated:request.estimate,warnings:context.warnings(filters)}
 }

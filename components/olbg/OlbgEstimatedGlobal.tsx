@@ -1,0 +1,35 @@
+import React from 'react'
+import {monthLabel,type MonthlyDisplay} from '@/lib/olbg-published-monthly'
+import type {GlobalYieldEstimate} from '@/lib/olbg-estimated-global'
+export interface OlbgEstimates {global:GlobalYieldEstimate;three:GlobalYieldEstimate;six:GlobalYieldEstimate;twelve:GlobalYieldEstimate}
+const fmt=(n:number)=>new Intl.NumberFormat('es-ES',{maximumFractionDigits:2}).format(n)
+const pct=(n:number|null)=>n===null?'—':`${n>0?'+':''}${n.toFixed(1).replace('.',',')}%`
+const short=(m:string)=>new Intl.DateTimeFormat('es-ES',{month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(m+'-01T00:00:00Z')).replace(' de ',' ')
+const bound=(v:number,lower:boolean)=>(lower?Math.floor(v*10):Math.ceil(v*10))/10
+export function OlbgEstimatedGlobal({estimates,source,sinceYear}:{estimates:OlbgEstimates;source:MonthlyDisplay;sinceYear:number|null}){
+ const e=estimates.global
+ const range=e.range?`${pct(bound(e.range.lowerPct,true))} a ${pct(bound(e.range.upperPct,false))}`:null
+ const color=(n:number|null)=>n===null?'#777':n<0?'#c24e59':n>0?'#25886e':'#444'
+ return <section aria-label="Yield global estimado OLBG" style={{padding:'12px 8px',width:'100%',boxSizing:'border-box'}}>
+  <div style={{fontSize:12,fontWeight:600,textAlign:'center',marginBottom:12,color:'#666'}}>{e.from&&e.to?`${short(e.from)} – ${short(e.to)} · ${e.monthsUsed.length} meses disponibles`:'Sin meses cerrados disponibles'}</div>
+  <div style={{display:'flex',justifyContent:'space-around',gap:6,textAlign:'center',flexWrap:'wrap'}}>
+   {[[sinceYear??'—','Since',null],[fmt(e.picks),'Picks',null],[fmt(e.profitSource),'Profit · OLBG',e.profitSource],[pct(e.centralPct),'Yield estimado',e.centralPct]].map(([value,label,n])=><div key={String(label)} style={{flex:'1 1 70px'}}><span style={{display:'block',fontSize:22,fontWeight:700,color:color(typeof n==='number'?n:null)}}>{value}</span><span style={{display:'block',fontSize:12,fontWeight:700,color:'#555',marginTop:3}}>{label}</span></div>)}
+  </div>
+  {e.status!=='estimated'&&<p style={{fontSize:11,color:'#777',textAlign:'center',margin:'8px 0'}}>Sin cifra central fiable.{range?' Hay un intervalo en el detalle.':''}</p>}
+  <div style={{display:'flex',justifyContent:'space-around',gap:6,borderTop:'1px dashed #eee',paddingTop:8,marginTop:10,textAlign:'center'}}>
+   {[[3,estimates.three],[6,estimates.six],[12,estimates.twelve]].map(([n,v])=>{const x=v as GlobalYieldEstimate;return <div key={String(n)} title={x.status==='estimated'?'Estimado, ventana completa de meses cerrados':x.reason==='missing-months'?'Faltan meses de la ventana':x.reason==='zero-roi'?'Un ROI mensual de 0 impide recuperar una cifra central':'Sin cifra central defendible'}><b style={{fontSize:14,color:color(x.centralPct)}}>{pct(x.centralPct)}</b><span style={{display:'block',fontSize:10,color:'#777'}}>ESTIMADO {String(n)}M</span></div>})}
+  </div>
+  <details style={{fontSize:12,color:'#666',marginTop:12}}>
+   <summary style={{cursor:'pointer',textAlign:'center'}}>Historial parcial ⓘ</summary>
+   <p><b>{range?`Franja estimada: ${range}.`:'Sin intervalo calculable.'}</b> Es una franja condicional, no un margen de error garantizado. Incluye dos posibles reglas de redondeo del ROI mensual.</p>
+   <p>Usamos los {e.monthsUsed.length} meses cerrados disponibles y sus {fmt(e.picks)} picks, no toda la carrera. Since es el año de alta. El mes en curso en la captura ({monthLabel(e.currentMonthExcluded)}) no entra en la estimación.</p>
+   {e.missingMonths.length>0&&<p>Hay meses ausentes dentro del periodo: {e.missingMonths.map(monthLabel).join(', ')}. No se cuentan como cero apuestas.</p>}
+   {e.reason==='zero-roi'&&<p>Al menos un mes tiene ROI publicado 0%. No asignamos importe apostado a ese mes ni mostramos un punto central inventado.</p>}
+   <p>Supuestos por confirmar: Profit exacto, misma escala entre meses y ROI = Profit / importe apostado. Se calcula un importe aproximado por mes y luego se suman los importes. No es una media ponderada por picks. La franja contempla redondeo al entero más próximo y truncación hacia cero.</p>
+   <p>Profit suma las cifras originales de los meses usados; escala pendiente de confirmar, sin conversión a euros. Los filtros y el orden de Yield usan la cifra central estimada. Las franjas solapadas no permiten afirmar cuál es mejor.</p>
+   <table style={{width:'100%',borderCollapse:'collapse',textAlign:'right'}}><thead><tr>{['Mes publicado','Picks','Profit · OLBG','ROI fuente'].map(label=><th key={label} style={{padding:'7px 3px',textAlign:label==='Mes publicado'?'left':'right',borderBottom:'1px solid #ddd'}}>{label}</th>)}</tr></thead>
+    <tbody>{source.history.map(m=><tr key={m.month} style={{opacity:e.monthsUsed.includes(m.month)?1:.65}}><td style={{padding:'7px 3px',textAlign:'left',borderBottom:'1px solid #eee'}}>{monthLabel(m.month)}{m.month===source.captureMonth?' *':''}</td><td style={{borderBottom:'1px solid #eee'}}>{fmt(m.picks)}</td><td style={{borderBottom:'1px solid #eee'}}>{fmt(m.profitPublished)}</td><td style={{borderBottom:'1px solid #eee'}}>{m.roiPublished===null?'—':`${m.roiPublished}%`}</td></tr>)}</tbody>
+   </table><p>* Mes en curso en la captura, fuera de la estimación. Los ROI de esta tabla son los publicados por OLBG, no estimaciones nuestras.</p>
+  </details>
+ </section>
+}

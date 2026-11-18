@@ -45,9 +45,9 @@ export default async function Home({ searchParams }: PageProps) {
   const readAt = new Date()
   if(monthlyExistingRoutesEnabled()){
     const params=new URLSearchParams(searchParams as Record<string,string>)
-    const {page,warnings}=await readMonthlyExistingRoutes(params,filters,sort,readAt)
+    const {page,warnings,estimated}=await readMonthlyExistingRoutes(params,filters,sort,readAt)
     params.set('periodAnchor',readAt.toISOString());params.delete('monthlyCursor')
-    return <><FilterBar searchParams={searchParams} olbgEnabled monthlyCandidate />
+    return <><FilterBar searchParams={searchParams} olbgEnabled monthlyCandidate estimatedCandidate={estimated} />
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 12px'}}>
         <OlbgMonthlyControls key={params.toString()} params={searchParams} months={page.availableMonths}/>
         <ActivityNotice months={filters.activityMonths} unknown={filters.activityUnknown} />

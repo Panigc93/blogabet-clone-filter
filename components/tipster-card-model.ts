@@ -31,6 +31,7 @@ export interface TipsterCardData {
   profitDisplay: string | null // already formatted, with currency
   yieldPct: number | null
   yieldTitle: string | null // provenance note for the yield figure
+  olbgEstimates?: import('./olbg/OlbgEstimatedGlobal').OlbgEstimates
   olbgMonthly?: import('@/lib/olbg-published-monthly').MonthlyDisplay
   mainScopeNote?: string // visible sample scope, never an all-time claim
   mainBasisNote?: string // visible profit/yield basis when not conventional

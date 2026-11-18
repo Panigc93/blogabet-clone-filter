@@ -6,9 +6,10 @@ interface FilterBarProps {
   searchParams: Record<string, string | undefined>
   olbgEnabled?: boolean
   monthlyCandidate?:boolean
+  estimatedCandidate?:boolean
 }
 
-export function FilterBar({ searchParams, olbgEnabled = false, monthlyCandidate = false }: FilterBarProps) {
+export function FilterBar({ searchParams, olbgEnabled = false, monthlyCandidate = false, estimatedCandidate = false }: FilterBarProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const sp = new URLSearchParams(
@@ -238,7 +239,7 @@ export function FilterBar({ searchParams, olbgEnabled = false, monthlyCandidate 
               <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('sort') ?? 'yield'}
                 onChange={e => update('sort', e.target.value)}>
-                <option value="yield">Yield (histórico)</option>
+                <option value="yield">{estimatedCandidate?'Yield + estimado':'Yield (histórico)'}</option>
                 <option value="yield6m">Yield 6 meses</option>
                 <option value="yield12m">Yield 12 meses</option>
                 <option value="picks6m_avg">Picks/mes (6m)</option>

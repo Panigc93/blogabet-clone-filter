@@ -43,6 +43,13 @@ try{
   assert.deepEqual(candidate.rows.filter(r=>r.card.platform!=='olbg').map(r=>r.key),normal[i],matrix[i])
  }
  const all=await read('platform=all',true)
+ const sourceEstimates=all.rows.filter(r=>r.card.platform==='olbg')
+ assert.equal(sourceEstimates.filter(r=>r.card.olbgEstimates.global.status==='estimated').length,450)
+ assert.equal(sourceEstimates.filter(r=>r.card.olbgEstimates.global.status==='interval-only'&&r.card.yieldPct===null).length,111)
+ for(const query of ['minYield=10','maxYield=10','minPicks=300']){
+  const filtered=await read('platform=olbg&'+query,true)
+  const [field,value]=query.split('=');assert.ok(filtered.rows.every(r=>field==='minPicks'?r.card.picks>=Number(value):r.card.yieldPct!==null&&(field==='minYield'?r.card.yieldPct>=Number(value):r.card.yieldPct<=Number(value))))
+ }
  assert.equal(all.first.total,620);assert.equal(all.rows.length,620);assert.equal(new Set(all.rows.map(r=>r.key)).size,620);assert.equal(all.pages,13)
  const october=await read('platform=olbg&olbgMonth=2026-10&olbgMonthlyOrder=roi-desc',true)
  assert.equal(october.rows.length,561)
@@ -70,6 +77,17 @@ try{
  await page.waitForURL(/olbgMonth=2026-09/);await page.waitForLoadState('networkidle')
  assert.equal(new URL(page.url()).searchParams.get('monthlyCursor'),null)
  assert.equal(new URL(page.url()).searchParams.get('platform'),'olbg')
+ await page.goto('http://127.0.0.1:3751/?platform=olbg&search=Niffler',{waitUntil:'networkidle'})
+ assert.equal(await page.locator('.tipster-block').count(),1)
+ assert.match(await page.locator('.tipster-block').innerText(),/Yield estimado/)
+ assert.match(await page.locator('.tipster-block').innerText(),/12,0%/)
+ await page.screenshot({path:'/downloads/olbg-estimated-mobile.png'})
+ await page.setViewportSize({width:1280,height:1000})
+ await page.screenshot({path:'/downloads/olbg-estimated-desktop.png'})
+ await page.locator('.tipster-block summary').click()
+ await page.screenshot({path:'/downloads/olbg-estimated-detail-desktop.png'})
+ await page.setViewportSize({width:390,height:1100})
+ await page.screenshot({path:'/downloads/olbg-estimated-detail-mobile.png'})
  const result={existingHome:true,existingAPI:true,baselineRegressionQueries:matrix.length,syntheticBlogabetTestRows:57,retainedTipstrrRows:2,olbgProfiles:561,total:620,pages:all.pages,october:511,SSRandAPIOrderEqual:true,clientLoadMore:true,changedQuery409:true,noExternalDatabase:true,dbDirectory:dir}
  fs.writeFileSync('/tmp/olbg-existing-result.json',JSON.stringify(result,null,2));console.log(result)
 }finally{if(browser)await browser.close();await stop()}
