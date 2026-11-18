@@ -58,7 +58,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
   return (
     <div
       className="tipster-block"
-      style={{ display: 'flex', alignItems: 'stretch', background: '#fff', border: '1px solid #dbe1e8', borderRadius: 3, marginBottom: 6, minHeight: 126 }}
+      style={{ position:'relative', display: 'flex', alignItems: 'stretch', background: '#fff', border: '1px solid #dbe1e8', borderRadius: 3, marginBottom: 6, minHeight: 126 }}
     >
       {/* LEFT: avatar + info */}
       <div className="tipster-left" style={{ display: 'flex', alignItems: 'center', padding: '10px 12px' }}>

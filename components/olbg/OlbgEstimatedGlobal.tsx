@@ -10,7 +10,7 @@ export function OlbgEstimatedGlobal({estimates,source,sinceYear}:{estimates:Olbg
  const e=estimates.global
  const range=e.range?`${pct(bound(e.range.lowerPct,true))} a ${pct(bound(e.range.upperPct,false))}`:null
  const color=(n:number|null)=>n===null?'#777':n<0?'#c24e59':n>0?'#25886e':'#444'
- return <section aria-label="Yield global estimado OLBG" style={{position:'relative',padding:'16px 8px 8px',width:'100%',boxSizing:'border-box'}}>
+ return <section aria-label="Yield global estimado OLBG" style={{padding:'12px 8px 8px',width:'100%',boxSizing:'border-box'}}>
   <div style={{display:'flex',justifyContent:'space-around',gap:6,textAlign:'center',flexWrap:'wrap'}}>
    {[[sinceYear??'—','Since',null],[fmt(e.picks),'Picks',null],[fmt(e.profitSource),'Profit · OLBG',e.profitSource],[pct(e.centralPct),'Yield',e.centralPct]].map(([value,label,n])=><div key={String(label)} style={{flex:'1 1 70px'}}><span style={{display:'block',fontSize:22.5,fontWeight:700,color:color(typeof n==='number'?n:null)}}>{value}{label==='Yield'&&<small style={{fontSize:10,fontWeight:400,color:'#777',marginLeft:3}}>est.</small>}</span><span style={{display:'block',fontSize:15,fontWeight:700,color:'#555',marginTop:3}}>{label}</span></div>)}
   </div>
@@ -19,7 +19,7 @@ export function OlbgEstimatedGlobal({estimates,source,sinceYear}:{estimates:Olbg
    {[[3,estimates.three],[6,estimates.six],[12,estimates.twelve]].map(([n,v])=>{const x=v as GlobalYieldEstimate;return <div key={String(n)} title={x.status==='estimated'?'Estimado, ventana completa de meses cerrados':x.reason==='missing-months'?'Faltan meses de la ventana':x.reason==='zero-roi'?'Un ROI mensual de 0 impide recuperar una cifra central':'Sin cifra central defendible'}><b style={{fontSize:14,color:color(x.centralPct)}}>{pct(x.centralPct)}</b><span style={{display:'block',fontSize:10,color:'#777'}}>YIELD {String(n)}M <small style={{fontSize:9}}>est.</small></span></div>})}
   </div>
   <details style={{fontSize:12,color:'#666',marginTop:0}}>
-   <summary style={{cursor:'pointer',textAlign:'right',position:'absolute',right:8,top:0,fontSize:10}}>Historial parcial ⓘ</summary>
+   <summary className="olbg-estimated-summary" style={{cursor:'pointer',textAlign:'right',position:'absolute',right:14,top:12,fontSize:10}}>Historial parcial ⓘ</summary>
    <p><b>{range?`Franja estimada: ${range}.`:'Sin intervalo calculable.'}</b> Es una franja condicional, no un margen de error garantizado. Incluye dos posibles reglas de redondeo del ROI mensual.</p>
    <p>Periodo: {e.from&&e.to?`${monthLabel(e.from)} – ${monthLabel(e.to)}`:'sin periodo'}. Usamos los {e.monthsUsed.length} meses cerrados disponibles y sus {fmt(e.picks)} picks, no toda la carrera. Since es el año de alta. El mes en curso en la captura ({monthLabel(e.currentMonthExcluded)}) no entra en la estimación.</p>
    {e.missingMonths.length>0&&<p>Hay meses ausentes dentro del periodo: {e.missingMonths.map(monthLabel).join(', ')}. No se cuentan como cero apuestas.</p>}
