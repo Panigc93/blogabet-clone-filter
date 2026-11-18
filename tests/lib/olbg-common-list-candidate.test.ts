@@ -74,6 +74,11 @@ describe('candidate common-list read integration',()=>{
    expect((await loadPublishedMonthlySnapshot(f,digest)).profiles).toHaveLength(3)
    const service={monthlyFile:f,monthlySha256:digest,request,readBaseline:async()=>({rows:[],revision:'base-v1',complete:true as const,readAt:'2026-11-18T12:00:00Z'}),baselineUnchanged:async()=>true}
    expect((await loadCommonPublishedMonthlyPage(service)).total).toBe(3)
+   let redundantRead=false
+   expect((await loadCommonPublishedMonthlyPage({...service,atomicStatementSnapshot:true,sourceContextUnchanged:async()=>true,baselineUnchanged:async()=>{redundantRead=true;return false}})).total).toBe(3)
+   expect(redundantRead).toBe(false)
+   await expect(loadCommonPublishedMonthlyPage({...service,atomicStatementSnapshot:true,sourceContextUnchanged:async()=>false})).rejects.toThrow(/Source context changed/)
+   await expect(loadCommonPublishedMonthlyPage({...service,atomicStatementSnapshot:true})).rejects.toThrow(/Source context changed/)
    await expect(loadCommonPublishedMonthlyPage({...service,baselineUnchanged:async()=>false})).rejects.toThrow(/changed during read/)
    await expect(loadPublishedMonthlySnapshot(f,'0'.repeat(64))).rejects.toThrow(/revision mismatch/)
    const duplicate=JSON.stringify({version:1,basis:'source-published-month-global-all-tips',profiles:[...profiles,profiles[0]]})

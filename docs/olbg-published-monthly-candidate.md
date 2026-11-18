@@ -135,9 +135,11 @@ home/API routes in a production build; it defaults OFF. LAB_PREVIEW variables
 cannot enable this production path. The production flag does not enable labs
 or legacy fixed-stake OLBG activation. No environment has been changed.
 
-A private untracked `.private-data/olbg/*.json` can be traced into the server
-functions for `/` and `/api/tipsters`. Local production build confirms both
-Next trace manifests include the artifact; a production-runtime local smoke
+A private untracked `.private-data/olbg/*.json` can be traced into server
+functions, including `/` and `/api/tipsters`. Local builds include the file in
+all app-route trace manifests through Next's shared graph, not exclusively
+those two routes. These remain server-side traces, not static/public assets.
+A production-runtime local smoke
 confirms the raw URL returns404, OLBG labs404, and the estimate renders. The
 artifact must be supplied separately to an authorized deployment; a Git-based
 build cannot magically read this local file. No raw file has entered Git.
@@ -175,3 +177,67 @@ ABSOLUTE_PRIVATE_SNAPSHOT_PATH`. It refuses live DB credentials. The optional
 `check-olbg-production-baseline.ts CREDENTIAL_FILE SNAPSHOT` is a bounded
 read-only live benchmark; never put the credential or raw rows in logs or
 review packages. No scheduled collection or persistent crawler is created.
+
+## Separate optimization candidate: atomic statement snapshot
+
+Choice: use a single complete ordinary PostgreSQL SELECT per page request,
+not two complete transfers and not a TTL cache. PostgreSQL guarantees this
+statement sees its committed start-time snapshot. All rows are filtered and
+ordered within that one statement; the full semantic digest still goes in
+the cursor. Each next page performs a fresh complete SELECT and rejects a
+changed digest before appending. Source-context revision recheck remains.
+The generic adapter retains its conservative double-read default unless the
+caller explicitly declares an atomic statement reader and supplies the
+source-context guard. No stale cross-request cache is introduced.
+
+Observable contract: the displayed page is coherent as of its SELECT, not a
+promise that no record changed while HTML was being computed afterward.
+Neither double-read nor compact digest recheck can guarantee no write after
+the final check; both still require cursor validation on the next request.
+A compact SQL digest would preserve a second-statement check with less network
+traffic, but would still rescan/sort the full query, add a roundtrip, require
+SQL/JS canonicalization or a new SQL hash contract, and retain avoidable
+restarts on legitimate concurrent writes. It has no demonstrated correctness
+benefit for this read-only listing's snapshot contract. Thus atomic SELECT is
+the simpler supported choice, pending independent review, not an implemented
+production change.
+
+One bounded read-only comparison: double SELECT total6.94s/RSS325MB vs atomic
+SELECT4.83s/RSS285MB. Each complete baseline has13175rows/11.3MB; both merged
+13736cards. These observations were several minutes apart and not a controlled
+load test or Vercel latency claim. Atomic removes one11.3MB transfer, one full
+query and its allocation by construction. All normal filter and cursor tests
+still pass. No SQL writes, background jobs, caches or external settings.
+
+Source of SELECT semantics:
+https://www.postgresql.org/docs/current/transaction-iso.html
+
+## Concrete existing-host delivery route, not executed
+
+Vercel's documented prebuilt flow is `vercel pull`, `vercel build`, then
+`vercel deploy --prebuilt` to the linked EXISTING project. The build output
+contains server function artifacts, so the ignored snapshot can be included
+in the private function trace without entering the public Git repository and
+without a new storage service. No upload or
+Vercel setting change was made in this preparation.
+
+Sources inspected:
+https://vercel.com/docs/cli/deploying-from-cli
+https://vercel.com/docs/cli/build
+https://vercel.com/docs/cli/deploy
+https://vercel.com/kb/guide/how-can-i-use-files-in-serverless-functions
+
+The current project is superblogabet in the existing Hobby team, with browser
+access confirmed. There is no local linked Vercel CLI project/token yet. The
+next authorized execution must authenticate the CLI to that same account,
+pull existing project settings (secret values never printed), inspect actual
+`.vercel/output` for the raw file in functions only and no static route, then
+stage the exact reviewed build. A regular `next build` trace check has passed;
+the actual Vercel Build Output and staging have NOT been generated/uploaded.
+No assumption that a generic Next build is itself a deployable Vercel artifact.
+
+Do not expose `.private-data` with a standalone static deployment. Do not
+upload raw source data to GitHub or create Blob. Regular future Git redeploys
+would omit this untracked artifact, so the selected workflow must remain the
+reviewed prebuilt flow until a separately authorized private build-input
+mechanism is provided. This is an operational limitation, not automatic sync.

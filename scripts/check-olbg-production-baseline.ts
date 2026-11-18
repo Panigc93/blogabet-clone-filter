@@ -12,7 +12,7 @@ async function main(){
  const {loadCommonPublishedMonthlyPage}=await import('../lib/olbg-common-list-loader')
  const {createHash}=await import('node:crypto')
  const {semanticBaselineRevision}=await import('../lib/olbg-release-read-guard')
- const at=new Date(),metrics:any={readOnly:true,at:at.toISOString(),queries:[]}
+ const at=new Date(),metrics:any={readOnly:true,atomicStatementSnapshot:process.argv.includes('--atomic'),at:at.toISOString(),queries:[]}
  const start=performance.now(),context=await tipsterReadContext(await loadDatabasePeriodAudits(at),at)
  metrics.contextMs=performance.now()-start
  let previous:any[]|null=null
@@ -25,7 +25,7 @@ async function main(){
   return {rows,revision,complete:true as const,readAt:at.toISOString()}
  }
  const file=process.argv[3],digest=createHash('sha256').update(fs.readFileSync(file)).digest('hex')
- const page=await loadCommonPublishedMonthlyPage({monthlyFile:file,monthlySha256:digest,request:{estimate:true,monthly:{month:'latest-available'},order:'yield-desc',pageSize:50},readBaseline:read,baselineUnchanged:async revision=>await context.revisionUnchanged()&&(await read()).revision===revision})
+ const page=await loadCommonPublishedMonthlyPage({monthlyFile:file,monthlySha256:digest,atomicStatementSnapshot:process.argv.includes('--atomic')?true:undefined,sourceContextUnchanged:()=>context.revisionUnchanged(),request:{estimate:true,monthly:{month:'latest-available'},order:'yield-desc',pageSize:50},readBaseline:read,baselineUnchanged:async revision=>await context.revisionUnchanged()&&(await read()).revision===revision})
  metrics.totalMs=performance.now()-start;metrics.totalProfiles=page.total;metrics.firstPage=page.rows.length;metrics.hasMore=!!page.nextCursor;metrics.memory=process.memoryUsage();metrics.snapshotSha=digest
  fs.writeFileSync('/tmp/olbg-production-baseline-benchmark.json',JSON.stringify(metrics,null,2));console.log(JSON.stringify(metrics,null,2))
 }

@@ -40,6 +40,9 @@ export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:Tipste
  }
  const request=monthlyExistingRequest(p,filters,sort)
  const page=await loadCommonPublishedMonthlyPage({monthlyFile:file,monthlySha256:digest,request,readBaseline:read,
+  // One SELECT is a coherent PostgreSQL statement snapshot. The next page
+  // performs a fresh SELECT and compares its semantic digest to the cursor.
+  atomicStatementSnapshot:true,sourceContextUnchanged:()=>context.revisionUnchanged(),
   baselineUnchanged:async revision=>await context.revisionUnchanged()&&(await read()).revision===revision})
  return {page,estimated:request.estimate,warnings:context.warnings(filters)}
 }

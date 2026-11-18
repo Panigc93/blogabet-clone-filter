@@ -10,6 +10,9 @@ export async function loadCommonPublishedMonthlyPage(input:{
  monthlyFile:string;monthlySha256:string;request:CommonMonthlyRequest
  readBaseline:()=>Promise<BaselineReadSnapshot>
  baselineUnchanged:(revision:string)=>Promise<boolean>
+ // Only for a single PostgreSQL SELECT, never a paginated or cached reader.
+ atomicStatementSnapshot?:true
+ sourceContextUnchanged?:()=>Promise<boolean>
 }){
  const [source,baseline]=await Promise.all([loadPublishedMonthlySnapshot(input.monthlyFile,input.monthlySha256),input.readBaseline()])
  if(baseline.complete!==true||!baseline.revision||!Number.isFinite(Date.parse(baseline.readAt)))throw Error('Complete pinned baseline required before merging')
@@ -18,6 +21,8 @@ export async function loadCommonPublishedMonthlyPage(input:{
  // Digest actual values too, so a stale token cannot silently mask changed data.
  const baselineRevision=createHash('sha256').update(baseline.revision).update(semanticBaselineRevision(baseline.rows)).digest('hex')
  const result=commonMonthlyPage(cards,baselineRevision,source,input.request)
- if(!await input.baselineUnchanged(baseline.revision))throw Error('Baseline changed during read; restart pagination')
+ if(input.atomicStatementSnapshot){
+  if(!input.sourceContextUnchanged||!await input.sourceContextUnchanged())throw Error('Source context changed during read; restart pagination')
+ }else if(!await input.baselineUnchanged(baseline.revision))throw Error('Baseline changed during read; restart pagination')
  return result
 }
