@@ -15,3 +15,11 @@ Two-profile bounded pilot on18Nov2026 used7of15allowed GETs, including one share
 ## Product boundary still open
 
 Staged values are NOT yet SQL/card-visible. A reviewed server-only receipt store and SQL join must preserve exact identity, separate global/period capture timestamps, source-month eligibility, independent per-window null reasons, same values in filtering/sorting/pagination and API/card projection. Until that exists, current product masking stays null. Do not write periods to DB columns and expect them to appear, do not reuse B2I audit identity as if it were BE, and do not label the pilot adapter production ready. No UI work is part of this delta.
+
+## Server read path implemented in the next delta
+
+`period-receipt.ts` validates private staged scopes and reconciliation into a compact audit. `period-index.ts` provides injected atomic activation under a table lock in existing import_validation_log, with global slug/capture plus original accepted-import GUID validation and exact readback. No remote adapter or automatic activation exists. `bettingexpert-period-index.ts` loads the bounded server-only active index and verifies its checksum. Raw picks and exact exception GUIDs are not sent to clients.
+
+The SQL read context joins platform+slug+globalCapturedAt and requires current UTC source month for both separate period and anchor capture times. Values derive from compact audited windows, never unaudited numeric columns. This projection is used before ordering/pagination and API/card mapping. Index revision changes invalidate continuation instead of mixing old/new ordering; existing UTC month anchors remain. Each window has its own null reason; missing12m start anchor no longer suppresses independently reconcilable3m/6m pairs. B2I/OLBG paths stay separate. Only the existing period row becomes visible for eligible BE values; no new UI controls.
+
+Activation remains preparation only. A future authorized source pipeline must retain full gate evidence and call activation only after independently validating that evidence. Checksums bind bytes, not sender authority or source truth. Production sequence checks remain mandatory for global import, without nextval in preflight.

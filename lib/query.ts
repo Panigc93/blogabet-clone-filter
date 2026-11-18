@@ -1,3 +1,4 @@
+import {beClientEligible,type BEClientAudit} from './bettingexpert-period-contract'
 import { activityCondition } from './activity-query'
 import { eq, gt, gte, ilike, isNotNull, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
@@ -182,6 +183,8 @@ export function sortOrder(sort: SortField): SQL[] {
 export function bettingexpertPeriodColumn(column: typeof tipsters.yield6m | typeof tipsters.yield12m | typeof tipsters.picks6mAvg) {
   return sql<string | null>`CASE WHEN ${tipsters.platform} = 'bettingexpert' THEN NULL ELSE ${column} END`
 }
-export function bettingexpertApiProjection<T extends { platform: string }>(row: T): T {
+export function bettingexpertApiProjection<T extends {platform:string}>(row:T,now=new Date()):T {
+  const r=row as T & {slug:string;capturedAt:Date|null;beAudit?:BEClientAudit}
+  if(r.platform==='bettingexpert'&&beClientEligible(r.beAudit,r.slug,r.capturedAt,now))return {...row,yield3m:r.beAudit!.windows[3].value,yield6m:r.beAudit!.windows[6].value,yield12m:r.beAudit!.windows[12].value,picks6mAvg:r.beAudit!.windows[6].value!==null?String(r.beAudit!.windows[6].picks!/6):null,picksFree3mAvg:null,yieldFree3m:null}
   return row.platform === 'bettingexpert' ? { ...row, yield3m: null, yield6m: null, yield12m: null, picks6mAvg: null, picksFree3mAvg: null, yieldFree3m: null } : row
 }

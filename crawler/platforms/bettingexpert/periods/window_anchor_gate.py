@@ -31,13 +31,18 @@ def anchored_windows(pages,*,user_guid,username,captured_at,read_at,anchor_reque
         samples={}
         for key in expected:
             found=[r for r in anchor_response['data'][key] if r.get('guid')==user_guid]
-            if len(found)!=1 or found[0].get('username')!=username:raise ValueError('missing_or_wrong_anchor_identity')
+            if len(found)!=1 or found[0].get('username')!=username:
+                samples[key]=None;continue
             s=found[0]['stats']
-            if type(s['tipsCount']) is not int or s['tipsCount']<0:raise ValueError('invalid_anchor_count')
-            samples[key]={'count':s['tipsCount'],'profit':money(s['profit'])}
+            if type(s['tipsCount']) is not int or s['tipsCount']<0:
+                samples[key]=None;continue
+            try:samples[key]={'count':s['tipsCount'],'profit':money(s['profit'])}
+            except ValueError:samples[key]=None
         rows={t['guid']:t for p in pages for t in p.tips}
         if any(t['user']['guid']!=user_guid or t['user']['username']!=username for t in rows.values()):raise ValueError('identity_mismatch')
         for n,key in [('3m','c'),('6m','b'),('12m','a')]:
+            if samples[key] is None or samples['d'] is None:
+                hold(n,'missing_or_wrong_anchor_identity');continue
             if baseline[n]['reason'] not in (None,'unverified_status','unverified_settlement_pattern'):
                 continue # Structural/coverage/empty failure cannot earn an exception.
             window=[t for t in rows.values() if utc(cuts[n])<=created(t)<utc(end)]

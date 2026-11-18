@@ -137,24 +137,24 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               value={fmtYield(t.yield3m.valuePct)}
               label="Yield 3m"
               calculated={t.platform === 'olbg'}
-              note={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield3m.note : undefined}
-              title={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield3m.trace ?? undefined : undefined}
+              note={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield3m.note : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield3m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield3m.valuePct)}
             />
             <PeriodCell
               value={fmtYield(t.yield6m.valuePct)}
               label="Yield 6m"
               calculated={t.platform === 'olbg'}
-              note={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield6m.note : undefined}
-              title={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield6m.trace ?? undefined : undefined}
+              note={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield6m.note : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield6m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield6m.valuePct)}
             />
             <PeriodCell
               value={fmtYield(t.yield12m.valuePct)}
               label="Yield 12m"
               calculated={t.platform === 'olbg'}
-              note={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield12m.note : undefined}
-              title={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield12m.trace ?? undefined : undefined}
+              note={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield12m.note : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield12m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield12m.valuePct)}
             />
             <PeriodCell

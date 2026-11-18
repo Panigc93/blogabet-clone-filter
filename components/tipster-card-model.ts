@@ -1,3 +1,4 @@
+import {beClientEligible,type BEClientAudit} from '@/lib/bettingexpert-period-contract'
 import { periodEligible, type AuditedTipster } from '@/lib/bet2invest-period-contract'
 import { fromOlbgReadRow, unknownOlbgCard } from './olbg-card-model'
 import type { Tipster } from '@/db/schema'
@@ -79,7 +80,7 @@ export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardD
   if (t.platform === 'tipstrr') return tipstrrFromDbRow(t)
   if (t.platform === 'golazobets') return golazobetsFromDbRow(t)
   if (t.platform === 'bet2invest') return bet2investFromDbRow(t, now)
-  if (t.platform === 'bettingexpert') return bettingexpertFromDbRow(t)
+  if (t.platform === 'bettingexpert') return bettingexpertFromDbRow(t,now)
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -339,7 +340,11 @@ function bet2investFromDbRow(t: TipsterReadRow, now: Date): TipsterCardData {
 }
 
 // Profile-overall capture only: stale/accidental period columns never leak.
-function bettingexpertFromDbRow(t: TipsterReadRow): TipsterCardData {
+function bettingexpertFromDbRow(t: TipsterReadRow,now:Date): TipsterCardData {
+  const a=(t as TipsterReadRow & {beAudit?:BEClientAudit}).beAudit
+  const valid=beClientEligible(a,t.slug,t.capturedAt,now)
+  const period=(n:3|6|12):PeriodStatView=>{const w=valid?a!.windows[n]:null;return {valuePct:w?.value!=null?Number(w.value):null,complete:w?.value!=null,trace:w?.value!=null?`${w.picks} apuestas · ${w.from} a ${w.to} UTC · captura periodos ${a!.periodCapturedAt}`:null}}
+  const periods={yield3m:period(3),yield6m:period(6),yield12m:period(12)}
   const base = golazobetsFromDbRow(t)
   const profit = t.profit === null ? null : Number(t.profit)
   return {
@@ -349,8 +354,6 @@ function bettingexpertFromDbRow(t: TipsterReadRow): TipsterCardData {
     profitDisplay: profit !== null && Number.isFinite(profit) ? `${profit >= 0 ? '+' : ''}${new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 3 }).format(profit)} pt BE` : null,
     yieldTitle: 'Yield global publicado en Overall stats de Bettingexpert; no es el ranking por deporte ni un periodo 3/6/12m. Puntos BE no equivalentes a € ni a otras unidades.',
     sinceYear: null, sinceTitle: null, isPaid: false,
-    yield3m: { valuePct: null, trace: null, complete: false },
-    yield6m: { valuePct: null, trace: null, complete: false },
-    yield12m: { valuePct: null, trace: null, complete: false },
+    ...periods,picks6mAvg:valid&&a!.windows[6].value!==null?a!.windows[6].picks!/6:null,showPeriodRow:Object.values(periods).some(w=>w.valuePct!==null),
   }
 }

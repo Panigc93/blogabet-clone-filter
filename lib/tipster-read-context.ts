@@ -1,3 +1,5 @@
+import {beReadContext} from './bettingexpert-period-read'
+import {loadBEPeriodIndex} from './bettingexpert-period-index'
 import { sql,ne,or,inArray } from 'drizzle-orm'
 import { olbgActivation, OLBG_PILOT_IDS } from './olbg-activation'
 import { db } from '@/db'
@@ -21,15 +23,17 @@ export function olbgVisibilityFilter(activation:ReturnType<typeof olbgActivation
  return activation==='disabled'?ne(tipsters.platform,'olbg'):activation==='pilot-three'?or(ne(tipsters.platform,'olbg'),inArray(tipsters.slug,[...OLBG_PILOT_IDS]))!:undefined
 }
 export async function tipsterReadContext(audits:PeriodAudit[],now:Date){
- const base=periodReadContext(audits,now),activation=olbgActivation(),enabled=activation!=='disabled'
+ const beIndex=await loadBEPeriodIndex()
+ const original=periodReadContext(audits,now),be=beReadContext(original,beIndex.rows,now)
+ const base={...be,source:original.source,joinOn:original.joinOn},activation=olbgActivation(),enabled=activation!=='disabled'
  const state:OlbgRevision=enabled?await loadRevision():{status:'disabled',revision:'',changedAt:''}
  const guard=compactRevisionGuard(state,now,()=>new Date(),loadRevision)
  const olbg=olbgReadContext(base,enabled&&state.status==='ok',now)
  return {
-  base,olbg,projection:olbg.projection,order:olbg.order,enabled,
+  base,be,olbg,beRevision:beIndex.revision,projection:olbg.projection,order:olbg.order,enabled,
   revisionToken:state.status==='ok'?state.revision:null,
-  changedSinceAnchor:enabled&&guard.changedSinceAnchor,
-  revisionUnchanged:async()=>!enabled||guard.revisionUnchanged(),
+  changedSinceAnchor:(enabled&&guard.changedSinceAnchor)||!!(beIndex.updatedAt&&new Date(beIndex.updatedAt)>now),
+  revisionUnchanged:async()=>await (async()=>!enabled||guard.revisionUnchanged())() && (await loadBEPeriodIndex()).revision===beIndex.revision,
   filters:(p:TipsterFilters)=>{const visibility=olbgVisibilityFilter(activation);return [...olbg.filters(p),...visibility?[visibility]:[]]},
   warnings:(p:TipsterFilters)=>enabled&&(p.platform===undefined||p.platform==='olbg')?[...olbg.warnings(p),...state.status==='ok'?[]:['OLBG: evidencia mensual no disponible; valores no confirmados ocultos.']]:[],
   state:state.status,
