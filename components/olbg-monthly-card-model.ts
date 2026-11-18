@@ -1,3 +1,4 @@
+import {OLBG_PRODUCT_ACCESS} from '@/lib/olbg-product-access'
 import {estimateGlobalYield} from '@/lib/olbg-estimated-global'
 import {unknownOlbgCard} from './olbg-card-model'
 import {selectPublishedMonth,type PublishedMonthlyProfile} from '@/lib/olbg-published-monthly'
@@ -8,6 +9,8 @@ export function fromPublishedOlbgMonth(p:PublishedMonthlyProfile,month:string):T
  return {...unknownOlbgCard(p.name,String(p.id),p.joinedAt),
   avatarUrl:p.avatarUrl??null,sourceUrl:p.sourceUrl,sourceLabel:`olbg.com · ${p.id}`,capturedAt:p.capturedAt.slice(0,10),
   olbgMonthly:monthly,showPeriodRow:false,
+  // This is service policy, not an inference from absent price metadata.
+  isPaid:OLBG_PRODUCT_ACCESS.state!=='free',
   // Common global/all-time/3/6/12 fields remain null, not aliases of one month.
   picks:null,profitDisplay:null,yieldPct:null,mainScopeNote:undefined,mainBasisNote:undefined}
 }

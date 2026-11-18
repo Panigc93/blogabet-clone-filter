@@ -1,6 +1,7 @@
 // Candidate mount for EXISTING home/API paths, non-production opt-in only.
 // Reads complete baseline through normal read context; never writes DB.
 import {and,ne} from 'drizzle-orm'
+import {olbgProductMatchesType} from './olbg-product-access'
 import {semanticBaselineRevision,publishedEstimateRoutesEnabled} from './olbg-release-read-guard'
 import {db} from '@/db'
 import {tipsters} from '@/db/schema'
@@ -21,8 +22,9 @@ export function monthlyExistingRequest(p:URLSearchParams,filters:TipsterFilters,
   monthly:{month:p.get('olbgMonth')??'latest-available',roiMin:n('olbgRoiMin'),profitMin:n('olbgProfitMin'),picksMin:n('olbgPicksMin'),minResultMonths:n('olbgResultMonths')},
   search:filters.search,minCommonYield:filters.minYield,maxCommonYield:filters.maxYield,pageSize:50,cursor:p.get('monthlyCursor')??undefined,
   baselineFilterKey:JSON.stringify(Object.fromEntries(Object.entries(filters).filter(([,v])=>v!==undefined).sort(([a],[b])=>a.localeCompare(b)))),
-  // Monthly picks are not lifetime picks; unknown type/activity cannot pass.
-  excludeMonthly:!!(filters.platform&&filters.platform!=='olbg'||filters.tipo&&filters.tipo!=='all'||!estimate&&filters.minPicks!==undefined||filters.activityMonths!==undefined)}
+  // Monthly source service is positively Free; only Paid excludes it.
+  // Monthly-only picks are not lifetime picks; unknown activity cannot pass.
+  excludeMonthly:!!(filters.platform&&filters.platform!=='olbg'||!olbgProductMatchesType(filters.tipo)||!estimate&&filters.minPicks!==undefined||filters.activityMonths!==undefined)}
 }
 export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:TipsterFilters,sort:SortField,at:Date){
  if(!monthlyExistingRoutesEnabled())throw Error('Existing-route monthly candidate disabled')
