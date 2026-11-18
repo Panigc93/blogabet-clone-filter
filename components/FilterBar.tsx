@@ -5,9 +5,11 @@ import { useCallback, useTransition, useState, useEffect } from 'react'
 interface FilterBarProps {
   searchParams: Record<string, string | undefined>
   olbgEnabled?: boolean
+  monthlyCandidate?:boolean
+  estimatedCandidate?:boolean
 }
 
-export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps) {
+export function FilterBar({ searchParams, olbgEnabled = false, monthlyCandidate = false, estimatedCandidate = false }: FilterBarProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const sp = new URLSearchParams(
@@ -38,6 +40,7 @@ export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps)
     const t = setTimeout(() => {
       const params = new URLSearchParams(sp.toString())
       if (searchValue) { params.set('search', searchValue) } else { params.delete('search') }
+      if(monthlyCandidate){params.delete('monthlyCursor');params.delete('periodAnchor')}
       params.delete('page')
       startTransition(() => router.push(`/?${params.toString()}`))
     }, 400)
@@ -51,6 +54,7 @@ export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps)
       const params = new URLSearchParams(sp.toString())
       if (minYield) params.set('minYield', minYield); else params.delete('minYield')
       if (maxYield) params.set('maxYield', maxYield); else params.delete('maxYield')
+      if(monthlyCandidate){params.delete('monthlyCursor');params.delete('periodAnchor')}
       params.delete('page')
       startTransition(() => router.push(`/?${params.toString()}`))
     }, 800)
@@ -64,6 +68,7 @@ export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps)
       const params = new URLSearchParams(sp.toString())
       if (priceMin) params.set('priceMin', priceMin); else params.delete('priceMin')
       if (priceMax) params.set('priceMax', priceMax); else params.delete('priceMax')
+      if(monthlyCandidate){params.delete('monthlyCursor');params.delete('periodAnchor')}
       params.delete('page')
       startTransition(() => router.push(`/?${params.toString()}`))
     }, 800)
@@ -96,6 +101,7 @@ export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps)
       setPriceMax('')
     }
 
+    if(monthlyCandidate){params.delete('monthlyCursor');params.delete('periodAnchor')}
     params.delete('page')
     startTransition(() => router.push(`/?${params.toString()}`))
   }, [router, sp.toString()])
@@ -167,7 +173,7 @@ export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps)
 
             {/* YIELD */}
             <div style={{ flex: 1, minWidth: 110, maxWidth: 130, marginBottom: 2 }}>
-              <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Yield{platform==='olbg'?' histórico':''} (%)</label>
+              <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Yield{platform==='olbg'&&!monthlyCandidate?' histórico':''} (%)</label>
               <div style={{ display: 'flex', gap: 4 }}>
                 <input type="number" placeholder="Mín" style={{ background: '#fff', color: '#333', border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, padding: '6px 6px', fontSize: 13, width: '100%' }}
                   value={minYield}
@@ -180,7 +186,7 @@ export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps)
 
             {/* PICKS */}
             <div style={{ flex: 1, minWidth: 130, maxWidth: 150, marginBottom: 2 }}>
-              <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Nº de picks{platform==='olbg'?' históricos':''}</label>
+              <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Nº de picks{platform==='olbg'&&!monthlyCandidate?' históricos':''}</label>
               <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('minPicks') ?? '0'}
                 onChange={e => update('minPicks', e.target.value === '0' ? null : e.target.value)}>
@@ -233,12 +239,12 @@ export function FilterBar({ searchParams, olbgEnabled = false }: FilterBarProps)
               <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('sort') ?? 'yield'}
                 onChange={e => update('sort', e.target.value)}>
-                <option value="yield">Yield (histórico)</option>
+                <option value="yield">{estimatedCandidate?'Yield':'Yield (histórico)'}</option>
                 <option value="yield6m">Yield 6 meses</option>
                 <option value="yield12m">Yield 12 meses</option>
                 <option value="picks6m_avg">Picks/mes (6m)</option>
-                <option value="profit">Profit{platform==='olbg'?' histórico':''}</option>
-                <option value="picks">Nº de picks{platform==='olbg'?' históricos':''}</option>
+                <option value="profit">Profit{platform==='olbg'&&!monthlyCandidate?' histórico':''}</option>
+                <option value="picks">Nº de picks{platform==='olbg'&&!monthlyCandidate?' históricos':''}</option>
                 <option value="followers">Seguidores</option>
                 <option value="since_year">Año de registro</option>
                 <option value="price">Precio</option>

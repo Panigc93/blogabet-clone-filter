@@ -44,3 +44,6 @@ crawler/.checkpoint-*
 # local env / secrets
 .env*
 !.env.example
+
+# Private server data supplied separately during an authorized deployment
+/.private-data/

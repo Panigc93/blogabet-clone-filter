@@ -95,3 +95,7 @@ a {
 
   .filterbar-search { width: 100% !important; }
 }
+
+@media (max-width: 767px) {
+  .olbg-estimated-summary { top: auto !important; bottom: 51px; right: 18px !important; }
+}

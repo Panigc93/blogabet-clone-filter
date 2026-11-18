@@ -80,3 +80,14 @@ export const importValidationLog = pgTable('import_validation_log', {
 
 export type ImportValidationLog = typeof importValidationLog.$inferSelect
 export type ImportValidationLogInsert = typeof importValidationLog.$inferInsert
+
+// Separate immutable published OLBG product snapshots. Never raw captures or
+// legacy fixed-stake metrics. Rows are selected by the reviewed Git manifest.
+export const olbgPublishedSnapshots = pgTable('olbg_published_snapshots', {
+  revision: text('revision').primaryKey(),
+  contractVersion: integer('contract_version').notNull(),
+  profileCount: integer('profile_count').notNull(),
+  monthCount: integer('month_count').notNull(),
+  payload: text('payload').notNull(),
+  importedAt: timestamp('imported_at', {withTimezone:true}).notNull().defaultNow(),
+})

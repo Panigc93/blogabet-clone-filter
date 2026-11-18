@@ -1,3 +1,4 @@
+import {monthlyExistingRoutesEnabled,readMonthlyExistingRoutes} from '@/lib/olbg-existing-routes'
 import { continuationAnchor } from '@/lib/period-pagination-anchor'
 import { tipsterReadContext } from '@/lib/tipster-read-context'
 import { loadDatabasePeriodAudits } from '@/lib/bet2invest-period-index'
@@ -39,6 +40,11 @@ export async function GET(req: NextRequest) {
 
   const readAt = continuationAnchor(p.get('periodAnchor'), new Date())
   if (!readAt) return NextResponse.json({ reset: true, reason: 'period-anchor-expired' }, { status: 409 })
+  if(monthlyExistingRoutesEnabled()){
+    try{const {page:result,warnings}=await readMonthlyExistingRoutes(p,filters,sort,readAt)
+      return NextResponse.json({mode:'olbg-published-monthly',...result,warnings})
+    }catch(e){return NextResponse.json({reset:true,reason:e instanceof Error?e.message:'monthly-read-failed'},{status:409})}
+  }
   const periods = await tipsterReadContext(await loadDatabasePeriodAudits(readAt), readAt)
   if (periods.changedSinceAnchor || p.has('olbgRevision') && p.get('olbgRevision') !== periods.revisionToken) return NextResponse.json({ reset: true, reason: 'olbg-evidence-updated' }, { status: 409 })
   const where = periods.filters(filters)

@@ -1,4 +1,6 @@
+import {OlbgEstimatedGlobal} from './olbg/OlbgEstimatedGlobal'
 import React from 'react'
+import { OlbgPublishedMonthly } from './olbg/OlbgPublishedMonthly'
 import { TipsterCardData } from './tipster-card-model'
 import { AvatarImg } from './AvatarImg'
 
@@ -56,7 +58,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
   return (
     <div
       className="tipster-block"
-      style={{ display: 'flex', alignItems: 'stretch', background: '#fff', border: '1px solid #dbe1e8', borderRadius: 3, marginBottom: 6, minHeight: 126 }}
+      style={{ position:'relative', display: 'flex', alignItems: 'stretch', background: '#fff', border: '1px solid #dbe1e8', borderRadius: 3, marginBottom: 6, minHeight: 126 }}
     >
       {/* LEFT: avatar + info */}
       <div className="tipster-left" style={{ display: 'flex', alignItems: 'center', padding: '10px 12px' }}>
@@ -99,6 +101,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
 
       {/* MIDDLE: stats */}
       <div className="tipster-middle" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 4px' }}>
+        {t.platform==='olbg'&&t.olbgMonthly&&t.olbgEstimates?<OlbgEstimatedGlobal estimates={t.olbgEstimates} source={t.olbgMonthly} sinceYear={t.sinceYear}/>:t.platform==='olbg' && t.olbgMonthly ? <OlbgPublishedMonthly data={t.olbgMonthly} sinceYear={t.sinceYear} /> : <>
         {/* Row 1: alltime stats */}
         <div className="tipster-stats-alltime" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '14px 0 4px' }}>
           <StatCell value={String(t.sinceYear ?? '—')} label={t.platform==='olbg'?'Alta OLBG':'Since'} title={t.sinceTitle ?? undefined} />
@@ -180,13 +183,14 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               la auditabilidad vive en /lab/tipstrr/ficha (diagnóstico) */}
           </div>
         )}
+        </>}
       </div>
 
       {/* RIGHT: actions */}
       <div className="tipster-right" style={t.platform === 'golazobets'
         ? { background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6, minWidth: 174, width: 174 }
         : { background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6 }}>
-        <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#6a5aa8' : '#82daca', color: '#fff', border: `1px solid ${t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#6a5aa8' : '#4dbfa2'}`, borderBottomWidth: 3, borderBottomColor: t.platform === 'tipstrr' ? '#2c5878' : t.platform === 'golazobets' ? '#2b3841' : t.platform === 'bet2invest' ? '#4f4180' : '#4dbfa2', borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
+        <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#6a5aa8' : t.platform === 'olbg' ? '#e98a15' : '#82daca', color: '#fff', border: `1px solid ${t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#6a5aa8' : t.platform === 'olbg' ? '#e98a15' : '#4dbfa2'}`, borderBottomWidth: 3, borderBottomColor: t.platform === 'tipstrr' ? '#2c5878' : t.platform === 'golazobets' ? '#2b3841' : t.platform === 'bet2invest' ? '#4f4180' : t.platform === 'olbg' ? '#b96b0d' : '#4dbfa2', borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
           <i className="fa fa-external-link"></i> VER EN {t.platform === 'blogabet' ? 'BLOGABET' : t.platform === 'tipstrr' ? 'TIPSTRR' : t.platform === 'golazobets' ? 'GOLAZOBETS' : t.platform === 'olbg' ? 'OLBG' : 'BET2INVEST'}
         </a>
         {t.isPaid && t.priceLabel && (
