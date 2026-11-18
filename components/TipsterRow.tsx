@@ -1,3 +1,4 @@
+import React from 'react'
 import { TipsterCardData } from './tipster-card-model'
 import { AvatarImg } from './AvatarImg'
 
@@ -6,10 +7,10 @@ function fmtYield(v: number | null): string {
   return v >= 0 ? `+${v.toFixed(1)}%` : `${v.toFixed(1)}%`
 }
 
-function StatCell({ value, label, colorClass, title }: { value: string; label: string; colorClass?: string; title?: string }) {
+function StatCell({ value, label, colorClass, title, compact }: { value: string; label: string; colorClass?: string; title?: string; compact?:boolean }) {
   return (
     <div className="stat-cell" style={{ textAlign: 'center' }} title={title}>
-      <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: 22.5, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#333' }}>
+      <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: compact ? 17 : 22.5, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#333' }}>
         {value}
       </span>
       <span style={{ display: 'block', fontSize: 15, fontFamily: 'Roboto, sans-serif', fontWeight: 700, color: '#333', marginTop: 2 }}>
@@ -19,9 +20,9 @@ function StatCell({ value, label, colorClass, title }: { value: string; label: s
   )
 }
 
-function PeriodCell({ value, label, colorClass, note, title }: { value: string; label: string; colorClass?: string; note?: string; title?: string }) {
+function PeriodCell({ value, label, colorClass, note, title, calculated }: { value: string; label: string; colorClass?: string; note?: string; title?: string; calculated?: boolean }) {
   return (
-    <div className="period-cell" style={note ? { textAlign: 'center', flex: 1, minWidth: 0, padding: '0 3px' } : { textAlign: 'center' }} title={title} aria-label={title}>
+    <div className="period-cell" style={calculated ? { textAlign: 'center', flex: '1 1 22%', minWidth: 70, padding: '0 3px' } : note ? { textAlign: 'center', flex: 1, minWidth: 0, padding: '0 3px' } : { textAlign: 'center' }} title={title} aria-label={title}>
       <span className={`number ${colorClass ?? ''}`} style={{ display: 'block', fontSize: 14, fontWeight: 700, lineHeight: 1.1, color: colorClass ? undefined : '#555' }}>
         {value}
       </span>
@@ -76,7 +77,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
             {t.sourceLabel}
           </a>
           {t.capturedAt && (
-            <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{t.platform === 'bettingexpert' ? 'Bettingexpert' : t.platform === 'golazobets' ? 'Golazobets' : t.platform === 'bet2invest' ? 'Bet2Invest' : 'Tipstrr'} · captura {t.capturedAt} (no es sincronización)</div>
+            <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{t.platform === 'olbg' ? 'OLBG' : t.platform === 'bettingexpert' ? 'Bettingexpert' : t.platform === 'golazobets' ? 'Golazobets' : t.platform === 'bet2invest' ? 'Bet2Invest' : 'Tipstrr'} · captura {t.capturedAt} (no es sincronización)</div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
             {t.isVerified !== null && (
@@ -100,16 +101,18 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
       <div className="tipster-middle" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 4px' }}>
         {/* Row 1: alltime stats */}
         <div className="tipster-stats-alltime" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '14px 0 4px' }}>
-          <StatCell value={String(t.sinceYear ?? '—')} label="Since" title={t.sinceTitle ?? undefined} />
-          <StatCell value={t.picks !== null ? String(t.picks) : '—'} label="Picks" />
+          <StatCell value={String(t.sinceYear ?? '—')} label={t.platform==='olbg'?'Alta OLBG':'Since'} title={t.sinceTitle ?? undefined} />
+          <StatCell value={t.picks !== null ? String(t.picks) : '—'} label={t.picksLabel ?? 'Picks'} title={t.mainScopeNote} />
           <StatCell
             value={t.profitDisplay ?? '—'}
-            label="Profit"
+            label={t.profitLabel ?? 'Profit'}
+            compact={t.platform==='olbg'}
+            title={t.mainBasisNote ? `${t.mainBasisNote} ${t.mainScopeNote}` : undefined}
             colorClass={t.profitDisplay ? (t.profitDisplay.startsWith('-') ? 'text-danger' : 'text-success') : ''}
           />
           <StatCell
-            value={t.yieldPct !== null ? (t.platform === 'bettingexpert' ? `${t.yieldPct > 0 ? '+' : ''}${t.yieldPct.toFixed(2)}%` : (t.yieldPct >= 0 ? `+${Math.round(t.yieldPct)}%` : `${Math.round(t.yieldPct)}%`)) : '—'}
-            label="Yield"
+            value={t.yieldPct !== null ? (t.platform === 'olbg' ? fmtYield(t.yieldPct) : t.platform === 'bettingexpert' ? `${t.yieldPct > 0 ? '+' : ''}${t.yieldPct.toFixed(2)}%` : (t.yieldPct >= 0 ? `+${Math.round(t.yieldPct)}%` : `${Math.round(t.yieldPct)}%`)) : '—'}
+            label={t.yieldLabel ?? 'Yield'}
             colorClass={numColorClass(t.yieldPct)}
             title={t.yieldTitle ?? undefined}
           />
@@ -124,6 +127,8 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
           />
           <StatCell value={t.followers !== null ? String(t.followers) : '—'} label="Followers" />
         </div>
+        {t.mainScopeNote && <div style={{padding:'3px 6px 2px',fontSize:11,lineHeight:1.4,color:'#666',textAlign:'center'}}>{t.mainScopeNote}</div>}
+        {t.mainBasisNote && <div style={{padding:'0 6px 6px',fontSize:11,lineHeight:1.4,color:'#666',textAlign:'center'}}>{t.mainBasisNote}</div>}
         {/* Row 2: period stats (only if available) */}
         {t.showPeriodRow && (
           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', borderTop: '1px dashed #eee' }}>
@@ -131,27 +136,31 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
             <PeriodCell
               value={fmtYield(t.yield3m.valuePct)}
               label="Yield 3m"
-              note={t.platform === 'bet2invest' ? t.yield3m.note : undefined}
-              title={t.platform === 'bet2invest' ? t.yield3m.trace ?? undefined : undefined}
+              calculated={t.platform === 'olbg'}
+              note={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield3m.note : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield3m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield3m.valuePct)}
             />
             <PeriodCell
               value={fmtYield(t.yield6m.valuePct)}
               label="Yield 6m"
-              note={t.platform === 'bet2invest' ? t.yield6m.note : undefined}
-              title={t.platform === 'bet2invest' ? t.yield6m.trace ?? undefined : undefined}
+              calculated={t.platform === 'olbg'}
+              note={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield6m.note : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield6m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield6m.valuePct)}
             />
             <PeriodCell
               value={fmtYield(t.yield12m.valuePct)}
               label="Yield 12m"
-              note={t.platform === 'bet2invest' ? t.yield12m.note : undefined}
-              title={t.platform === 'bet2invest' ? t.yield12m.trace ?? undefined : undefined}
+              calculated={t.platform === 'olbg'}
+              note={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield12m.note : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' ? t.yield12m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield12m.valuePct)}
             />
             <PeriodCell
               value={t.picks6mAvg !== null ? `${Math.round(t.picks6mAvg)}` : '—'}
               label="P/mes 6m"
+              calculated={t.platform === 'olbg'}
             />
             {t.platform === 'blogabet' && t.isPaid && (
               <>
@@ -178,7 +187,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
         ? { background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6, minWidth: t.platform === 'bettingexpert' ? 205 : 174, width: t.platform === 'bettingexpert' ? 205 : 174 }
         : { background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6 }}>
         <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#6a5aa8' : '#82daca', color: '#fff', border: `1px solid ${t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#6a5aa8' : '#4dbfa2'}`, borderBottomWidth: 3, borderBottomColor: t.platform === 'tipstrr' ? '#2c5878' : t.platform === 'golazobets' ? '#2b3841' : t.platform === 'bet2invest' ? '#4f4180' : '#4dbfa2', borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
-          <i className="fa fa-external-link"></i> VER EN {t.platform === 'blogabet' ? 'BLOGABET' : t.platform === 'tipstrr' ? 'TIPSTRR' : t.platform === 'golazobets' ? 'GOLAZOBETS' : t.platform === 'bettingexpert' ? 'BETTINGEXPERT' : 'BET2INVEST'}
+          <i className="fa fa-external-link"></i> VER EN {t.platform === 'blogabet' ? 'BLOGABET' : t.platform === 'tipstrr' ? 'TIPSTRR' : t.platform === 'golazobets' ? 'GOLAZOBETS' : t.platform === 'olbg' ? 'OLBG' : t.platform === 'bettingexpert' ? 'BETTINGEXPERT' : 'BET2INVEST'}
         </a>
         {t.isPaid && t.priceLabel && (
           <div style={{ fontSize: 14, fontWeight: 700, color: '#333', textAlign: 'center', width: '100%', cursor: 'default', userSelect: 'none', whiteSpace: 'nowrap' }}>

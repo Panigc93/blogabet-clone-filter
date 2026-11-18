@@ -1,12 +1,10 @@
 'use client'
-import type { AuditedTipster } from '@/lib/bet2invest-period-contract'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Tipster } from '@/db/schema'
 import { TipsterRow } from './TipsterRow'
-import { fromDbTipster } from './tipster-card-model'
+import { fromDbTipster, type TipsterReadRow } from './tipster-card-model'
 
 interface LoadMoreProps {
-  initialRows: (Tipster & AuditedTipster)[]
+  initialRows: TipsterReadRow[]
   initialHasMore: boolean
   total: number
   periodAnchor?: string
@@ -14,7 +12,7 @@ interface LoadMoreProps {
 }
 
 export function LoadMore({ initialRows, initialHasMore, total, searchString, periodAnchor }: LoadMoreProps) {
-  const [extraRows, setExtraRows] = useState<(Tipster & AuditedTipster)[]>([])
+  const [extraRows, setExtraRows] = useState<TipsterReadRow[]>([])
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [loading, setLoading] = useState(false)
   const pageRef = useRef(1)
@@ -53,7 +51,7 @@ export function LoadMore({ initialRows, initialHasMore, total, searchString, per
     <>
       <div style={{ padding: '8px 0 4px', fontSize: 13, color: '#777', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span>Mostrando <strong>{shown} de {total}</strong> tipsters</span>
-        <span style={{ fontStyle: 'italic', color: '#bbb', fontSize: 11 }}>stats mensuales calculados sobre meses cerrados</span>
+        <span style={{ fontStyle: 'italic', color: '#bbb', fontSize: 11 }}>{initialRows.some(t=>t.platform==='olbg') ? 'periodos 3/6/12m sobre meses cerrados' : 'stats mensuales calculados sobre meses cerrados'}</span>
       </div>
       <div>
         {[...initialRows, ...extraRows].map(t => <TipsterRow key={t.id} tipster={fromDbTipster(t, periodAnchor ? new Date(periodAnchor) : new Date())} />)}

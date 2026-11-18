@@ -1,12 +1,12 @@
 import { continuationAnchor } from '@/lib/period-pagination-anchor'
-import { periodReadContext } from '@/lib/bet2invest-period-read'
+import { tipsterReadContext } from '@/lib/tipster-read-context'
 import { loadDatabasePeriodAudits } from '@/lib/bet2invest-period-index'
 import { parseActivity } from '@/lib/activity'
 import { activityWarning } from '@/lib/activity-query'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { buildFilters, ignoredWarning, bettingexpertApiProjection, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
+import { ignoredWarning, bettingexpertApiProjection, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and } from 'drizzle-orm'
 
 const PAGE_SIZE = 50
@@ -39,19 +39,21 @@ export async function GET(req: NextRequest) {
 
   const readAt = continuationAnchor(p.get('periodAnchor'), new Date())
   if (!readAt) return NextResponse.json({ reset: true, reason: 'period-anchor-expired' }, { status: 409 })
-  const periods = periodReadContext(await loadDatabasePeriodAudits(readAt), readAt)
-  const where = buildFilters(filters)
+  const periods = await tipsterReadContext(await loadDatabasePeriodAudits(readAt), readAt)
+  if (periods.changedSinceAnchor || p.has('olbgRevision') && p.get('olbgRevision') !== periods.revisionToken) return NextResponse.json({ reset: true, reason: 'olbg-evidence-updated' }, { status: 409 })
+  const where = periods.filters(filters)
 
   const rows = await db
     .select(periods.projection)
     .from(tipsters)
-    .leftJoin(periods.source, periods.joinOn)
+    .leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn)
     .where(where.length ? and(...where) : undefined)
     .orderBy(...periods.order(sort))
     .limit(PAGE_SIZE)
     .offset(page * PAGE_SIZE)
 
-  const warnings: string[] = []
+  if (!await periods.revisionUnchanged()) return NextResponse.json({ reset: true, reason: 'olbg-evidence-updated' }, { status: 409 })
+  const warnings: string[] = periods.warnings(filters)
   const profitNote = profitSortWarning(sort, filters.platform)
   if (profitNote) warnings.push(profitNote)
   const activityNote = activityWarning(filters.activityMonths, filters.activityUnknown)
