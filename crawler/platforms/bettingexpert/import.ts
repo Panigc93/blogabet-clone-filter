@@ -5,7 +5,7 @@ import type { BatchRow } from './batch'
 import { buildInsert } from '../tipstrr/insert-sql'
 import type { ImportDatabase, ImportTransaction } from '../bet2invest/execute-offline-import'
 export const MAX_IMPORT_BATCH = 250
-export type VerifiedRow = Extract<BatchRow, {ok:true}>
+export type VerifiedRow = Extract<BatchRow, {ok:true}> & {sourceEvidence?:{file:string;sha256:string;precision:'visible-profile-rounded'}}
 export function validateRows(rows: BatchRow[]): asserts rows is VerifiedRow[] {
   if (!rows.length || rows.length > MAX_IMPORT_BATCH) throw new Error('invalid-batch-size')
   const guids = new Set<string>(), slugs = new Set<string>()
@@ -13,6 +13,8 @@ export function validateRows(rows: BatchRow[]): asserts rows is VerifiedRow[] {
     if (!row.ok || row.scope !== 'profile-overall' || row.profitUnit !== 'bettingexpert-points' ||
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(row.guid) ||
       guids.has(row.guid) || slugs.has(row.username) || row.yield3m !== null || row.yield6m !== null || row.yield12m !== null) throw new Error('unverified-or-duplicate-source')
+    const evidence=(row as VerifiedRow).sourceEvidence
+    if(evidence && (!/^[0-9a-f]{64}$/.test(evidence.sha256)||evidence.precision!=='visible-profile-rounded'||!/^point\/[A-Za-z0-9_-]+\.json$/.test(evidence.file)))throw new Error('invalid-source-evidence')
     bettingexpertToInsert(row, -2000000000) // validation only; this id is never persisted
     guids.add(row.guid); slugs.add(row.username)
   }
@@ -56,7 +58,7 @@ export async function executeInsertBatch(db: ImportDatabase, input: {rows:BatchR
       const result=await tx.query<{id:number}>(q.text+' RETURNING id',q.params)
       if(result.rows.length!==1||Number(result.rows[0].id)!==ids[i])throw new Error('insert-receipt-mismatch')
       await tx.query('INSERT INTO import_validation_log (platform,slug,captured_at,class,reason,run_id) VALUES ($1,$2,$3,$4,$5,$6)',
-        ['bettingexpert',source.username,new Date(source.capturedAt),'accepted[profile-overall]',JSON.stringify({sourceGuid:source.guid,sourceUsername:source.username,profitUnit:source.profitUnit,scope:source.scope,batchSha256:check.inputSha256,codeRevision:input.codeRevision}),input.runId])
+        ['bettingexpert',source.username,new Date(source.capturedAt),'accepted[profile-overall]',JSON.stringify({sourceGuid:source.guid,sourceUsername:source.username,profitUnit:source.profitUnit,scope:source.scope,batchSha256:check.inputSha256,codeRevision:input.codeRevision,sourceEvidence:(source as VerifiedRow).sourceEvidence??{precision:'parsed-graphql-full'}}),input.runId])
       inserted.push({id:ids[i],guid:source.guid,slug:source.username})
     }
     return {inserted,inputSha256:check.inputSha256,runId:input.runId}

@@ -31,3 +31,11 @@ Measured storage change over all 9,211 rows: profit numeric(12,3) changes 139 ro
 Reconciled locally with master 57351da29ce3ee4d6db72ac084cc928613e580cf. Preserve B2I anchor/409/audit read and OLBG activation/revision/projection paths. BE periods masked before pagination and defensively in API/card. BE profit remains its own unit, combined profit sorting groups units rather than comparing them as money.
 
 Production remains blocked on independent review, live sequence preflight, final scope and authority. Period collector is not started by this code and is not imported here.
+
+## Extended catalogue capture and mixed precision
+
+The second independent capture has4303GraphQL aggregates and3HTML Overall fallbacks, total4306. Their individual capture times are preserved, not assigned the first run's time. Combined identified catalogue13517, not an exhaustive platform census. One additional GUID returns username null, so remains outside imports despite an aggregate. No ranking statistics are substituted.
+
+The three HTML rows carry sourceEvidence with retained file/hash and visible-profile-rounded precision, preserved in the same-transaction audit. GraphQL rows carry parsed-graphql-full precision. These labels describe source representation, not measurement accuracy. Numeric storage still rounds to existing columns. Rehearsal resolves its actual HEAD at runtime and records input-file digest.
+
+Durable request pacing persists started and completed timestamps independently of response interpretation, including STOP. Restart consults the same per-lane file. Missing completion waits the full15s request timeout plus11s; tests simulate restart after8s, with zero network. This fixes a documented8s fallback gap, it does not erase that historical exception. Existing718batch gaps were independently verified minimum10999ms. Point runner receipt is saved before STOP detection; embedded generic translation strings are not themselves a challenge. No point or capture request was made to test the fix.

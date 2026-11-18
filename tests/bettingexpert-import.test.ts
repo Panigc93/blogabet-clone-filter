@@ -17,10 +17,10 @@ describe('BE reviewed insert-only protocol',()=>{
   const pf=await preflight(pg,[row()]);expect(pf.inserts).toBe(1)
   const seqBefore=(await pg.query('SELECT last_value,is_called FROM tipsters_internal_id_seq')).rows
   await preflight(pg,[row()]);expect((await pg.query('SELECT last_value,is_called FROM tipsters_internal_id_seq')).rows).toEqual(seqBefore)
-  const db:ImportDatabase={transaction:fn=>pg.transaction(tx=>fn(tx))};const result=await executeInsertBatch(db,input([row()]));expect(result.inserted[0].id).toBe(-2000000000)
+  const db:ImportDatabase={transaction:fn=>pg.transaction(tx=>fn(tx))};const html={...row(),sourceEvidence:{file:'point/One.json',sha256:'b'.repeat(64),precision:'visible-profile-rounded' as const}};const result=await executeInsertBatch(db,input([html]));expect(result.inserted[0].id).toBe(-2000000000)
   const stored=(await pg.query('SELECT * FROM tipsters WHERE platform=$1',['bettingexpert'])).rows[0]as any
   expect(Number(stored.profit)).toBe(2.235);expect(Number(stored.yield)).toBe(1.23);expect(stored.yield_3m).toBeNull();expect(stored.slug).toBe('One')
-  const log=(await pg.query('SELECT reason FROM import_validation_log')).rows[0]as any;expect(JSON.parse(log.reason).sourceGuid).toBe(row().guid)
+  const log=(await pg.query('SELECT reason FROM import_validation_log')).rows[0]as any;expect(JSON.parse(log.reason).sourceGuid).toBe(row().guid);expect(JSON.parse(log.reason).sourceEvidence).toEqual(html.sourceEvidence)
   expect((await pg.query("SELECT * FROM tipsters WHERE platform='blogabet'")).rows).toEqual(before.rows)
   await expect(executeInsertBatch(db,input([row()]))).rejects.toThrow('existing-identity');expect((await pg.query('SELECT count(*)::int n FROM tipsters')).rows).toEqual([{n:2}])
  }finally{await pg.close()}},20000)
