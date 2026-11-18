@@ -7,6 +7,7 @@ import {tipsters} from '@/db/schema'
 import {tipsterReadContext} from './tipster-read-context'
 import {loadDatabasePeriodAudits} from './bet2invest-period-index'
 import {loadCommonPublishedMonthlyPage} from './olbg-common-list-loader'
+import {loadDatabasePublishedMonthlySnapshot} from './olbg-product-database-loader'
 import type {TipsterFilters,SortField} from './query'
 import type {CommonMonthlyRequest} from './olbg-common-list-candidate'
 import type {TipsterReadRow} from '@/components/tipster-card-model'
@@ -25,8 +26,9 @@ export function monthlyExistingRequest(p:URLSearchParams,filters:TipsterFilters,
 }
 export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:TipsterFilters,sort:SortField,at:Date){
  if(!monthlyExistingRoutesEnabled())throw Error('Existing-route monthly candidate disabled')
- const file=process.env.OLBG_MONTHLY_SNAPSHOT_FILE,digest=process.env.OLBG_MONTHLY_SNAPSHOT_SHA256
- if(!file||!digest)throw Error('Pinned monthly source required')
+ const source=process.env.NODE_ENV==='production'
+  ?{readMonthlySnapshot:loadDatabasePublishedMonthlySnapshot}
+  :{monthlyFile:process.env.OLBG_MONTHLY_SNAPSHOT_FILE,monthlySha256:process.env.OLBG_MONTHLY_SNAPSHOT_SHA256}
  const context=await tipsterReadContext(await loadDatabasePeriodAudits(at),at)
  if(context.changedSinceAnchor)throw Error('Evidence updated after pagination anchor')
  const read=async()=>{
@@ -39,7 +41,7 @@ export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:Tipste
   return {rows:rows as TipsterReadRow[],revision,complete:true as const,readAt:at.toISOString()}
  }
  const request=monthlyExistingRequest(p,filters,sort)
- const page=await loadCommonPublishedMonthlyPage({monthlyFile:file,monthlySha256:digest,request,readBaseline:read,
+ const page=await loadCommonPublishedMonthlyPage({...source,request,readBaseline:read,
   // One SELECT is a coherent PostgreSQL statement snapshot. The next page
   // performs a fresh SELECT and compares its semantic digest to the cursor.
   atomicStatementSnapshot:true,sourceContextUnchanged:()=>context.revisionUnchanged(),
