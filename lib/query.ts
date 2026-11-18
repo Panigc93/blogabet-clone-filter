@@ -1,9 +1,10 @@
+import {beClientEligible,type BEClientAudit} from './bettingexpert-period-contract'
 import { activityCondition } from './activity-query'
 import { eq, gt, gte, ilike, isNotNull, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
 export interface TipsterFilters {
-  platform?: 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'olbg' // undefined = all platforms (callers: default to 'blogabet')
+  platform?: 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'bettingexpert' | 'olbg' // undefined = all platforms (callers: default to 'blogabet')
   search?: string
   tipo?: 'all' | 'free' | 'paid'
   minYield?: number
@@ -130,7 +131,7 @@ export function ignoredWarning(params: TipsterFilters): string | null {
   const vista = params.platform === 'tipstrr' ? 'la vista Tipstrr'
     : params.platform === 'olbg' ? 'la vista OLBG'
     : params.platform === 'bet2invest' ? 'la vista Bet2Invest'
-    : 'la vista de todas las plataformas'
+    : params.platform === 'bettingexpert' ? 'la vista Bettingexpert' : 'la vista de todas las plataformas'
   const fx = ignored.includes('price')
     ? ' Blogabet cobra en € y Tipstrr en £, no comparables sin conversión (no inventamos tipos de cambio): los precios se muestran en su moneda.'
     : ''
@@ -143,7 +144,7 @@ export function ignoredWarning(params: TipsterFilters): string | null {
 // NO es un ranking global de beneficio.
 export function profitSortWarning(sort: SortField, platform: TipsterFilters['platform']): string | null {
   if (sort !== 'profit' || platform !== undefined) return null
-  return 'Orden por beneficio agrupado por unidad (u Bet2Invest, € Blogabet, u Golazobets, u Tipstrr): no son comparables entre si; no es un ranking global de beneficio.'
+  return 'Orden por beneficio agrupado por unidad (u Bet2Invest, pt BE Bettingexpert, € Blogabet, u Golazobets, u Tipstrr): no son comparables entre si; no es un ranking global de beneficio.'
 }
 
 export function sortColumn(sort: SortField) {
@@ -153,9 +154,9 @@ export function sortColumn(sort: SortField) {
     case 'followers':   return tipsters.followers
     case 'since_year':  return tipsters.sinceYear
     case 'price':       return tipsters.price
-    case 'yield6m':     return tipsters.yield6m
-    case 'yield12m':    return tipsters.yield12m
-    case 'picks6m_avg': return tipsters.picks6mAvg
+    case 'yield6m':     return bettingexpertPeriodColumn(tipsters.yield6m)
+    case 'yield12m':    return bettingexpertPeriodColumn(tipsters.yield12m)
+    case 'picks6m_avg': return bettingexpertPeriodColumn(tipsters.picks6mAvg)
     default:            return tipsters.yield
   }
 }
@@ -176,4 +177,14 @@ export function sortOrder(sort: SortField): SQL[] {
     sql`${sortColumn(sort)} DESC NULLS LAST`,
     sql`${tipsters.id} DESC`,
   ]
+}
+
+// Must be evaluated in SQL before ORDER/LIMIT/OFFSET, never only in cards.
+export function bettingexpertPeriodColumn(column: typeof tipsters.yield6m | typeof tipsters.yield12m | typeof tipsters.picks6mAvg) {
+  return sql<string | null>`CASE WHEN ${tipsters.platform} = 'bettingexpert' THEN NULL ELSE ${column} END`
+}
+export function bettingexpertApiProjection<T extends {platform:string}>(row:T,now=new Date()):T {
+  const r=row as T & {slug:string;capturedAt:Date|null;beAudit?:BEClientAudit}
+  if(r.platform==='bettingexpert'&&beClientEligible(r.beAudit,r.slug,r.capturedAt,now))return {...row,yield3m:r.beAudit!.windows[3].value,yield6m:r.beAudit!.windows[6].value,yield12m:r.beAudit!.windows[12].value,picks6mAvg:r.beAudit!.windows[6].value!==null?String(r.beAudit!.windows[6].picks!/6):null,picksFree3mAvg:null,yieldFree3m:null}
+  return row.platform === 'bettingexpert' ? { ...row, yield3m: null, yield6m: null, yield12m: null, picks6mAvg: null, picksFree3mAvg: null, yieldFree3m: null } : row
 }

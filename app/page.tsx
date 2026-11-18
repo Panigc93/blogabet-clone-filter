@@ -47,11 +47,11 @@ export default async function Home({ searchParams }: PageProps) {
   const whereClause = where.length ? and(...where) : undefined
 
   const [rows, [{ value: total }]] = await Promise.all([
-    db.select(periods.projection).from(tipsters).leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn)
+    db.select(periods.projection).from(tipsters).leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn).leftJoin(periods.be.source, periods.be.joinOn)
       .where(whereClause)
       .orderBy(...periods.order(sort))
       .limit(PAGE_SIZE),
-    db.select({ value: count() }).from(tipsters).leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn).where(whereClause),
+    db.select({ value: count() }).from(tipsters).leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn).leftJoin(periods.be.source, periods.be.joinOn).where(whereClause),
   ])
 
   if (!await periods.revisionUnchanged()) redirect(refreshUrl)
@@ -59,6 +59,7 @@ export default async function Home({ searchParams }: PageProps) {
   const hasMore = rows.length === PAGE_SIZE
   const continuation = new URLSearchParams(searchParams as Record<string, string>)
   continuation.set('periodAnchor', readAt.toISOString())
+  if (periods.beRevision !== null) continuation.set('beRevision',periods.beRevision)
   if (periods.revisionToken !== null) continuation.set('olbgRevision', periods.revisionToken)
   const searchString = continuation.toString()
 

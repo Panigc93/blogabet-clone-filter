@@ -61,7 +61,7 @@ export function olbgReadContext(base: ReturnType<typeof periodReadContext>, enab
     yield3m: period(3, base.projection.yield3m),
     yield6m: period(6, base.projection.yield6m),
     yield12m: period(12, base.projection.yield12m),
-    picks6mAvg: sql<string | null>`CASE WHEN ${tipsters.platform} = 'olbg' THEN CASE WHEN (olbg_stats.compact->'windows'->1->>'present')::int=6 THEN (olbg_stats.compact->'windows'->1->>'tips')::numeric/6 ELSE NULL END ELSE ${tipsters.picks6mAvg} END`,
+    picks6mAvg: sql<string | null>`CASE WHEN ${tipsters.platform} = 'olbg' THEN CASE WHEN (olbg_stats.compact->'windows'->1->>'present')::int=6 THEN (olbg_stats.compact->'windows'->1->>'tips')::numeric/6 ELSE NULL END ELSE ${base.projection.picks6mAvg} END`,
     olbgEvidence: sql<unknown>`CASE WHEN ${tipsters.platform} = 'olbg' THEN olbg_stats.compact - 'snapshotHash' ELSE NULL END`,
   }
   return {

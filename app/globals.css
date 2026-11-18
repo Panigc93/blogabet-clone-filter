@@ -95,3 +95,13 @@ a {
 
   .filterbar-search { width: 100% !important; }
 }
+
+/* Bettingexpert has source-specific point labels and small negative yields.
+   Keep the existing card; scope width/typography changes to this source. */
+.tipster-bettingexpert .stat-cell .number { font-size: 18px !important; }
+.tipster-bettingexpert .stat-cell:nth-child(3) .number { font-size: 15px !important; white-space: nowrap; }
+@media (min-width: 769px) {
+  .tipster-bettingexpert .tipster-left { width: 320px; }
+  .tipster-bettingexpert .stat-cell { min-width: 45px; }
+  .tipster-bettingexpert .stat-cell:nth-child(3) { min-width: 116px; }
+}
