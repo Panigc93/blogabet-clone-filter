@@ -119,3 +119,59 @@ existing Historial parcial detail. The ordinary Yield min/max and sort remain
 the only yield controls. No accounting or filter semantics changed in this
 visual-only revision. The published-month route mode remains available for
 review; the source table is always present in each estimated card's detail.
+
+## Release preflight candidate, NOT deployment approval
+
+This document records implementation and verification only. It grants no
+permission to upload, change settings, merge, publish, or write production DB.
+Product decisions belong to the authenticated conversation. Recover the
+original messages when executing later; this repository is not their authority.
+Relevant review anchors: user chose estimated global yield 2026-11-18 13:53,
+compact estimate marker/normal Yield filter 14:04, orange button 14:19, and
+approved history placement above the button at 14:30 local Europe/Madrid.
+
+A separate server flag `OLBG_PUBLISHED_ESTIMATES=1` can now select existing
+home/API routes in a production build; it defaults OFF. LAB_PREVIEW variables
+cannot enable this production path. The production flag does not enable labs
+or legacy fixed-stake OLBG activation. No environment has been changed.
+
+A private untracked `.private-data/olbg/*.json` can be traced into the server
+functions for `/` and `/api/tipsters`. Local production build confirms both
+Next trace manifests include the artifact; a production-runtime local smoke
+confirms the raw URL returns404, OLBG labs404, and the estimate renders. The
+artifact must be supplied separately to an authorized deployment; a Git-based
+build cannot magically read this local file. No raw file has entered Git.
+No connected project storage was shown in Vercel's project Storage page on
+2026-11-18. No Blob/service/account was created.
+
+IMPORTANT: current middleware excludes `/api/tipsters` from authentication.
+This is pre-existing. Home requires login, raw artifact has no served URL,
+but the API delivers projected listing data without login. Do not describe
+these data as accessible only to authenticated visitors. This preflight does
+not change that audience or authorize a future disclosure.
+
+The original complete-row revision guard restarted reads during harmless
+crawler refreshes: four `statsUpdatedAt` values changed between two complete
+SELECTs while row identity/order and every other field remained identical.
+The proposed semantic fingerprint excludes ONLY statsUpdatedAt, which no
+current card/filter/order reads. Every other existing or future field remains
+in the hash, including capturedAt, avatar, identity, classification, activity,
+audit evidence, metrics, row membership and SQL ordering. Both adapter digest
+and before/after baseline guard use this function; changing only one would
+leave the refresh-reset bug. Tests pin these distinctions. No auth or source
+staleness checks are removed.
+
+Read-only live baseline benchmark on the established DB:13175 non-OLBG rows,
+11.3MB JSON per full SELECT, two SELECTs2.73s/2.32s, total context/read/merge
+6.94s, RSS325MB; merged total13736. These are one local-process observation,
+not Vercel latency/concurrency guarantees. The DB was not written. Refresh
+metadata changed but the semantic revision stayed pinned. Current reader still
+reads the full baseline twice per request; safe optimization remains separate
+from this guard correction and must not silently use stale cached metrics.
+
+Reproduce locally: build with the private artifact in the ignored directory,
+then run `scripts/check-olbg-production-runtime.mjs DISPOSABLE_PGLITE_DIR
+ABSOLUTE_PRIVATE_SNAPSHOT_PATH`. It refuses live DB credentials. The optional
+`check-olbg-production-baseline.ts CREDENTIAL_FILE SNAPSHOT` is a bounded
+read-only live benchmark; never put the credential or raw rows in logs or
+review packages. No scheduled collection or persistent crawler is created.

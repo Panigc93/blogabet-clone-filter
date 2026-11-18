@@ -1,17 +1,16 @@
 // Candidate mount for EXISTING home/API paths, non-production opt-in only.
 // Reads complete baseline through normal read context; never writes DB.
 import {and,ne} from 'drizzle-orm'
-import {createHash} from 'node:crypto'
+import {semanticBaselineRevision,publishedEstimateRoutesEnabled} from './olbg-release-read-guard'
 import {db} from '@/db'
 import {tipsters} from '@/db/schema'
 import {tipsterReadContext} from './tipster-read-context'
 import {loadDatabasePeriodAudits} from './bet2invest-period-index'
 import {loadCommonPublishedMonthlyPage} from './olbg-common-list-loader'
-import {commonMonthlyLocalEnabled} from './olbg-common-local-read'
 import type {TipsterFilters,SortField} from './query'
 import type {CommonMonthlyRequest} from './olbg-common-list-candidate'
 import type {TipsterReadRow} from '@/components/tipster-card-model'
-export const monthlyExistingRoutesEnabled=commonMonthlyLocalEnabled
+export const monthlyExistingRoutesEnabled=publishedEstimateRoutesEnabled
 export function monthlyExistingRequest(p:URLSearchParams,filters:TipsterFilters,sort:SortField):CommonMonthlyRequest{
  const n=(k:string)=>p.has(k)&&p.get(k)!==''?Number(p.get(k)):undefined
  const estimate=p.get('olbgView')!=='monthly'&&!p.has('olbgMonthlyOrder')&&!p.has('olbgRoiMin')&&!p.has('olbgProfitMin')&&!p.has('olbgPicksMin')
@@ -36,7 +35,7 @@ export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:Tipste
   const conditions=[...context.filters(filters),ne(tipsters.platform,'olbg')]
   const rows=await db.select(context.projection).from(tipsters).leftJoin(context.base.source,context.base.joinOn).leftJoin(context.olbg.source,context.olbg.joinOn)
    .where(and(...conditions)).orderBy(...context.order(sort))
-  const revision=createHash('sha256').update(JSON.stringify(rows)).digest('hex')
+  const revision=semanticBaselineRevision(rows)
   return {rows:rows as TipsterReadRow[],revision,complete:true as const,readAt:at.toISOString()}
  }
  const request=monthlyExistingRequest(p,filters,sort)

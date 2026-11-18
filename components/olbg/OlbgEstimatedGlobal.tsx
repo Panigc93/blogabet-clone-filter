@@ -4,7 +4,6 @@ import type {GlobalYieldEstimate} from '@/lib/olbg-estimated-global'
 export interface OlbgEstimates {global:GlobalYieldEstimate;three:GlobalYieldEstimate;six:GlobalYieldEstimate;twelve:GlobalYieldEstimate}
 const fmt=(n:number)=>new Intl.NumberFormat('es-ES',{maximumFractionDigits:2}).format(n)
 const pct=(n:number|null)=>n===null?'—':`${n>0?'+':''}${n.toFixed(1).replace('.',',')}%`
-const short=(m:string)=>new Intl.DateTimeFormat('es-ES',{month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(m+'-01T00:00:00Z')).replace(' de ',' ')
 const bound=(v:number,lower:boolean)=>(lower?Math.floor(v*10):Math.ceil(v*10))/10
 export function OlbgEstimatedGlobal({estimates,source,sinceYear}:{estimates:OlbgEstimates;source:MonthlyDisplay;sinceYear:number|null}){
  const e=estimates.global
