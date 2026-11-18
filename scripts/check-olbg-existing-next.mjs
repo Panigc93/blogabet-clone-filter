@@ -82,6 +82,8 @@ try{
  assert.match(await page.locator('.tipster-block').innerText(),/est\./)
  assert.doesNotMatch(await page.locator('.tipster-block').innerText(),/meses disponibles/)
  assert.match(await page.locator('.tipster-block').innerText(),/12,0%/)
+ assert.equal(await page.locator('.tipster-left img').evaluate(i=>i.complete&&i.naturalWidth>0),true)
+ assert.equal(await page.locator('.tipster-right a').evaluate(a=>getComputedStyle(a).backgroundColor),'rgb(233, 138, 21)')
  await page.screenshot({path:'/downloads/olbg-estimated-mobile.png'})
  await page.setViewportSize({width:1280,height:1000})
  await page.screenshot({path:'/downloads/olbg-estimated-desktop.png'})

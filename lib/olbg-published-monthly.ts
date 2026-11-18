@@ -1,3 +1,4 @@
+import {validateOlbgAvatarUrl} from './olbg-approved-avatar'
 // Preparation only. No network, DB, activation or fixed-stake yield calculation.
 export interface PublishedMonth {
   month: string
@@ -9,6 +10,7 @@ export interface PublishedMonth {
 export interface PublishedMonthlyProfile {
   id: number
   name: string
+  avatarUrl?:string|null
   joinedAt: string
   capturedAt: string
   sourceUrl: string
@@ -44,6 +46,7 @@ export function publishedMonth(row: Record<string, unknown>): PublishedMonth {
 }
 export function validateMonthlyProfile(p: PublishedMonthlyProfile): PublishedMonthlyProfile {
   if (!Number.isSafeInteger(p.id) || p.id <= 0 || !p.name.trim()) throw Error('Invalid identity')
+  if(p.avatarUrl!==undefined&&p.avatarUrl!==null)validateOlbgAvatarUrl(p.avatarUrl)
   const u = new URL(p.sourceUrl)
   if (u.origin !== 'https://www.olbg.com' || u.pathname !== `/tipsters/about/${p.id}` || u.search || u.hash || u.username || u.password) throw Error('Identity URL mismatch')
   if (!/^\d{4}-\d\d-\d\d$/.test(p.joinedAt) || new Date(p.joinedAt+'T00:00:00Z').toISOString().slice(0,10)!==p.joinedAt) throw Error('Invalid join date')

@@ -1,3 +1,4 @@
+import {approvedOlbgAvatar} from '../lib/olbg-approved-avatar'
 // Offline projection of retained accepted contracts. No network/DB imports.
 // npx tsx scripts/project-olbg-published-monthly.ts CAPTURE_DIR OUTPUT_JSON
 import fs from 'node:fs'
@@ -25,7 +26,7 @@ const profiles:PublishedMonthlyProfile[]=accepted.map(p=>{
  const opts=readOlbgNodeField(n,'monthFilterOptions') as {id:number;label:string}[]
  if(!opts.some(x=>x.id===60&&x.label==='All Tips'))throw Error('Missing scope label')
  if(readOlbgNodeField(n,'tipsterUsername')!==p.username)throw Error('Name mismatch')
- return validateMonthlyProfile({id:p.id,name:p.username,joinedAt:readOlbgNodeField(about,'joinDate') as string,
+ return validateMonthlyProfile({id:p.id,name:p.username,avatarUrl:approvedOlbgAvatar(about,p.id),joinedAt:readOlbgNodeField(about,'joinDate') as string,
   capturedAt:new Date(receipt.ts*1000).toISOString(),sourceUrl:`https://www.olbg.com/tipsters/about/${p.id}`,
   months:(readOlbgNodeField(n,'monthRows') as Record<string,unknown>[]).map(publishedMonth)})
 })
