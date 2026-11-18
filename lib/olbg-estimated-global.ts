@@ -1,11 +1,13 @@
 // Conditional reconstruction, NOT an OLBG-published global yield.
 // Profit exactness, common accounting basis and both rounding rules are
 // hypotheses. The envelope measures those hypotheses, not actual error.
+import {profitToleranceRange} from './olbg-midpoint-range'
 import {validateMonthlyProfile,type PublishedMonthlyProfile,type PublishedMonth} from './olbg-published-monthly'
 export type EstimateScope='available-closed'|3|6|12
 export interface ConditionalRange {lowerPct:number;upperPct:number;widthPP:number;stakeUpperUnbounded:boolean}
 export interface GlobalYieldEstimate {
  version:1;scope:EstimateScope;status:'estimated'|'interval-only'|'unavailable'
+ centralConvention?:'interval-midpoint-profit-tolerance-1';profitTolerance?:1
  centralPct:number|null;range:ConditionalRange|null
  nearest:ConditionalRange|null;truncation:ConditionalRange|null
  from:string|null;to:string|null;monthsUsed:string[];missingMonths:string[]
@@ -52,7 +54,17 @@ export function estimateGlobalYield(profile:PublishedMonthlyProfile,scope:Estima
  if(!nearest||!truncation)return {...result,reason:'inconsistent-source'}
  const lowerPct=Math.min(nearest.lowerPct,truncation.lowerPct),upperPct=Math.max(nearest.upperPct,truncation.upperPct)
  const range={lowerPct,upperPct,widthPP:upperPct-lowerPct,stakeUpperUnbounded:nearest.stakeUpperUnbounded||truncation.stakeUpperUnbounded}
- if(rows.some(m=>m.picks>0&&m.roiPublished===0))return {...result,nearest,truncation,range,status:'interval-only',reason:'zero-roi'}
+ if(rows.some(m=>m.picks>0&&m.roiPublished===0)){
+  // Juan approved midpoint ONLY for global intervals of width<=2pp.
+  // Use the independently checked Profit +/-1 envelope, not the narrower
+  // original exact-Profit range. Never change existing central estimates or
+  // silently turn a short period into global coverage.
+  if(scope==='available-closed'){
+   const tolerant=profitToleranceRange(rows)
+   if(tolerant&&tolerant.widthPP<=2)return {...result,nearest,truncation,range:tolerant,status:'estimated',reason:'zero-roi',centralPct:(tolerant.lowerPct+tolerant.upperPct)/2,centralConvention:'interval-midpoint-profit-tolerance-1',profitTolerance:1}
+  }
+  return {...result,nearest,truncation,range,status:'interval-only',reason:'zero-roi'}
+ }
  const stake=rows.reduce((n,m)=>n+(m.picks===0?0:100*m.profitPublished/m.roiPublished!),0)
  const centralPct=100*result.profitSource/stake
  if(!Number.isFinite(centralPct)||stake<=0)return {...result,reason:'inconsistent-source'}

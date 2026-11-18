@@ -23,7 +23,7 @@ export interface CommonListEntry {key:string;card:TipsterCardData;sortValues?:Re
 export interface CommonListPage {rows:CommonListEntry[];total:number;nextCursor:string|null;revision:string;scopeNote:string;availableMonths:string[]}
 const key=(c:TipsterCardData)=>`${c.platform}:${c.sourceUrl}`
 function queryIdentity(q:CommonMonthlyRequest):string{
- return JSON.stringify({search:q.search??'',order:q.order,month:q.monthly.month,minResultMonths:q.monthly.minResultMonths??null,
+ return JSON.stringify({estimateMethod:'global-midpoint-profit1-max2-v1',search:q.search??'',order:q.order,month:q.monthly.month,minResultMonths:q.monthly.minResultMonths??null,
   roiMin:q.monthly.roiMin??null,profitMin:q.monthly.profitMin??null,picksMin:q.monthly.picksMin??null,
   estimate:q.estimate??false,minCommonPicks:q.minCommonPicks??null,minCommonYield:q.minCommonYield??null,maxCommonYield:q.maxCommonYield??null,excludeMonthly:q.excludeMonthly??false,baselineFilterKey:q.baselineFilterKey??null,pageSize:q.pageSize})
 }

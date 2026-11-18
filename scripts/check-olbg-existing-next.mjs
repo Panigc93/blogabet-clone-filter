@@ -44,8 +44,8 @@ try{
  }
  const all=await read('platform=all',true)
  const sourceEstimates=all.rows.filter(r=>r.card.platform==='olbg')
- assert.equal(sourceEstimates.filter(r=>r.card.olbgEstimates.global.status==='estimated').length,450)
- assert.equal(sourceEstimates.filter(r=>r.card.olbgEstimates.global.status==='interval-only'&&r.card.yieldPct===null).length,111)
+ assert.equal(sourceEstimates.filter(r=>r.card.olbgEstimates.global.status==='estimated').length,469)
+ assert.equal(sourceEstimates.filter(r=>r.card.olbgEstimates.global.status==='interval-only'&&r.card.yieldPct===null).length,92)
  for(const query of ['minYield=10','maxYield=10','minPicks=300']){
   const filtered=await read('platform=olbg&'+query,true)
   const [field,value]=query.split('=');assert.ok(filtered.rows.every(r=>field==='minPicks'?r.card.picks>=Number(value):r.card.yieldPct!==null&&(field==='minYield'?r.card.yieldPct>=Number(value):r.card.yieldPct<=Number(value))))

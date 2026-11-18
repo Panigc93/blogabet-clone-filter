@@ -10,7 +10,7 @@ describe('conditional estimated global OLBG yield',()=>{
   expect(e.monthsUsed).toEqual(['2026-09','2026-10']);expect(e.range!.lowerPct).toBeLessThanOrEqual(e.centralPct!)
   expect(e.range!.upperPct).toBeGreaterThanOrEqual(e.centralPct!)
  })
- it('never imputes a stake or central estimate to zero ROI, including zero-profit rows',()=>{
+ it('does not impute stake or a midpoint when the zero-ROI global interval exceeds2pp',()=>{
   for(const profit of [0,4,-4]){
    const e=estimateGlobalYield(profile([['Sep 2026',10,profit,0],['Oct 2026',10,100,10]]))
    expect(e.centralPct).toBeNull();expect(e.status).toBe('interval-only');expect(e.range!.stakeUpperUnbounded).toBe(true)
