@@ -1,0 +1,413 @@
+[
+  {
+    "id": 280,
+    "name": "Grobler",
+    "joinedAt": "2004-06-01",
+    "capturedAt": "2026-11-18T00:16:46.658000Z",
+    "sourceUrl": "https://www.olbg.com/tipsters/about/280",
+    "months": [
+      {
+        "month": "2026-11",
+        "picks": 407,
+        "roiPublished": -6,
+        "profitPublished": -1302.0,
+        "source": {
+          "date": "Nov 2026",
+          "tips": "407",
+          "roi": "-6%",
+          "profit": "-1,302"
+        }
+      },
+      {
+        "month": "2026-10",
+        "picks": 525,
+        "roiPublished": -16,
+        "profitPublished": -4212.0,
+        "source": {
+          "date": "Oct 2026",
+          "tips": "525",
+          "roi": "-16%",
+          "profit": "-4,212"
+        }
+      },
+      {
+        "month": "2026-09",
+        "picks": 642,
+        "roiPublished": -5,
+        "profitPublished": -1652.0,
+        "source": {
+          "date": "Sep 2026",
+          "tips": "642",
+          "roi": "-5%",
+          "profit": "-1,652"
+        }
+      },
+      {
+        "month": "2026-08",
+        "picks": 665,
+        "roiPublished": -13,
+        "profitPublished": -4417.0,
+        "source": {
+          "date": "Aug 2026",
+          "tips": "665",
+          "roi": "-13%",
+          "profit": "-4,417"
+        }
+      },
+      {
+        "month": "2026-07",
+        "picks": 513,
+        "roiPublished": -14,
+        "profitPublished": -3708.0,
+        "source": {
+          "date": "Jul 2026",
+          "tips": "513",
+          "roi": "-14%",
+          "profit": "-3,708"
+        }
+      },
+      {
+        "month": "2026-06",
+        "picks": 910,
+        "roiPublished": -6,
+        "profitPublished": -2734.0,
+        "source": {
+          "date": "Jun 2026",
+          "tips": "910",
+          "roi": "-6%",
+          "profit": "-2,734"
+        }
+      },
+      {
+        "month": "2026-05",
+        "picks": 385,
+        "roiPublished": -17,
+        "profitPublished": -3233.0,
+        "source": {
+          "date": "May 2026",
+          "tips": "385",
+          "roi": "-17%",
+          "profit": "-3,233"
+        }
+      },
+      {
+        "month": "2026-04",
+        "picks": 553,
+        "roiPublished": -11,
+        "profitPublished": -3223.0,
+        "source": {
+          "date": "Apr 2026",
+          "tips": "553",
+          "roi": "-11%",
+          "profit": "-3,223"
+        }
+      },
+      {
+        "month": "2026-03",
+        "picks": 615,
+        "roiPublished": -8,
+        "profitPublished": -2469.0,
+        "source": {
+          "date": "Mar 2026",
+          "tips": "615",
+          "roi": "-8%",
+          "profit": "-2,469"
+        }
+      },
+      {
+        "month": "2026-02",
+        "picks": 815,
+        "roiPublished": -5,
+        "profitPublished": -2269.0,
+        "source": {
+          "date": "Feb 2026",
+          "tips": "815",
+          "roi": "-5%",
+          "profit": "-2,269"
+        }
+      },
+      {
+        "month": "2026-01",
+        "picks": 839,
+        "roiPublished": -13,
+        "profitPublished": -5587.0,
+        "source": {
+          "date": "Jan 2026",
+          "tips": "839",
+          "roi": "-13%",
+          "profit": "-5,587"
+        }
+      },
+      {
+        "month": "2025-12",
+        "picks": 782,
+        "roiPublished": 13,
+        "profitPublished": 5069.0,
+        "source": {
+          "date": "Dec 2025",
+          "tips": "782",
+          "roi": "13%",
+          "profit": "5,069"
+        }
+      },
+      {
+        "month": "2025-11",
+        "picks": 578,
+        "roiPublished": -4,
+        "profitPublished": -1263.0,
+        "source": {
+          "date": "Nov 2025",
+          "tips": "578",
+          "roi": "-4%",
+          "profit": "-1,263"
+        }
+      }
+    ]
+  },
+  {
+    "id": 26244,
+    "name": "BillShut",
+    "joinedAt": "2007-01-30",
+    "capturedAt": "2026-11-18T00:40:50.809000Z",
+    "sourceUrl": "https://www.olbg.com/tipsters/about/26244",
+    "months": [
+      {
+        "month": "2026-11",
+        "picks": 68,
+        "roiPublished": 51,
+        "profitPublished": 5247.0,
+        "source": {
+          "date": "Nov 2026",
+          "tips": "68",
+          "roi": "51%",
+          "profit": "5,247"
+        }
+      },
+      {
+        "month": "2026-10",
+        "picks": 130,
+        "roiPublished": -19,
+        "profitPublished": -3100.0,
+        "source": {
+          "date": "Oct 2026",
+          "tips": "130",
+          "roi": "-19%",
+          "profit": "-3,100"
+        }
+      },
+      {
+        "month": "2026-09",
+        "picks": 154,
+        "roiPublished": -21,
+        "profitPublished": -4708.0,
+        "source": {
+          "date": "Sep 2026",
+          "tips": "154",
+          "roi": "-21%",
+          "profit": "-4,708"
+        }
+      },
+      {
+        "month": "2026-08",
+        "picks": 135,
+        "roiPublished": -8,
+        "profitPublished": -2153.0,
+        "source": {
+          "date": "Aug 2026",
+          "tips": "135",
+          "roi": "-8%",
+          "profit": "-2,153"
+        }
+      },
+      {
+        "month": "2026-07",
+        "picks": 113,
+        "roiPublished": -34,
+        "profitPublished": -5000.0,
+        "source": {
+          "date": "Jul 2026",
+          "tips": "113",
+          "roi": "-34%",
+          "profit": "-5,000"
+        }
+      },
+      {
+        "month": "2026-06",
+        "picks": 200,
+        "roiPublished": -4,
+        "profitPublished": -1599.0,
+        "source": {
+          "date": "Jun 2026",
+          "tips": "200",
+          "roi": "-4%",
+          "profit": "-1,599"
+        }
+      },
+      {
+        "month": "2026-05",
+        "picks": 116,
+        "roiPublished": -23,
+        "profitPublished": -2950.0,
+        "source": {
+          "date": "May 2026",
+          "tips": "116",
+          "roi": "-23%",
+          "profit": "-2,950"
+        }
+      },
+      {
+        "month": "2026-04",
+        "picks": 151,
+        "roiPublished": -25,
+        "profitPublished": -4900.0,
+        "source": {
+          "date": "Apr 2026",
+          "tips": "151",
+          "roi": "-25%",
+          "profit": "-4,900"
+        }
+      },
+      {
+        "month": "2026-03",
+        "picks": 192,
+        "roiPublished": 10,
+        "profitPublished": 4238.0,
+        "source": {
+          "date": "Mar 2026",
+          "tips": "192",
+          "roi": "10%",
+          "profit": "4,238"
+        }
+      },
+      {
+        "month": "2026-02",
+        "picks": 90,
+        "roiPublished": -45,
+        "profitPublished": -4700.0,
+        "source": {
+          "date": "Feb 2026",
+          "tips": "90",
+          "roi": "-45%",
+          "profit": "-4,700"
+        }
+      },
+      {
+        "month": "2026-01",
+        "picks": 213,
+        "roiPublished": -7,
+        "profitPublished": -3521.0,
+        "source": {
+          "date": "Jan 2026",
+          "tips": "213",
+          "roi": "-7%",
+          "profit": "-3,521"
+        }
+      },
+      {
+        "month": "2025-12",
+        "picks": 118,
+        "roiPublished": -9,
+        "profitPublished": -2759.0,
+        "source": {
+          "date": "Dec 2025",
+          "tips": "118",
+          "roi": "-9%",
+          "profit": "-2,759"
+        }
+      },
+      {
+        "month": "2025-11",
+        "picks": 101,
+        "roiPublished": -17,
+        "profitPublished": -3700.0,
+        "source": {
+          "date": "Nov 2025",
+          "tips": "101",
+          "roi": "-17%",
+          "profit": "-3,700"
+        }
+      }
+    ]
+  },
+  {
+    "id": 22513,
+    "name": "J2BLUE",
+    "joinedAt": "2006-12-14",
+    "capturedAt": "2026-11-18T00:37:28.265000Z",
+    "sourceUrl": "https://www.olbg.com/tipsters/about/22513",
+    "months": [
+      {
+        "month": "2026-11",
+        "picks": 1,
+        "roiPublished": -100,
+        "profitPublished": -50.0,
+        "source": {
+          "date": "Nov 2026",
+          "tips": "1",
+          "roi": "-100%",
+          "profit": "-50"
+        }
+      },
+      {
+        "month": "2026-07",
+        "picks": 1,
+        "roiPublished": -100,
+        "profitPublished": -50.0,
+        "source": {
+          "date": "Jul 2026",
+          "tips": "1",
+          "roi": "-100%",
+          "profit": "-50"
+        }
+      },
+      {
+        "month": "2026-06",
+        "picks": 10,
+        "roiPublished": -57,
+        "profitPublished": -286.0,
+        "source": {
+          "date": "Jun 2026",
+          "tips": "10",
+          "roi": "-57%",
+          "profit": "-286"
+        }
+      },
+      {
+        "month": "2026-05",
+        "picks": 12,
+        "roiPublished": -87,
+        "profitPublished": -520.0,
+        "source": {
+          "date": "May 2026",
+          "tips": "12",
+          "roi": "-87%",
+          "profit": "-520"
+        }
+      },
+      {
+        "month": "2025-12",
+        "picks": 22,
+        "roiPublished": 13,
+        "profitPublished": 146.0,
+        "source": {
+          "date": "Dec 2025",
+          "tips": "22",
+          "roi": "13%",
+          "profit": "146"
+        }
+      },
+      {
+        "month": "2025-11",
+        "picks": 23,
+        "roiPublished": 23,
+        "profitPublished": 267.0,
+        "source": {
+          "date": "Nov 2025",
+          "tips": "23",
+          "roi": "23%",
+          "profit": "267"
+        }
+      }
+    ]
+  }
+]

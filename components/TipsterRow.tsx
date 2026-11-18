@@ -1,4 +1,5 @@
 import React from 'react'
+import { OlbgPublishedMonthly } from './olbg/OlbgPublishedMonthly'
 import { TipsterCardData } from './tipster-card-model'
 import { AvatarImg } from './AvatarImg'
 
@@ -99,6 +100,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
 
       {/* MIDDLE: stats */}
       <div className="tipster-middle" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 4px' }}>
+        {t.platform==='olbg' && t.olbgMonthly ? <OlbgPublishedMonthly data={t.olbgMonthly} sinceYear={t.sinceYear} /> : <>
         {/* Row 1: alltime stats */}
         <div className="tipster-stats-alltime" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', width: '100%', padding: '14px 0 4px' }}>
           <StatCell value={String(t.sinceYear ?? '—')} label={t.platform==='olbg'?'Alta OLBG':'Since'} title={t.sinceTitle ?? undefined} />
@@ -180,6 +182,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               la auditabilidad vive en /lab/tipstrr/ficha (diagnóstico) */}
           </div>
         )}
+        </>}
       </div>
 
       {/* RIGHT: actions */}
