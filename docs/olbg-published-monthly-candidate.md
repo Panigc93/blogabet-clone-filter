@@ -36,3 +36,33 @@ The user's latest global-estimation question is under independent analysis. This
 - Actual Next harness checked562 common entries/12pages, identical SSR/API first-page order,511Oct filtered, query-mismatch409. It starts/stops its own local dev server. Dated real Tipstrr fixture is used only as a baseline integration example, not asserted current data. No real BB data is fabricated for the preview.
 - Production home/API/LoadMore remain untouched; actual production repository may also advance through BE work. Mounting the new shared loader into those routes and reconciling their live filters/pagination remains a reviewed integration step before any release. No fixed-stake OLBG code is reactivated.
 - Selector order labels shortened to fit mobile. Final expanded history screenshot and new common mobile/desktop screenshots visually inspected.
+
+## Existing-route integration candidate (still disabled)
+
+The same non-production gate now mounts the complete reader on existing `/`
+and `/api/tipsters`, not only the lab. With the gate off or NODE_ENV=production,
+the original SQL/LoadMore branch remains active. No DB import or activation.
+
+- Existing SQL filters and ordering run over the COMPLETE non-OLBG baseline.
+  Baseline ordering, including SQL ties and slug-search matches, is retained.
+- Common pagination starts only after source monthly cards are merged.
+  Cursor pins full source/baseline digest plus canonical filter identity.
+- Monthly figures remain distinct from common historical fields. Missing
+  month remains visible with unknown values, last in numeric ordering. A
+  monthly numeric filter excludes missing values. October has 511 available
+  results out of 561 profiles, never 561 claimed October results.
+- Existing lifetime-picks, commercial-type and recent-activity filters exclude
+  monthly-only OLBG when the corresponding fact is not established. BB-only
+  filters retain their existing ignored-filter warning outside BB.
+- `scripts/check-olbg-existing-next.mjs SNAPSHOT` starts the real app twice
+  against the same disposable local DB and checks old/new baseline parity.
+  Its 57 fabricated BB rows are plainly named BB Demo and exist only in the
+  disposable test database. Two Tipstrr rows are dated retained fixtures.
+  Real OLBG-only screenshots contain no fabricated BB data.
+- Result: 21 normal filter/order query regressions, 620 common identities,
+  13 pages, client LoadMore, SSR/API order equality, cursor mismatch 409,
+  monthly month-switch URL update, no external credentials. Found and fixed
+  SSR/API object-key-order cursor mismatch during the real client test.
+- This revision precedes the subsequently approved estimated global metric.
+  That estimator will be a separately reviewable delta, not silently added
+  to this monthly-only checkpoint.

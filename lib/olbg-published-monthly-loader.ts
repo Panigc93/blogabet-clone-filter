@@ -1,4 +1,4 @@
-// Read-only candidate loader. Not imported by any production route.
+// Read-only candidate loader, usable only through explicit inactive route gates.
 import fs from 'node:fs/promises'
 import {createHash} from 'node:crypto'
 import {validateMonthlyProfile,type PublishedMonthlyProfile} from './olbg-published-monthly'

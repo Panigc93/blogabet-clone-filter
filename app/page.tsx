@@ -1,3 +1,6 @@
+import {monthlyExistingRoutesEnabled,readMonthlyExistingRoutes} from '@/lib/olbg-existing-routes'
+import {MonthlyCommonLoadMore} from '@/components/MonthlyCommonLoadMore'
+import {OlbgMonthlyControls} from '@/components/olbg/OlbgMonthlyControls'
 import { redirect } from 'next/navigation'
 import { tipsterReadContext } from '@/lib/tipster-read-context'
 import { loadDatabasePeriodAudits } from '@/lib/bet2invest-period-index'
@@ -40,6 +43,20 @@ export default async function Home({ searchParams }: PageProps) {
 
   const sort = (searchParams.sort as SortField) ?? 'yield'
   const readAt = new Date()
+  if(monthlyExistingRoutesEnabled()){
+    const params=new URLSearchParams(searchParams as Record<string,string>)
+    const {page,warnings}=await readMonthlyExistingRoutes(params,filters,sort,readAt)
+    params.set('periodAnchor',readAt.toISOString());params.delete('monthlyCursor')
+    return <><FilterBar searchParams={searchParams} olbgEnabled monthlyCandidate />
+      <div style={{maxWidth:1100,margin:'0 auto',padding:'0 12px'}}>
+        <OlbgMonthlyControls key={params.toString()} params={searchParams} months={page.availableMonths}/>
+        <ActivityNotice months={filters.activityMonths} unknown={filters.activityUnknown} />
+        {warnings.length>0&&<p>{warnings.join(' ')}</p>}
+        {ignoredWarning(filters)&&<p>{ignoredWarning(filters)}</p>}
+        {profitSortWarning(sort,filters.platform)&&<p>{profitSortWarning(sort,filters.platform)}</p>}
+        <MonthlyCommonLoadMore key={params.toString()} initial={page} searchString={params.toString()}/>
+      </div></>
+  }
   const periods = await tipsterReadContext(await loadDatabasePeriodAudits(readAt), readAt)
   const refreshUrl = '/?' + new URLSearchParams(searchParams as Record<string, string>).toString()
   if (periods.changedSinceAnchor) redirect(refreshUrl)
