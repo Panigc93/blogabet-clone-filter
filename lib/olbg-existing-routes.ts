@@ -37,7 +37,7 @@ export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:Tipste
   // SQL applies the existing filter contract to other platforms. Complete
   // matching baseline is loaded, never LIMIT/OFFSET before combined sorting.
   const conditions=[...context.filters(filters),ne(tipsters.platform,'olbg')]
-  const rows=await db.select(context.projection).from(tipsters).leftJoin(context.base.source,context.base.joinOn).leftJoin(context.olbg.source,context.olbg.joinOn)
+  const rows=await db.select(context.projection).from(tipsters).leftJoin(context.base.source,context.base.joinOn).leftJoin(context.olbg.source,context.olbg.joinOn).leftJoin(context.be.source,context.be.joinOn).leftJoin(context.research.source,context.research.joinOn)
    .where(and(...conditions)).orderBy(...context.order(sort))
   const revision=semanticBaselineRevision(rows)
   return {rows:rows as TipsterReadRow[],revision,complete:true as const,readAt:at.toISOString()}
@@ -48,5 +48,5 @@ export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:Tipste
   // performs a fresh SELECT and compares its semantic digest to the cursor.
   atomicStatementSnapshot:true,sourceContextUnchanged:()=>context.revisionUnchanged(),
   baselineUnchanged:async revision=>await context.revisionUnchanged()&&(await read()).revision===revision})
- return {page,estimated:request.estimate,warnings:context.warnings(filters)}
+ return {page,estimated:request.estimate,beHistoryEnabled:context.research.enabled,warnings:context.warnings(filters)}
 }

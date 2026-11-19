@@ -1,3 +1,5 @@
+import {beListToken} from '@/lib/bettingexpert-list-token'
+import {parseBEPeriodFilters} from '@/lib/bettingexpert-period-filters'
 import {monthlyExistingRoutesEnabled,readMonthlyExistingRoutes} from '@/lib/olbg-existing-routes'
 import { continuationAnchor } from '@/lib/period-pagination-anchor'
 import { tipsterReadContext } from '@/lib/tipster-read-context'
@@ -7,7 +9,7 @@ import { activityWarning } from '@/lib/activity-query'
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { tipsters } from '@/db/schema'
-import { ignoredWarning, TipsterFilters, SortField } from '@/lib/query'
+import { ignoredWarning, bettingexpertApiProjection, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and } from 'drizzle-orm'
 
 const PAGE_SIZE = 50
@@ -15,8 +17,11 @@ const PAGE_SIZE = 50
 export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams
 
+  let beFilters: ReturnType<typeof parseBEPeriodFilters>
+  try {beFilters=parseBEPeriodFilters(p)}catch{return NextResponse.json({error:'Filtros BE no válidos'},{status:400})}
   const activity = parseActivity(p.get('activity'))
   const filters: TipsterFilters = {
+    ...beFilters,
     // Default stays Blogabet-only: zero change for the current UI unless a
     // platform is explicitly chosen. platform=tipstrr opts in; platform=all
     // lists every platform (combined view).
@@ -46,13 +51,14 @@ export async function GET(req: NextRequest) {
     }catch(e){return NextResponse.json({reset:true,reason:e instanceof Error?e.message:'monthly-read-failed'},{status:409})}
   }
   const periods = await tipsterReadContext(await loadDatabasePeriodAudits(readAt), readAt)
+  if ((p.has('beRevision') || periods.research.enabled && page>0) && p.get('beRevision') !== beListToken(periods.beRevision,filters,sort)) return NextResponse.json({reset:true,reason:'be-evidence-updated'},{status:409})
   if (periods.changedSinceAnchor || p.has('olbgRevision') && p.get('olbgRevision') !== periods.revisionToken) return NextResponse.json({ reset: true, reason: 'olbg-evidence-updated' }, { status: 409 })
   const where = periods.filters(filters)
 
   const rows = await db
     .select(periods.projection)
     .from(tipsters)
-    .leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn)
+    .leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn).leftJoin(periods.be.source, periods.be.joinOn).leftJoin(periods.research.source,periods.research.joinOn)
     .where(where.length ? and(...where) : undefined)
     .orderBy(...periods.order(sort))
     .limit(PAGE_SIZE)
@@ -60,6 +66,8 @@ export async function GET(req: NextRequest) {
 
   if (!await periods.revisionUnchanged()) return NextResponse.json({ reset: true, reason: 'olbg-evidence-updated' }, { status: 409 })
   const warnings: string[] = periods.warnings(filters)
+  const profitNote = profitSortWarning(sort, filters.platform)
+  if (profitNote) warnings.push(profitNote)
   const activityNote = activityWarning(filters.activityMonths, filters.activityUnknown)
   if (activityNote) warnings.push(activityNote)
   const ignored = ignoredWarning(filters)
@@ -67,5 +75,5 @@ export async function GET(req: NextRequest) {
     warnings.push(ignored)
   }
 
-  return NextResponse.json({ data: rows, page, hasMore: rows.length === PAGE_SIZE, ...(warnings.length ? { warnings } : {}) })
+  return NextResponse.json({ data: rows.map(row=>bettingexpertApiProjection(row,readAt)), page, hasMore: rows.length === PAGE_SIZE, ...(warnings.length ? { warnings } : {}) })
 }

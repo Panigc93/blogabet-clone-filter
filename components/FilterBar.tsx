@@ -4,12 +4,13 @@ import { useCallback, useTransition, useState, useEffect } from 'react'
 
 interface FilterBarProps {
   searchParams: Record<string, string | undefined>
+  beHistoryEnabled?: boolean
   olbgEnabled?: boolean
   monthlyCandidate?:boolean
   estimatedCandidate?:boolean
 }
 
-export function FilterBar({ searchParams, olbgEnabled = false, monthlyCandidate = false, estimatedCandidate = false }: FilterBarProps) {
+export function FilterBar({ searchParams, olbgEnabled = false, beHistoryEnabled = false, monthlyCandidate = false, estimatedCandidate = false }: FilterBarProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const sp = new URLSearchParams(
@@ -92,6 +93,7 @@ export function FilterBar({ searchParams, olbgEnabled = false, monthlyCandidate 
     // Al cambiar de fuente se limpian los filtros solo-Blogabet (años en BB, resets,
     // picks free evaluables) y el precio (Tipstrr cobra en GBP, no comparable en €).
     if (key === 'platform') {
+      params.delete('bePeriod');params.delete('beMinYield');params.delete('beMinPicks')
       params.delete('minYears')
       params.delete('conPicksFree')
       params.delete('resetOlderThan')
@@ -144,6 +146,7 @@ export function FilterBar({ searchParams, olbgEnabled = false, monthlyCandidate 
               <option value="tipstrr">Tipstrr</option>
               <option value="golazobets">Golazobets</option>
               <option value="bet2invest">Bet2Invest</option>
+              <option value="bettingexpert">Bettingexpert</option>
               {olbgEnabled && <option value="olbg">OLBG</option>}
               <option value="all">Todas</option>
             </select>
@@ -234,12 +237,13 @@ export function FilterBar({ searchParams, olbgEnabled = false, monthlyCandidate 
             </div>
 
             {/* ORDENAR POR */}
-            <div style={{ flex: 1, minWidth: 130, maxWidth: 150, marginBottom: 2 }}>
+            {!(beHistoryEnabled&&platform==='bettingexpert') && <div style={{ flex: 1, minWidth: 130, maxWidth: 150, marginBottom: 2 }}>
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Ordenar por</label>
               <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('sort') ?? 'yield'}
                 onChange={e => update('sort', e.target.value)}>
                 <option value="yield">{estimatedCandidate?'Yield':'Yield (histórico)'}</option>
+                {beHistoryEnabled && platform==='bettingexpert' && <option value="yield3m">Yield 3 meses</option>}
                 <option value="yield6m">Yield 6 meses</option>
                 <option value="yield12m">Yield 12 meses</option>
                 <option value="picks6m_avg">Picks/mes (6m)</option>
@@ -249,7 +253,7 @@ export function FilterBar({ searchParams, olbgEnabled = false, monthlyCandidate 
                 <option value="since_year">Año de registro</option>
                 <option value="price">Precio</option>
               </select>
-            </div>
+            </div>}
 
             {/* PRECIO/MES (solo pago) — en Tipstrr no aplica: cobra en GBP, no comparable con € */}
             {tipo === 'paid' && (
@@ -299,6 +303,13 @@ export function FilterBar({ searchParams, olbgEnabled = false, monthlyCandidate 
             </div>
 
           </div>
+          {beHistoryEnabled && platform==='bettingexpert' && <form method="get" style={{display:'flex',flexWrap:'wrap',gap:8,padding:'0 15px 12px',alignItems:'center',fontSize:12}}>
+            {Array.from(sp.entries()).filter(([k])=>!['bePeriod','beMinYield','beMinPicks','page','sort','periodAnchor','beRevision','olbgRevision'].includes(k)).map(([k,v])=><input key={k} type="hidden" name={k} value={v}/>)}
+            <label>Mínimos del período <select aria-label="Período Bettingexpert" name="bePeriod" defaultValue={sp.get('bePeriod')??'12m'}>{['3m','6m','12m'].map(n=><option key={n} value={n}>{n}</option>)}</select></label>
+            <label>Yield mín. <input aria-label="Yield mínimo del período" type="number" step="any" name="beMinYield" defaultValue={sp.get('beMinYield')??''} style={{width:72}}/></label>
+            <label>Apuestas mín. <input aria-label="Apuestas mínimas del período" type="number" min="0" name="beMinPicks" defaultValue={sp.get('beMinPicks')??''} style={{width:72}}/></label>
+            <label>Ordenar por <select name="sort" aria-label="Orden Bettingexpert" defaultValue={sp.get('sort')??'yield'}><option value="yield">Yield Global</option><option value="yield3m">Yield 3m</option><option value="yield6m">Yield 6m</option><option value="yield12m">Yield 12m</option><option value="picks">Apuestas Global</option><option value="profit">Beneficio Global</option></select></label><button type="submit">Aplicar</button>
+          </form>}
         </div>
       </div>
     </>

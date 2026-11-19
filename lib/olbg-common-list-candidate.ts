@@ -8,7 +8,7 @@ import type {MonthlySnapshot} from './olbg-published-monthly-loader'
 
 export interface CommonMonthlyRequest {
  search?:string
- order:'name'|'yield-desc'|'olbg-roi-desc'|'olbg-profit-desc'|'olbg-picks-desc'|'profit'|'picks'|'followers'|'since_year'|'price'|'yield6m'|'yield12m'|'picks6m_avg'
+ order:'name'|'yield-desc'|'olbg-roi-desc'|'olbg-profit-desc'|'olbg-picks-desc'|'profit'|'picks'|'followers'|'since_year'|'price'|'yield3m'|'yield6m'|'yield12m'|'picks6m_avg'
  monthly:Omit<MonthlyQuery,'order'>
  estimate?:boolean
  minCommonPicks?:number
