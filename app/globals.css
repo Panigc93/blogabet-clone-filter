@@ -99,3 +99,26 @@ a {
 @media (max-width: 767px) {
   .olbg-estimated-summary { top: auto !important; bottom: 51px; right: 18px !important; }
 }
+
+/* Bettingexpert has source-specific point labels and small negative yields.
+   Keep the existing card; scope width/typography changes to this source. */
+.tipster-bettingexpert .stat-cell .number { font-size: 18px !important; }
+.tipster-bettingexpert .stat-cell:nth-child(3) .number { font-size: 15px !important; white-space: nowrap; }
+@media (min-width: 769px) {
+  .tipster-bettingexpert .tipster-left { width: 320px; }
+  .tipster-bettingexpert .stat-cell { min-width: 45px; }
+  .tipster-bettingexpert .stat-cell:nth-child(3) { min-width: 116px; }
+}
+
+/* Give long BE point totals their own line on small cards, with safe wrapping. */
+@media (max-width: 768px) {
+  .tipster-bettingexpert .stat-cell:nth-child(3) { flex: 0 0 100%; padding: 6px 12px; box-sizing: border-box; }
+  .tipster-bettingexpert .stat-cell:nth-child(3) .number { white-space: normal; overflow-wrap: anywhere; }
+
+}
+
+/* A tap opens one readable explanation across the existing period row. */
+.tipster-bettingexpert .tipster-stats-period { position: relative; }
+.tipster-bettingexpert .be-detail-panel { position: absolute; top: 100%; left: 0; right: 0; z-index: 20; background: white; border: 1px solid #dbe1e8; border-radius: 4px; box-shadow: 0 3px 9px #0002; max-height: 175px; overflow: auto; box-sizing: border-box; }
+
+.tipster-bettingexpert .tipster-stats-period:has(details[open]) { margin-bottom: 180px; }

@@ -1,3 +1,5 @@
+import {visibleBEPeriods,type BEVisiblePeriods} from '@/lib/bettingexpert-visible-periods'
+import {beClientEligible,type BEClientAudit} from '@/lib/bettingexpert-period-contract'
 import { periodEligible, type AuditedTipster } from '@/lib/bet2invest-period-contract'
 import { fromOlbgReadRow, unknownOlbgCard } from './olbg-card-model'
 import type { Tipster } from '@/db/schema'
@@ -9,12 +11,13 @@ import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
 // Tipstrr rows come from dated real captures (fromTipstrrSnapshot), never
 // presented as a sync: capturedAt is always shown.
 
-export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'olbg'
+export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'bettingexpert' | 'olbg'
 
 export interface PeriodStatView {
   valuePct: number | null
   trace: string | null // e.g. '+£816.00 beneficio / 320u apostadas · ago 2026 – oct 2026 · 3/3 meses'
   complete: boolean
+  detailLabel?: string
   note?: string // compact sample/date/caveats inside existing B2I period cells
 }
 
@@ -28,11 +31,13 @@ export interface TipsterCardData {
   sinceYear: number | null
   sinceTitle: string | null // what "since" means for this platform
   picks: number | null
-  profitDisplay: string | null // already formatted, with currency
+  profitDisplay: string | null // source units or currency, explicitly distinguished
   yieldPct: number | null
   yieldTitle: string | null // provenance note for the yield figure
   olbgEstimates?: import('./olbg/OlbgEstimatedGlobal').OlbgEstimates
   olbgMonthly?: import('@/lib/olbg-published-monthly').MonthlyDisplay
+  sourceDetail?: {summary:string;text:string}
+  periodBasisNote?: string // visible source-specific period basis, not a calculation trace
   mainScopeNote?: string // visible sample scope, never an all-time claim
   mainBasisNote?: string // visible profit/yield basis when not conventional
   picksLabel?: string
@@ -81,6 +86,7 @@ export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardD
   if (t.platform === 'tipstrr') return tipstrrFromDbRow(t)
   if (t.platform === 'golazobets') return golazobetsFromDbRow(t)
   if (t.platform === 'bet2invest') return bet2investFromDbRow(t, now)
+  if (t.platform === 'bettingexpert') return bettingexpertFromDbRow(t,now)
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -96,6 +102,7 @@ export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardD
   const period = (v: string | null): PeriodStatView => ({ valuePct: num(v), trace: null, complete: true })
   return {
     platform: 'blogabet',
+    profitLabel: 'Profit (u.)',
     name: t.name,
     avatarUrl: t.avatarUrl,
     sourceUrl: `https://${t.slug}.blogabet.com`,
@@ -232,7 +239,7 @@ export function fromTipstrrSnapshot(s: FichaSnapshot): TipsterCardData {
 // DB-backed Golazobets row. Misma regla de honestidad que Tipstrr: capturedAt
 // siempre visible (captura fechada, no sync). El profit va etiquetado con su
 // unidad propia ('u' en la cifra): NO es equivalente a las 'u' de Tipstrr ni
-// a los € de Blogabet, y la ordenación por profit la agrupa aparte
+// a las unidades de Blogabet, y la ordenación por profit la agrupa aparte
 // (lib/query.ts). Campos no expuestos por la plataforma: null, nunca 0.
 function golazobetsFromDbRow(t: TipsterReadRow): TipsterCardData {
   const num = (v: string | null): number | null => {
@@ -337,4 +344,47 @@ function bet2investFromDbRow(t: TipsterReadRow, now: Date): TipsterCardData {
     yieldFree3m: null,
     showPeriodRow: Object.values(periods).some((p) => p.valuePct !== null),
   }
+}
+
+// Profile-overall capture only: stale/accidental period columns never leak.
+function bettingexpertFromDbRow(t: TipsterReadRow,now:Date): TipsterCardData {
+  const research=(t as TipsterReadRow & {beResearch?:BEVisiblePeriods}).beResearch
+  if(visibleBEPeriods(research,t.slug))return bettingexpertResearchCard(t,research)
+  const a=(t as TipsterReadRow & {beAudit?:BEClientAudit}).beAudit
+  const valid=beClientEligible(a,t.slug,t.capturedAt,now)
+  const period=(n:3|6|12):PeriodStatView=>{const w=valid?a!.windows[n]:null;return {valuePct:w?.value!=null?Number(w.value):null,complete:w?.value!=null,trace:w?.value!=null?`Reconstrucción por fecha de publicación · ${w.picks} apuestas cerradas · ${w.from} a ${w.to} UTC · beneficio neto ${w.profit} u Bettingexpert / stake aconsejado ${w.stake} u Bettingexpert × 100. Recuento y beneficio conciliados con anclas capturadas; no yield mensual nativo ni contabilidad de competición. Captura periodos ${a!.periodCapturedAt}`:null}}
+  const periods={yield3m:period(3),yield6m:period(6),yield12m:period(12)}
+  const base = golazobetsFromDbRow(t)
+  const profit = t.profit === null ? null : Number(t.profit)
+  return {
+    ...base, platform: 'bettingexpert',
+    periodBasisNote: valid ? `Reconstrucción por publicación · meses cerrados UTC hasta ${a!.windows[3].to} · yield sobre stake aconsejado. No es el resultado mensual de competición.` : undefined,
+    sourceUrl: `https://www.bettingexpert.com/user/profile/${encodeURIComponent(t.slug)}`,
+    sourceLabel: `bettingexpert.com/user/profile/${t.slug}`,
+    profitDisplay: profit !== null && Number.isFinite(profit) ? `${profit >= 0 ? '+' : ''}${new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 3 }).format(profit)}` : null,
+    yieldTitle: 'Yield global publicado en Overall stats de Bettingexpert; no es el ranking por deporte ni un periodo 3/6/12m. Beneficio en unidades de stake, no euros. La unidad no fija capital ni riesgo equivalentes entre tipsters.',
+    sinceYear: null, sinceTitle: 'Fecha de alta no disponible en los datos verificados de Bettingexpert. No se sustituye por la primera apuesta ni por la captura.', profitLabel: 'Beneficio (u.)', mainBasisNote: 'Unidades de stake, no euros. El total depende del volumen y los stakes; comparar yield y apuestas del mismo periodo.', isPaid: false,
+    ...periods,picks6mAvg:valid&&a!.windows[6].value!==null?a!.windows[6].picks!/6:null,picks6mTrace:valid&&a!.windows[6].value!==null?`${a!.windows[6].picks} apuestas cerradas / 6 meses completos UTC (${a!.windows[6].from} a ${a!.windows[6].to}); media mensual, redondeada al entero. No son meses positivos.`:null,showPeriodRow:Object.values(periods).some(w=>w.valuePct!==null),
+  }
+}
+
+function bettingexpertResearchCard(t:TipsterReadRow,a:BEVisiblePeriods):TipsterCardData {
+  const base=golazobetsFromDbRow(t)
+  const period=(n:'3m'|'6m'|'12m'):PeriodStatView=>{
+    const w=a.windows[n],numeric=w.state==='number'
+    const label=w.quality==='experimental'?'Experimental':w.quality==='contrasted'?'Contrastado':'Calculado'
+    const basis=w.quality==='contrasted'?'Recuento y beneficio contrastados con los límites de la fuente.':w.quality==='experimental'?'Contraste experimental, separado de las cifras contrastadas.':w.quality==='global-consistent'?'Historial consistente con el total Global, no con un total independiente del período.':'Historial observado, sin total independiente del período para contrastarlo.'
+    return {valuePct:numeric?Number(w.value):null,complete:numeric,detailLabel:numeric?label:'Sin dato',
+      trace:numeric?`${fmtYm(w.from)} a ${fmtYm(w.to)} · ${w.picks} apuestas observadas, por fecha de publicación. Yield sobre stake aconsejado. ${basis} Las liquidaciones pueden haber cambiado después del cierre.`:w.state==='held'?'Pendiente de validar cobertura, estado o aritmética. No equivale a cero.':'Sin muestra elegible observada. No equivale a rentabilidad cero.'}
+  }
+  const profit=t.profit===null?null:Number(t.profit)
+  return {...base,platform:'bettingexpert',sourceUrl:`https://www.bettingexpert.com/user/profile/${encodeURIComponent(t.slug)}`,sourceLabel:'bettingexpert.com',
+    sinceYear:null,sinceTitle:'Fecha de alta no comprobada',isVerified:null,followers:null,isPaid:false,
+    profitDisplay:profit!==null&&Number.isFinite(profit)?new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:3,signDisplay:'exceptZero'}).format(profit):null,
+    profitLabel:'Beneficio (u.)',yieldTitle:'Global publicado por Bettingexpert, separado de los períodos calculados. Unidades de stake, no euros.',
+    capturedAt:null,mainBasisNote:undefined,yieldLabel:'Yield Global',
+    sourceDetail:{summary:'Datos de fuente',text:`Global publicado por Bettingexpert, capturado ${t.capturedAt?new Date(t.capturedAt).toISOString().slice(0,10):'en fecha no confirmada'}. Unidades de stake propias, no euros. No es una actualización en tiempo real.`},
+    yield3m:period('3m'),yield6m:period('6m'),yield12m:period('12m'),
+    picks6mAvg:null,
+    picks6mTrace:'Apuestas elegibles del período 6m / 6 meses calendario. No son meses positivos.',showPeriodRow:true}
 }

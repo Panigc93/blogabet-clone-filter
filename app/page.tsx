@@ -1,3 +1,5 @@
+import {beListToken} from '@/lib/bettingexpert-list-token'
+import {parseBEPeriodFilters} from '@/lib/bettingexpert-period-filters'
 import {monthlyExistingRoutesEnabled,readMonthlyExistingRoutes} from '@/lib/olbg-existing-routes'
 import {MonthlyCommonLoadMore} from '@/components/MonthlyCommonLoadMore'
 import {OlbgMonthlyControls} from '@/components/olbg/OlbgMonthlyControls'
@@ -17,6 +19,7 @@ const PAGE_SIZE = 50
 
 interface PageProps {
   searchParams: {
+    bePeriod?:string;beMinYield?:string;beMinPicks?:string;
     search?: string; tipo?: string; minYield?: string; maxYield?: string; minPicks?: string
     activity?: string; minYears?: string; priceMin?: string; priceMax?: string; sort?: string
     conPicksFree?: string; resetOlderThan?: string; platform?: string
@@ -26,6 +29,7 @@ interface PageProps {
 export default async function Home({ searchParams }: PageProps) {
   const activity = parseActivity(searchParams.activity)
   const filters: TipsterFilters = {
+    ...parseBEPeriodFilters(new URLSearchParams(searchParams as Record<string,string>)),
     search:         searchParams.search ?? undefined,
     tipo:           (searchParams.tipo as TipsterFilters['tipo']) ?? 'all',
     minYield:       searchParams.minYield ? Number(searchParams.minYield) : undefined,
@@ -45,9 +49,9 @@ export default async function Home({ searchParams }: PageProps) {
   const readAt = new Date()
   if(monthlyExistingRoutesEnabled()){
     const params=new URLSearchParams(searchParams as Record<string,string>)
-    const {page,warnings,estimated}=await readMonthlyExistingRoutes(params,filters,sort,readAt)
+    const {page,warnings,estimated,beHistoryEnabled}=await readMonthlyExistingRoutes(params,filters,sort,readAt)
     params.set('periodAnchor',readAt.toISOString());params.delete('monthlyCursor')
-    return <><FilterBar searchParams={searchParams} olbgEnabled monthlyCandidate estimatedCandidate={estimated} />
+    return <><FilterBar searchParams={searchParams} olbgEnabled beHistoryEnabled={beHistoryEnabled} monthlyCandidate estimatedCandidate={estimated} />
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 12px'}}>
         {!estimated&&<OlbgMonthlyControls key={params.toString()} params={searchParams} months={page.availableMonths}/>}
         <ActivityNotice months={filters.activityMonths} unknown={filters.activityUnknown} />
@@ -64,11 +68,11 @@ export default async function Home({ searchParams }: PageProps) {
   const whereClause = where.length ? and(...where) : undefined
 
   const [rows, [{ value: total }]] = await Promise.all([
-    db.select(periods.projection).from(tipsters).leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn)
+    db.select(periods.projection).from(tipsters).leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn).leftJoin(periods.be.source, periods.be.joinOn).leftJoin(periods.research.source,periods.research.joinOn)
       .where(whereClause)
       .orderBy(...periods.order(sort))
       .limit(PAGE_SIZE),
-    db.select({ value: count() }).from(tipsters).leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn).where(whereClause),
+    db.select({ value: count() }).from(tipsters).leftJoin(periods.base.source, periods.base.joinOn).leftJoin(periods.olbg.source, periods.olbg.joinOn).leftJoin(periods.be.source, periods.be.joinOn).leftJoin(periods.research.source,periods.research.joinOn).where(whereClause),
   ])
 
   if (!await periods.revisionUnchanged()) redirect(refreshUrl)
@@ -76,12 +80,13 @@ export default async function Home({ searchParams }: PageProps) {
   const hasMore = rows.length === PAGE_SIZE
   const continuation = new URLSearchParams(searchParams as Record<string, string>)
   continuation.set('periodAnchor', readAt.toISOString())
+  if (periods.beRevision !== null) continuation.set('beRevision',beListToken(periods.beRevision,filters,sort)!)
   if (periods.revisionToken !== null) continuation.set('olbgRevision', periods.revisionToken)
   const searchString = continuation.toString()
 
   return (
     <>
-      <FilterBar searchParams={searchParams} olbgEnabled={periods.enabled} />
+      <FilterBar searchParams={searchParams} olbgEnabled={periods.enabled} beHistoryEnabled={periods.research.enabled} />
       <div id="page-content" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 12px' }}>
         {profitSortWarning(sort, filters.platform) && (
           <div style={{ margin: '8px 0 0', padding: '8px 12px', background: '#fcf8e3', border: '1px solid #faebcc', borderRadius: 4, fontSize: 13, color: '#8a6d3b' }}>

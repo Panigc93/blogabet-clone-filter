@@ -6,10 +6,11 @@ export const tipsters = pgTable('tipsters', {
   platform:    text('platform').notNull().default('blogabet'), // 'blogabet' | 'tipstrr' | ...
   slug:        text('slug').notNull(), // unique PER PLATFORM (ux_tipsters_platform_slug); a Tipstrr slug may collide with a BB one
   name:        text('name').notNull(),
-  // Money semantics: `profit`/`price` are only comparable within the same
-  // unit. BB stores EUR; Tipstrr stores UNITS (its "10/10" scale) and its
-  // subscription price is GBP. Queries must not mix units (lib/query.ts).
-  profitUnit:  text('profit_unit').notNull().default('eur'), // 'eur' | 'units' | 'golazobets-units' (no equivalente a las anteriores: no ordenar ni comparar profit entre unidades)
+  // Profit and subscription price are different dimensions. Blogabet Profit
+  // is net stake units; its subscription price is EUR. The legacy eur profit
+  // default is retained ONLY to avoid an implicit schema migration. New BB
+  // parses name blogabet-units; reads correct old metadata without DB writes.
+  profitUnit:  text('profit_unit').notNull().default('eur'), // legacy default; removal/backfill requires separate DB approval
   priceCurrency: text('price_currency').notNull().default('eur'), // 'eur' | 'gbp'
   avatarUrl:   text('avatar_url'),
   flagUrl:     text('flag_url'),
@@ -18,7 +19,7 @@ export const tipsters = pgTable('tipsters', {
   price:       numeric('price', { precision: 8, scale: 2 }),
   sinceYear:   smallint('since_year'),
   picks:       integer('picks').notNull().default(0),
-  profit:      numeric('profit', { precision: 12, scale: 3 }), // scale 3: Tipstrr units carry 3 decimals (361.815); widening is lossless for BB EUR
+  profit:      numeric('profit', { precision: 12, scale: 3 }), // scale 3: Tipstrr units carry 3 decimals (361.815); widening is lossless for BB stake units
   yield:       numeric('yield', { precision: 6, scale: 2 }),
   verifiedPct: numeric('verified_pct', { precision: 5, scale: 2 }),
   isVerified:  boolean('is_verified').notNull().default(false),
