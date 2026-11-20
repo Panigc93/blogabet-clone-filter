@@ -3,7 +3,7 @@
 // records. Provenance is mandatory: a metric without its basis and period is
 // not comparable across platforms and must not be presented as if it were.
 
-export type PlatformId = 'blogabet' | 'golazobets' | 'tipstrr' | 'bet2invest' | 'bettingexpert' | 'olbg'
+export type PlatformId = 'blogabet' | 'golazobets' | 'tipstrr' | 'bet2invest' | 'bettingexpert' | 'olbg' | 'apuestes' | 'protipster'
 
 export type StakeBasis =
   | 'advised-stakes' // tipstrr default: the tipster's advised stake per tip
