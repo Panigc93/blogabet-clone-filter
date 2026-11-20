@@ -17,7 +17,8 @@ for(const slug of st.profiles.done){
  const result=protipsterRowToInsert(row,{id:parsed.overview?.id??0,idSource:'source-captured',slug:parsed.overview?.usernameCanonical??slug,sourceUrl:row.sourceUrl})
  if(result.ok)mapped.push(result.insert);else held.push({slug,...result,parsed:{overview:!!parsed.overview,summary:!!parsed.summary,chartDefault:!!parsed.chartDefault}})
 }
+for(const h of st.profiles.held)rows.push({slug:h.slug,capturedAt:st.updatedAt,sourceUrl:`https://www.protipster.es/tipster/${h.slug}`,overview:null,summary:null,chartDefault:null,period3m:null,months:{},quarantine:{reason:h.reason}})
 fs.mkdirSync('data/protipster',{recursive:true})
 fs.writeFileSync('data/protipster/profiles.jsonl',rows.map(r=>JSON.stringify(r)).join('\n')+'\n')
-fs.writeFileSync(path.join(root,'validation.json'),JSON.stringify({total:rows.length,valid:mapped.length,held,noPicks12m:mapped.filter(r=>r.yield12m===null).map(r=>r.slug),missingAvatars:mapped.filter(r=>!r.avatarUrl).map(r=>r.slug),duplicateSourceIds:mapped.filter((r,i)=>mapped.findIndex(v=>v.id===r.id)!==i).map(r=>r.slug)},null,2))
+fs.writeFileSync(path.join(root,'validation.json'),JSON.stringify({total:rows.length,captured:st.profiles.done.length,captureHolds:st.profiles.held,valid:mapped.length,held,noPicks12m:mapped.filter(r=>r.yield12m===null).map(r=>r.slug),missingAvatars:mapped.filter(r=>!r.avatarUrl).map(r=>r.slug),duplicateSourceIds:mapped.filter((r,i)=>mapped.findIndex(v=>v.id===r.id)!==i).map(r=>r.slug)},null,2))
 console.log(fs.readFileSync(path.join(root,'validation.json'),'utf8'))
