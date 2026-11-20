@@ -207,9 +207,12 @@ Incertidumbre conservada: la página https://www.protipster.es/sobre-nosotros
 (verificada en vivo 2026-11-20) prueba registro gratuito y acceso a tips
 gratuitos ("Es completamente gratuito registrarse", tips visibles sin
 registro), pero NO prueba por sí sola la ausencia universal de suscripciones
-por tipster. Esta rama NO establece la semántica Free/Pago de ProTipster: el
-alcance de esa fuente y del modelo lo resuelve el responsable de PT (ya
-consultado 2026-11-20). Caveat de compatibilidad a resolver en el merge, no
-una decisión de clasificación: con el clasificador actual, filas PT con
-is_paid=false caerían en la rama por defecto (booleano), lo que NO debe
-leerse como Free afirmativo sin esa decisión.
+por tipster. Matiz confirmado por el responsable de PT (2026-11-20, tras su
+captura de 971 peticiones): la fuente garantiza el FEED PÚBLICO gratis, no el
+tipster completo/universal; si el filtro clasifica al tipster completo,
+quedará desconocido sin prueba adicional. Esta rama NO establece la semántica
+Free/Pago de ProTipster: el responsable de PT corregirá su comentario amplio
+y alineará la semántica en su validación. Caveat de compatibilidad a resolver
+en el merge, no una decisión de clasificación: con el clasificador actual,
+filas PT con is_paid=false caerían en la rama por defecto (booleano), lo que
+NO debe leerse como Free afirmativo sin esa decisión.
