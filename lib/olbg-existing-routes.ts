@@ -45,7 +45,7 @@ export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:Tipste
   const revision=semanticBaselineRevision(rows)
   return {rows:rows as TipsterReadRow[],revision,complete:true as const,readAt:at.toISOString()}
  }
- const request=monthlyExistingRequest(p,filters,sort)
+ const request={...monthlyExistingRequest(p,filters,sort),activityReferenceMonth:at.toISOString().slice(0,7)}
  const page=await loadCommonPublishedMonthlyPage({...source,request,readBaseline:read,
   // One SELECT is a coherent PostgreSQL statement snapshot. The next page
   // performs a fresh SELECT and compares its semantic digest to the cursor.

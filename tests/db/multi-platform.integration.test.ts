@@ -1,11 +1,13 @@
 import { observedPublicationBounds } from '@/lib/activity'
 import { activityCondition } from '@/lib/activity-query'
+import { periodReadContext } from '@/lib/bet2invest-period-read'
+import { windowBounds, type PeriodAudit } from '@/lib/bet2invest-period-contract'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
-import { and } from 'drizzle-orm'
+import { and, sql, inArray } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 import { buildFilters, sortOrder, priceFilterIgnored } from '@/lib/query'
 import { tipstrrSnapshotToInsert, type TipstrrDbMapping } from '@/crawler/platforms/tipstrr/to-db'
@@ -202,6 +204,81 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
     expect(recent.map(r => r.slug)).toEqual(['FutbolEnCasa'])
     const unknown = await db.select().from(tipsters).where(activityCondition(1, true, proof))
     expect(unknown.some(r => r.slug === 'FutbolEnCasa')).toBe(false)
+  })
+
+  it('captured-window activity (b2i/apuestes) selects real rows by expected data, zero yield included', async () => {
+    // Expected-data semantics, not string pinning: a window with picks and
+    // net profit 0 imports '0.00' (active), a window without picks imports
+    // NULL (no evidence). Rows fabricated for this regression.
+    const at = new Date('2026-11-17T12:00:00.000Z')
+    const auditFor = (slug: string, capturedAt = at.toISOString()): PeriodAudit => ({
+      slug, capturedAt, windows: Object.fromEntries(([3, 6, 12] as const).map(n => [n, {
+        ...windowBounds(new Date(capturedAt), n), value: n === 6 ? '0.00' : null,
+        bets: n === 6 ? 2 : 0, months: n === 6 ? 1 : 0, reason: n === 6 ? null : 'no_picks', caveats: []
+      }])) as unknown as PeriodAudit['windows']
+    })
+    const audits = ['b2i-active-6m', 'b2i-mismatch', 'b2i-invalid', 'b2i-wrong-capture'].map(slug => auditFor(slug))
+    audits.find(a => a.slug === 'b2i-invalid')!.windows[6].bets = 0
+    audits.push(auditFor('b2i-stale', '2026-10-17T12:00:00.000Z'))
+    const periods = periodReadContext(audits, new Date('2026-11-20T12:00:00.000Z'))
+    await db.insert(tipsters).values([
+      { id: -800001, platform: 'bet2invest', slug: 'b2i-active-6m', name: 'B2I Active 6m', picks: 100, yield6m: '0.00', capturedAt: at, profitUnit: 'bet2invest-units' },
+      { id: -800002, platform: 'bet2invest', slug: 'b2i-no-windows', name: 'B2I No Windows', picks: 100, capturedAt: at, profitUnit: 'bet2invest-units' },
+      { id: -800003, platform: 'apuestes', slug: 'ap-zero-yield-6m', name: 'AP Zero Yield 6m', picks: 50, yield6m: '0.00', profitUnit: 'apuestes-units' },
+      { id: -800004, platform: 'bet2invest', slug: 'b2i-mismatch', name: 'B2I Mismatch', yield6m: '5.00', capturedAt: at },
+      { id: -800005, platform: 'bet2invest', slug: 'b2i-invalid', name: 'B2I Invalid', yield6m: '0.00', capturedAt: at },
+      { id: -800006, platform: 'bet2invest', slug: 'b2i-stale', name: 'B2I Stale', yield6m: '0.00', capturedAt: new Date('2026-10-17T12:00:00.000Z') },
+      { id: -800007, platform: 'bet2invest', slug: 'b2i-wrong-capture', name: 'B2I Wrong Capture', yield6m: '0.00', capturedAt: new Date('2026-11-18T12:00:00.000Z') },
+    ])
+    // Use the real audited-period join, including validAudit, current-month
+    // eligibility and exact capture identity. Other aliases are empty here.
+    const q = () => db.select({ slug: tipsters.slug }).from(tipsters)
+      .leftJoin(periods.source, periods.joinOn)
+      .leftJoin(sql`jsonb_to_recordset('[]'::jsonb) AS be_research(guid text, slug text, public jsonb)`, sql`true`)
+      .leftJoin(sql`(SELECT NULL::text slug, NULL::timestamptz captured_at, NULL::jsonb compact WHERE false) AS olbg_stats`, sql`true`)
+    const slugsOf = (rows: any[]) => rows.map(r => r.slug)
+    try {
+      const slugs6 = slugsOf(await q().where(activityCondition(6, false, [])))
+      expect(slugs6).toContain('b2i-active-6m')      // window with picks
+      expect(slugs6).toContain('ap-zero-yield-6m')   // 0.00 yield IS activity
+      expect(slugs6).not.toContain('b2i-no-windows') // NULL windows: no evidence
+      for (const slug of ['b2i-mismatch', 'b2i-invalid', 'b2i-stale', 'b2i-wrong-capture']) expect(slugs6).not.toContain(slug)
+      const slugs3 = slugsOf(await q().where(activityCondition(3, false, [])))
+      expect(slugs3).not.toContain('b2i-active-6m') // exact window: 6m is not widened into 3m
+      const unk = slugsOf(await q().where(activityCondition(6, true, [])))
+      expect(unk).toContain('b2i-no-windows')
+      expect(unk).not.toContain('ap-zero-yield-6m')
+    } finally {
+      await db.delete(tipsters).where(inArray(tipsters.id, [-800001, -800002, -800003, -800004, -800005, -800006, -800007]))
+    }
+  })
+
+  it('joined BE and OLBG activity includes real zero-yield samples but excludes held or empty samples', async () => {
+    const rows = [
+      { id: -800011, platform: 'bettingexpert', slug: 'be-zero', name: 'BE Zero' },
+      { id: -800012, platform: 'bettingexpert', slug: 'be-held', name: 'BE Held' },
+      { id: -800013, platform: 'bettingexpert', slug: 'be-empty', name: 'BE Empty' },
+      { id: -800014, platform: 'olbg', slug: 'olbg-sample', name: 'OLBG Sample' },
+      { id: -800015, platform: 'olbg', slug: 'olbg-empty', name: 'OLBG Empty' },
+    ]
+    const beRows = [
+      { slug: 'be-zero', public: { windows: { '6m': { value: '0.00', picks: 2 } } } },
+      { slug: 'be-held', public: { windows: { '6m': { value: null, picks: null } } } },
+      { slug: 'be-empty', public: { windows: { '6m': { value: '0.00', picks: 0 } } } },
+    ]
+    const olbgRows = [
+      { slug: 'olbg-sample', compact: { windows: [{ tips: 0 }, { tips: 2 }, { tips: 2 }] } },
+      { slug: 'olbg-empty', compact: { windows: [{ tips: 0 }, { tips: 0 }, { tips: 0 }] } },
+    ]
+    await db.insert(tipsters).values(rows)
+    try {
+      const result = await db.select({ slug: tipsters.slug }).from(tipsters)
+        .leftJoin(sql`jsonb_to_recordset('[]'::jsonb) AS b2i_audit(slug text, windows jsonb)`, sql`true`)
+        .leftJoin(sql`jsonb_to_recordset(${JSON.stringify(beRows)}::jsonb) AS be_research(slug text, public jsonb)`, sql`be_research.slug=${tipsters.slug}`)
+        .leftJoin(sql`jsonb_to_recordset(${JSON.stringify(olbgRows)}::jsonb) AS olbg_stats(slug text, compact jsonb)`, sql`olbg_stats.slug=${tipsters.slug}`)
+        .where(and(inArray(tipsters.id, rows.map(r => r.id)), activityCondition(6, false, [])))
+      expect(result.map(r => r.slug).sort()).toEqual(['be-zero', 'olbg-sample'])
+    } finally { await db.delete(tipsters).where(inArray(tipsters.id, rows.map(r => r.id))) }
   })
 
   it('pagination (LoadMore path) returns stable pages with negative ids', async () => {

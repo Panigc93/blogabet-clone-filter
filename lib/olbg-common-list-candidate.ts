@@ -20,6 +20,7 @@ export interface CommonMonthlyRequest {
  // activityUnknown keeps profiles WITHOUT picks in the latest complete month.
  activityMonths?:number
  activityUnknown?:boolean
+ activityReferenceMonth?:string
  baselineFilterKey?:string
  pageSize:number
  cursor?:string
@@ -30,7 +31,7 @@ const key=(c:TipsterCardData)=>`${c.platform}:${c.sourceUrl}`
 function queryIdentity(q:CommonMonthlyRequest):string{
  return JSON.stringify({estimateMethod:'global-midpoint-profit1-max2-v1',search:q.search??'',order:q.order,month:q.monthly.month,minResultMonths:q.monthly.minResultMonths??null,
   roiMin:q.monthly.roiMin??null,profitMin:q.monthly.profitMin??null,picksMin:q.monthly.picksMin??null,
-  estimate:q.estimate??false,minCommonPicks:q.minCommonPicks??null,minCommonYield:q.minCommonYield??null,maxCommonYield:q.maxCommonYield??null,excludeMonthly:q.excludeMonthly??false,activityMonths:q.activityMonths??null,activityUnknown:q.activityUnknown??false,baselineFilterKey:q.baselineFilterKey??null,pageSize:q.pageSize})
+  estimate:q.estimate??false,minCommonPicks:q.minCommonPicks??null,minCommonYield:q.minCommonYield??null,maxCommonYield:q.maxCommonYield??null,excludeMonthly:q.excludeMonthly??false,activityMonths:q.activityMonths??null,activityUnknown:q.activityUnknown??false,activityReferenceMonth:q.activityReferenceMonth??null,baselineFilterKey:q.baselineFilterKey??null,pageSize:q.pageSize})
 }
 export function commonMonthlyPage(baseline:CommonListEntry[],baselineRevision:string,snapshot:MonthlySnapshot,q:CommonMonthlyRequest):CommonListPage{
  if(!Number.isSafeInteger(q.pageSize)||q.pageSize<1||q.pageSize>200)throw Error('Invalid page size')
@@ -53,7 +54,7 @@ export function commonMonthlyPage(baseline:CommonListEntry[],baselineRevision:st
  // month itself: it may be partial). Months are 'YYYY-MM'; lexical shift is
  // exact for calendar months.
  const shiftMonth=(ym:string,delta:number)=>{const y=+ym.slice(0,4),m=+ym.slice(5,7)+delta;const t=new Date(Date.UTC(y,m-1,1));return t.toISOString().slice(0,7)}
- const activeInWindow=(p:(typeof selected0)[number],n:number)=>{const cap=p.capturedAt.slice(0,7);const lo=shiftMonth(cap,-n);return p.months.some(m=>m.picks>0&&m.month>=lo&&m.month<cap)}
+ const activeInWindow=(p:(typeof selected0)[number],n:number)=>{const cap=p.capturedAt.slice(0,7);if(q.activityReferenceMonth&&cap!==q.activityReferenceMonth)return false;const lo=shiftMonth(cap,-n);return p.months.some(m=>m.picks>0&&m.month>=lo&&m.month<cap)}
  const selected=q.activityMonths!==undefined?selected0.filter(p=>activeInWindow(p,q.activityMonths!))
   :q.activityUnknown?selected0.filter(p=>!activeInWindow(p,1)):selected0
  let rows:CommonListEntry[]=[

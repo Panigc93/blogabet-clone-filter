@@ -101,6 +101,10 @@ describe('OLBG monthly activity evidence',()=>{
  it('activityUnknown keeps only profiles without picks in the latest complete month',()=>{
   expect(olbgRows({...request,activityUnknown:true})).toEqual(['J2BLUE'])
  })
+ it('stale captures do not stay active in a later month',()=>{
+  expect(olbgRows({...request,activityMonths:12,activityReferenceMonth:'2026-12'})).toEqual([])
+  expect(olbgRows({...request,activityUnknown:true,activityReferenceMonth:'2026-12'}).sort()).toEqual(['BillShut','Grobler','J2BLUE'].sort())
+ })
  it('activity participates in the pagination identity (no stale cursor reuse)',()=>{
   const page=commonMonthlyPage(baseline,'v1',snapshot,request)
   expect(()=>commonMonthlyPage(baseline,'v1',snapshot,{...request,activityMonths:3,cursor:page.nextCursor!})).toThrow(/restart/)

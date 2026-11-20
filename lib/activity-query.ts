@@ -17,16 +17,20 @@ const evidence = (rawEvidence as ActivityEvidence[]).filter(validEvidence)
 // yield_6m is (window with 0 picks imports both NULL).
 //
 // Bet2Invest is the same shape: last_pick_at stays NULL (month granularity),
-// and its yield_3m/yield_6m/yield_12m columns carry the captured 3/6/12m
-// windows (audit-validated at read time by the b2i period context; a window
-// without picks imports NULL). Capture-relative like Apuestes (capture
-// 2026-11-17), exact window match only.
+// and its yield_3m/yield_6m/yield_12m columns carry complete calendar months
+// before capture (2026-11-17), not rolling windows. The joined b2i_audit
+// source contains only validated audits from the current month, matched to
+// the row's exact capture; its value must also match the raw column.
 function capturedWindow(platform: 'apuestes' | 'bet2invest', months: number): SQL | null {
   const col = months === 3 ? tipsters.yield3m
     : months === 6 ? tipsters.yield6m
     : months === 12 ? tipsters.yield12m
     : null
-  return col ? and(eq(tipsters.platform, platform), isNotNull(col))! : null
+  if (!col) return null
+  if (platform === 'bet2invest') return and(eq(tipsters.platform, platform),
+    sql`(b2i_audit.windows->${String(months)}->>'value')::numeric = ${col}`,
+    sql`(b2i_audit.windows->${String(months)}->>'bets')::integer > 0`)!
+  return and(eq(tipsters.platform, platform), isNotNull(col))!
 }
 
 // Bettingexpert has no per-pick dates either; its reviewed 3/6/12m windows
@@ -38,7 +42,8 @@ function capturedWindow(platform: 'apuestes' | 'bet2invest', months: number): SQ
 function bettingexpertWindow(months: number): SQL | null {
   const w = months === 3 ? '3m' : months === 6 ? '6m' : months === 12 ? '12m' : null
   return w ? and(eq(tipsters.platform, 'bettingexpert'),
-    sql`(be_research.public->'windows'->${w}->>'value') IS NOT NULL`)! : null
+    sql`(be_research.public->'windows'->${w}->>'value') IS NOT NULL`,
+    sql`(be_research.public->'windows'->${w}->>'picks')::integer > 0`)! : null
 }
 
 // OLBG (non-monthly read path only; production serves OLBG through the
@@ -70,9 +75,9 @@ export function activityCondition(months: number, unknown = false, rows: Activit
 
 export function activityWarning(months?: number, unknown?: boolean): string | null {
   if (months === undefined && !unknown) return null
-  if (unknown) return 'Sin publicación comprobada en el último mes. Incluye datos ausentes, parciales o antiguos: NO significa inactivo. Blogabet conserva su aproximación del catálogo.'
+  if (unknown) return 'Sin prueba en el último mes disponible: ventana móvil cuando hay fechas; último mes completo para OLBG. Apuestes, Bet2Invest y Bettingexpert no tienen prueba de 1 mes. Incluye datos ausentes, parciales o antiguos: NO significa inactivo. Blogabet conserva su aproximación del catálogo.'
   const dates = evidence.map(e => e.capturedAt).sort()
   const range = dates.length ? ` Fechas de captura: ${dates[0]} a ${dates[dates.length - 1]}. ` : ' Sin fechas de captura disponibles. '
-  const coverage = `Capturas con fecha aprovechable: Golazobets ${new Set(evidence.filter(e => e.platform === 'golazobets').map(e => e.slug)).size}; Tipstrr ${new Set(evidence.filter(e => e.platform === 'tipstrr').map(e => e.slug)).size}. Apuestes y Bet2Invest usan las ventanas de 3, 6 y 12 meses medidas en sus capturas (Bet2Invest 17 nov 2026; Apuestes 19-20 nov 2026) y Bettingexpert sus ventanas revisadas de 3, 6 y 12 meses; el último mes no está disponible en esas tres plataformas. OLBG usa sus meses con picks publicados. `
-  return coverage + range + 'Actividad comprobada por una publicación dentro del periodo, según capturas parciales (no es necesariamente la última publicación). Sin prueba reciente queda fuera, no se clasifica como inactivo. Blogabet conserva su aproximación del catálogo. No hay actualización automática.'
+  const coverage = `Capturas con fecha aprovechable: Golazobets ${new Set(evidence.filter(e => e.platform === 'golazobets').map(e => e.slug)).size}; Tipstrr ${new Set(evidence.filter(e => e.platform === 'tipstrr').map(e => e.slug)).size}. Apuestes usa ventanas móviles de 3, 6 y 12 meses en la captura del 19-20 nov 2026. Bet2Invest (captura 17 nov 2026) y Bettingexpert usan los 3, 6 y 12 meses completos anteriores al mes de captura; no son ventanas móviles. El último mes no está disponible en esas tres plataformas. OLBG usa los meses completos anteriores a su captura que tengan picks publicados. `
+  return coverage + range + 'Prueba de actividad dentro de las ventanas indicadas, según capturas parciales; no equivale a la última publicación. Sin prueba queda fuera, no se clasifica como inactivo. Blogabet conserva su aproximación del catálogo. No hay actualización automática.'
 }
