@@ -21,7 +21,7 @@ async function main(){
  const out=await executeProtipsterImport(drizzle(pool,{schema:{tipsters,importValidationLog}}),plan,RUN)
  const after=await fingerprint();const intact=JSON.stringify(before)===JSON.stringify(after)
  const actual=await q(`SELECT count(*)::int n,count(source_url)::int urls,count(avatar_url)::int avatars,count(*) FILTER(WHERE yield_12m IS NULL)::int no12m FROM tipsters WHERE platform='protipster'`)
- const logs=await q(`SELECT slug,klass,reason FROM import_validation_log WHERE run_id=$1 ORDER BY slug`,[RUN]);const report={run:RUN,...out,actual:actual[0],otherPlatformsIntact:intact,holds:logs}
+ const logs=await q(`SELECT slug,class AS klass,reason FROM import_validation_log WHERE run_id=$1 ORDER BY slug`,[RUN]);const report={run:RUN,...out,actual:actual[0],otherPlatformsIntact:intact,holds:logs}
  writeFileSync('/tmp/protipster-production-result.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));if(!intact||actual[0].n!==210||logs.length!==3)throw Error('Post-import verification failed, inspect result')
  }finally{await pool.end()}
 }
