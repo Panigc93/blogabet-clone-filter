@@ -47,3 +47,5 @@ crawler/.checkpoint-*
 
 # Private server data supplied separately during an authorized deployment
 /.private-data/
+data/apuestes/
+evidence/apuestes/

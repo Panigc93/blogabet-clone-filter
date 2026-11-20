@@ -36,7 +36,7 @@ const BB_ROW: Tipster = {
   picksFree3mAvg: '12.00',
   yieldFree3m: '3.30',
   statsUpdatedAt: null,
-  sourcePortfolioId: null,
+  sourcePortfolioId: null, sourceUrl: null,
 }
 
 describe('fromDbTipster (Blogabet parity)', () => {
@@ -211,7 +211,7 @@ const B2I_ROW: Tipster = {
   picksFree3mAvg: null,
   yieldFree3m: null,
   statsUpdatedAt: new Date('2026-11-16T10:00:00Z'),
-  sourcePortfolioId: null,
+  sourcePortfolioId: null, sourceUrl: null,
 }
 
 describe('fromDbTipster (Bet2Invest)', () => {

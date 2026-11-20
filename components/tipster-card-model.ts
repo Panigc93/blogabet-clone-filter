@@ -11,7 +11,7 @@ import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
 // Tipstrr rows come from dated real captures (fromTipstrrSnapshot), never
 // presented as a sync: capturedAt is always shown.
 
-export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'bettingexpert' | 'olbg'
+export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'bettingexpert' | 'olbg' | 'apuestes'
 
 export interface PeriodStatView {
   valuePct: number | null
@@ -87,6 +87,7 @@ export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardD
   if (t.platform === 'golazobets') return golazobetsFromDbRow(t)
   if (t.platform === 'bet2invest') return bet2investFromDbRow(t, now)
   if (t.platform === 'bettingexpert') return bettingexpertFromDbRow(t,now)
+  if (t.platform === 'apuestes') return apuestesFromDbRow(t)
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -387,4 +388,55 @@ function bettingexpertResearchCard(t:TipsterReadRow,a:BEVisiblePeriods):TipsterC
     yield3m:period('3m'),yield6m:period('6m'),yield12m:period('12m'),
     picks6mAvg:null,
     picks6mTrace:'Apuestas elegibles del período 6m / 6 meses calendario. No son meses positivos.',showPeriodRow:true}
+}
+
+// DB-backed Apuestes row. Units discipline: profit in Apuestes units ('u'),
+// never euros; the on-site EUR figure is the subscription price, whose plan
+// semantics could not be verified from the capture, so price stays unshown.
+// Per Juan's call (2026-11-20) the card adds NO capture/provenance text to
+// the UI: capturedAt stays null here; provenance lives in the DB columns
+// (captured_at, stats_updated_at, source_portfolio_id, source_url).
+// The profile link uses the exact stored source_url (listing evidence);
+// reconstruction from name/slug was dropped: 761 usernames are not URL-safe.
+function apuestesFromDbRow(t: TipsterReadRow): TipsterCardData {
+  const num = (v: string | null): number | null => {
+    if (v === null) return null
+    const n = parseFloat(v)
+    return Number.isFinite(n) ? n : null
+  }
+  const profit = num(t.profit)
+  const period = (v: string | null): PeriodStatView => ({ valuePct: num(v), trace: null, complete: true })
+  const profile = t.sourceUrl ?? 'https://apuestes.com/tipsters'
+  return {
+    platform: 'apuestes',
+    name: t.name,
+    avatarUrl: t.avatarUrl,
+    sourceUrl: profile,
+    sourceLabel: profile.replace('https://', ''),
+    capturedAt: null, // UI limpia: sin texto de captura en la tarjeta
+    sinceYear: t.sinceYear,
+    sinceTitle: 'Primer mes con picks registrados en la captura de Apuestes; no es fecha de alta',
+    picks: t.picks,
+    profitDisplay: profit !== null ? `${profit >= 0 ? '+' : ''}${Math.round(profit)} u` : null,
+    yieldPct: num(t.yield),
+    yieldTitle: 'Yield publicado por Apuestes (beneficio / unidades apostadas); las unidades Apuestes no son equivalentes a € ni a las de otras plataformas',
+    verifiedPct: null, // no expuesto por Apuestes
+    followers: t.followers,
+    isVerified: null, // concepto no expuesto: sin badge
+    isPaid: t.isPaid === true,
+    priceLabel: null, // semantica de planes no verificada desde la captura
+    priceCurrencySuffix: null,
+    resetCount: 0,
+    resetTitle: 'Apuestes no expone resets de estadisticas',
+    flagUrl: null,
+    countryCode: null,
+    yield3m: period(t.yield3m),
+    yield6m: period(t.yield6m),
+    yield12m: period(t.yield12m),
+    picks6mAvg: num(t.picks6mAvg),
+    picks6mTrace: null,
+    picksFree3mAvg: null,
+    yieldFree3m: null,
+    showPeriodRow: t.yield6m != null || t.yield12m != null || t.picks6mAvg != null,
+  }
 }

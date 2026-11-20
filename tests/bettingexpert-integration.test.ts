@@ -14,7 +14,7 @@ const raw = JSON.parse(readFileSync(new URL('batch-real.json', fixtures), 'utf8'
 const records = parseProfileTotalsBatch(raw, ids, '2026-11-17T17:43:00Z')
 const pg = new PGlite(); const db = drizzle(pg, { schema: { tipsters } })
 beforeAll(async () => {
-  for (const f of ['0000_sudden_jazinda.sql','0001_add_last_reset_at.sql','0002_add_is_verified.sql','0003_naive_dormammu.sql','0004_multi_platform.sql','0005_tipstrr_internal_pk.sql']) {
+  for (const f of ['0000_sudden_jazinda.sql','0001_add_last_reset_at.sql','0002_add_is_verified.sql','0003_naive_dormammu.sql','0004_multi_platform.sql','0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql']) {
     for (const s of readFileSync(new URL(`../drizzle/${f}`, import.meta.url), 'utf8').split('--> statement-breakpoint')) if (s.trim()) await pg.exec(s)
   }
   await db.insert(tipsters).values(records.map((r, i) => bettingexpertToInsert(r, 1000 + i)))
