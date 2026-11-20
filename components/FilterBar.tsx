@@ -195,11 +195,11 @@ export function FilterBar({ searchParams, olbgEnabled = false, beHistoryEnabled 
                 value={sp.get('minPicks') ?? '0'}
                 onChange={e => update('minPicks', e.target.value === '0' ? null : e.target.value)}>
                 <option value="0">Todos</option>
-                <option value="50">Más de 50</option>
-                <option value="100">Más de 100</option>
-                <option value="200">Más de 200</option>
-                <option value="500">Más de 500</option>
-                <option value="1000">Más de 1.000</option>
+                <option value="50">50 o más</option>
+                <option value="100">100 o más</option>
+                <option value="200">200 o más</option>
+                <option value="500">500 o más</option>
+                <option value="1000">1.000 o más</option>
               </select>
             </div>
 
@@ -208,7 +208,7 @@ export function FilterBar({ searchParams, olbgEnabled = false, beHistoryEnabled 
               <label style={{ color: '#fff', fontSize: '80%', fontWeight: 400, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Actividad</label>
               <select className="form-control" style={{ border: '1px solid #ccc', borderBottomWidth: 3, borderRadius: 4, fontSize: 14, cursor: 'pointer' }}
                 value={sp.get('activity') ?? ''}
-                title={sp.get('activity') === 'unknown' ? 'Sin publicación comprobada en el último mes; no significa inactivo' : "Publicaciones comprobadas en capturas; ausencia de prueba no significa inactividad. BB usa su catálogo de activos."}
+                title={sp.get('activity') === 'unknown' ? 'Sin prueba en el último mes disponible; no significa inactivo' : "Publicaciones comprobadas en capturas; ausencia de prueba no significa inactividad. BB usa su catálogo de activos."}
                 onChange={e => update('activity', e.target.value || null)}>
                 <option value="">Todos</option>
                 {sp.get('activity') && !['1','3','6','12','unknown'].includes(sp.get('activity')!) && <option value={sp.get('activity')!}>Últimos {sp.get('activity')} meses</option>}
