@@ -1,0 +1,91 @@
+
+            
+                                    var tplConfig = Object.freeze({
+              userLogged: false,
+              emailConfirmed: false,
+              resumesPendingAction: false,
+              competitionRulesAccepted: false,
+              accaRaceMinLegOdds: '1.40',
+              userEmail: '',
+              userAvatar: '',
+              username: '',
+              usernameCanonical: '',
+              userId: null,
+              locale: 'es',
+              userQuests: [],
+              currency: '$',
+              skinned: 0,
+              tippingStyle: '',
+
+                              preloadStateData: [
+                {
+                  mutation: 'NOTIFICATIONS_PENDING_COUNT',
+                  args: [
+                      {"pnc":0}
+                  ],
+                },
+                {
+                  mutation: 'STAKE_PRESETS_SET',
+                  args: [
+                      {"min":5,"max":100,"presets":[5,20,40,60,80,100],"presetMaxOdds":{"5":null,"20":10,"40":6,"60":4,"80":2.5,"100":2}}
+                  ],
+                },
+                                {
+                  mutation: 'ODDS_FORMATS',
+                  args: [
+                      ["decimal","fractional","moneyline"]
+                  ],
+                },
+                {
+                  mutation: 'CURRENT_ODDS_FORMAT',
+                  args: [
+                      "moneyline"
+                  ],
+                },
+                {
+                  mutation: 'ODDS_ACCEPT_CHANGES',
+                  args: [
+                      0
+                  ],
+                },
+                          {
+        mutation: 'UPP_DASHBOARD_OVERVIEW',
+        args: [
+            {"id":252502,"username":"ALMO7TARIF","usernameCanonical":"almo7tarif","avatar":"V5BY8RD3yZUFEWX3.png","userJoinDate":"2021-03-28 18:44:29","isUserFollowed":false,"isOwner":false,"countryCode":"MA"}
+        ],
+    },
+    {
+        mutation: 'UPP_DASHBOARD_ACHIEVEMENTS',
+        args: [
+            [{"actualAmount":7026,"requiredAmount":10000,"name":"fanatic","isAchieved":0},{"actualAmount":500,"requiredAmount":500,"name":"realWinner","isAchieved":1},{"actualAmount":100,"requiredAmount":100,"name":"fearless","isAchieved":1},{"actualAmount":180,"requiredAmount":180,"name":"loyal","isAchieved":1},{"actualAmount":0,"requiredAmount":10,"name":"familyMember","isAchieved":0},{"actualAmount":100000,"requiredAmount":100000,"name":"rich","isAchieved":1},{"actualAmount":39,"requiredAmount":500,"name":"popular","isAchieved":0},{"actualAmount":1,"requiredAmount":5,"name":"bookieCritic","isAchieved":0}]
+        ],
+    },
+    {
+        mutation: 'UPP_RANK_IN_COMPETITION_SET_DATA',
+        args: [
+            {"periods":[{"key":"weekly:2026-W47","label":"Esta semana"},{"key":"weekly:2026-W46","label":"Semana pasada"},{"key":"monthly:2026-10","label":"Mes pasado"}],"selectedPeriodKey":"weekly:2026-W47","ranks":[{"competitionId":13,"label":"Futbol semanal","sportIds":[1],"url":"\/competicion\/weekly\/football\/2026-W47#leaderboard","position":null,"picks":19,"profit":-117,"yield":-6.428571,"hitRate":0.5789,"averageOdds":1.675263,"ptScore":null,"qualification":{"isQualified":false,"missingTips":1,"needsMoreTips":true,"needsPositiveProfit":true,"needsHigherAverageOdds":false,"minAvgOdds":1.4,"averageOdds":1.675263},"competitionType":"weekly_sport"},{"competitionId":14,"label":"Baloncesto semanal","sportIds":[2],"url":"\/competicion\/weekly\/basketball\/2026-W47#leaderboard","position":null,"picks":0,"profit":0,"yield":0,"hitRate":0,"averageOdds":null,"ptScore":null,"qualification":{"isQualified":false,"missingTips":20,"needsMoreTips":true,"needsPositiveProfit":true,"needsHigherAverageOdds":true,"minAvgOdds":1.4,"averageOdds":null},"competitionType":"weekly_sport"},{"competitionId":15,"label":"Tenis semanal","sportIds":[5],"url":"\/competicion\/weekly\/tennis\/2026-W47#leaderboard","position":null,"picks":0,"profit":0,"yield":0,"hitRate":0,"averageOdds":null,"ptScore":null,"qualification":{"isQualified":false,"missingTips":20,"needsMoreTips":true,"needsPositiveProfit":true,"needsHigherAverageOdds":true,"minAvgOdds":1.4,"averageOdds":null},"competitionType":"weekly_sport"},{"competitionId":16,"label":"Hockey sobre hielo semanal","sportIds":[4],"url":"\/competicion\/weekly\/ice-hockey\/2026-W47#leaderboard","position":null,"picks":0,"profit":0,"yield":0,"hitRate":0,"averageOdds":null,"ptScore":null,"qualification":{"isQualified":false,"missingTips":20,"needsMoreTips":true,"needsPositiveProfit":true,"needsHigherAverageOdds":true,"minAvgOdds":1.4,"averageOdds":null},"competitionType":"weekly_sport"},{"competitionId":19,"label":"Mixto semanal","sportIds":[3,12,16],"url":"\/competicion\/weekly\/mixed-rugby-baseball-american-football\/2026-W47#leaderboard","position":null,"picks":0,"profit":0,"yield":0,"hitRate":0,"averageOdds":null,"ptScore":null,"qualification":{"isQualified":false,"missingTips":20,"needsMoreTips":true,"needsPositiveProfit":true,"needsHigherAverageOdds":true,"minAvgOdds":1.4,"averageOdds":null},"competitionType":"weekly_sport"}]}
+        ],
+    },
+    {
+        mutation: 'UPP_SUMMARY_ADD_DATA',
+        args: [
+            {"summary":{"userId":252502,"avatar":"V5BY8RD3yZUFEWX3.png","userJoinDate":"2021-03-28 18:44:29","username":"ALMO7TARIF","usernameCanonical":"almo7tarif","isUserFollowed":false,"followersCount":39,"followingCount":0,"competitionBadges":[]},"followState":"none","cumulativeStats":{"averageOdds":"+210","hitRate":"40.38","profit":-5066,"stakes":225800,"picks":1513,"yield":"-2.2"},"badges":{"tournament":false,"team":false},"achievedAchievements":[{"actualAmount":500,"requiredAmount":500,"name":"realWinner","isAchieved":1},{"actualAmount":100,"requiredAmount":100,"name":"fearless","isAchieved":1},{"actualAmount":180,"requiredAmount":180,"name":"loyal","isAchieved":1},{"actualAmount":100000,"requiredAmount":100000,"name":"rich","isAchieved":1}]}
+        ],
+    },
+    {
+        mutation: 'UPP_DASHBOARD_FILTERS',
+        args: [
+            {"sportFilter":[{"id":0,"slug":"","name":"Todos los deportes","fixturesCount":0},{"id":1,"slug":"futbol","name":"Futbol","fixturesCount":0},{"id":5,"slug":"tenis","name":"Tenis","fixturesCount":0},{"id":2,"slug":"baloncesto","name":"Baloncesto","fixturesCount":0},{"id":4,"slug":"hockey-sobre-hielo","name":"Hockey sobre hielo","fixturesCount":0}]}
+        ],
+    },
+    {
+        mutation: 'UPP_CHART_DATA',
+        args: [
+            {"chartData":{"detailedGraphData":[["Date","Beneficio","Yield"],["sept",-7386,-16.6],["oct",-6284,-5.53],["nov",8603,12.71]],"globalGraphData":{"averageOdds":"3.10","hitRate":"40.38","profit":-5067,"stakes":225800,"picks":1513,"yield":"-2.2"}},"chartFilters":{"defaultLinesCriteria":["profit","yield"],"defaultDateCriteria":"lastSixMonths","dateFilters":["year","lastThreeMonths","lastSixMonths","2026-11","2026-10","2026-09"],"linesFilters":["profit","yield","hitRate","tipsCount"]}}
+        ],
+    },
+              ],
+              svgSprite: 'https://www.protipster.es/bundles/protipsterapp/images/sprite.svg',
+              gaCategory: 'UPP',
+            })
+        
