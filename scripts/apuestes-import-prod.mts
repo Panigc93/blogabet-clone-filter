@@ -23,8 +23,8 @@
 //   DATABASE_URL=<cadena> npx tsx scripts/apuestes-import-prod.mts --apply   # aplica
 //
 // La cadena se lee de la variable de entorno; nunca se imprime.
-import { neon } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-http'
+import pg from 'pg'
+import { drizzle } from 'drizzle-orm/node-postgres'
 import * as schemaNs from '../db/schema'
 const { tipsters, importValidationLog } = (schemaNs as any).default ?? schemaNs
 import * as impNs from '../crawler/platforms/apuestes/import'
@@ -39,7 +39,9 @@ const APPLY = process.argv.includes('--apply')
 async function main() {
   const url = process.env.DATABASE_URL
   if (!url) throw new Error('DATABASE_URL requerida (variable de entorno; nunca imprimir)')
-  const sql = neon(url)
+  // node-postgres: transacciones reales (neon-http ya no las soporta).
+  const pool = new pg.Pool({ connectionString: url, max: 1 })
+  const sql = { query: (text: string, params?: any[]) => pool.query(text, params).then((r: any) => r.rows) }
 
   // Precondición 1: 0006 aplicada.
   // sql.query(): tsx compila los tagged templates a llamada y este driver los rechaza.
@@ -56,9 +58,9 @@ async function main() {
 
   const plan = planApuestesImport(JSONL, URLS)
   console.log(`plan: ${plan.rows} filas -> ${plan.inserts.length} inserts + ${plan.holds.length} holds | run_id=${RUN_ID}`)
-  if (!APPLY) { console.log('dry-run: sin escrituras. --apply para ejecutar.'); return }
+  if (!APPLY) { console.log('dry-run: sin escrituras. --apply para ejecutar.'); await pool.end(); return }
 
-  const db = drizzle(sql, { schema: { tipsters, importValidationLog } })
+  const db = drizzle(pool, { schema: { tipsters, importValidationLog } })
   const out = await executeApuestesImport(db, plan, RUN_ID)
 
   // Chequeo post-carga (misma conexión).
@@ -70,6 +72,7 @@ async function main() {
   console.log(`apuestes: ${(afterAp[0] as any).n} filas (${(afterAp[0] as any).urls} con source_url, ${(afterAp[0] as any).n - (afterAp[0] as any).urls} sin URL)`)
   console.log(`holds registrados (${RUN_ID}): ${(holds[0] as any).n} | upserted=${out.upserted} holdsLogged=${out.holdsLogged}`)
   console.log(`otras plataformas intactas: ${intact ? 'OK' : 'FALLO — revisar'}`)
+  await pool.end()
 }
 
 main().catch((e) => { console.error(e); process.exit(1) })
