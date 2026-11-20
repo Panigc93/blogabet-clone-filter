@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import { TipsterRow } from '@/components/TipsterRow'
 import { fromDbTipster, type TipsterReadRow } from '@/components/tipster-card-model'
 import type { Tipster } from '@/db/schema'
@@ -58,7 +59,7 @@ const ROWS: Tipster[] = [
     // Sandbox preview: avatar cacheado en local porque el sandbox no alcanza
     // protipster.es; la ruta de import guarda la URL original
     // (https://www.protipster.es/uploads/avatars/5b4bd6d533539.120.png).
-    avatarUrl: '/lab-avatars/sonicc.png',
+    avatarUrl: '/lab/protipster/avatar/sonicc.png',
     countryCode: 'DE', sinceYear: 2018, signupAt: new Date('2018-05-26T13:28:35Z'),
     picks: 3609, profit: '-7418.000', yield: '-2.38', followers: 53,
     picks6mAvg: '79.50', yield3m: '9.96', yield6m: '9.96', yield12m: '7.74',
@@ -69,7 +70,7 @@ const ROWS: Tipster[] = [
     id: -3, slug: 'almo7tarif', name: 'ALMO7TARIF',
     // Mismo caché local que sonicc; URL original:
     // https://www.protipster.es/uploads/avatars/V5BY8RD3yZUFEWX3.120.png
-    avatarUrl: '/lab-avatars/almo.png',
+    avatarUrl: '/lab/protipster/avatar/almo.png',
     countryCode: 'MA', sinceYear: 2021, signupAt: new Date('2021-03-28T18:44:29Z'),
     picks: 1513, profit: '-5066.000', yield: '-2.24', followers: 39,
     picks6mAvg: '252.17', yield3m: '-2.24', yield6m: '-2.24', yield12m: '-8.65',
@@ -77,7 +78,11 @@ const ROWS: Tipster[] = [
   },
 ]
 
+export const dynamic = 'force-dynamic'
+
 export default function LabProtipsterPage() {
+  // Dev-only preview: never published to production (fixture data, test notice).
+  if (process.env.NODE_ENV === 'production') notFound()
   const rows = ROWS.map(r => fromDbTipster(r as TipsterReadRow))
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '12px' }}>
