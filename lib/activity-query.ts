@@ -21,7 +21,14 @@ const evidence = (rawEvidence as ActivityEvidence[]).filter(validEvidence)
 // before capture (2026-11-17), not rolling windows. The joined b2i_audit
 // source contains only validated audits from the current month, matched to
 // the row's exact capture; its value must also match the raw column.
-function capturedWindow(platform: 'apuestes' | 'bet2invest', months: number): SQL | null {
+//
+// ProTipster is also the Apuestes shape: last_pick_at stays NULL. Its
+// yield_3m/yield_6m are the site's own rolling windows at capture and
+// yield_12m the 12 complete calendar months before capture (user-approved
+// definition 2026-11-20); the import writes NULL when the window has 0
+// picks or the capture is held for inconsistency, so a non-NULL column is
+// activity evidence for that exact window. Exact window match only.
+function capturedWindow(platform: 'apuestes' | 'bet2invest' | 'protipster', months: number): SQL | null {
   const col = months === 3 ? tipsters.yield3m
     : months === 6 ? tipsters.yield6m
     : months === 12 ? tipsters.yield12m
@@ -61,7 +68,7 @@ function olbgWindow(months: number): SQL | null {
 export function activityCondition(months: number, unknown = false, rows: ActivityEvidence[] = evidence): SQL {
   const cutoff = sql`NOW() - make_interval(months => ${months})`
   const bb = and(eq(tipsters.platform, 'blogabet'), gte(tipsters.lastPickAt, cutoff))!
-  const captured = [capturedWindow('apuestes', months), capturedWindow('bet2invest', months), bettingexpertWindow(months), olbgWindow(months)].filter((c): c is SQL => c !== null)
+  const captured = [capturedWindow('apuestes', months), capturedWindow('bet2invest', months), capturedWindow('protipster', months), bettingexpertWindow(months), olbgWindow(months)].filter((c): c is SQL => c !== null)
   const observed = rows.filter(validEvidence).map(e => and(
     eq(tipsters.platform, e.platform), eq(tipsters.slug, e.slug),
     sql`${e.publishedLower}::timestamptz >= ${cutoff}`,
