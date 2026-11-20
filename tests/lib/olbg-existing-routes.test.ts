@@ -13,7 +13,7 @@ describe('existing routes monthly integration',()=>{
  })
  it('pins every standard filter, monthly filter and standard sort',()=>{
   const q=monthlyExistingRequest(new URLSearchParams('olbgMonth=2026-10&olbgRoiMin=2&olbgResultMonths=6'),{maxYield:10,activityMonths:3},'followers')
-  expect(q).toMatchObject({order:'followers',maxCommonYield:10,excludeMonthly:true,monthly:{month:'2026-10',roiMin:2,minResultMonths:6}})
+  expect(q).toMatchObject({order:'followers',maxCommonYield:10,excludeMonthly:false,activityMonths:3,monthly:{month:'2026-10',roiMin:2,minResultMonths:6}})
   expect(q.baselineFilterKey).toContain('activityMonths')
  })
  it('preserves complete SQL baseline order and slug search without reinterpreting card display',()=>{
@@ -22,7 +22,10 @@ describe('existing routes monthly integration',()=>{
   expect(commonMonthlyPage(b,'base',source,q).rows.map(r=>r.key)).toEqual(['bb:2','bb:1'])
  })
  it('excludes monthly data from unsupported common lifetime numeric/type filters',()=>{
-  for(const f of [{tipo:'paid' as const},{activityMonths:3},{platform:'tipstrr' as const}])expect(monthlyExistingRequest(new URLSearchParams(),f,'picks').excludeMonthly).toBe(true)
+  for(const f of [{tipo:'paid' as const},{platform:'tipstrr' as const}])expect(monthlyExistingRequest(new URLSearchParams(),f,'picks').excludeMonthly).toBe(true)
+  // Activity is supported monthly evidence (picks per month), not an exclusion.
+  expect(monthlyExistingRequest(new URLSearchParams(),{activityMonths:3},'picks')).toMatchObject({excludeMonthly:false,activityMonths:3})
+  expect(monthlyExistingRequest(new URLSearchParams(),{activityUnknown:true},'picks')).toMatchObject({excludeMonthly:false,activityUnknown:true})
   expect(monthlyExistingRequest(new URLSearchParams(),{minPicks:100},'picks')).toMatchObject({estimate:true,minCommonPicks:100,excludeMonthly:false})
  })
  it('is disabled by default in a test runtime',()=>{expect(monthlyExistingRoutesEnabled()).toBe(false)})

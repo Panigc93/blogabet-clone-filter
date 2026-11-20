@@ -16,6 +16,12 @@ const snapshot={revision:'source-v1',profiles}
 const baseline=[{key:'baseline:test',card:{...unknownOlbgCard('Baseline test','123'),platform:'blogabet',yieldPct:4} as TipsterCardData}]
 const request:CommonMonthlyRequest={order:'name',monthly:{month:'latest-available'},pageSize:2}
 describe('candidate common-list read integration',()=>{
+ it('searches OLBG by its exact source URL as well as its display name',()=>{
+  const target=profiles[0]
+  const page=commonMonthlyPage(baseline,'v1',snapshot,{...request,search:target.sourceUrl,pageSize:50})
+  expect(page.rows.map(r=>r.card.name)).toEqual([target.name])
+  expect(commonMonthlyPage(baseline,'v1',snapshot,{...request,search:'https://bet2invest.com/tipsters/performance-stats/Kasparov'}).total).toBe(0)
+ })
  it('merges before pagination and returns every identity exactly once',()=>{
   const first=commonMonthlyPage(baseline,'base-v1',snapshot,request)
   expect(first.total).toBe(4);expect(first.rows).toHaveLength(2)
@@ -84,5 +90,33 @@ describe('candidate common-list read integration',()=>{
    const duplicate=JSON.stringify({version:1,basis:'source-published-month-global-all-tips',profiles:[...profiles,profiles[0]]})
    await fs.writeFile(f,duplicate);await expect(loadPublishedMonthlySnapshot(f,createHash('sha256').update(duplicate).digest('hex'))).rejects.toThrow(/Duplicate/)
   }finally{await fs.rm(dir,{recursive:true,force:true})}
+ })
+})
+
+describe('OLBG monthly activity evidence',()=>{
+ // Fixture capture month is 2026-11 for all three profiles; complete months
+ // run up to 2026-10. Grobler and BillShut have picks every recent month;
+ // J2BLUE last has picks in 2026-07 (and a single pick in the partial
+ // capture month, which never counts).
+ const olbgRows=(q:CommonMonthlyRequest)=>commonMonthlyPage(baseline,'v1',snapshot,{...q,pageSize:50}).rows.filter(r=>r.card.platform==='olbg').map(r=>r.card.name)
+ it('activity window keeps profiles with picks in complete months before capture',()=>{
+  expect(olbgRows({...request,activityMonths:3})).toEqual(['Grobler','BillShut'].sort((a,b)=>a.localeCompare(b)))
+  expect(olbgRows({...request,activityMonths:1})).toEqual(['Grobler','BillShut'].sort((a,b)=>a.localeCompare(b)))
+  expect(olbgRows({...request,activityMonths:12})).toEqual(['Grobler','BillShut','J2BLUE'].sort((a,b)=>a.localeCompare(b)))
+ })
+ it('activityUnknown keeps only profiles without picks in the latest complete month',()=>{
+  expect(olbgRows({...request,activityUnknown:true})).toEqual(['J2BLUE'])
+ })
+ it('stale captures do not stay active in a later month',()=>{
+  expect(olbgRows({...request,activityMonths:12,activityReferenceMonth:'2026-12'})).toEqual([])
+  expect(olbgRows({...request,activityUnknown:true,activityReferenceMonth:'2026-12'}).sort()).toEqual(['BillShut','Grobler','J2BLUE'].sort())
+ })
+ it('activity participates in the pagination identity (no stale cursor reuse)',()=>{
+  const page=commonMonthlyPage(baseline,'v1',snapshot,request)
+  expect(()=>commonMonthlyPage(baseline,'v1',snapshot,{...request,activityMonths:3,cursor:page.nextCursor!})).toThrow(/restart/)
+ })
+ it('baseline rows are not re-filtered by monthly activity (SQL owns them)',()=>{
+  const page=commonMonthlyPage(baseline,'v1',snapshot,{...request,activityMonths:3,pageSize:50})
+  expect(page.rows.some(r=>r.key==='baseline:test')).toBe(true)
  })
 })

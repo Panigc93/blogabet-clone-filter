@@ -116,3 +116,43 @@ it('final evidence matches all 284 original Golazobets identities without privat
   const referenceNow = new Date('2026-11-16T12:33:00Z')
   expect(rows.filter(e => provesRecent(e, monthsBefore(referenceNow, 1), referenceNow))).toHaveLength(93)
 })
+
+describe('activity windows for capture-based platforms', () => {
+  const dialect = new PgDialect()
+  it('maps Bet2Invest activity to its captured 3/6/12m windows, exact match only', () => {
+    for (const [m, col] of [[3, 'yield_3m'], [6, 'yield_6m'], [12, 'yield_12m']] as const) {
+      const q = dialect.sqlToQuery(activityCondition(m, false, []))
+      expect(q.sql).toContain(col)
+      expect(q.params).toContain('bet2invest')
+    }
+    for (const m of [1, 2, 24]) {
+      const q = dialect.sqlToQuery(activityCondition(m, false, []))
+      expect(q.params).not.toContain('bet2invest')
+    }
+  })
+  it('maps Bettingexpert activity to the reviewed be_research windows, exact match only', () => {
+    for (const m of [3, 6, 12] as const) {
+      const q = dialect.sqlToQuery(activityCondition(m, false, []))
+      expect(q.sql).toContain(`be_research.public->'windows'->`)
+      expect(q.params).toContain('bettingexpert')
+      expect(q.params).toContain(`${m}m`)
+    }
+    const q1 = dialect.sqlToQuery(activityCondition(1, false, []))
+    expect(q1.params).not.toContain('bettingexpert')
+  })
+  it('maps OLBG activity to joined compact window tips, exact match only', () => {
+    for (const m of [3, 6, 12] as const) {
+      const q = dialect.sqlToQuery(activityCondition(m, false, []))
+      expect(q.sql).toContain(`olbg_stats.compact->'windows'`)
+      expect(q.params).toContain('olbg')
+    }
+    expect(dialect.sqlToQuery(activityCondition(1, false, [])).params).not.toContain('olbg')
+  })
+  it('keeps every platform out of the unknown branch (still NOT COALESCE of positive evidence)', () => {
+    const q = dialect.sqlToQuery(activityCondition(3, true, []))
+    expect(q.sql).toContain('NOT COALESCE')
+    expect(q.params).toContain('bet2invest')
+    expect(q.params).toContain('bettingexpert')
+    expect(q.params).toContain('olbg')
+  })
+})

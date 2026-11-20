@@ -1,6 +1,7 @@
 // Inert common-list integration pipeline. Callers provide ALL baseline cards
 // before pagination. Never append OLBG to an already paginated SQL page.
 // Existing SSR/API use this only behind the disabled non-production gate.
+import {profileSearch} from './profile-search'
 import type {TipsterCardData} from '@/components/tipster-card-model'
 import {fromPublishedOlbgMonth,fromEstimatedOlbgProfile} from '@/components/olbg-monthly-card-model'
 import {latestAvailableMonth,queryPublishedMonths,type MonthlyQuery} from './olbg-published-monthly'
@@ -15,6 +16,12 @@ export interface CommonMonthlyRequest {
  minCommonYield?:number
  maxCommonYield?:number
  excludeMonthly?:boolean
+ // Activity evidence for the monthly source: a profile passes N months when
+ // it has picks in any of the N complete months before its capture month;
+ // activityUnknown keeps profiles WITHOUT picks in the latest complete month.
+ activityMonths?:number
+ activityUnknown?:boolean
+ activityReferenceMonth?:string
  baselineFilterKey?:string
  pageSize:number
  cursor?:string
@@ -25,7 +32,7 @@ const key=(c:TipsterCardData)=>`${c.platform}:${c.sourceUrl}`
 function queryIdentity(q:CommonMonthlyRequest):string{
  return JSON.stringify({estimateMethod:'global-midpoint-profit1-max2-v1',search:q.search??'',order:q.order,month:q.monthly.month,minResultMonths:q.monthly.minResultMonths??null,
   roiMin:q.monthly.roiMin??null,profitMin:q.monthly.profitMin??null,picksMin:q.monthly.picksMin??null,
-  estimate:q.estimate??false,minCommonPicks:q.minCommonPicks??null,minCommonYield:q.minCommonYield??null,maxCommonYield:q.maxCommonYield??null,excludeMonthly:q.excludeMonthly??false,baselineFilterKey:q.baselineFilterKey??null,pageSize:q.pageSize})
+  estimate:q.estimate??false,minCommonPicks:q.minCommonPicks??null,minCommonYield:q.minCommonYield??null,maxCommonYield:q.maxCommonYield??null,excludeMonthly:q.excludeMonthly??false,activityMonths:q.activityMonths??null,activityUnknown:q.activityUnknown??false,activityReferenceMonth:q.activityReferenceMonth??null,baselineFilterKey:q.baselineFilterKey??null,pageSize:q.pageSize})
 }
 export function commonMonthlyPage(baseline:CommonListEntry[],baselineRevision:string,snapshot:MonthlySnapshot,q:CommonMonthlyRequest):CommonListPage{
  if(!Number.isSafeInteger(q.pageSize)||q.pageSize<1||q.pageSize>200)throw Error('Invalid page size')
@@ -43,7 +50,14 @@ export function commonMonthlyPage(baseline:CommonListEntry[],baselineRevision:st
  }
  const monthlyOnly=q.order.startsWith('olbg-')||q.monthly.roiMin!==undefined||q.monthly.profitMin!==undefined||q.monthly.picksMin!==undefined||q.monthly.minResultMonths!==undefined&&q.monthly.minResultMonths>0
  const monthlyOrder:MonthlyQuery['order']=q.order==='olbg-roi-desc'?'roi-desc':q.order==='olbg-profit-desc'?'profit-desc':q.order==='olbg-picks-desc'?'picks-desc':'name'
- const selected=queryPublishedMonths(snapshot.profiles,{...q.monthly,minResultMonths:q.estimate?undefined:q.monthly.minResultMonths,order:monthlyOrder}).filter(p=>!q.estimate||q.monthly.minResultMonths===undefined||p.months.filter(m=>m.month<p.capturedAt.slice(0,7)&&m.picks>0).length>=q.monthly.minResultMonths)
+ const selected0=queryPublishedMonths(snapshot.profiles,{...q.monthly,minResultMonths:q.estimate?undefined:q.monthly.minResultMonths,order:monthlyOrder}).filter(p=>!q.estimate||q.monthly.minResultMonths===undefined||p.months.filter(m=>m.month<p.capturedAt.slice(0,7)&&m.picks>0).length>=q.monthly.minResultMonths)
+ // Activity over complete months before the capture month (never the capture
+ // month itself: it may be partial). Months are 'YYYY-MM'; lexical shift is
+ // exact for calendar months.
+ const shiftMonth=(ym:string,delta:number)=>{const y=+ym.slice(0,4),m=+ym.slice(5,7)+delta;const t=new Date(Date.UTC(y,m-1,1));return t.toISOString().slice(0,7)}
+ const activeInWindow=(p:(typeof selected0)[number],n:number)=>{const cap=p.capturedAt.slice(0,7);if(q.activityReferenceMonth&&cap!==q.activityReferenceMonth)return false;const lo=shiftMonth(cap,-n);return p.months.some(m=>m.picks>0&&m.month>=lo&&m.month<cap)}
+ const selected=q.activityMonths!==undefined?selected0.filter(p=>activeInWindow(p,q.activityMonths!))
+  :q.activityUnknown?selected0.filter(p=>!activeInWindow(p,1)):selected0
  let rows:CommonListEntry[]=[
   ...baseline.filter(x=>x.card.platform!=='olbg'&&!monthlyOnly),
   ...(q.excludeMonthly?[]:selected).map(p=>{const card=(q.estimate?fromEstimatedOlbgProfile:fromPublishedOlbgMonth)(p,q.monthly.month==='latest-available'?latestAvailableMonth(p):q.monthly.month);return {key:key(card),card,profitUnit:'olbg-published-unknown-scale',sortValues:{since_year:card.sinceYear,picks:card.picks,profit:card.olbgEstimates?.global.profitSource??null,yield6m:card.olbgEstimates?.six.centralPct??null,yield12m:card.olbgEstimates?.twelve.centralPct??null,picks6m_avg:card.olbgEstimates?.six.missingMonths.length===0&&card.olbgEstimates.six.monthsUsed.length===6?card.olbgEstimates.six.picks/6:null}}})
@@ -51,7 +65,15 @@ export function commonMonthlyPage(baseline:CommonListEntry[],baselineRevision:st
  if(q.minCommonPicks!==undefined){if(!Number.isFinite(q.minCommonPicks))throw Error('Invalid picks filter');rows=rows.filter(r=>q.baselineFilterKey!==undefined&&r.baselineRank!==undefined||r.card.picks!==null&&r.card.picks>=q.minCommonPicks!)}
  const unique=new Set<string>()
  for(const r of rows){if(unique.has(r.key))throw Error('Duplicate common-list key');unique.add(r.key)}
- if(q.search){const term=q.search.toLocaleLowerCase();rows=rows.filter(r=>q.baselineFilterKey!==undefined&&r.baselineRank!==undefined||r.card.name.toLocaleLowerCase().includes(term))}
+ if(q.search){
+  const term=q.search.trim().toLocaleLowerCase(),profile=profileSearch(q.search)
+  rows=rows.filter(r=>{
+   if(q.baselineFilterKey!==undefined&&r.baselineRank!==undefined)return true
+   const id=profileSearch(r.card.sourceUrl)
+   return profile?id?.platform===profile.platform&&id.slug.toLocaleLowerCase()===profile.slug.toLocaleLowerCase()
+    :r.card.name.toLocaleLowerCase().includes(term)||r.card.sourceUrl.toLocaleLowerCase().includes(term)
+  })
+ }
  if(q.minCommonYield!==undefined)rows=rows.filter(r=>q.baselineFilterKey!==undefined&&r.baselineRank!==undefined||r.card.yieldPct!==null&&r.card.yieldPct>=q.minCommonYield!)
  if(q.maxCommonYield!==undefined){if(!Number.isFinite(q.maxCommonYield))throw Error('Invalid yield filter');rows=rows.filter(r=>q.baselineFilterKey!==undefined&&r.baselineRank!==undefined||r.card.yieldPct!==null&&r.card.yieldPct<=q.maxCommonYield!)}
  if(q.order==='name')rows.sort((a,b)=>a.card.name.localeCompare(b.card.name)||a.key.localeCompare(b.key))
