@@ -57,6 +57,23 @@ describe('activity evidence, not invented last publication', () => {
     expect(q.sql).not.toContain('since_year')
     expect(dialect.sqlToQuery(activityCondition(1, true, [])).sql).toContain('NOT COALESCE')
   })
+  it('maps Apuestes activity to its captured 3/6/12-month windows, exact match only', () => {
+    const dialect = new PgDialect()
+    const q3 = dialect.sqlToQuery(activityCondition(3, false, []))
+    const q6 = dialect.sqlToQuery(activityCondition(6, false, []))
+    const q12 = dialect.sqlToQuery(activityCondition(12, false, []))
+    expect(q3.sql).toContain('yield_3m')
+    expect(q6.sql).toContain('yield_6m')
+    expect(q12.sql).toContain('yield_12m')
+    for (const q of [q3, q6, q12]) expect(q.params).toContain('apuestes')
+    // "Último mes" and non-window months have no Apuestes evidence: the
+    // platform must not match (never widen 1m into the 3m window).
+    const q1 = dialect.sqlToQuery(activityCondition(1, false, []))
+    expect(q1.params).not.toContain('apuestes')
+    expect(q1.sql).not.toContain('yield_3m')
+    const q2 = dialect.sqlToQuery(activityCondition(2, false, []))
+    expect(q2.params).not.toContain('apuestes')
+  })
 })
 
 import { readFileSync } from 'node:fs'
