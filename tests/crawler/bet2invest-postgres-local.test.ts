@@ -57,7 +57,7 @@ describe.skipIf(!enabled)('real local PostgreSQL independent sessions and timeou
   let a: Client, b: Client, observer: Client
   beforeAll(async () => {
     a = await open(); b = await open(); observer = await open()
-    for (const f of ['0000_sudden_jazinda.sql', '0001_add_last_reset_at.sql', '0002_add_is_verified.sql', '0003_naive_dormammu.sql', '0004_multi_platform.sql', '0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql']) {
+    for (const f of ['0000_sudden_jazinda.sql', '0001_add_last_reset_at.sql', '0002_add_is_verified.sql', '0003_naive_dormammu.sql', '0004_multi_platform.sql', '0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql','0007_blogabet_access_signal.sql']) {
       for (const q of readFileSync(join(__dirname, '../../drizzle', f), 'utf8').split('--> statement-breakpoint')) if (q.trim()) await a.query(q)
     }
     await a.query("INSERT INTO tipsters (id, platform, slug, name, picks) VALUES (1, 'blogabet', 'sentinel', 'untouched', 123)")

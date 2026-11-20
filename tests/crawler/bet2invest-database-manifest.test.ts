@@ -16,7 +16,7 @@ const input = (runId: string, slug = runId) => ({ rows: [buildOfflineRow({ slug,
 const provenance = { codeRevision: '8b27552', inputSha256: 'a'.repeat(64), calculatedAt: at }
 const manifests = async () => (await pg.query<{ reason: string; run_id: string }>('SELECT reason, run_id FROM import_validation_log WHERE platform=$1 AND class=$2', ['bet2invest', MANIFEST_CLASS])).rows
 beforeAll(async () => {
-  for (const f of ['0000_sudden_jazinda.sql', '0001_add_last_reset_at.sql', '0002_add_is_verified.sql', '0003_naive_dormammu.sql', '0004_multi_platform.sql', '0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql']) {
+  for (const f of ['0000_sudden_jazinda.sql', '0001_add_last_reset_at.sql', '0002_add_is_verified.sql', '0003_naive_dormammu.sql', '0004_multi_platform.sql', '0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql','0007_blogabet_access_signal.sql']) {
     for (const q of readFileSync(join(__dirname, '../../drizzle', f), 'utf8').split('--> statement-breakpoint')) if (q.trim()) await pg.exec(q)
   }
 })

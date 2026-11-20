@@ -8,7 +8,7 @@ const run=process.env.BE_TEST_GLOBAL547_FILE&&process.env.BE_TEST_EVIDENCE_DIR?i
 run('atomic fixed production artifact installs exact scope and rollback preserves other platforms',async()=>{
  const pg=new PGlite()
  try{
- for(const f of ['0000_sudden_jazinda.sql','0001_add_last_reset_at.sql','0002_add_is_verified.sql','0003_naive_dormammu.sql','0004_multi_platform.sql','0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql'])await pg.exec(readFileSync('drizzle/'+f,'utf8').split('--> statement-breakpoint').join('\n'))
+ for(const f of ['0000_sudden_jazinda.sql','0001_add_last_reset_at.sql','0002_add_is_verified.sql','0003_naive_dormammu.sql','0004_multi_platform.sql','0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql','0007_blogabet_access_signal.sql'])await pg.exec(readFileSync('drizzle/'+f,'utf8').split('--> statement-breakpoint').join('\n'))
  await pg.exec(BE_RELEASE_TABLE_SQL)
  await pg.query("INSERT INTO tipsters(id,platform,slug,name,picks,yield) VALUES(1,'blogabet','control','Control',80,5)")
  const profiles=verifyReleaseProfiles(buildBEReleaseProfiles(process.env.BE_TEST_EVIDENCE_DIR!)),globalsBytes=readFileSync(process.env.BE_TEST_GLOBAL547_FILE!)
