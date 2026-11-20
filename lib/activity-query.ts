@@ -43,6 +43,6 @@ export function activityWarning(months?: number, unknown?: boolean): string | nu
   if (unknown) return 'Sin publicación comprobada en el último mes. Incluye datos ausentes, parciales o antiguos: NO significa inactivo. Blogabet conserva su aproximación del catálogo.'
   const dates = evidence.map(e => e.capturedAt).sort()
   const range = dates.length ? ` Fechas de captura: ${dates[0]} a ${dates[dates.length - 1]}. ` : ' Sin fechas de captura disponibles. '
-  const coverage = `Capturas con fecha aprovechable: Golazobets ${new Set(evidence.filter(e => e.platform === 'golazobets').map(e => e.slug)).size}; Tipstrr ${new Set(evidence.filter(e => e.platform === 'tipstrr').map(e => e.slug)).size}. Apuestes usa las ventanas cerradas de 3, 6 y 12 meses de su captura (19-20 nov 2026); el último mes no está disponible en Apuestes. `
+  const coverage = `Capturas con fecha aprovechable: Golazobets ${new Set(evidence.filter(e => e.platform === 'golazobets').map(e => e.slug)).size}; Tipstrr ${new Set(evidence.filter(e => e.platform === 'tipstrr').map(e => e.slug)).size}. Apuestes usa las ventanas de 3, 6 y 12 meses medidas en su captura (19-20 nov 2026); el último mes no está disponible en Apuestes. `
   return coverage + range + 'Actividad comprobada por una publicación dentro del periodo, según capturas parciales (no es necesariamente la última publicación). Sin prueba reciente queda fuera, no se clasifica como inactivo. Blogabet conserva su aproximación del catálogo. No hay actualización automática.'
 }
