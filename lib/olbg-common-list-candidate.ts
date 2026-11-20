@@ -1,6 +1,7 @@
 // Inert common-list integration pipeline. Callers provide ALL baseline cards
 // before pagination. Never append OLBG to an already paginated SQL page.
 // Existing SSR/API use this only behind the disabled non-production gate.
+import {profileSearch} from './profile-search'
 import type {TipsterCardData} from '@/components/tipster-card-model'
 import {fromPublishedOlbgMonth,fromEstimatedOlbgProfile} from '@/components/olbg-monthly-card-model'
 import {latestAvailableMonth,queryPublishedMonths,type MonthlyQuery} from './olbg-published-monthly'
@@ -64,7 +65,15 @@ export function commonMonthlyPage(baseline:CommonListEntry[],baselineRevision:st
  if(q.minCommonPicks!==undefined){if(!Number.isFinite(q.minCommonPicks))throw Error('Invalid picks filter');rows=rows.filter(r=>q.baselineFilterKey!==undefined&&r.baselineRank!==undefined||r.card.picks!==null&&r.card.picks>=q.minCommonPicks!)}
  const unique=new Set<string>()
  for(const r of rows){if(unique.has(r.key))throw Error('Duplicate common-list key');unique.add(r.key)}
- if(q.search){const term=q.search.toLocaleLowerCase();rows=rows.filter(r=>q.baselineFilterKey!==undefined&&r.baselineRank!==undefined||r.card.name.toLocaleLowerCase().includes(term))}
+ if(q.search){
+  const term=q.search.trim().toLocaleLowerCase(),profile=profileSearch(q.search)
+  rows=rows.filter(r=>{
+   if(q.baselineFilterKey!==undefined&&r.baselineRank!==undefined)return true
+   const id=profileSearch(r.card.sourceUrl)
+   return profile?id?.platform===profile.platform&&id.slug.toLocaleLowerCase()===profile.slug.toLocaleLowerCase()
+    :r.card.name.toLocaleLowerCase().includes(term)||r.card.sourceUrl.toLocaleLowerCase().includes(term)
+  })
+ }
  if(q.minCommonYield!==undefined)rows=rows.filter(r=>q.baselineFilterKey!==undefined&&r.baselineRank!==undefined||r.card.yieldPct!==null&&r.card.yieldPct>=q.minCommonYield!)
  if(q.maxCommonYield!==undefined){if(!Number.isFinite(q.maxCommonYield))throw Error('Invalid yield filter');rows=rows.filter(r=>q.baselineFilterKey!==undefined&&r.baselineRank!==undefined||r.card.yieldPct!==null&&r.card.yieldPct<=q.maxCommonYield!)}
  if(q.order==='name')rows.sort((a,b)=>a.card.name.localeCompare(b.card.name)||a.key.localeCompare(b.key))

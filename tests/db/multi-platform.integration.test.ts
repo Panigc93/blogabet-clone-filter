@@ -99,6 +99,12 @@ async function runQuery(filters: Parameters<typeof buildFilters>[0], page = 0, p
 }
 
 describe('multi-platform DB integration (isolated PGlite)', () => {
+  it('pasted profile links find exact platform identities, never same-slug rows on another source', async () => {
+    const rows = await runQuery({ search: 'https://tipstrr.com/tipster/the-least-expected/stats' })
+    expect(rows.map(r => r.platform)).toEqual(['tipstrr'])
+    expect(await runQuery({ platform: 'blogabet', search: 'https://tipstrr.com/tipster/the-least-expected/stats' })).toEqual([])
+    expect((await runQuery({ search: 'https://the-least-expected.blogabet.com/' })).map(r => r.platform)).toEqual(['blogabet'])
+  })
   it('migration 0003 applies cleanly on top of 0000-0002 and BB rows survive unchanged', async () => {
     const bb = await db.select().from(tipsters).where(and(...buildFilters({ platform: 'blogabet' })))
     expect(bb).toHaveLength(1)

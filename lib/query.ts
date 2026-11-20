@@ -1,3 +1,4 @@
+import { profileSearch } from './profile-search'
 import {visibleBEPeriods,type BEVisiblePeriods} from './bettingexpert-visible-periods'
 import {beClientEligible,type BEClientAudit} from './bettingexpert-period-contract'
 import { activityCondition } from './activity-query'
@@ -29,8 +30,11 @@ export function buildFilters(params: TipsterFilters): SQL[] {
   const conditions: SQL[] = []
 
   if (params.search) {
-    const term = `%${params.search}%`
-    conditions.push(or(ilike(tipsters.name, term), ilike(tipsters.slug, term))!)
+    const profile = profileSearch(params.search)
+    const term = `%${params.search.trim()}%`
+    conditions.push(profile
+      ? sql`${tipsters.platform} = ${profile.platform} AND lower(${tipsters.slug}) = lower(${profile.slug})`
+      : or(ilike(tipsters.name, term), ilike(tipsters.slug, term), ilike(tipsters.sourceUrl, term))!)
   }
 
   if (params.platform) {

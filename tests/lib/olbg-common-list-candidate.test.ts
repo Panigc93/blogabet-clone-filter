@@ -16,6 +16,12 @@ const snapshot={revision:'source-v1',profiles}
 const baseline=[{key:'baseline:test',card:{...unknownOlbgCard('Baseline test','123'),platform:'blogabet',yieldPct:4} as TipsterCardData}]
 const request:CommonMonthlyRequest={order:'name',monthly:{month:'latest-available'},pageSize:2}
 describe('candidate common-list read integration',()=>{
+ it('searches OLBG by its exact source URL as well as its display name',()=>{
+  const target=profiles[0]
+  const page=commonMonthlyPage(baseline,'v1',snapshot,{...request,search:target.sourceUrl,pageSize:50})
+  expect(page.rows.map(r=>r.card.name)).toEqual([target.name])
+  expect(commonMonthlyPage(baseline,'v1',snapshot,{...request,search:'https://bet2invest.com/tipsters/performance-stats/Kasparov'}).total).toBe(0)
+ })
  it('merges before pagination and returns every identity exactly once',()=>{
   const first=commonMonthlyPage(baseline,'base-v1',snapshot,request)
   expect(first.total).toBe(4);expect(first.rows).toHaveLength(2)
