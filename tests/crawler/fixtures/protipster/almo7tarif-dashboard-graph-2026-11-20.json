@@ -335,6 +335,65 @@
           ]
         }
       }
+    },
+    {
+      "dateCriteria": "lastThreeMonths",
+      "status": 200,
+      "body": {
+        "chartData": {
+          "detailedGraphData": [
+            [
+              "Date",
+              "Beneficio",
+              "Yield"
+            ],
+            [
+              "sept",
+              -7386,
+              -16.6
+            ],
+            [
+              "oct",
+              -6284,
+              -5.53
+            ],
+            [
+              "nov",
+              8603,
+              12.71
+            ]
+          ],
+          "globalGraphData": {
+            "averageOdds": "3.10",
+            "hitRate": "40.38",
+            "profit": -5067,
+            "stakes": 225800,
+            "picks": 1513,
+            "yield": "-2.2"
+          }
+        },
+        "chartFilters": {
+          "defaultLinesCriteria": [
+            "profit",
+            "yield"
+          ],
+          "defaultDateCriteria": "lastThreeMonths",
+          "dateFilters": [
+            "year",
+            "lastThreeMonths",
+            "lastSixMonths",
+            "2026-11",
+            "2026-10",
+            "2026-09"
+          ],
+          "linesFilters": [
+            "profit",
+            "yield",
+            "hitRate",
+            "tipsCount"
+          ]
+        }
+      }
     }
   ]
 }
