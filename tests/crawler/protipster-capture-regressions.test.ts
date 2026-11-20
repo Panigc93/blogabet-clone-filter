@@ -11,5 +11,6 @@ describe('real full-capture regression cases',()=>{
   expect(r.chartDefault!.activeMonths).toEqual(['2026-11']);expect(Object.keys(r.months)).toHaveLength(0)
   expect(m.insert.yield12m).toBeNull();expect(m.insert.yield3m).toBe((r.period3m!.profit!/r.period3m!.stakes!*100).toFixed(2));expect(m.insert.yield6m).toBe((r.chartDefault!.stats.profit!/r.chartDefault!.stats.stakes!*100).toFixed(2))
  })
+ it('holds monthly yield discrepancy for jakubey without silently accepting it into12m',()=>{const m=map('jakubey');expect(m.ok).toBe(false);if(!m.ok)expect(m.reason).toContain('month 2026-09')})
  for(const slug of ['ingolueders77','muskoinaffey11'])it(`holds ${slug} with conflicting alltime displayed yield rather than relaxing checks`,()=>{const m=map(slug);expect(m.ok).toBe(false);if(!m.ok){expect(m.klass).toBe('cuarentena[capture-inconsistency]');expect(m.reason).toContain('alltime')}})
 })

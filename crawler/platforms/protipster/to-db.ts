@@ -142,6 +142,14 @@ export function protipsterRowToInsert(row: ProtipsterCaptureRow, opts: Protipste
         reason: `month ${m}: picks=${w.picks} but profit/stakes missing or stakes<=0; never summing 0 for missing`,
       }
     }
+    const monthlyExact = exactYield(w)
+    if (monthlyExact.yield !== null && !siteYieldMatches(w, monthlyExact.yield)) {
+      return {
+        ok: false,
+        klass: 'cuarentena[capture-inconsistency]',
+        reason: `month ${m}: site yield ${String(w.yield)} vs computed ${monthlyExact.yield} (>0.15pp apart)`,
+      }
+    }
     m12.picks += w.picks
     m12.profit = (m12.profit ?? 0) + (num(w.profit) ?? 0)
     m12.stakes = (m12.stakes ?? 0) + (num(w.stakes) ?? 0)
