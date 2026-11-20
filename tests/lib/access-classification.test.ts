@@ -28,9 +28,11 @@ const textLeaves = (s: SQL) => leaves(s).filter((v): v is string => typeof v ===
 afterEach(() => { delete process.env.VERIFIED_ACCESS_REVIEW })
 
 describe('classifyAccess', () => {
-  it('Blogabet: is_paid=true is Paid; is_paid=false is unclassified, never Free', () => {
+  it('Blogabet (regla Juan 2026-11-20): pago exige evidencia afirmativa; el resto es Free', () => {
+    // Unread rows: the parsed listing price is affirmative paid evidence;
+    // stored false stays Free (no longer excluded as unknown).
     expect(classifyAccess({ platform: 'blogabet', isPaid: true })).toBe('paid')
-    expect(classifyAccess({ platform: 'blogabet', isPaid: false })).toBeNull()
+    expect(classifyAccess({ platform: 'blogabet', isPaid: false })).toBe('free')
   })
 
   it('Blogabet: an observed profile signal wins over the listing boolean', () => {
@@ -41,9 +43,12 @@ describe('classifyAccess', () => {
     expect(classifyAccess({ platform: 'blogabet', isPaid: false, accessClass: 'paid', accessObservedAt: at })).toBe('paid')
     // Fresh profile read overrides a stale listing price both ways.
     expect(classifyAccess({ platform: 'blogabet', isPaid: true, accessClass: 'free', accessObservedAt: at })).toBe('free')
-    // A profile read with no signal (or a dead blog) supersedes the stale
-    // listing boolean instead of resurrecting it.
-    expect(classifyAccess({ platform: 'blogabet', isPaid: true, accessClass: null, accessObservedAt: at })).toBeNull()
+    // Observed profile with NO paid signal: Free by the product rule,
+    // even if the stored boolean says paid (stale).
+    expect(classifyAccess({ platform: 'blogabet', isPaid: true, accessClass: null, accessEvidence: 'no-signal', accessObservedAt: at })).toBe('free')
+    // Dead blog: neither paid nor a live free service; unclassified
+    // (internal evidence kept) pending the dead-cleanup decision.
+    expect(classifyAccess({ platform: 'blogabet', isPaid: true, accessClass: null, accessEvidence: 'blog-not-found', accessObservedAt: at })).toBeNull()
   })
 
   it('OLBG and Bettingexpert: Free by affirmative source policy; a stored paid flag stays unclassified', () => {
@@ -86,7 +91,7 @@ describe('tipoCondition', () => {
     expect(paramValues(paid)).toContain(true)
   })
 
-  it('flag ON: tri-state CASE comparison against the requested class', () => {
+  it('flag ON: effective CASE comparison against the requested class', () => {
     const env = { VERIFIED_ACCESS_REVIEW: '1' }
     const free = textLeaves(tipoCondition('free', tipsters.isPaid, env))
     expect(free).toContain('CASE')
@@ -96,7 +101,7 @@ describe('tipoCondition', () => {
     expect(paramValues(tipoCondition('paid', tipsters.isPaid, env))).toContain('paid')
   })
 
-  it('effectiveAccessSql maps Blogabet false to NULL and OLBG/BE false to free', () => {
+  it('effectiveAccessSql maps Blogabet false to free and OLBG/BE false to free; only blog-not-found is NULL', () => {
     const t = textLeaves(effectiveAccessSql())
     expect(t).toContain("WHEN")
     expect(t).toContain('blogabet')

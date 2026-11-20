@@ -1,15 +1,24 @@
-# Verified access review (Free/Paid tri-state)
+# Verified access review (Free/Paid)
 
 Prepared code, not a deployed release. Reconstructed from the reviewed
 bundle 5719433 (branch `research/free-paid-effective`, 2026-11-19, bundle
 no longer available) on top of current master, with the same opt-in shape.
 
+PRODUCT RULE (Juan, 2026-11-20 18:30, WhatsApp): without proof of payment
+a row stays in Free — unknown is NOT excluded from Free. Paid requires
+affirmative evidence. The earlier tri-state draft (unknown excluded from
+both filters) was rejected by Juan. Internal evidence states (observed
+date, signal text) are kept on the row without imposing any filter
+exclusion; the only NULL class left is the dead blog, which is not a live
+free service and awaits the dead-cleanup decision.
+
 ## What this is
 
-An opt-in (`VERIFIED_ACCESS_REVIEW=1`) tri-state read of tipster access:
-`free` / `paid` / unclassified. With the flag unset, every read path keeps
-the legacy boolean filter byte-for-byte. No migration, no DB write, no
-crawler change, no UI badge change, no freshness threshold.
+An opt-in (`VERIFIED_ACCESS_REVIEW=1`) effective read of tipster access:
+`free` / `paid`, with NULL reserved for dead blogs. With the flag unset,
+every read path keeps the legacy boolean filter byte-for-byte. No
+migration, no DB write, no crawler change, no UI badge change, no
+freshness threshold.
 
 - `lib/access-classification.ts` — pure `classifyAccess` + SQL
   `effectiveAccessSql` + `tipoCondition` (the flag switch).
@@ -18,14 +27,18 @@ crawler change, no UI badge change, no freshness threshold.
 - `lib/olbg-read-context.ts` — the API read path applies `tipo` through
   `tipoCondition(p.tipo, projection.isPaid)`; same OFF equivalence.
 
-Unknown is SQL NULL, evaluated in WHERE before pagination, so Free/Paid
-filters, counts and pages agree. Unclassified rows stay in "Todos". The
-cards need no change: the Pago badge and price only render on
-`isPaid === true` (a positive signal) and no Free badge exists.
+The class is evaluated in WHERE before pagination, so Free/Paid filters,
+counts and pages agree. Dead blogs (NULL) stay in "Todos" only. The cards
+need no change: the Pago badge and price only render on the effective
+paid class and no Free badge exists.
 
 ## Classification by platform (with the flag ON)
 
-- **Blogabet**: `is_paid=true` → Paid. Everything else → unclassified.
+- **Blogabet**: affirmative paid evidence → Paid: a profile subscribe box
+  (price or SERVICE FULL) or, on unread rows, the parsed listing price
+  (`is_paid=true`). Everything else → Free (product rule): banner-free
+  blogs, observed profiles with no paid signal, unread `is_paid=false`.
+  Dead blogs (`blog-not-found`) → NULL, internal evidence kept.
 - **OLBG / Bettingexpert**: Free by affirmative source policy (their picks
   are free on-platform; see `docs/olbg-scoped-free-release.md`). A stored
   `is_paid=true` contradicts the policy → unclassified.
@@ -49,15 +62,19 @@ cards need no change: the Pago badge and price only render on
   same as no signal) and a non-€ price format would parse as not-paid.
 - Freshness is a separate dimension: as of 2026-11-20 only ~2.3k of 11.5k
   Blogabet rows have a listing refresh this week; the rest carry months-old
-  values. No date threshold turns an unclassified row free.
+  values. No date threshold changes the class.
 
-## Consequences of enabling today
+## Consequences of enabling today (with the 13 observed signals written)
 
-- Blogabet Free goes to 0 (no positive Free signal stored). Paid keeps
-  the rows with `is_paid=true`. Everything else stays in "Todos".
-- That is the intended honest state until a positive Free signal is
-  collected. Enabling is a product decision for Juan, with that consequence
-  stated.
+Exact counts over the live Neon catalog (17,412 rows, read 2026-11-20
+18:17): Free 15,720 → 15,719; Pago 1,692 → 1,690; unclassified 0 → 3.
+
+- ibet-35 moves Free → Pago (SERVICE FULL, stored `is_paid=false`).
+- The 3 dead blogs leave Pago and both filters (they kept stale
+  `is_paid=true`); they stay in "Todos" with internal `blog-not-found`
+  evidence, pending the dead-cleanup decision.
+- Every other row keeps today's filter membership. Enabling remains a
+  product decision for Juan.
 
 ## Not done here (need their own approval)
 
@@ -89,7 +106,8 @@ pure parser and 13 fragment fixtures under `tests/fixtures/blogabet-profile/`:
   explicitly on 2026-11-20 that SERVICE FULL means paid.
 - **Verified blogs without a subscribe box show nothing affirmative**
   (yugovalue, anubispicks, scpicks23): no banner, no price, only the
-  generic FOLLOW button. They stay unclassified.
+  generic FOLLOW button. Under the product rule they are Free (no paid
+  evidence); the observation is kept as internal evidence.
 - **Deleted blogs answer "Blog not found"** (3/3 sampled from the 655
   stored non-verified+paid rows: versustips11, ouzbourne, iordan — all
   stale since <=2026-10-25). Stored flags on dead blogs are unreliable.
@@ -102,12 +120,10 @@ Impact, kept separate:
 - *Proven* (the 13 pages above, fixtures): the five signal shapes exist and
   the parser classifies them; one stored `is_paid=false` row is a full paid
   service.
-- *Expected, not proven*: IF live non-verified blogs generally carry the
-  banner, the bulk of the 10,921 stored non-verified rows could become
-  affirmative-Free once profiles are read — but only 4 live banners were
-  observed, and only 3 of the 655 stored non-verified+paid rows were
-  checked (all dead). The 164 verified rows without a parsed price have no
-  affirmative free marker and stay unclassified. No stored row changes
+- *Expected, not proven*: IF paid services hide among stored `is_paid=false`
+  rows the way SERVICE FULL did, profile reads would move them to Paid —
+  but only one such case was observed. Only 3 of the 655 stored
+  non-verified+paid rows were checked (all dead). No stored row changes
   classification until a profile read happens; nothing here extrapolates
   the sample to the catalog.
 
@@ -124,23 +140,26 @@ End-to-end wiring on the isolated PGlite database only:
   signal→columns mapping) + `probeProfiles` flow with `write:false`
   dry-run default, injectable interval, lazy DB init. NOT executed against
   the live site or any database.
-- `lib/access-classification.ts`: Blogabet branch — `access_class` wins;
-  an observed profile with no signal supersedes the listing boolean
-  (unknown); only unread rows fall back to `is_paid` (true→paid,
-  false→unknown, never free).
+- `lib/access-classification.ts`: Blogabet branch under the product rule —
+  `access_class='paid'` is Paid; a dead blog is NULL (internal evidence);
+  everything else is Free (`access_class='free'`, observed no-signal,
+  unread `is_paid=false`); unread `is_paid=true` keeps Paid from the
+  parsed listing price.
 - `scripts/seed-isolated-db.ts`: applies 0006+0007 and seeds six
   fixture-backed Blogabet rows whose stored flags reproduce the real Neon
   state of each sampled slug (ibet-35 stored `is_paid=false`).
 
-E2E on the isolated DB (`VERIFIED_ACCESS_REVIEW=1`, dev server + real UI):
+E2E on the isolated DB (`VERIFIED_ACCESS_REVIEW=1`, dev server + real UI),
+under the product rule (unknown stays Free):
 
-- `tipo=free` → exactly 2 rows: jj1ba0 (banner) + StatMind (Tipstrr free).
-  The 19 stored-`is_paid=false` demo rows stay out: unknown is never Free.
+- `tipo=free` → all rows without affirmative paid evidence: the 19 demo
+  `is_paid=false` rows, jj1ba0 (banner), yugovalue (observed no-signal)
+  and StatMind (Tipstrr free).
 - `tipo=paid` → 42 rows INCLUDING ibet-35 (SERVICE FULL, stored
   `is_paid=false`) and EXCLUDING versustips11 (dead blog whose stored
   `is_paid=true` is stale).
-- Unfiltered listing keeps yugovalue (no signal) and versustips11 (dead)
-  with no misleading label. Screenshots: ui-e2e-access-*.png.
+- Unfiltered listing keeps versustips11 (dead, NULL class) with no
+  misleading label. Screenshots: ui-e2e-access-*.png.
 
 Impact if 0007 were applied to Neon (for later approval, not done):
 schema-only, additive, nullable — no backfill, no rewrite of existing
@@ -181,15 +200,17 @@ ui-e2e-card-*.png).
    zero reclassification while no probe writes.
 2. Probe phase A (contradiction cleanup): the 655 stored non-verified+paid
    rows — 655 profile GETs at >=10s (~1.8h), one UPDATE per observed row.
-   Sample expectation (3/3 dead): most drop out of Pago and lose stale
-   prices; EXPECTED, not proven beyond the sample.
+   Sample expectation (3/3 dead): most would leave Pago; EXPECTED, not
+   proven beyond the sample.
 3. Probe phase B: 415 verified-paid + 164 verified-without-price rows
    (~1.6h). Paid rows keep Pago with the observed price (or without price
-   if SERVICE FULL); no-signal rows become unclassified.
-4. Probe phase C (optional, largest): the remaining 10,266 non-verified
-   rows (~28.5h). Rows with the free banner become affirmative Free.
-5. Only then activate VERIFIED_ACCESS_REVIEW (pure read-path change;
-   flag OFF restores legacy exactly).
+   if SERVICE FULL); no-signal rows are confirmed Free with evidence.
+4. Probe phase C (largest, the "compruebalo" sweep): the 10,430 stored
+   `is_paid=false` rows (~29h). Only rows with a hidden paid signal
+   (subscribe box / SERVICE FULL, like ibet-35) move out of Free; the
+   rest stay Free by the product rule, now with observation evidence.
+5. Activating VERIFIED_ACCESS_REVIEW is a pure read-path change; flag OFF
+   restores legacy exactly. It is independent of the probe phases.
 
 Total volume if all phases run: 11,500 GETs (~32h at 10s) and up to
 11,500 single-row UPDATEs, each writing class/evidence/date(/price).

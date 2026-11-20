@@ -1,22 +1,26 @@
 import { sql, eq, type SQL } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
-// Tri-state Free/Paid access classification ("verified access review").
+// Free/Paid access classification ("verified access review").
 //
 // Opt-in via VERIFIED_ACCESS_REVIEW=1. With the flag unset every read keeps
 // the legacy behavior exactly; nothing here is active by default.
+//
+// Product rule (Juan, 2026-11-20): unknown is FREE, not excluded — a row
+// only leaves Free with affirmative paid evidence. The NULL class is kept
+// for internal evidence states that are neither (dead blogs), never for
+// mere absence of information.
 //
 // Evidence basis (audit of 2026-11-19 over retained responses; see
 // docs/verified-access-review.md):
 // - Blogabet: two stored evidence layers, profile over listing.
 //   Profile signal (migration 0007, parser crawler/blogabet-profile-signal.ts):
-//   the affirmative "free NON-VERIFIED blog" banner classifies Free; a
-//   subscribe box (with price, or SERVICE FULL without one) classifies Paid.
-//   An observed profile with no signal — or a dead blog — supersedes the
-//   listing boolean: SERVICE FULL rows are stored is_paid=false while being
-//   paid, and dead blogs keep stale flags. Listing fallback (unread rows
-//   only): is_paid=true is Paid from the parsed price; is_paid=false is
-//   "no price parsed", NOT a free confirmation.
+//   a subscribe box (with price, or SERVICE FULL without one) is affirmative
+//   Paid. Everything else is Free by the product rule: the "free NON-VERIFIED
+//   blog" banner, an observed profile with no paid signal, and unread rows
+//   stored is_paid=false. Dead blogs ('blog-not-found') are neither: their
+//   stored flags are stale, they are not a live free service, and they stay
+//   unclassified (internal evidence kept) pending the dead-cleanup decision.
 // - OLBG / Bettingexpert: Free by affirmative source policy (their picks
 //   are free on-platform; docs/olbg-scoped-free-release.md). A stored
 //   is_paid=true there would contradict the policy and stays unclassified.
@@ -25,7 +29,7 @@ import { tipsters } from '@/db/schema'
 //   stays unclassified on every branch: absence never asserts Free.
 //
 // Freshness of the stored row is a separate dimension and never part of
-// this classification: no date threshold turns an unclassified row free.
+// this classification: no date threshold changes it.
 
 export type AccessClass = 'free' | 'paid' | null
 
@@ -38,16 +42,23 @@ export function classifyAccess(row: {
   platform: string
   isPaid: boolean | null
   accessClass?: string | null
+  accessEvidence?: string | null
   accessObservedAt?: Date | string | null
 }): AccessClass {
   switch (row.platform) {
     case 'blogabet':
-      // Profile signal wins over the listing boolean: it is observed and
-      // affirmative where the listing only ever had absence.
-      if (row.accessClass === 'free') return 'free'
+      // Regla de producto (Juan, 2026-11-20 18:30): sin constancia de pago,
+      // la fila permanece en Free. Pago exige evidencia afirmativa: señal de
+      // perfil (precio subscribe o SERVICE FULL) o, en filas no leídas, el
+      // precio parseado del listing (is_paid=true). Un perfil observado sin
+      // señal de pago es Free, no desconocido. La excepción es el blog
+      // muerto ('blog-not-found'): no es un servicio free existente; queda
+      // sin clasificar internamente (fuera de ambos filtros) hasta la
+      // decisión de limpieza de muertos.
       if (row.accessClass === 'paid') return 'paid'
-      if (row.accessObservedAt) return null // profile read, no affirmative signal
-      return row.isPaid ? 'paid' : null
+      if (row.accessClass === 'free') return 'free'
+      if (row.accessObservedAt) return row.accessEvidence === 'blog-not-found' ? null : 'free'
+      return row.isPaid ? 'paid' : 'free'
     case 'olbg':
     case 'bettingexpert':
       return row.isPaid ? null : 'free'
@@ -59,18 +70,19 @@ export function classifyAccess(row: {
 // Same classification in SQL so Free/Paid filters, counts and pagination
 // all agree before slicing. isPaidExpr lets the read layer pass its
 // projected expression (OLBG nulls its own isPaid upstream; the platform
-// branch still governs). Unknown is NULL: comparing to 'free' or 'paid'
-// excludes it, while the unfiltered listing ('all') keeps it.
+// branch still governs). The NULL class (dead blogs) is excluded by both
+// comparisons; the unfiltered listing ('all') keeps those rows.
 export function effectiveAccessSql(isPaidExpr: SQL | typeof tipsters.isPaid = tipsters.isPaid): SQL<string | null> {
   // Column or projected SQL: both embed identically in a sql`` template.
   const expr = isPaidExpr as SQL
   return sql<string | null>`CASE
     WHEN ${tipsters.platform} = 'blogabet' THEN CASE
-      WHEN ${tipsters.accessClass} = 'free' THEN 'free'
       WHEN ${tipsters.accessClass} = 'paid' THEN 'paid'
-      WHEN ${tipsters.accessObservedAt} IS NOT NULL THEN NULL
+      WHEN ${tipsters.accessClass} = 'free' THEN 'free'
+      WHEN ${tipsters.accessObservedAt} IS NOT NULL AND ${tipsters.accessEvidence} = 'blog-not-found' THEN NULL
+      WHEN ${tipsters.accessObservedAt} IS NOT NULL THEN 'free'
       WHEN ${expr} THEN 'paid'
-      ELSE NULL END
+      ELSE 'free' END
     WHEN ${tipsters.platform} IN ('olbg', 'bettingexpert') THEN CASE WHEN ${expr} THEN NULL ELSE 'free' END
     ELSE CASE WHEN ${expr} THEN 'paid' WHEN ${expr} IS NULL THEN NULL ELSE 'free' END
   END`
@@ -99,6 +111,7 @@ export function effectiveDisplayAccess<T extends {
   isPaid: boolean | null
   price: string | null
   accessClass?: string | null
+  accessEvidence?: string | null
   accessObservedAt?: Date | string | null
   accessPrice?: string | null
 }>(row: T): T {
@@ -112,8 +125,8 @@ export function effectiveDisplayAccess<T extends {
 }
 
 // The tipo filter condition. Flag OFF: legacy boolean comparison,
-// unchanged. Flag ON: tri-state comparison that keeps unclassified rows
-// out of both Free and Paid (they stay in the unfiltered listing).
+// unchanged. Flag ON: effective comparison; only dead blogs (NULL class)
+// stay out of both Free and Paid.
 export function tipoCondition(
   tipo: 'free' | 'paid',
   isPaidExpr: SQL | typeof tipsters.isPaid = tipsters.isPaid,

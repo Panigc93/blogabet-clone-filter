@@ -112,7 +112,7 @@ export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardD
   let bbIsPaid = t.isPaid === true
   let bbPriceLabel = storedPriceLabel
   if (verifiedAccessReviewEnabled()) {
-    const access = classifyAccess({ platform: 'blogabet', isPaid: t.isPaid, accessClass: t.accessClass, accessObservedAt: t.accessObservedAt })
+    const access = classifyAccess({ platform: 'blogabet', isPaid: t.isPaid, accessClass: t.accessClass, accessEvidence: t.accessEvidence, accessObservedAt: t.accessObservedAt })
     bbIsPaid = access === 'paid'
     bbPriceLabel = access === 'paid'
       ? (t.accessObservedAt
