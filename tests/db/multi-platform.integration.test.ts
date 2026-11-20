@@ -105,6 +105,14 @@ describe('multi-platform DB integration (isolated PGlite)', () => {
     expect(await runQuery({ platform: 'blogabet', search: 'https://tipstrr.com/tipster/the-least-expected/stats' })).toEqual([])
     expect((await runQuery({ search: 'https://the-least-expected.blogabet.com/' })).map(r => r.platform)).toEqual(['blogabet'])
   })
+  it('stored source URL still finds an Apuestes identity whose safe local slug differs', async () => {
+    const sourceUrl = 'https://apuestes.com/tipster/Name%20With%20Spaces'
+    await db.insert(tipsters).values({ id: -800099, platform: 'apuestes', slug: 'ap-12345', name: 'Safe Name', sourceUrl })
+    try {
+      expect((await runQuery({ search: sourceUrl })).map(r => r.slug)).toEqual(['ap-12345'])
+      expect(await runQuery({ platform: 'blogabet', search: sourceUrl })).toEqual([])
+    } finally { await db.delete(tipsters).where(inArray(tipsters.id, [-800099])) }
+  })
   it('migration 0003 applies cleanly on top of 0000-0002 and BB rows survive unchanged', async () => {
     const bb = await db.select().from(tipsters).where(and(...buildFilters({ platform: 'blogabet' })))
     expect(bb).toHaveLength(1)

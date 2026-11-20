@@ -33,7 +33,7 @@ export function buildFilters(params: TipsterFilters): SQL[] {
     const profile = profileSearch(params.search)
     const term = `%${params.search.trim()}%`
     conditions.push(profile
-      ? sql`${tipsters.platform} = ${profile.platform} AND lower(${tipsters.slug}) = lower(${profile.slug})`
+      ? sql`${tipsters.platform} = ${profile.platform} AND (lower(${tipsters.slug}) = lower(${profile.slug}) OR lower(regexp_replace(${tipsters.sourceUrl}, '/+$', '')) = lower(${params.search.trim().replace(/\/+$/, '')}))`
       : or(ilike(tipsters.name, term), ilike(tipsters.slug, term), ilike(tipsters.sourceUrl, term))!)
   }
 
