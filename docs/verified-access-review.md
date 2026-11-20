@@ -195,3 +195,20 @@ Total volume if all phases run: 11,500 GETs (~32h at 10s) and up to
 11,500 single-row UPDATEs, each writing class/evidence/date(/price).
 Every phase is independently bounded and stoppable; no phase touches
 /blog/picks or retries a denial.
+
+## Nota ProTipster (2026-11-20, compatibilidad con PR #32)
+
+PR #32 (protipster-integration-prep, abierta, no-prod) fusiona con esta rama
+sin conflictos (4 archivos solapados, hunks distintos; sin solape de esquema
+ni migraciones). Semántica Free: NO se establece por el booleano false.
+PR #32 documenta `isPaid: false` con fuente afirmativa propia (su
+docs/protipster-import-mapping.md), contrastada hoy en vivo:
+https://www.protipster.es/sobre-nosotros afirma "Es completamente gratuito
+registrarse" y "Los tips pueden ser vistos por cualquiera; no necesitas
+registrarte para ver tips gratuitos", y no describe ninguna suscripción por
+tipster (su modelo es concurso mensual con premios). Si PR #32 entra, la
+decisión de cómo clasifica 'protipster' es de su responsable: la
+recomendación es una rama explícita de política afirmativa (como OLBG/BE:
+true → sin clasificar, false → free, citando esa página) y NO heredar la
+rama por defecto del booleano. Hoy no hay filas ProTipster en producción,
+así que no afecta a los conteos de la propuesta.
