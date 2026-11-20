@@ -53,10 +53,14 @@ period. Real capture: heroico 2026-10 → profit 7667, stakes 79080, picks 403
   is a cross-check (|diff| > 0.15pp → hold `cuarentena[capture-inconsistency]`).
 - `profitUnit: 'protipster-units'`: the site decorates numbers with '$' but
   stake presets are 5..100; never converted to money.
-- `isPaid: false`: no paid/subscription concept found 2026-11-20 on listing,
-  profile, or the public tips feed (195 pick links visible logged out; the
-  only "premium" mention is the ProTipster app ad; "$20 $10 $5" on the tips
-  page are competition prizes). Re-verify if the site ships subscriptions.
+- `isPaid: false`: grounded in the site's own model page, not only in
+  samples. https://www.protipster.es/sobre-nosotros (2026-11-20) states
+  'Participar es gratis', 'Registrarse es gratis' and describes the model as
+  free tips with cash prizes for the most profitable tipsters; no
+  per-tipster subscription exists there. Sample corroboration: no paid
+  markers on listing, profile, or the public tips feed (195 pick links
+  visible logged out). Re-verify at full capture time; if the site ever
+  ships tipster subscriptions this mapping must change.
 - `avatarUrl`: avatar filename → `/uploads/avatars/<base>.120.png`
   (almo7tarif real case). null when avatar is null (heroico).
 - `sinceYear`/`signupAt`: from userJoinDate (site timezone not exposed;
@@ -70,6 +74,22 @@ period. Real capture: heroico 2026-10 → profit 7667, stakes 79080, picks 403
   `yield-out-of-schema-range`. Quarantined rows never write tipsters rows;
   they land in import_validation_log under the run id.
 
+## Sample profiles captured 2026-11-20 (bounded, 3 profiles)
+
+- **heroico** (id 136241, VE, joined 2019-02): full contract, 6 active
+  months inside the 12m window -> yield12m 3.34% (4755/142420, 1026 picks).
+- **sonicc** (id 100841, DE, joined 2018-05): long history (2018 + 2026);
+  3 active months inside the window -> yield12m 7.74% (2566/33160, 186
+  picks); 2018 months correctly excluded. 3m == 6m content (9.96%) because
+  all recent activity fits in 3 months.
+- **almo7tarif** (id 252502, MA, joined 2021-03, avatar present): active
+  only since 2026-09; 2 monthly captures taken; without them the row holds
+  `cuarentena[months-incomplete]`.
+- **cornelorio** (#2 of the 90d listing): /tipster/cornelorio REDIRECTS to
+  /tipsters today. A capture must treat a profile redirect as a quarantine
+  case (no preload blocks -> the row holds `no-usable-content`), never
+  fabricate.
+
 ## Capture procedure for a full run (not executed)
 
 Per profile: 1 page GET (identity + cumulative + 6m + active-month list) +
@@ -82,10 +102,15 @@ Listing pagination: ~9 fetches for the 90d directory.
 
 1. Prod DB: no migration needed (schema fits; source_url column from 0006
    must already exist remotely — verify before the run).
-2. UI wiring (NOT in this branch): platform selector entry
-   (`lib/query.ts` platform union + selector), activity-query coverage text
-   (`lib/activity-query.ts`), card display of the calendar-12m label with
-   exact dates, avatar hosting decision (hotlink vs uploaded copy like
+2. UI wiring in this branch (non-prod): platform selector option in
+   `components/FilterBar.tsx`, platform unions in `lib/query.ts` and
+   `components/tipster-card-model.ts`, `protipsterFromDbRow` card mapper
+   (12m trace with exact calendar dates, 3m/6m labelled as site rolling
+   windows), period-trace tooltips in `components/TipsterRow.tsx`.
+   NOT touched on purpose: `lib/activity-query.ts` (PR #31
+   `activity-filter-b2i-be-olbg` modifies it; coordinate the ProTipster
+   activity coverage text after that PR resolves, rebase if needed).
+   Avatar hosting decision still open (hotlink vs uploaded copy like
    Apuestes PR #30).
 3. Full capture execution + dry-run + review, then prod import with run id.
 4. Free/Pago re-check at capture time (evidence above says free-only today).

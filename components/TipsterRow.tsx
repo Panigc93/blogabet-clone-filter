@@ -150,7 +150,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               detailLabel={t.yield3m.detailLabel} detailGroup={t.sourceUrl}
               calculated={t.platform === 'olbg'}
               note={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield3m.note : undefined}
-              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield3m.trace ?? undefined : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' || t.platform === 'protipster' ? t.yield3m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield3m.valuePct)}
             />
             <PeriodCell
@@ -159,7 +159,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               detailLabel={t.yield6m.detailLabel} detailGroup={t.sourceUrl}
               calculated={t.platform === 'olbg'}
               note={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield6m.note : undefined}
-              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield6m.trace ?? undefined : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' || t.platform === 'protipster' ? t.yield6m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield6m.valuePct)}
             />
             <PeriodCell
@@ -168,7 +168,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               detailLabel={t.yield12m.detailLabel} detailGroup={t.sourceUrl}
               calculated={t.platform === 'olbg'}
               note={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield12m.note : undefined}
-              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield12m.trace ?? undefined : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' || t.platform === 'protipster' ? t.yield12m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield12m.valuePct)}
             />
             {t.platform!=='bettingexpert' && <PeriodCell

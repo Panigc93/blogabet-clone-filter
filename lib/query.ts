@@ -5,7 +5,7 @@ import { eq, gt, gte, ilike, isNotNull, lte, or, SQL, sql } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 
 export interface TipsterFilters {
-  platform?: 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'bettingexpert' | 'olbg' | 'apuestes' // undefined = all platforms (callers: default to 'blogabet')
+  platform?: 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'bettingexpert' | 'olbg' | 'apuestes' | 'protipster' // undefined = all platforms (callers: default to 'blogabet')
   bePeriod?: '3m'|'6m'|'12m'
   beMinYield?: string
   beMinPicks?: number

@@ -134,7 +134,14 @@ export function protipsterRowToInsert(row: ProtipsterCaptureRow, opts: Protipste
   const m12: ProtipsterPeriodStats = { picks: 0, profit: 0, stakes: 0, yield: null, hitRate: null, averageOdds: null }
   for (const m of win.months) {
     const w = row.months[m]
-    if (!w) continue
+    if (!w) continue // month without activity: true zero, not missing data
+    if (w.picks > 0 && (num(w.profit) === null || num(w.stakes) === null || num(w.stakes)! <= 0)) {
+      return {
+        ok: false,
+        klass: 'cuarentena[capture-inconsistency]',
+        reason: `month ${m}: picks=${w.picks} but profit/stakes missing or stakes<=0; never summing 0 for missing`,
+      }
+    }
     m12.picks += w.picks
     m12.profit = (m12.profit ?? 0) + (num(w.profit) ?? 0)
     m12.stakes = (m12.stakes ?? 0) + (num(w.stakes) ?? 0)
