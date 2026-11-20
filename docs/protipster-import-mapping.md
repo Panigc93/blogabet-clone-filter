@@ -50,7 +50,15 @@ period. Real capture: heroico 2026-10 → profit 7667, stakes 79080, picks 403
 
 - `picks`/`profit`/`yield`: all-time cumulative. Yield columns store the
   EXACT computed profit/stakes*100 (2 decimals); the site's 1-decimal figure
-  is a cross-check (|diff| > 0.15pp → hold `cuarentena[capture-inconsistency]`).
+  is a cross-check using retained source decimal resolution: tolerance is
+  max(0.15pp, half the observed last decimal step + 0.005pp storage rounding).
+  This treats original 155 as integer-rounded but 155.0 as one decimal.
+  Captured jakubey September detail explicitly confirms 154.75 behind global155.
+  Native year blocks, when captured, take precedence over summary yield only
+  if profit, stakes and picks agree exactly. Original summary stays retained.
+  Ingolueders77 and muskoinaffey11 were checked this way on 2026-11-20;
+  year charts confirm 5.64 and 2.00 while summary shows6 and3.1.
+  A totals disagreement or yield outside observed precision still holds the row.
 - `profitUnit: 'protipster-units'`: the site decorates numbers with '$' but
   stake presets are 5..100; never converted to money.
 - `isPaid: false`: product classification rule confirmed by Juan on
@@ -113,5 +121,5 @@ Listing pagination: ~9 fetches for the 90d directory.
    Avatar hosting decision still open (hotlink vs uploaded copy like
    Apuestes PR #30).
 3. Full capture execution + dry-run + review, then prod import with run id.
-4. Free/Pago re-check at capture time (evidence above says free-only today).
+4. Apply Juan's product Free default to unknown-payment profiles; do not claim universal absence of paid services.
 5. Refresh cadence decision (profile data changes with every resolved pick).

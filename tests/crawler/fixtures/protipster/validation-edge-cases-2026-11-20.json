@@ -18,6 +18,7 @@
         "stakes": 5205,
         "picks": 77,
         "yield": 20.9,
+        "yieldResolution": 0.1,
         "hitRate": 44.16,
         "averageOdds": 208
       }
@@ -28,6 +29,7 @@
         "stakes": 5205,
         "picks": 77,
         "yield": 20.9,
+        "yieldResolution": 0.1,
         "hitRate": 44.16,
         "averageOdds": 3.08
       },
@@ -41,102 +43,9 @@
       "stakes": 5205,
       "picks": 77,
       "yield": 20.9,
+      "yieldResolution": 0.1,
       "hitRate": 44.16,
       "averageOdds": 3.08
-    },
-    "months": {}
-  },
-  {
-    "slug": "ingolueders77",
-    "capturedAt": "2026-11-20T18:52:49.769102+01:00",
-    "sourceUrl": "https://www.protipster.es/tipster/ingolueders77",
-    "overview": {
-      "id": 699666,
-      "username": "ingolueders77",
-      "usernameCanonical": "ingolueders77",
-      "avatar": null,
-      "userJoinDate": "2026-05-06 13:03:18",
-      "countryCode": "DE"
-    },
-    "summary": {
-      "followersCount": 0,
-      "cumulativeStats": {
-        "profit": 11,
-        "stakes": 195,
-        "picks": 39,
-        "yield": 6,
-        "hitRate": 58.97,
-        "averageOdds": -110
-      }
-    },
-    "chartDefault": {
-      "stats": {
-        "profit": 11,
-        "stakes": 195,
-        "picks": 39,
-        "yield": 5.6,
-        "hitRate": 58.97,
-        "averageOdds": 1.91
-      },
-      "defaultDateCriteria": "lastSixMonths",
-      "activeMonths": [
-        "2026-11"
-      ]
-    },
-    "period3m": {
-      "profit": 11,
-      "stakes": 195,
-      "picks": 39,
-      "yield": 5.6,
-      "hitRate": 58.97,
-      "averageOdds": 1.91
-    },
-    "months": {}
-  },
-  {
-    "slug": "muskoinaffey11",
-    "capturedAt": "2026-11-20T18:56:05.604255+01:00",
-    "sourceUrl": "https://www.protipster.es/tipster/muskoinaffey11",
-    "overview": {
-      "id": 731930,
-      "username": "muskoinaffey11",
-      "usernameCanonical": "muskoinaffey11",
-      "avatar": null,
-      "userJoinDate": "2026-11-02 07:47:07",
-      "countryCode": "ru"
-    },
-    "summary": {
-      "followersCount": 0,
-      "cumulativeStats": {
-        "profit": 1,
-        "stakes": 50,
-        "picks": 10,
-        "yield": 3.1,
-        "hitRate": 50,
-        "averageOdds": 110
-      }
-    },
-    "chartDefault": {
-      "stats": {
-        "profit": 1,
-        "stakes": 50,
-        "picks": 10,
-        "yield": 2,
-        "hitRate": 50,
-        "averageOdds": 2.1
-      },
-      "defaultDateCriteria": "lastSixMonths",
-      "activeMonths": [
-        "2026-11"
-      ]
-    },
-    "period3m": {
-      "profit": 1,
-      "stakes": 50,
-      "picks": 10,
-      "yield": 2,
-      "hitRate": 50,
-      "averageOdds": 2.1
     },
     "months": {}
   },
@@ -159,6 +68,7 @@
         "stakes": 16925,
         "picks": 170,
         "yield": -0.5,
+        "yieldResolution": 0.1,
         "hitRate": 42.35,
         "averageOdds": 126
       }
@@ -169,6 +79,7 @@
         "stakes": 9325,
         "picks": 74,
         "yield": 20.8,
+        "yieldResolution": 0.1,
         "hitRate": 47.3,
         "averageOdds": 2.61
       },
@@ -191,6 +102,7 @@
       "stakes": 2900,
       "picks": 21,
       "yield": 78.4,
+      "yieldResolution": 0.1,
       "hitRate": 52.38,
       "averageOdds": 2.92
     },
@@ -200,6 +112,7 @@
         "stakes": 1600,
         "picks": 8,
         "yield": 155,
+        "yieldResolution": 1,
         "hitRate": 62.5,
         "averageOdds": 3.37
       },
@@ -208,6 +121,7 @@
         "stakes": 1400,
         "picks": 7,
         "yield": -39.3,
+        "yieldResolution": 0.1,
         "hitRate": 28.57,
         "averageOdds": 3.25
       },
@@ -216,6 +130,7 @@
         "stakes": 3580,
         "picks": 21,
         "yield": 0.1,
+        "yieldResolution": 0.1,
         "hitRate": 52.38,
         "averageOdds": 2.09
       },
@@ -224,6 +139,7 @@
         "stakes": 1145,
         "picks": 17,
         "yield": -24.4,
+        "yieldResolution": 0.1,
         "hitRate": 35.29,
         "averageOdds": 2.92
       },
@@ -232,9 +148,146 @@
         "stakes": 2000,
         "picks": 25,
         "yield": 5.3,
+        "yieldResolution": 0.1,
         "hitRate": 56,
         "averageOdds": 2.01
       }
+    }
+  },
+  {
+    "slug": "ingolueders77",
+    "capturedAt": "2026-11-20T18:52:49.769102+01:00",
+    "sourceUrl": "https://www.protipster.es/tipster/ingolueders77",
+    "overview": {
+      "id": 699666,
+      "username": "ingolueders77",
+      "usernameCanonical": "ingolueders77",
+      "avatar": null,
+      "userJoinDate": "2026-05-06 13:03:18",
+      "countryCode": "DE"
+    },
+    "summary": {
+      "followersCount": 0,
+      "cumulativeStats": {
+        "profit": 11,
+        "stakes": 195,
+        "picks": 39,
+        "yield": 6,
+        "yieldResolution": 0.1,
+        "hitRate": 58.97,
+        "averageOdds": -110
+      }
+    },
+    "chartDefault": {
+      "stats": {
+        "profit": 11,
+        "stakes": 195,
+        "picks": 39,
+        "yield": 5.6,
+        "yieldResolution": 0.1,
+        "hitRate": 58.97,
+        "averageOdds": 1.91
+      },
+      "defaultDateCriteria": "lastSixMonths",
+      "activeMonths": [
+        "2026-11"
+      ]
+    },
+    "period3m": {
+      "profit": 11,
+      "stakes": 195,
+      "picks": 39,
+      "yield": 5.6,
+      "yieldResolution": 0.1,
+      "hitRate": 58.97,
+      "averageOdds": 1.91
+    },
+    "months": {},
+    "periodAlltime": {
+      "profit": 11,
+      "stakes": 195,
+      "picks": 39,
+      "yield": 5.6,
+      "yieldResolution": 0.1,
+      "hitRate": 58.97,
+      "averageOdds": 1.91
+    },
+    "annualCoverage": {
+      "criteria": "year",
+      "years": [
+        "2026"
+      ],
+      "activeMonths": [
+        "2026-11"
+      ]
+    }
+  },
+  {
+    "slug": "muskoinaffey11",
+    "capturedAt": "2026-11-20T18:56:05.604255+01:00",
+    "sourceUrl": "https://www.protipster.es/tipster/muskoinaffey11",
+    "overview": {
+      "id": 731930,
+      "username": "muskoinaffey11",
+      "usernameCanonical": "muskoinaffey11",
+      "avatar": null,
+      "userJoinDate": "2026-11-02 07:47:07",
+      "countryCode": "ru"
+    },
+    "summary": {
+      "followersCount": 0,
+      "cumulativeStats": {
+        "profit": 1,
+        "stakes": 50,
+        "picks": 10,
+        "yield": 3.1,
+        "yieldResolution": 0.1,
+        "hitRate": 50,
+        "averageOdds": 110
+      }
+    },
+    "chartDefault": {
+      "stats": {
+        "profit": 1,
+        "stakes": 50,
+        "picks": 10,
+        "yield": 2,
+        "yieldResolution": 0.1,
+        "hitRate": 50,
+        "averageOdds": 2.1
+      },
+      "defaultDateCriteria": "lastSixMonths",
+      "activeMonths": [
+        "2026-11"
+      ]
+    },
+    "period3m": {
+      "profit": 1,
+      "stakes": 50,
+      "picks": 10,
+      "yield": 2,
+      "yieldResolution": 0.1,
+      "hitRate": 50,
+      "averageOdds": 2.1
+    },
+    "months": {},
+    "periodAlltime": {
+      "profit": 1,
+      "stakes": 50,
+      "picks": 10,
+      "yield": 2,
+      "yieldResolution": 0.1,
+      "hitRate": 50,
+      "averageOdds": 2.1
+    },
+    "annualCoverage": {
+      "criteria": "year",
+      "years": [
+        "2026"
+      ],
+      "activeMonths": [
+        "2026-11"
+      ]
     }
   }
 ]

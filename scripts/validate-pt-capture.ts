@@ -11,6 +11,8 @@ for(const slug of st.profiles.done){
  const parsed=parseProtipsterProfile(preload)
  const row:any={slug,capturedAt:raw.capturedAt,sourceUrl:`https://www.protipster.es/tipster/${slug}`,...parsed,period3m:null,months:{}}
  for(const r of raw.responses){const b=parseDashboardGraph(r.body);if(!b)throw Error(`${slug}:unparseable ${r.dateCriteria}`);if(r.dateCriteria==='lastThreeMonths')row.period3m=b.stats;else row.months[r.dateCriteria]=b.stats}
+ const annualPath=path.join(root,'raw',`${slug}-annual-validation.json`)
+ if(fs.existsSync(annualPath)){const a=JSON.parse(fs.readFileSync(annualPath,'utf8'));const body=JSON.parse(a[0].resp),block=parseDashboardGraph(body);row.periodAlltime=block?.stats??null;row.annualCoverage={criteria:block?.defaultDateCriteria,years:body.chartData.detailedGraphData.slice(1).map((v:any)=>String(v[0])),activeMonths:block?.activeMonths}}
  rows.push(row)
  const result=protipsterRowToInsert(row,{id:parsed.overview?.id??0,idSource:'source-captured',slug:parsed.overview?.usernameCanonical??slug,sourceUrl:row.sourceUrl})
  if(result.ok)mapped.push(result.insert);else held.push({slug,...result,parsed:{overview:!!parsed.overview,summary:!!parsed.summary,chartDefault:!!parsed.chartDefault}})

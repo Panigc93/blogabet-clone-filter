@@ -72,6 +72,7 @@ function periodStats(src: unknown): ProtipsterPeriodStats | null {
     stakes: num(s.stakes),
     picks,
     yield: num(s.yield),
+    yieldResolution: s.yield == null ? undefined : 10 ** -(String(s.yield).split('.')[1]?.length ?? 0),
     hitRate: num(s.hitRate),
     averageOdds: num(s.averageOdds),
   }

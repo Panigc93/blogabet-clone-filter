@@ -23,7 +23,8 @@ export interface ProtipsterPeriodStats {
   profit: number | null
   stakes: number | null
   picks: number
-  yield: number | null // site figure, rounded to 1 decimal by the site; the exact value is profit/stakes
+  yield: number | null // rounded site figure; exact ratio is profit/stakes
+  yieldResolution?: number // observed lexical step (155 -> 1; 155.0 -> 0.1), retained before numeric parsing
   hitRate: number | null
   averageOdds: number | null // decimal format in chart blocks (moneyline in cumulativeStats); not imported
 }
@@ -59,6 +60,8 @@ export interface ProtipsterCaptureRow {
   overview: ProtipsterOverview | null
   summary: ProtipsterSummary | null
   chartDefault: ProtipsterChartBlock | null
+  annualCoverage?: { criteria: string; years: string[]; activeMonths: string[] } // direct native-year response provenance
+  periodAlltime?: ProtipsterPeriodStats | null // native year graph, if explicitly captured; never inferred from rolling windows
   period3m: ProtipsterPeriodStats | null // POST lastThreeMonths
   months: Record<string, ProtipsterPeriodStats> // 'YYYY-MM' -> full calendar month
   quarantine?: { reason: string } | null

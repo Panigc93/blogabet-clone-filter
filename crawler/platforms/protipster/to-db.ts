@@ -6,8 +6,8 @@
 // - profit/stakes are ProTipster UNITS (the site decorates them with '$';
 //   stake presets are 5..100). They are never converted to money.
 // - yield columns store the EXACT computed value profit/stakes*100 (2
-//   decimals), not the site's 1-decimal display rounding; the site figure is
-//   used as a cross-check only (|diff| > 0.15pp -> hold).
+//   decimals), not the source display rounding; the original lexical
+//   precision is retained for cross-checking (see siteYieldMatches).
 // - yield3m/yield6m are the site's ROLLING windows (boundary months clipped).
 // - yield12m is the last 12 COMPLETE calendar months at capture time,
 //   sum(profit)/sum(stakes) over full months (user-approved definition,
@@ -83,12 +83,14 @@ function exactYield(w: ProtipsterPeriodStats): { yield: string | null; inconsist
   return { yield: ((profit / stakes) * 100).toFixed(2), inconsistent: false }
 }
 
-// The site rounds window yields to 1 decimal; allow that plus storage
-// rounding before calling the capture inconsistent.
+// Preserve observed decimal precision: 155 can represent an integer-rounded
+// value, while 155.0 cannot. Keep the original 0.15pp floor for normal one-
+// decimal displays and synthetic legacy fixtures without lexical metadata.
 function siteYieldMatches(w: ProtipsterPeriodStats, exact: string): boolean {
   const site = num(w.yield)
   if (site === null) return true // no cross-check available
-  return Math.abs(site - Number(exact)) <= 0.15
+  const observedHalfStep = (w.yieldResolution ?? 0) / 2
+  return Math.abs(site - Number(exact)) <= Math.max(0.15, observedHalfStep + 0.005)
 }
 
 function inRange(y: string | null): boolean {
@@ -106,7 +108,22 @@ export function protipsterRowToInsert(row: ProtipsterCaptureRow, opts: Protipste
   if (!Number.isInteger(overview.id) || !overview.usernameCanonical) {
     return { ok: false, klass: 'cuarentena[no-usable-content]', reason: 'overview without numeric id or usernameCanonical' }
   }
-  const cum = summary.cumulativeStats
+  const summaryCum = summary.cumulativeStats
+  const cum = row.periodAlltime ?? summaryCum
+  if (row.periodAlltime) {
+    const cov = row.annualCoverage
+    const joinYear = Number(overview.userJoinDate?.slice(0, 4))
+    const captureYear = new Date(row.capturedAt).getUTCFullYear()
+    const lifeYears = Number.isInteger(joinYear) && joinYear >= 2000 && joinYear <= captureYear
+      ? Array.from({ length: captureYear - joinYear + 1 }, (_, i) => String(joinYear + i)) : []
+    if (!cov || cov.criteria !== 'year' || !lifeYears.length || !lifeYears.every(y => cov.years.includes(y)) ||
+      chartDefault.activeMonths.some(m => !cov.activeMonths.includes(m) || !cov.years.includes(m.slice(0, 4)))) {
+      return { ok: false, klass: 'cuarentena[capture-inconsistency]', reason: 'native year temporal coverage not proven across profile lifetime and active months' }
+    }
+  }
+  if (row.periodAlltime && (cum.picks !== summaryCum.picks || cum.profit !== summaryCum.profit || cum.stakes !== summaryCum.stakes)) {
+    return { ok: false, klass: 'cuarentena[capture-inconsistency]', reason: 'explicit native year totals disagree with summary totals' }
+  }
   if (cum.picks <= 0) {
     return { ok: false, klass: 'cuarentena[no-usable-content]', reason: 'cumulative picks missing or 0: nothing importable' }
   }
@@ -147,7 +164,7 @@ export function protipsterRowToInsert(row: ProtipsterCaptureRow, opts: Protipste
       return {
         ok: false,
         klass: 'cuarentena[capture-inconsistency]',
-        reason: `month ${m}: site yield ${String(w.yield)} vs computed ${monthlyExact.yield} (>0.15pp apart)`,
+        reason: `month ${m}: site yield ${String(w.yield)} vs computed ${monthlyExact.yield} outside observed rounding precision`,
       }
     }
     m12.picks += w.picks
@@ -175,7 +192,7 @@ export function protipsterRowToInsert(row: ProtipsterCaptureRow, opts: Protipste
         return {
           ok: false,
           klass: 'cuarentena[capture-inconsistency]',
-          reason: `${label}: site yield ${String(w.yield)} vs computed ${r.yield} (>${0.15}pp apart)`,
+          reason: `${label}: site yield ${String(w.yield)} vs computed ${r.yield} outside observed rounding precision`,
         }
       }
     }
