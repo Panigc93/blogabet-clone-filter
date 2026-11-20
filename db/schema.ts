@@ -56,6 +56,10 @@ export const tipsters = pgTable('tipsters', {
   accessClass: text('access_class'),
   accessEvidence: text('access_evidence'),
   accessObservedAt: timestamp('access_observed_at', { withTimezone: true }),
+  // Precio OBSERVADO en el perfil (caja subscribe). NULL en SERVICE FULL
+  // (pago sin huecos, sin precio), free, sin señal y blog muerto: una fila
+  // observada nunca hereda el price del listing, que puede ser obsoleto.
+  accessPrice: numeric('access_price', { precision: 8, scale: 2 }),
 }, (t) => ({
   platformSlugUnique: uniqueIndex('ux_tipsters_platform_slug').on(t.platform, t.slug),
   platformIdx:   index('idx_tipsters_platform').on(t.platform),

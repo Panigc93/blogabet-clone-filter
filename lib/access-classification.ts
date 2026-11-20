@@ -76,6 +76,41 @@ export function effectiveAccessSql(isPaidExpr: SQL | typeof tipsters.isPaid = ti
   END`
 }
 
+// Effective subscription price under the same rules (flag ON, Blogabet):
+// an observed row uses the price seen on the profile (access_price), which
+// is NULL on SERVICE FULL / free / no-signal / dead blogs — a stale listing
+// price is never inherited. Unread rows and every other platform keep the
+// stored price. Range filters (gte/lte) drop NULLs, so observed rows with
+// no visible price simply do not match a price filter.
+export function effectivePriceSql(): SQL<string | null> {
+  return sql<string | null>`CASE
+    WHEN ${tipsters.platform} = 'blogabet' AND ${tipsters.accessObservedAt} IS NOT NULL THEN ${tipsters.accessPrice}
+    ELSE ${tipsters.price} END`
+}
+
+// Effective DISPLAY coherence (callers gate on verifiedAccessReviewEnabled):
+// the existing paid indicator and price on the card follow the effective
+// classification, not the raw listing boolean — SERVICE FULL stored
+// is_paid=false shows the paid indicator (no price), a dead blog stored
+// is_paid=true shows neither, and an unread row keeps the legacy values.
+// No new badge, no UI change; only the two existing fields are mapped.
+export function effectiveDisplayAccess<T extends {
+  platform: string
+  isPaid: boolean | null
+  price: string | null
+  accessClass?: string | null
+  accessObservedAt?: Date | string | null
+  accessPrice?: string | null
+}>(row: T): T {
+  if (row.platform !== 'blogabet') return row
+  const access = classifyAccess(row)
+  return {
+    ...row,
+    isPaid: access === 'paid',
+    price: access === 'paid' ? (row.accessObservedAt ? (row.accessPrice ?? null) : row.price) : null,
+  }
+}
+
 // The tipo filter condition. Flag OFF: legacy boolean comparison,
 // unchanged. Flag ON: tri-state comparison that keeps unclassified rows
 // out of both Free and Paid (they stay in the unfiltered listing).

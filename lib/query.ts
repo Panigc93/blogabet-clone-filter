@@ -1,5 +1,5 @@
 import { profileSearch } from './profile-search'
-import { tipoCondition } from './access-classification'
+import { tipoCondition, effectivePriceSql, verifiedAccessReviewEnabled } from './access-classification'
 import {visibleBEPeriods,type BEVisiblePeriods} from './bettingexpert-visible-periods'
 import {beClientEligible,type BEClientAudit} from './bettingexpert-period-contract'
 import { activityCondition } from './activity-query'
@@ -90,13 +90,24 @@ export function buildFilters(params: TipsterFilters): SQL[] {
   // non-EUR row as if no tipster existed — the caller signals the ignored
   // filter to the user instead (route warning + disabled UI).
   if ((params.priceMin !== undefined || params.priceMax !== undefined) && params.platform === 'blogabet') {
-    conditions.push(eq(tipsters.isPaid, true))
     conditions.push(eq(tipsters.priceCurrency, 'eur'))
-    if (params.priceMin !== undefined) {
-      conditions.push(gte(tipsters.price, String(params.priceMin)))
-    }
-    if (params.priceMax !== undefined) {
-      conditions.push(lte(tipsters.price, String(params.priceMax)))
+    if (verifiedAccessReviewEnabled()) {
+      // Tri-state: the row must classify paid by the effective signal (a
+      // dead blog's stale is_paid=true does not count) and the range
+      // applies to the effective price (observed when the profile was
+      // read, never an inherited stale price).
+      conditions.push(tipoCondition('paid'))
+      const priceExpr = effectivePriceSql()
+      if (params.priceMin !== undefined) conditions.push(gte(priceExpr, String(params.priceMin)))
+      if (params.priceMax !== undefined) conditions.push(lte(priceExpr, String(params.priceMax)))
+    } else {
+      conditions.push(eq(tipsters.isPaid, true))
+      if (params.priceMin !== undefined) {
+        conditions.push(gte(tipsters.price, String(params.priceMin)))
+      }
+      if (params.priceMax !== undefined) {
+        conditions.push(lte(tipsters.price, String(params.priceMax)))
+      }
     }
   }
 

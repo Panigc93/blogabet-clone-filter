@@ -1,4 +1,5 @@
 import {visibleBEPeriods,type BEVisiblePeriods} from '@/lib/bettingexpert-visible-periods'
+import { classifyAccess, verifiedAccessReviewEnabled } from '@/lib/access-classification'
 import {beClientEligible,type BEClientAudit} from '@/lib/bettingexpert-period-contract'
 import { periodEligible, type AuditedTipster } from '@/lib/bet2invest-period-contract'
 import { fromOlbgReadRow, unknownOlbgCard } from './olbg-card-model'
@@ -101,6 +102,24 @@ export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardD
       ? `${String(resetDate.getUTCDate()).padStart(2, '0')}/${String(resetDate.getUTCMonth() + 1).padStart(2, '0')}/${resetDate.getUTCFullYear()}`
       : null
   const period = (v: string | null): PeriodStatView => ({ valuePct: num(v), trace: null, complete: true })
+  // Coherencia tarjeta-filtro (flag VERIFIED_ACCESS_REVIEW): el indicador de
+  // pago y el precio siguen la clasificación efectiva, no el booleano del
+  // listing. SERVICE FULL (is_paid=false almacenado) muestra el indicador de
+  // pago existente sin precio; un blog muerto o sin señal no muestra pago ni
+  // precio aunque el listing diga lo contrario; una fila nunca leída conserva
+  // la representación legacy. Sin controles ni badges nuevos.
+  const storedPriceLabel = t.price !== null ? String(parseFloat(t.price)) : null
+  let bbIsPaid = t.isPaid === true
+  let bbPriceLabel = storedPriceLabel
+  if (verifiedAccessReviewEnabled()) {
+    const access = classifyAccess({ platform: 'blogabet', isPaid: t.isPaid, accessClass: t.accessClass, accessObservedAt: t.accessObservedAt })
+    bbIsPaid = access === 'paid'
+    bbPriceLabel = access === 'paid'
+      ? (t.accessObservedAt
+          ? (t.accessPrice !== null && t.accessPrice !== undefined ? String(parseFloat(t.accessPrice)) : null)
+          : storedPriceLabel)
+      : null
+  }
   return {
     platform: 'blogabet',
     profitLabel: 'Profit (u.)',
@@ -118,8 +137,8 @@ export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardD
     verifiedPct: num(t.verifiedPct),
     followers: t.followers,
     isVerified: t.isVerified,
-    isPaid: t.isPaid === true,
-    priceLabel: t.price !== null ? String(parseFloat(t.price)) : null,
+    isPaid: bbIsPaid,
+    priceLabel: bbPriceLabel,
     priceCurrencySuffix: '€',
     resetCount,
     resetTitle:

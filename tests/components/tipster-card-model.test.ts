@@ -37,7 +37,7 @@ const BB_ROW: Tipster = {
   yieldFree3m: '3.30',
   statsUpdatedAt: null,
   sourcePortfolioId: null, sourceUrl: null,
-  accessClass: null, accessEvidence: null, accessObservedAt: null,
+  accessClass: null, accessEvidence: null, accessObservedAt: null, accessPrice: null,
 }
 
 describe('fromDbTipster (Blogabet parity)', () => {
@@ -68,6 +68,55 @@ describe('fromDbTipster (Blogabet parity)', () => {
     const c2 = fromDbTipster({ ...BB_ROW, verifiedPct: null })
     expect(c2.verifiedPct).toBeNull()
     expect(c2.platform).toBe('blogabet')
+  })
+})
+
+describe('fromDbTipster (Blogabet coherencia tarjeta-filtro, flag VERIFIED_ACCESS_REVIEW)', () => {
+  const OBSERVED = new Date('2026-11-20T17:00:00Z')
+  const withFlag = (fn: () => void) => {
+    process.env.VERIFIED_ACCESS_REVIEW = '1'
+    try { fn() } finally { delete process.env.VERIFIED_ACCESS_REVIEW }
+  }
+  it('SERVICE FULL con booleano false muestra el indicador de pago existente, sin precio', () => {
+    withFlag(() => {
+      const c = fromDbTipster({ ...BB_ROW, isPaid: false, price: null, accessClass: 'paid', accessEvidence: 'SERVICE FULL (subscribe, no open slots, no parseable price)', accessObservedAt: OBSERVED, accessPrice: null })
+      expect(c.isPaid).toBe(true)
+      expect(c.priceLabel).toBeNull()
+    })
+  })
+  it('blog muerto con booleano true no muestra pago ni precio antiguo', () => {
+    withFlag(() => {
+      const c = fromDbTipster({ ...BB_ROW, isPaid: true, price: '60.00', accessClass: null, accessEvidence: 'blog-not-found', accessObservedAt: OBSERVED, accessPrice: null })
+      expect(c.isPaid).toBe(false)
+      expect(c.priceLabel).toBeNull()
+    })
+  })
+  it('pago observado con precio muestra el precio observado, no el almacenado', () => {
+    withFlag(() => {
+      const c = fromDbTipster({ ...BB_ROW, isPaid: true, price: '40.00', accessClass: 'paid', accessEvidence: 'subscribe 59€/MONTH', accessObservedAt: OBSERVED, accessPrice: '59.00' })
+      expect(c.isPaid).toBe(true)
+      expect(c.priceLabel).toBe('59')
+    })
+  })
+  it('free afirmativo no muestra pago', () => {
+    withFlag(() => {
+      const c = fromDbTipster({ ...BB_ROW, isPaid: false, price: null, accessClass: 'free', accessEvidence: 'This is a free NON-VERIFIED blog!', accessObservedAt: OBSERVED, accessPrice: null })
+      expect(c.isPaid).toBe(false)
+      expect(c.priceLabel).toBeNull()
+    })
+  })
+  it('fila nunca leída conserva la representación legacy (booleano + precio almacenado)', () => {
+    withFlag(() => {
+      const c = fromDbTipster(BB_ROW) // accessObservedAt null
+      expect(c.isPaid).toBe(true)
+      expect(c.priceLabel).toBe('40')
+    })
+  })
+  it('flag apagado: los campos de señal no cambian la tarjeta', () => {
+    delete process.env.VERIFIED_ACCESS_REVIEW
+    const c = fromDbTipster({ ...BB_ROW, accessClass: 'free', accessEvidence: 'banner', accessObservedAt: OBSERVED, accessPrice: null })
+    expect(c.isPaid).toBe(true) // BB_ROW.isPaid legacy
+    expect(c.priceLabel).toBe('40')
   })
 })
 
@@ -213,7 +262,7 @@ const B2I_ROW: Tipster = {
   yieldFree3m: null,
   statsUpdatedAt: new Date('2026-11-16T10:00:00Z'),
   sourcePortfolioId: null, sourceUrl: null,
-  accessClass: null, accessEvidence: null, accessObservedAt: null,
+  accessClass: null, accessEvidence: null, accessObservedAt: null, accessPrice: null,
 }
 
 describe('fromDbTipster (Bet2Invest)', () => {

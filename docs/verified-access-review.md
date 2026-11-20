@@ -147,3 +147,51 @@ schema-only, additive, nullable — no backfill, no rewrite of existing
 rows, no classification change until a probe writes a signal. The probe
 flow itself would be a separate decision (live profile reads at >=10s
 intervals, one write per observed row).
+
+## Card/filter coherence (commit 5, 2026-11-20) — same signal end to end
+
+The migration draft gains a fourth nullable column, `access_price`
+(numeric(8,2)): the subscription price OBSERVED on the profile (subscribe
+box). NULL on SERVICE FULL, free, no-signal and dead blogs, so an observed
+row never inherits a stale listing price. Probe mapping writes it; still
+not executed.
+
+- Card (existing paid indicator and price, no new UI): the served row
+  carries the effective values (`effectiveDisplayAccess`, applied
+  server-side in `app/page.tsx` and `app/api/tipsters/route.ts` under the
+  flag; the client-rendered card only displays them). SERVICE FULL stored
+  `is_paid=false` shows the paid indicator without price; a dead blog
+  stored `is_paid=true` shows neither; unread rows keep legacy values.
+  Flag OFF: payload byte-identical to legacy.
+- Price filter (`lib/query.ts`, Blogabet view, flag ON): requires paid by
+  the effective signal (a dead blog's stale `is_paid=true` does not count)
+  and the range applies to the effective price (`effectivePriceSql`:
+  observed rows → `access_price`, unread → stored). Observed rows with no
+  visible price (SERVICE FULL) do not match a price range.
+
+E2E re-verified on the isolated DB: API priceMin=55 returns only
+sabobic(59€)+dedi22(55€) (versustips11's stale 60€ excluded); the ibet-35
+card in the unfiltered listing shows the paid badge without price, and the
+versustips11 card shows neither badge nor the stale 60€ (screenshots
+ui-e2e-card-*.png).
+
+## Deployment proposal (bounded, NOT executed)
+
+1. Apply 0007 to Neon: schema-only, 4 nullable columns, zero data change,
+   zero reclassification while no probe writes.
+2. Probe phase A (contradiction cleanup): the 655 stored non-verified+paid
+   rows — 655 profile GETs at >=10s (~1.8h), one UPDATE per observed row.
+   Sample expectation (3/3 dead): most drop out of Pago and lose stale
+   prices; EXPECTED, not proven beyond the sample.
+3. Probe phase B: 415 verified-paid + 164 verified-without-price rows
+   (~1.6h). Paid rows keep Pago with the observed price (or without price
+   if SERVICE FULL); no-signal rows become unclassified.
+4. Probe phase C (optional, largest): the remaining 10,266 non-verified
+   rows (~28.5h). Rows with the free banner become affirmative Free.
+5. Only then activate VERIFIED_ACCESS_REVIEW (pure read-path change;
+   flag OFF restores legacy exactly).
+
+Total volume if all phases run: 11,500 GETs (~32h at 10s) and up to
+11,500 single-row UPDATEs, each writing class/evidence/date(/price).
+Every phase is independently bounded and stoppable; no phase touches
+/blog/picks or retries a denial.

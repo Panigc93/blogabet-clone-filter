@@ -11,6 +11,7 @@ import { db } from '@/db'
 import { tipsters } from '@/db/schema'
 import { ignoredWarning, bettingexpertApiProjection, profitSortWarning, TipsterFilters, SortField } from '@/lib/query'
 import { and } from 'drizzle-orm'
+import { effectiveDisplayAccess, verifiedAccessReviewEnabled } from '@/lib/access-classification'
 
 const PAGE_SIZE = 50
 
@@ -75,5 +76,9 @@ export async function GET(req: NextRequest) {
     warnings.push(ignored)
   }
 
-  return NextResponse.json({ data: rows.map(row=>bettingexpertApiProjection(row,readAt)), page, hasMore: rows.length === PAGE_SIZE, ...(warnings.length ? { warnings } : {}) })
+  // Coherencia tarjeta-filtro (flag): la fila servida ya lleva el indicador
+  // de pago y el precio efectivos; la tarjeta (cliente, sin acceso al flag)
+  // solo los muestra. Sin flag, payload idéntico al legacy.
+  const displayRows = verifiedAccessReviewEnabled() ? rows.map(effectiveDisplayAccess) : rows
+  return NextResponse.json({ data: displayRows.map(row=>bettingexpertApiProjection(row,readAt)), page, hasMore: rows.length === PAGE_SIZE, ...(warnings.length ? { warnings } : {}) })
 }

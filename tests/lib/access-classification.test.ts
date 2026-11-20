@@ -4,6 +4,7 @@ import {
   classifyAccess,
   verifiedAccessReviewEnabled,
   effectiveAccessSql,
+  effectivePriceSql,
   tipoCondition,
 } from '@/lib/access-classification'
 import { buildFilters } from '@/lib/query'
@@ -131,5 +132,36 @@ describe('buildFilters with the flag', () => {
   it('flag ON leaves tipo=all untouched (no access condition)', () => {
     process.env.VERIFIED_ACCESS_REVIEW = '1'
     expect(buildFilters({ tipo: 'all' })).toHaveLength(0)
+  })
+})
+
+describe('effectivePriceSql (precio efectivo bajo la señal)', () => {
+  it('observed rows use access_price; unread rows and other platforms keep stored price', () => {
+    const text = textLeaves(effectivePriceSql())
+    expect(text).toContain('CASE')
+    expect(text).toContain('IS NOT NULL')
+    const cols = leaves(effectivePriceSql()).filter((v): v is { name: string } => typeof v === 'object' && v !== null && 'name' in (v as object)).map(c => c.name)
+    expect(cols).toContain('access_price')
+    expect(cols).toContain('price')
+    expect(cols).toContain('access_observed_at')
+    expect(cols).toContain('platform')
+  })
+
+  it('price filter flag ON: paid by effective signal, range over effective price (no stale is_paid/price)', () => {
+    process.env.VERIFIED_ACCESS_REVIEW = '1'
+    const conds = buildFilters({ platform: 'blogabet', tipo: 'all', priceMin: 50 })
+    const text = textLeaves(conds[0]!) + ' ' + conds.slice(1).map(c => textLeaves(c!)).join(' ')
+    const allCols = conds.flatMap(c => leaves(c!)).filter((v): v is { name: string } => typeof v === 'object' && v !== null && 'name' in (v as object)).map(c => c.name)
+    expect(allCols).toContain('access_price')
+    expect(allCols).toContain('access_class')
+    expect(allCols).toContain('price_currency')
+  })
+
+  it('price filter flag OFF: legacy is_paid=true + stored price', () => {
+    const conds = buildFilters({ platform: 'blogabet', tipo: 'all', priceMin: 50 })
+    const allCols = conds.flatMap(c => leaves(c!)).filter((v): v is { name: string } => typeof v === 'object' && v !== null && 'name' in (v as object)).map(c => c.name)
+    expect(allCols).toContain('is_paid')
+    expect(allCols).toContain('price')
+    expect(allCols).not.toContain('access_price')
   })
 })

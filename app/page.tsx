@@ -14,6 +14,7 @@ import { ignoredWarning, profitSortWarning, TipsterFilters, SortField } from '@/
 import { and, count } from 'drizzle-orm'
 import { FilterBar } from '@/components/FilterBar'
 import { LoadMore } from '@/components/LoadMore'
+import { effectiveDisplayAccess, verifiedAccessReviewEnabled } from '@/lib/access-classification'
 
 const PAGE_SIZE = 50
 
@@ -76,6 +77,9 @@ export default async function Home({ searchParams }: PageProps) {
   ])
 
   if (!await periods.revisionUnchanged()) redirect(refreshUrl)
+  // Coherencia tarjeta-filtro (flag): las filas iniciales ya llevan pago y
+  // precio efectivos (LoadMore las pinta en cliente, sin acceso al flag).
+  const displayRows = verifiedAccessReviewEnabled() ? rows.map(effectiveDisplayAccess) : rows
   const filterWarning = [ignoredWarning(filters), ...periods.warnings(filters)].filter(Boolean).join(' ')
   const hasMore = rows.length === PAGE_SIZE
   const continuation = new URLSearchParams(searchParams as Record<string, string>)
@@ -99,7 +103,7 @@ export default async function Home({ searchParams }: PageProps) {
             {filterWarning}
           </div>
         )}
-        <LoadMore key={searchString} initialRows={rows} initialHasMore={hasMore} total={total} searchString={searchString} periodAnchor={readAt.toISOString()} />
+        <LoadMore key={searchString} initialRows={displayRows} initialHasMore={hasMore} total={total} searchString={searchString} periodAnchor={readAt.toISOString()} />
       </div>
     </>
   )

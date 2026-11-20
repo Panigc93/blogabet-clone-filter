@@ -15,16 +15,18 @@ describe('signalToAccessUpdate (prepared probe mapping, not executed)', () => {
     expect(u.accessObservedAt).toBe(OBSERVED)
   })
 
-  it('subscribe price -> paid with the price in evidence', () => {
+  it('subscribe price -> paid with the price in evidence and accessPrice', () => {
     const u = signalToAccessUpdate(parseBlogabetProfile(frag('sabobic')), OBSERVED)
     expect(u.accessClass).toBe('paid')
     expect(u.accessEvidence).toContain('59')
+    expect(u.accessPrice).toBe('59')
   })
 
-  it('SERVICE FULL -> paid without a price', () => {
+  it('SERVICE FULL -> paid without a price (accessPrice NULL: no inherited stale price)', () => {
     const u = signalToAccessUpdate(parseBlogabetProfile(frag('ibet-35')), OBSERVED)
     expect(u.accessClass).toBe('paid')
     expect(u.accessEvidence).toContain('SERVICE FULL')
+    expect(u.accessPrice).toBeNull()
   })
 
   it('no-signal and not-found -> NULL class, still stamped (stale listing flags never resurrect)', () => {
@@ -35,6 +37,8 @@ describe('signalToAccessUpdate (prepared probe mapping, not executed)', () => {
     expect(dead.accessClass).toBeNull()
     expect(dead.accessEvidence).toBe('blog-not-found')
     expect(dead.accessObservedAt).toBe(OBSERVED)
+    expect(dead.accessPrice).toBeNull() // stale stored price never survives an observed read
+    expect(noSignal.accessPrice).toBeNull()
   })
 })
 

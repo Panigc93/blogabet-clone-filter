@@ -22,6 +22,11 @@ export interface AccessUpdate {
   accessClass: 'free' | 'paid' | null
   accessEvidence: string
   accessObservedAt: Date
+  // Observed price (EUR) from the subscribe box; NULL on SERVICE FULL,
+  // free, no-signal and dead blogs, so an observed row never inherits the
+  // listing's possibly-stale price. Key matches the schema column, so the
+  // probe's .set(update) writes it too.
+  accessPrice: string | null
 }
 
 // Pure: profile reading -> stored signal. Every read stamps evidence and
@@ -30,15 +35,15 @@ export interface AccessUpdate {
 export function signalToAccessUpdate(reading: BlogabetProfileReading, observedAt: Date): AccessUpdate {
   switch (reading.signal.kind) {
     case 'free-nonverified':
-      return { accessClass: 'free', accessEvidence: reading.signal.evidence, accessObservedAt: observedAt }
+      return { accessClass: 'free', accessEvidence: reading.signal.evidence, accessObservedAt: observedAt, accessPrice: null }
     case 'paid-price':
-      return { accessClass: 'paid', accessEvidence: `subscribe ${reading.signal.priceEur}€/MONTH`, accessObservedAt: observedAt }
+      return { accessClass: 'paid', accessEvidence: `subscribe ${reading.signal.priceEur}€/MONTH`, accessObservedAt: observedAt, accessPrice: String(reading.signal.priceEur) }
     case 'paid-service-full':
-      return { accessClass: 'paid', accessEvidence: 'SERVICE FULL (subscribe, no open slots, no parseable price)', accessObservedAt: observedAt }
+      return { accessClass: 'paid', accessEvidence: 'SERVICE FULL (subscribe, no open slots, no parseable price)', accessObservedAt: observedAt, accessPrice: null }
     case 'not-found':
-      return { accessClass: null, accessEvidence: 'blog-not-found', accessObservedAt: observedAt }
+      return { accessClass: null, accessEvidence: 'blog-not-found', accessObservedAt: observedAt, accessPrice: null }
     case 'none':
-      return { accessClass: null, accessEvidence: 'no-signal', accessObservedAt: observedAt }
+      return { accessClass: null, accessEvidence: 'no-signal', accessObservedAt: observedAt, accessPrice: null }
   }
 }
 
