@@ -7,9 +7,9 @@ import { tipsters } from '@/db/schema'
 // the legacy behavior exactly; nothing here is active by default.
 //
 // Product rule (Juan, 2026-11-20): unknown is FREE, not excluded — a row
-// only leaves Free with affirmative paid evidence. The NULL class is kept
-// for internal evidence states that are neither (dead blogs), never for
-// mere absence of information.
+// only leaves Free with affirmative paid evidence. NULL is kept for
+// platforms whose stored flag contradicts an affirmative policy (OLBG/BE)
+// or has no captured evidence (source-labelled platforms).
 //
 // Evidence basis (audit of 2026-11-19 over retained responses; see
 // docs/verified-access-review.md):
@@ -18,9 +18,8 @@ import { tipsters } from '@/db/schema'
 //   a subscribe box (with price, or SERVICE FULL without one) is affirmative
 //   Paid. Everything else is Free by the product rule: the "free NON-VERIFIED
 //   blog" banner, an observed profile with no paid signal, and unread rows
-//   stored is_paid=false. Dead blogs ('blog-not-found') are neither: their
-//   stored flags are stale, they are not a live free service, and they stay
-//   unclassified (internal evidence kept) pending the dead-cleanup decision.
+//   stored is_paid=false. Dead blogs ('blog-not-found') are Free by the same rule (no proof of
+//   payment); their stale stored flags never resurrect.
 // - OLBG / Bettingexpert: Free by affirmative source policy (their picks
 //   are free on-platform; docs/olbg-scoped-free-release.md). A stored
 //   is_paid=true there would contradict the policy and stays unclassified.
@@ -47,17 +46,17 @@ export function classifyAccess(row: {
 }): AccessClass {
   switch (row.platform) {
     case 'blogabet':
-      // Regla de producto (Juan, 2026-11-20 18:30): sin constancia de pago,
-      // la fila permanece en Free. Pago exige evidencia afirmativa: señal de
-      // perfil (precio subscribe o SERVICE FULL) o, en filas no leídas, el
-      // precio parseado del listing (is_paid=true). Un perfil observado sin
-      // señal de pago es Free, no desconocido. La excepción es el blog
-      // muerto ('blog-not-found'): no es un servicio free existente; queda
-      // sin clasificar internamente (fuera de ambos filtros) hasta la
-      // decisión de limpieza de muertos.
+      // Regla de producto (Juan, 2026-11-20 18:30, WhatsApp, literal): sin
+      // constancia de pago, la fila permanece en Free. Pago exige evidencia
+      // afirmativa: señal de perfil (precio subscribe o SERVICE FULL) o, en
+      // filas no leídas, el precio parseado del listing (is_paid=true).
+      // Un perfil observado sin señal de pago es Free. Un blog muerto
+      // ('blog-not-found') tampoco tiene constancia de pago: Free por la
+      // misma regla; la evidencia interna lo marca y la limpieza de muertos
+      // (decisión aparte) es lo que lo saca del catálogo. Sin excepciones.
       if (row.accessClass === 'paid') return 'paid'
       if (row.accessClass === 'free') return 'free'
-      if (row.accessObservedAt) return row.accessEvidence === 'blog-not-found' ? null : 'free'
+      if (row.accessObservedAt) return 'free'
       return row.isPaid ? 'paid' : 'free'
     case 'olbg':
     case 'bettingexpert':
@@ -70,8 +69,8 @@ export function classifyAccess(row: {
 // Same classification in SQL so Free/Paid filters, counts and pagination
 // all agree before slicing. isPaidExpr lets the read layer pass its
 // projected expression (OLBG nulls its own isPaid upstream; the platform
-// branch still governs). The NULL class (dead blogs) is excluded by both
-// comparisons; the unfiltered listing ('all') keeps those rows.
+// branch still governs). A NULL class is excluded by both comparisons;
+// the unfiltered listing ('all') keeps those rows.
 export function effectiveAccessSql(isPaidExpr: SQL | typeof tipsters.isPaid = tipsters.isPaid): SQL<string | null> {
   // Column or projected SQL: both embed identically in a sql`` template.
   const expr = isPaidExpr as SQL
@@ -79,7 +78,6 @@ export function effectiveAccessSql(isPaidExpr: SQL | typeof tipsters.isPaid = ti
     WHEN ${tipsters.platform} = 'blogabet' THEN CASE
       WHEN ${tipsters.accessClass} = 'paid' THEN 'paid'
       WHEN ${tipsters.accessClass} = 'free' THEN 'free'
-      WHEN ${tipsters.accessObservedAt} IS NOT NULL AND ${tipsters.accessEvidence} = 'blog-not-found' THEN NULL
       WHEN ${tipsters.accessObservedAt} IS NOT NULL THEN 'free'
       WHEN ${expr} THEN 'paid'
       ELSE 'free' END
@@ -125,8 +123,8 @@ export function effectiveDisplayAccess<T extends {
 }
 
 // The tipo filter condition. Flag OFF: legacy boolean comparison,
-// unchanged. Flag ON: effective comparison; only dead blogs (NULL class)
-// stay out of both Free and Paid.
+// unchanged. Flag ON: effective comparison (Blogabet NULL no longer
+// occurs; other platforms keep their policy/NULL branches).
 export function tipoCondition(
   tipo: 'free' | 'paid',
   isPaidExpr: SQL | typeof tipsters.isPaid = tipsters.isPaid,

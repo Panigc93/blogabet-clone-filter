@@ -4,18 +4,19 @@ Prepared code, not a deployed release. Reconstructed from the reviewed
 bundle 5719433 (branch `research/free-paid-effective`, 2026-11-19, bundle
 no longer available) on top of current master, with the same opt-in shape.
 
-PRODUCT RULE (Juan, 2026-11-20 18:30, WhatsApp): without proof of payment
-a row stays in Free — unknown is NOT excluded from Free. Paid requires
-affirmative evidence. The earlier tri-state draft (unknown excluded from
-both filters) was rejected by Juan. Internal evidence states (observed
-date, signal text) are kept on the row without imposing any filter
-exclusion; the only NULL class left is the dead blog, which is not a live
-free service and awaits the dead-cleanup decision.
+PRODUCT RULE (Juan, 2026-11-20 18:30, WhatsApp, verbatim "si no sabemos si
+son de pago son free, pero compruebalo claro"): without proof of payment a
+row stays in Free — unknown is NOT excluded from Free, and there are no
+exceptions. Paid requires affirmative evidence. The earlier tri-state
+draft (unknown excluded from both filters) was rejected by Juan. Internal
+evidence states (observed date, signal text, blog-not-found) are kept on
+the row without imposing any filter exclusion; removing dead blogs from
+the catalog is the separate dead-cleanup decision, not a filter rule.
 
 ## What this is
 
 An opt-in (`VERIFIED_ACCESS_REVIEW=1`) effective read of tipster access:
-`free` / `paid`, with NULL reserved for dead blogs. With the flag unset,
+`free` / `paid`. With the flag unset,
 every read path keeps the legacy boolean filter byte-for-byte. No
 migration, no DB write, no crawler change, no UI badge change, no
 freshness threshold.
@@ -28,17 +29,16 @@ freshness threshold.
   `tipoCondition(p.tipo, projection.isPaid)`; same OFF equivalence.
 
 The class is evaluated in WHERE before pagination, so Free/Paid filters,
-counts and pages agree. Dead blogs (NULL) stay in "Todos" only. The cards
-need no change: the Pago badge and price only render on the effective
-paid class and no Free badge exists.
+counts and pages agree. The cards need no change: the Pago badge and
+price only render on the effective paid class and no Free badge exists.
 
 ## Classification by platform (with the flag ON)
 
 - **Blogabet**: affirmative paid evidence → Paid: a profile subscribe box
   (price or SERVICE FULL) or, on unread rows, the parsed listing price
   (`is_paid=true`). Everything else → Free (product rule): banner-free
-  blogs, observed profiles with no paid signal, unread `is_paid=false`.
-  Dead blogs (`blog-not-found`) → NULL, internal evidence kept.
+  blogs, observed profiles with no paid signal, unread `is_paid=false`,
+  and dead blogs (`blog-not-found` kept as internal evidence).
 - **OLBG / Bettingexpert**: Free by affirmative source policy (their picks
   are free on-platform; see `docs/olbg-scoped-free-release.md`). A stored
   `is_paid=true` contradicts the policy → unclassified.
@@ -67,12 +67,12 @@ paid class and no Free badge exists.
 ## Consequences of enabling today (with the 13 observed signals written)
 
 Exact counts over the live Neon catalog (17,412 rows, read 2026-11-20
-18:17): Free 15,720 → 15,719; Pago 1,692 → 1,690; unclassified 0 → 3.
+18:17): Free 15,720 → 15,719; Pago 1,692 → 1,690.
 
 - ibet-35 moves Free → Pago (SERVICE FULL, stored `is_paid=false`).
-- The 3 dead blogs leave Pago and both filters (they kept stale
-  `is_paid=true`); they stay in "Todos" with internal `blog-not-found`
-  evidence, pending the dead-cleanup decision.
+- The 3 dead blogs leave Pago (their stored `is_paid=true` is stale) and
+  join Free by the product rule, with internal `blog-not-found` evidence;
+  removing them from the catalog is the separate dead-cleanup decision.
 - Every other row keeps today's filter membership. Enabling remains a
   product decision for Juan.
 
@@ -158,8 +158,9 @@ under the product rule (unknown stays Free):
 - `tipo=paid` → 42 rows INCLUDING ibet-35 (SERVICE FULL, stored
   `is_paid=false`) and EXCLUDING versustips11 (dead blog whose stored
   `is_paid=true` is stale).
-- Unfiltered listing keeps versustips11 (dead, NULL class) with no
-  misleading label. Screenshots: ui-e2e-access-*.png.
+- versustips11 (dead) is Free by the product rule, with internal
+  `blog-not-found` evidence and no paid badge or stale price on its card.
+  Screenshots: ui-e2e-access-*.png.
 
 Impact if 0007 were applied to Neon (for later approval, not done):
 schema-only, additive, nullable — no backfill, no rewrite of existing

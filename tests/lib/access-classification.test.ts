@@ -46,9 +46,10 @@ describe('classifyAccess', () => {
     // Observed profile with NO paid signal: Free by the product rule,
     // even if the stored boolean says paid (stale).
     expect(classifyAccess({ platform: 'blogabet', isPaid: true, accessClass: null, accessEvidence: 'no-signal', accessObservedAt: at })).toBe('free')
-    // Dead blog: neither paid nor a live free service; unclassified
-    // (internal evidence kept) pending the dead-cleanup decision.
-    expect(classifyAccess({ platform: 'blogabet', isPaid: true, accessClass: null, accessEvidence: 'blog-not-found', accessObservedAt: at })).toBeNull()
+    // Dead blog: no constancia de pago either — Free by the literal rule;
+    // the blog-not-found evidence is internal and the dead-cleanup
+    // decision (not the filter) removes the row from the catalog.
+    expect(classifyAccess({ platform: 'blogabet', isPaid: true, accessClass: null, accessEvidence: 'blog-not-found', accessObservedAt: at })).toBe('free')
   })
 
   it('OLBG and Bettingexpert: Free by affirmative source policy; a stored paid flag stays unclassified', () => {
@@ -101,7 +102,7 @@ describe('tipoCondition', () => {
     expect(paramValues(tipoCondition('paid', tipsters.isPaid, env))).toContain('paid')
   })
 
-  it('effectiveAccessSql maps Blogabet false to free and OLBG/BE false to free; only blog-not-found is NULL', () => {
+  it('effectiveAccessSql maps Blogabet false to free and OLBG/BE false to free', () => {
     const t = textLeaves(effectiveAccessSql())
     expect(t).toContain("WHEN")
     expect(t).toContain('blogabet')
