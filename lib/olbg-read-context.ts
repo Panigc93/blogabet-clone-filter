@@ -1,6 +1,7 @@
 import { sql, and, eq, gte, lte, type SQL } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 import { effectiveProfitUnit, buildFilters, type TipsterFilters, type SortField } from './query'
+import { tipoCondition } from './access-classification'
 import registrations from '@/data/olbg/pilot-registrations.json'
 import { validOlbgRegistration } from '@/crawler/platforms/olbg/registration'
 import { periodReadContext } from './bet2invest-period-read'
@@ -68,7 +69,7 @@ export function olbgReadContext(base: ReturnType<typeof periodReadContext>, enab
     source, joinOn, projection,
     filters: (p: TipsterFilters): SQL[] => {
       const conditions = buildFilters({ ...p, tipo: 'all', minPicks: undefined, minYield: undefined, maxYield: undefined })
-      if (p.tipo === 'free' || p.tipo === 'paid') conditions.push(eq(projection.isPaid, p.tipo === 'paid'))
+      if (p.tipo === 'free' || p.tipo === 'paid') conditions.push(tipoCondition(p.tipo, projection.isPaid))
       if (p.minPicks !== undefined) conditions.push(gte(projection.picks, p.minPicks))
       if (p.minYield !== undefined) conditions.push(gte(projection.yield, String(p.minYield)))
       if (p.maxYield !== undefined) conditions.push(lte(projection.yield, String(p.maxYield)))

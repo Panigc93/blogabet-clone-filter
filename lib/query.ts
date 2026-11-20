@@ -1,4 +1,5 @@
 import { profileSearch } from './profile-search'
+import { tipoCondition } from './access-classification'
 import {visibleBEPeriods,type BEVisiblePeriods} from './bettingexpert-visible-periods'
 import {beClientEligible,type BEClientAudit} from './bettingexpert-period-contract'
 import { activityCondition } from './activity-query'
@@ -41,10 +42,13 @@ export function buildFilters(params: TipsterFilters): SQL[] {
     conditions.push(eq(tipsters.platform, params.platform))
   }
 
+  // Flag OFF (default): legacy boolean filter, unchanged. Flag ON:
+  // tri-state classification (lib/access-classification.ts); unclassified
+  // rows are excluded from Free and Paid and remain in 'all'.
   if (params.tipo === 'free') {
-    conditions.push(eq(tipsters.isPaid, false))
+    conditions.push(tipoCondition('free'))
   } else if (params.tipo === 'paid') {
-    conditions.push(eq(tipsters.isPaid, true))
+    conditions.push(tipoCondition('paid'))
   }
 
   if (params.minYield !== undefined) {
