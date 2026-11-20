@@ -32,7 +32,7 @@ beforeAll(async()=>{
  admin=await connect();await admin.query(`CREATE SCHEMA ${schema}`)
  a=await connect();b=await connect()
  for(const c of [admin,a,b])await c.query(`SET search_path TO ${schema},public`)
- for(const f of ['0000_sudden_jazinda.sql','0001_add_last_reset_at.sql','0002_add_is_verified.sql','0003_naive_dormammu.sql','0004_multi_platform.sql','0005_tipstrr_internal_pk.sql'])for(const q of readFileSync(join(__dirname,'../../drizzle',f),'utf8').split('--> statement-breakpoint'))if(q.trim())await admin.query(q)
+ for(const f of ['0000_sudden_jazinda.sql','0001_add_last_reset_at.sql','0002_add_is_verified.sql','0003_naive_dormammu.sql','0004_multi_platform.sql','0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql'])for(const q of readFileSync(join(__dirname,'../../drizzle',f),'utf8').split('--> statement-breakpoint'))if(q.trim())await admin.query(q)
  await admin.query(OLBG_LOCAL_SCHEMA)
  await executeOlbgPreparedBatch(wrap(a),input('initial'))
 })
