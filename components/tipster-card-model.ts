@@ -484,7 +484,7 @@ function protipsterFromDbRow(t: TipsterReadRow): TipsterCardData {
     followers: t.followers,
     isVerified: null, // concepto no expuesto: sin badge
     isPaid: t.isPaid === true,
-    priceLabel: null, // ProTipster no tiene suscripción por tipster (sobre-nosotros: plataforma gratuita, premios por competición)
+    priceLabel: null, // no captured paid price; Free is the owner-approved product default
     priceCurrencySuffix: null,
     resetCount: 0,
     resetTitle: 'ProTipster no expone resets de estadísticas',
@@ -497,6 +497,7 @@ function protipsterFromDbRow(t: TipsterReadRow): TipsterCardData {
     picks6mTrace: null,
     picksFree3mAvg: null,
     yieldFree3m: null,
+    periodBasisNote: winLabel ? `12m: ${winLabel}` : undefined,
     showPeriodRow: t.yield3m != null || t.yield6m != null || t.yield12m != null || t.picks6mAvg != null,
   }
 }
