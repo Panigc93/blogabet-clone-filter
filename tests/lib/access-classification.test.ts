@@ -45,6 +45,12 @@ describe('classifyAccess', () => {
       expect(classifyAccess({ platform, isPaid: false })).toBe('free')
     }
   })
+
+  it('a NULL stored flag (no captured evidence) is unclassified on source-labelled platforms', () => {
+    for (const platform of ['tipstrr', 'golazobets', 'bet2invest', 'apuestes']) {
+      expect(classifyAccess({ platform, isPaid: null })).toBeNull()
+    }
+  })
 })
 
 describe('verifiedAccessReviewEnabled', () => {

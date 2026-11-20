@@ -34,6 +34,7 @@ const counts = {
   importHeldDiscrepancy: 0,
   importHeldMonthsIncomplete: 0,
   importHeldYieldRange: 0,
+  importHeldPriceEvidenceAbsent: 0,
   monthsIncomplete: 0,
   importable: 0,
   yieldForcedNullOnEmptyWindowM3: 0,
@@ -84,6 +85,20 @@ function projectForImport(row: Row, monthsIncomplete: boolean) {
       username: row.username,
       klass: 'cuarentena[months-incomplete]',
       reason: 'sum(months.numpicks) below hist.totalPicks: site exposes only recent months; row held pending adjudication',
+    })
+    return null
+  }
+  const plansRaw = ((row as Record<string, unknown>).plans ?? {}) as Record<string, number | null>
+  const paidRow = ((((row as Record<string, unknown>).pickPrice) as number | null) ?? 0) > 0 ||
+    Object.values(plansRaw).some(price => (price ?? 0) > 0)
+  const hasPriceEvidence = ((row as Record<string, unknown>).pickPrice) != null ||
+    Object.values(plansRaw).some(price => price != null)
+  if (!paidRow && !hasPriceEvidence) {
+    holdLog.push({
+      id: row.id,
+      username: row.username,
+      klass: 'cuarentena[price-evidence-absent]',
+      reason: 'pickPrice and every plan price absent: no explicit zero; absence never classifies as free',
     })
     return null
   }
@@ -148,6 +163,7 @@ for (const line of readFileSync(JSONL, 'utf8').split('\n')) {
   if (proj === null) {
     if (row.discrepancy) counts.importHeldDiscrepancy++
     else if (monthsIncomplete) counts.importHeldMonthsIncomplete++
+    else if (!paid && !((r.pickPrice as number | null) != null || Object.values(plans).some(price => price != null))) counts.importHeldPriceEvidenceAbsent++
     else counts.importHeldYieldRange++
   } else counts.importable++
   const w3 = row.m3 ?? {}, w6 = row.m6 ?? {}, w12 = row.m12 ?? {}
@@ -176,6 +192,7 @@ const expected = {
   importHeldDiscrepancy: 27,
   importHeldMonthsIncomplete: 2,
   importHeldYieldRange: 1,
+  importHeldPriceEvidenceAbsent: 0,
   monthsIncomplete: 2,
   importable: 3659,
   yieldForcedNullOnEmptyWindowM3: 3573,

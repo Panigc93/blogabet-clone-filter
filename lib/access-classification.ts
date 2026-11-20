@@ -21,7 +21,8 @@ import { tipsters } from '@/db/schema'
 //   are free on-platform; docs/olbg-scoped-free-release.md). A stored
 //   is_paid=true there would contradict the policy and stays unclassified.
 // - Tipstrr / Golazobets / Bet2Invest / Apuestes: the stored boolean is the
-//   classification captured from each source.
+//   classification captured from each source. A NULL (no captured evidence)
+//   stays unclassified on every branch: absence never asserts Free.
 //
 // Freshness of the stored row is a separate dimension and never part of
 // this classification: no date threshold turns an unclassified row free.
@@ -33,7 +34,7 @@ export function verifiedAccessReviewEnabled(env?: { VERIFIED_ACCESS_REVIEW?: str
   return value === '1'
 }
 
-export function classifyAccess(row: { platform: string; isPaid: boolean }): AccessClass {
+export function classifyAccess(row: { platform: string; isPaid: boolean | null }): AccessClass {
   switch (row.platform) {
     case 'blogabet':
       return row.isPaid ? 'paid' : null
@@ -41,7 +42,7 @@ export function classifyAccess(row: { platform: string; isPaid: boolean }): Acce
     case 'bettingexpert':
       return row.isPaid ? null : 'free'
     default:
-      return row.isPaid ? 'paid' : 'free'
+      return row.isPaid === true ? 'paid' : row.isPaid === false ? 'free' : null
   }
 }
 
@@ -56,7 +57,7 @@ export function effectiveAccessSql(isPaidExpr: SQL | typeof tipsters.isPaid = ti
   return sql<string | null>`CASE
     WHEN ${tipsters.platform} = 'blogabet' THEN CASE WHEN ${expr} THEN 'paid' ELSE NULL END
     WHEN ${tipsters.platform} IN ('olbg', 'bettingexpert') THEN CASE WHEN ${expr} THEN NULL ELSE 'free' END
-    ELSE CASE WHEN ${expr} THEN 'paid' ELSE 'free' END
+    ELSE CASE WHEN ${expr} THEN 'paid' WHEN ${expr} IS NULL THEN NULL ELSE 'free' END
   END`
 }
 

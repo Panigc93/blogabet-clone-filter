@@ -28,6 +28,7 @@ const MIGRATIONS = [
   '0003_naive_dormammu.sql',
   '0004_multi_platform.sql',
   '0005_tipstrr_internal_pk.sql',
+  '0006_apuestes_source_url.sql', // local-only: schema includes sourceUrl; remote 0006 is a draft
 ]
 
 // Filas Blogabet FABRICADAS (cifras inventadas, nombres "BB Demo") solo para
