@@ -1,0 +1,486 @@
+{
+  "capturedAt": "2026-11-20T13:01:00+01:00",
+  "slug": "sonicc",
+  "source": "POST /tipster/sonicc/dashboard-graph via UI period dropdown (cloud browser, fetch-wrapped)",
+  "responses": [
+    {
+      "dateCriteria": "lastThreeMonths",
+      "status": 200,
+      "body": {
+        "chartData": {
+          "detailedGraphData": [
+            [
+              "Date",
+              "Beneficio",
+              "Yield"
+            ],
+            [
+              "ago",
+              -264,
+              -44
+            ],
+            [
+              "sept",
+              -148,
+              -1.21
+            ],
+            [
+              "oct",
+              2979,
+              14.63
+            ],
+            [
+              "nov",
+              3477,
+              12.63
+            ]
+          ],
+          "globalGraphData": {
+            "averageOdds": "2.07",
+            "hitRate": "56.60",
+            "profit": 6044,
+            "stakes": 60700,
+            "picks": 477,
+            "yield": "10.0"
+          }
+        },
+        "chartFilters": {
+          "defaultLinesCriteria": [
+            "profit",
+            "yield"
+          ],
+          "defaultDateCriteria": "lastThreeMonths",
+          "dateFilters": [
+            "year",
+            "lastThreeMonths",
+            "lastSixMonths",
+            "2026-11",
+            "2026-10",
+            "2026-09",
+            "2026-08",
+            "2018-10",
+            "2018-09",
+            "2018-08",
+            "2018-07",
+            "2018-06",
+            "2018-05"
+          ],
+          "linesFilters": [
+            "profit",
+            "yield",
+            "hitRate",
+            "tipsCount"
+          ]
+        }
+      }
+    },
+    {
+      "dateCriteria": "2026-10",
+      "status": 200,
+      "body": {
+        "chartData": {
+          "detailedGraphData": [
+            [
+              "Date",
+              "Beneficio",
+              "Yield"
+            ],
+            [
+              "1 oct",
+              -470,
+              -33.57
+            ],
+            [
+              "2 oct",
+              210,
+              26.25
+            ],
+            [
+              "3 oct",
+              682,
+              113.67
+            ],
+            [
+              "4 oct",
+              -202,
+              -33.67
+            ],
+            [
+              "5 oct",
+              676,
+              52.81
+            ],
+            [
+              "6 oct",
+              450,
+              90
+            ],
+            [
+              "7 oct",
+              163,
+              16.3
+            ],
+            [
+              "8 oct",
+              -82,
+              -20.5
+            ],
+            [
+              "9 oct",
+              -400,
+              -100
+            ],
+            [
+              "10 oct",
+              378,
+              94.5
+            ],
+            [
+              "11 oct",
+              768,
+              51.89
+            ],
+            [
+              "12 oct",
+              172,
+              86
+            ],
+            [
+              "13 oct",
+              186,
+              93
+            ],
+            [
+              "14 oct",
+              116,
+              13.18
+            ],
+            [
+              "15 oct",
+              248,
+              20.67
+            ],
+            [
+              "16 oct",
+              -256,
+              -42.67
+            ],
+            [
+              "17 oct",
+              -346,
+              -34.6
+            ],
+            [
+              "18 oct",
+              -80,
+              -6.15
+            ],
+            [
+              "19 oct",
+              20,
+              5
+            ],
+            [
+              "20 oct",
+              110,
+              55
+            ],
+            [
+              "21 oct",
+              -126,
+              -21
+            ],
+            [
+              "22 oct",
+              140,
+              70
+            ],
+            [
+              "23 oct",
+              334,
+              83.5
+            ],
+            [
+              "24 oct",
+              146,
+              56.15
+            ],
+            [
+              "25 oct",
+              83,
+              18.04
+            ],
+            [
+              "26 oct",
+              134,
+              26.8
+            ],
+            [
+              "27 oct",
+              54,
+              54
+            ],
+            [
+              "28 oct",
+              -14,
+              -3.5
+            ],
+            [
+              "29 oct",
+              -240,
+              -26.67
+            ],
+            [
+              "30 oct",
+              -300,
+              -100
+            ],
+            [
+              "31 oct",
+              424,
+              30.29
+            ]
+          ],
+          "globalGraphData": {
+            "averageOdds": "1.98",
+            "hitRate": "59.48",
+            "profit": 2978,
+            "stakes": 20360,
+            "picks": 116,
+            "yield": "14.6"
+          }
+        },
+        "chartFilters": {
+          "defaultLinesCriteria": [
+            "profit",
+            "yield"
+          ],
+          "defaultDateCriteria": "2026-10",
+          "dateFilters": [
+            "year",
+            "lastThreeMonths",
+            "lastSixMonths",
+            "2026-11",
+            "2026-10",
+            "2026-09",
+            "2026-08",
+            "2018-10",
+            "2018-09",
+            "2018-08",
+            "2018-07",
+            "2018-06",
+            "2018-05"
+          ],
+          "linesFilters": [
+            "profit",
+            "yield",
+            "hitRate",
+            "tipsCount"
+          ]
+        }
+      }
+    },
+    {
+      "dateCriteria": "2026-09",
+      "status": 200,
+      "body": {
+        "chartData": {
+          "detailedGraphData": [
+            [
+              "Date",
+              "Beneficio",
+              "Yield"
+            ],
+            [
+              "2 sept",
+              -404,
+              -80.8
+            ],
+            [
+              "3 sept",
+              -400,
+              -100
+            ],
+            [
+              "5 sept",
+              -64,
+              -9.14
+            ],
+            [
+              "6 sept",
+              460,
+              76.67
+            ],
+            [
+              "7 sept",
+              250,
+              41.67
+            ],
+            [
+              "8 sept",
+              0,
+              0
+            ],
+            [
+              "9 sept",
+              -188,
+              -31.33
+            ],
+            [
+              "13 sept",
+              -200,
+              -100
+            ],
+            [
+              "14 sept",
+              -200,
+              -100
+            ],
+            [
+              "19 sept",
+              40,
+              4
+            ],
+            [
+              "20 sept",
+              1156,
+              72.25
+            ],
+            [
+              "21 sept",
+              -200,
+              -100
+            ],
+            [
+              "22 sept",
+              -200,
+              -100
+            ],
+            [
+              "25 sept",
+              -216,
+              -36
+            ],
+            [
+              "26 sept",
+              -224,
+              -16
+            ],
+            [
+              "27 sept",
+              232,
+              14.5
+            ],
+            [
+              "28 sept",
+              20,
+              2
+            ],
+            [
+              "29 sept",
+              -10,
+              -2.5
+            ]
+          ],
+          "globalGraphData": {
+            "averageOdds": "2.72",
+            "hitRate": "41.54",
+            "profit": -148,
+            "stakes": 12200,
+            "picks": 65,
+            "yield": "-1.2"
+          }
+        },
+        "chartFilters": {
+          "defaultLinesCriteria": [
+            "profit",
+            "yield"
+          ],
+          "defaultDateCriteria": "2026-09",
+          "dateFilters": [
+            "year",
+            "lastThreeMonths",
+            "lastSixMonths",
+            "2026-11",
+            "2026-10",
+            "2026-09",
+            "2026-08",
+            "2018-10",
+            "2018-09",
+            "2018-08",
+            "2018-07",
+            "2018-06",
+            "2018-05"
+          ],
+          "linesFilters": [
+            "profit",
+            "yield",
+            "hitRate",
+            "tipsCount"
+          ]
+        }
+      }
+    },
+    {
+      "dateCriteria": "2026-08",
+      "status": 200,
+      "body": {
+        "chartData": {
+          "detailedGraphData": [
+            [
+              "Date",
+              "Beneficio",
+              "Yield"
+            ],
+            [
+              "27 ago",
+              -400,
+              -100
+            ],
+            [
+              "29 ago",
+              136,
+              68
+            ]
+          ],
+          "globalGraphData": {
+            "averageOdds": "1.96",
+            "hitRate": "60.00",
+            "profit": -264,
+            "stakes": 600,
+            "picks": 5,
+            "yield": "-44.0"
+          }
+        },
+        "chartFilters": {
+          "defaultLinesCriteria": [
+            "profit",
+            "yield"
+          ],
+          "defaultDateCriteria": "2026-08",
+          "dateFilters": [
+            "year",
+            "lastThreeMonths",
+            "lastSixMonths",
+            "2026-11",
+            "2026-10",
+            "2026-09",
+            "2026-08",
+            "2018-10",
+            "2018-09",
+            "2018-08",
+            "2018-07",
+            "2018-06",
+            "2018-05"
+          ],
+          "linesFilters": [
+            "profit",
+            "yield",
+            "hitRate",
+            "tipsCount"
+          ]
+        }
+      }
+    }
+  ]
+}

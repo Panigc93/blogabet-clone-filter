@@ -16,7 +16,7 @@ const mustMap = (m: ProtipsterDbMapping) => {
   return m.insert
 }
 
-const stats = (profit: number, stakes: number, picks: number, y: number | null = null): ProtipsterPeriodStats =>
+const stats = (profit: number | null, stakes: number | null, picks: number, y: number | null = null): ProtipsterPeriodStats =>
   ({ profit, stakes, picks, yield: y, hitRate: null, averageOdds: null })
 
 // Real heroico capture (2026-11-20): preload blocks parsed from the real page
@@ -101,6 +101,60 @@ describe('protipsterRowToInsert (real heroico capture)', () => {
   })
 })
 
+// Real sonicc capture (2026-11-20): long-history profile (active 2018 and
+// 2026); the 12m window must count only 2026-08..2026-10, never the 2018
+// months.
+function soniccRow(): ProtipsterCaptureRow {
+  const parsed = parseProtipsterProfile(fx('sonicc-preload-2026-11-20.js.txt'))
+  const posts = (JSON.parse(fx('sonicc-dashboard-graph-2026-11-20.json')) as {
+    responses: { dateCriteria: string; body: unknown }[]
+  }).responses
+  const months: Record<string, ProtipsterPeriodStats> = {}
+  let period3m: ProtipsterPeriodStats | null = null
+  for (const r of posts) {
+    const block = parseDashboardGraph(r.body)!
+    if (r.dateCriteria === 'lastThreeMonths') period3m = block.stats
+    else months[r.dateCriteria] = block.stats
+  }
+  return {
+    slug: 'sonicc',
+    capturedAt: '2026-11-20T13:01:00+01:00',
+    sourceUrl: 'https://www.protipster.es/tipster/sonicc',
+    overview: parsed.overview,
+    summary: parsed.summary,
+    chartDefault: parsed.chartDefault,
+    period3m,
+    months,
+  }
+}
+
+describe('protipsterRowToInsert (real sonicc capture)', () => {
+  const insert = mustMap(protipsterRowToInsert(soniccRow(), {
+    id: 0, idSource: 'internal-transactional', slug: 'sonicc',
+    sourceUrl: 'https://www.protipster.es/tipster/sonicc',
+  }))
+
+  it('maps identity, avatar URL and all-time stats', () => {
+    expect(insert.name).toBe('Sonicc')
+    expect(insert.avatarUrl).toBe('https://www.protipster.es/uploads/avatars/5b4bd6d533539.120.png')
+    expect(insert.countryCode).toBe('DE')
+    expect(insert.followers).toBe(53)
+    expect(insert.sinceYear).toBe(2018)
+    expect(insert.picks).toBe(3609)
+    expect(insert.profit).toBe('-7418.000')
+    expect(insert.yield).toBe('-2.38') // exact -7418/312240, site displays -2.4
+  })
+
+  it('computes 12m over the window months only, excluding 2018 activity', () => {
+    // 2025-11..2026-10, active 2026-08..2026-10:
+    // profit 2566, stakes 33160, picks 186 -> 7.74%
+    expect(insert.yield12m).toBe('7.74')
+    expect(insert.yield3m).toBe('9.96') // 6044/60700, site displays 10.0
+    expect(insert.yield6m).toBe('9.96') // same window content as 3m for this profile
+    expect(insert.picks6mAvg).toBe('79.50')
+  })
+})
+
 describe('protipsterRowToInsert holds', () => {
   it('holds a profile whose active window months lack exact monthly captures', () => {
     // Real almo7tarif capture (active 2026-09..11) without monthly POSTs.
@@ -151,6 +205,24 @@ describe('protipsterRowToInsert holds', () => {
     const m = protipsterRowToInsert(row, { id: 0, idSource: 'internal-transactional', slug: 'heroico' })
     expect(m.ok).toBe(false)
     if (!m.ok) expect(m.klass).toBe('cuarentena[capture-inconsistency]')
+  })
+
+  it('holds a window month with picks>0 but missing stakes (never 0-for-missing)', () => {
+    const row = heroicoRow()
+    row.months = { ...row.months, '2026-10': stats(null, null, 403) }
+    const m = protipsterRowToInsert(row, { id: 0, idSource: 'internal-transactional', slug: 'heroico' })
+    expect(m.ok).toBe(false)
+    if (!m.ok) {
+      expect(m.klass).toBe('cuarentena[capture-inconsistency]')
+      expect(m.reason).toContain('2026-10')
+    }
+  })
+
+  it('treats a captured zero-pick month as a true zero, not a hold', () => {
+    const row = heroicoRow()
+    row.months = { ...row.months, '2026-04': stats(0, 0, 0) }
+    const insert = mustMap(protipsterRowToInsert(row, { id: 0, idSource: 'internal-transactional', slug: 'heroico' }))
+    expect(insert.yield12m).toBe('3.34') // unchanged
   })
 
   it('holds rows without usable content', () => {

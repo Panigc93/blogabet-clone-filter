@@ -64,6 +64,26 @@ describe('parseProtipsterProfile (real preload captures 2026-11-20)', () => {
     expect(almo.chartDefault?.activeMonths).toEqual(['2026-11', '2026-10', '2026-09'])
   })
 
+  it('extracts a long-history profile (sonicc, active 2018 and 2026)', () => {
+    const sonicc = parseProtipsterProfile(fx('sonicc-preload-2026-11-20.js.txt'))
+    expect(sonicc.overview).toEqual({
+      id: 100841,
+      username: 'Sonicc',
+      usernameCanonical: 'sonicc',
+      avatar: '5b4bd6d533539.png',
+      userJoinDate: '2018-05-26 13:28:35',
+      countryCode: 'DE',
+    })
+    expect(sonicc.summary?.followersCount).toBe(53)
+    expect(sonicc.summary?.cumulativeStats).toMatchObject({ picks: 3609, profit: -7418, stakes: 312240 })
+    expect(sonicc.chartDefault?.defaultDateCriteria).toBe('lastSixMonths')
+    expect(sonicc.chartDefault?.stats).toMatchObject({ profit: 6044, stakes: 60700, picks: 477 })
+    expect(sonicc.chartDefault?.activeMonths).toEqual([
+      '2026-11', '2026-10', '2026-09', '2026-08',
+      '2018-10', '2018-09', '2018-08', '2018-07', '2018-06', '2018-05',
+    ])
+  })
+
   it('returns null blocks, never guesses, when markers are absent', () => {
     const empty = parseProtipsterProfile('<html><body>nada</body></html>')
     expect(empty.overview).toBeNull()
