@@ -23,8 +23,11 @@ export function monthlyExistingRequest(p:URLSearchParams,filters:TipsterFilters,
   search:filters.search,minCommonYield:filters.minYield,maxCommonYield:filters.maxYield,pageSize:50,cursor:p.get('monthlyCursor')??undefined,
   baselineFilterKey:JSON.stringify(Object.fromEntries(Object.entries(filters).filter(([,v])=>v!==undefined).sort(([a],[b])=>a.localeCompare(b)))),
   // Monthly source service is positively Free; only Paid excludes it.
-  // Monthly-only picks are not lifetime picks; unknown activity cannot pass.
-  excludeMonthly:!!(filters.platform&&filters.platform!=='olbg'||!olbgProductMatchesType(filters.tipo)||!estimate&&filters.minPicks!==undefined||filters.activityMonths!==undefined)}
+  // Monthly-only picks are not lifetime picks. Activity is no longer an
+  // exclusion: OLBG months with picks are its activity evidence.
+  excludeMonthly:!!(filters.platform&&filters.platform!=='olbg'||!olbgProductMatchesType(filters.tipo)||!estimate&&filters.minPicks!==undefined),
+  activityMonths:filters.activityMonths,
+  activityUnknown:filters.activityUnknown===true?true:undefined}
 }
 export async function readMonthlyExistingRoutes(p:URLSearchParams,filters:TipsterFilters,sort:SortField,at:Date){
  if(!monthlyExistingRoutesEnabled())throw Error('Existing-route monthly candidate disabled')

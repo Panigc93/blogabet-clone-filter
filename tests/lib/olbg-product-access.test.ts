@@ -37,7 +37,10 @@ describe('scoped OLBG product Free policy',()=>{
    const request=monthlyExistingRequest(new URLSearchParams(),{tipo},'yield')
    expect(()=>commonMonthlyPage([],'base',snapshot,{...request,cursor:page.nextCursor!})).toThrow(/restart/)
   }
-  for(const filters of [{tipo:'free' as const,platform:'blogabet' as const},{tipo:'free' as const,activityMonths:3}])expect(monthlyExistingRequest(new URLSearchParams(),filters,'yield').excludeMonthly).toBe(true)
+  expect(monthlyExistingRequest(new URLSearchParams(),{tipo:'free',platform:'blogabet'},'yield').excludeMonthly).toBe(true)
+  // Activity is monthly evidence now: it no longer excludes the OLBG source.
+  const active=monthlyExistingRequest(new URLSearchParams(),{tipo:'free',activityMonths:3},'yield')
+  expect(active.excludeMonthly).toBe(false);expect(active.activityMonths).toBe(3)
   const published=monthlyExistingRequest(new URLSearchParams('olbgView=monthly'),{tipo:'free'},'yield')
   expect(published.excludeMonthly).toBe(false)
   expect(commonMonthlyPage([],'base',snapshot,published).total).toBe(123)
