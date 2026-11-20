@@ -25,7 +25,8 @@
 // La cadena se lee de la variable de entorno; nunca se imprime.
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
-import { tipsters, importValidationLog } from '../db/schema'
+import * as schemaNs from '../db/schema'
+const { tipsters, importValidationLog } = (schemaNs as any).default ?? schemaNs
 import * as impNs from '../crawler/platforms/apuestes/import'
 // tsx + paquete CJS: las named imports de ESM fallan; namespace + .default.
 const { planApuestesImport, executeApuestesImport } = (impNs as any).default ?? impNs
@@ -41,16 +42,17 @@ async function main() {
   const sql = neon(url)
 
   // Precondición 1: 0006 aplicada.
-  const col = await sql(`SELECT count(*)::int AS n FROM information_schema.columns
+  // sql.query(): tsx compila los tagged templates a llamada y este driver los rechaza.
+  const col = await sql.query(`SELECT count(*)::int AS n FROM information_schema.columns
                          WHERE table_name='tipsters' AND column_name='source_url'`)
   if ((col[0] as any).n !== 1) throw new Error('Falta tipsters.source_url: aplica drizzle/0006 primero')
 
   // Precondición 2: plataforma vacía (primera carga; si no, abortar y revisar).
-  const pre = await sql(`SELECT count(*)::int AS n FROM tipsters WHERE platform='apuestes'`)
+  const pre = await sql.query(`SELECT count(*)::int AS n FROM tipsters WHERE platform='apuestes'`)
   if ((pre[0] as any).n !== 0) throw new Error(`platform='apuestes' ya tiene ${(pre[0] as any).n} filas; abortando`)
 
   // Huella previa de otras plataformas (para el chequeo post-carga).
-  const before = await sql(`SELECT platform, count(*)::int AS n FROM tipsters GROUP BY platform ORDER BY platform`)
+  const before = await sql.query(`SELECT platform, count(*)::int AS n FROM tipsters GROUP BY platform ORDER BY platform`)
 
   const plan = planApuestesImport(JSONL, URLS)
   console.log(`plan: ${plan.rows} filas -> ${plan.inserts.length} inserts + ${plan.holds.length} holds | run_id=${RUN_ID}`)
@@ -60,9 +62,9 @@ async function main() {
   const out = await executeApuestesImport(db, plan, RUN_ID)
 
   // Chequeo post-carga (misma conexión).
-  const afterAp = await sql(`SELECT count(*)::int AS n, count(source_url)::int AS urls FROM tipsters WHERE platform='apuestes'`)
-  const holds = await sql(`SELECT count(*)::int AS n FROM import_validation_log WHERE run_id = ${RUN_ID}`)
-  const after = await sql(`SELECT platform, count(*)::int AS n FROM tipsters GROUP BY platform ORDER BY platform`)
+  const afterAp = await sql.query(`SELECT count(*)::int AS n, count(source_url)::int AS urls FROM tipsters WHERE platform='apuestes'`)
+  const holds = await sql.query(`SELECT count(*)::int AS n FROM import_validation_log WHERE run_id = $1`, [RUN_ID])
+  const after = await sql.query(`SELECT platform, count(*)::int AS n FROM tipsters GROUP BY platform ORDER BY platform`)
   const intact = before.every((b: any) => b.platform === 'apuestes' ||
     (after as any[]).some((a: any) => a.platform === b.platform && a.n === b.n))
   console.log(`apuestes: ${(afterAp[0] as any).n} filas (${(afterAp[0] as any).urls} con source_url, ${(afterAp[0] as any).n - (afterAp[0] as any).urls} sin URL)`)
