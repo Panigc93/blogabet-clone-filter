@@ -85,7 +85,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
           </a>
           {t.sourceDetail && <details style={{fontSize:10,color:'#777',marginTop:4}}><summary style={{cursor:'pointer'}}>{t.sourceDetail.summary}</summary><div style={{padding:'6px 0',lineHeight:1.5}}>{t.sourceDetail.text}</div></details>}
           {t.capturedAt && (
-            <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{t.platform === 'olbg' ? 'OLBG' : t.platform === 'bettingexpert' ? 'Bettingexpert' : t.platform === 'golazobets' ? 'Golazobets' : t.platform === 'bet2invest' ? 'Bet2Invest' : t.platform === 'apuestes' ? 'Apuestes' : 'Tipstrr'} · captura {t.capturedAt} (no es sincronización)</div>
+            <div style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{t.platform === 'olbg' ? 'OLBG' : t.platform === 'bettingexpert' ? 'Bettingexpert' : t.platform === 'golazobets' ? 'Golazobets' : t.platform === 'bet2invest' ? 'Bet2Invest' : t.platform === 'apuestes' ? 'Apuestes' : t.platform === 'protipster' ? 'ProTipster' : 'Tipstrr'} · captura {t.capturedAt} (no es sincronización)</div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
             {t.isVerified !== null && (
@@ -150,7 +150,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               detailLabel={t.yield3m.detailLabel} detailGroup={t.sourceUrl}
               calculated={t.platform === 'olbg'}
               note={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield3m.note : undefined}
-              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield3m.trace ?? undefined : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' || t.platform === 'protipster' ? t.yield3m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield3m.valuePct)}
             />
             <PeriodCell
@@ -159,7 +159,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               detailLabel={t.yield6m.detailLabel} detailGroup={t.sourceUrl}
               calculated={t.platform === 'olbg'}
               note={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield6m.note : undefined}
-              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield6m.trace ?? undefined : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' || t.platform === 'protipster' ? t.yield6m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield6m.valuePct)}
             />
             <PeriodCell
@@ -168,7 +168,7 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
               detailLabel={t.yield12m.detailLabel} detailGroup={t.sourceUrl}
               calculated={t.platform === 'olbg'}
               note={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield12m.note : undefined}
-              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' ? t.yield12m.trace ?? undefined : undefined}
+              title={t.platform === 'bet2invest' || t.platform === 'olbg' || t.platform === 'bettingexpert' || t.platform === 'protipster' ? t.yield12m.trace ?? undefined : undefined}
               colorClass={numColorClass(t.yield12m.valuePct)}
             />
             {t.platform!=='bettingexpert' && <PeriodCell
@@ -202,8 +202,8 @@ export function TipsterRow({ tipster: t }: { tipster: TipsterCardData }) {
       <div className="tipster-right" style={t.platform === 'golazobets' || t.platform === 'bettingexpert'
         ? { background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6, minWidth: t.platform === 'bettingexpert' ? 205 : 174, width: t.platform === 'bettingexpert' ? 205 : 174 }
         : { background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 12px', gap: 6 }}>
-        <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.platform === 'bettingexpert' ? '#ff3465' : t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#0a3835' : t.platform === 'olbg' ? '#e98a15' : t.platform === 'apuestes' ? '#744dd2' : '#82daca', color: '#fff', border: `1px solid ${t.platform === 'bettingexpert' ? '#ff3465' : t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#0a3835' : t.platform === 'olbg' ? '#e98a15' : t.platform === 'apuestes' ? '#744dd2' : '#4dbfa2'}`, borderBottomWidth: 3, borderBottomColor: t.platform === 'bettingexpert' ? '#d92350' : t.platform === 'tipstrr' ? '#2c5878' : t.platform === 'golazobets' ? '#2b3841' : t.platform === 'bet2invest' ? '#061f1d' : t.platform === 'olbg' ? '#b96b0d' : t.platform === 'apuestes' ? '#411988' : '#4dbfa2', borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
-          <i className="fa fa-external-link"></i> VER EN {t.platform === 'blogabet' ? 'BLOGABET' : t.platform === 'tipstrr' ? 'TIPSTRR' : t.platform === 'golazobets' ? 'GOLAZOBETS' : t.platform === 'olbg' ? 'OLBG' : t.platform === 'bettingexpert' ? 'BETTINGEXPERT' : t.platform === 'apuestes' ? 'APUESTES' : 'BET2INVEST'}
+        <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.platform === 'bettingexpert' ? '#ff3465' : t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#0a3835' : t.platform === 'olbg' ? '#e98a15' : t.platform === 'apuestes' ? '#744dd2' : t.platform === 'protipster' ? '#17915f' : '#82daca', color: '#fff', border: `1px solid ${t.platform === 'bettingexpert' ? '#ff3465' : t.platform === 'tipstrr' ? '#3a76a2' : t.platform === 'golazobets' ? '#3d4b57' : t.platform === 'bet2invest' ? '#0a3835' : t.platform === 'olbg' ? '#e98a15' : t.platform === 'apuestes' ? '#744dd2' : t.platform === 'protipster' ? '#17915f' : '#4dbfa2'}`, borderBottomWidth: 3, borderBottomColor: t.platform === 'bettingexpert' ? '#d92350' : t.platform === 'tipstrr' ? '#2c5878' : t.platform === 'golazobets' ? '#2b3841' : t.platform === 'bet2invest' ? '#061f1d' : t.platform === 'olbg' ? '#b96b0d' : t.platform === 'apuestes' ? '#411988' : t.platform === 'protipster' ? '#0f6b45' : '#4dbfa2', borderRadius: 4, padding: '7px 10px', width: '100%', fontSize: 11, fontWeight: 700, letterSpacing: '0.3px', gap: 5, whiteSpace: 'nowrap', boxSizing: 'border-box', textDecoration: 'none', cursor: 'pointer' }}>
+          <i className="fa fa-external-link"></i> VER EN {t.platform === 'blogabet' ? 'BLOGABET' : t.platform === 'tipstrr' ? 'TIPSTRR' : t.platform === 'golazobets' ? 'GOLAZOBETS' : t.platform === 'olbg' ? 'OLBG' : t.platform === 'bettingexpert' ? 'BETTINGEXPERT' : t.platform === 'apuestes' ? 'APUESTES' : t.platform === 'protipster' ? 'PROTIPSTER' : 'BET2INVEST'}
 
         </a>
         {t.isPaid && t.priceLabel && (

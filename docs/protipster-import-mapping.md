@@ -1,0 +1,125 @@
+# ProTipster import mapping (prepared 2026-11-20, branch protipster-integration-prep)
+
+Source: https://www.protipster.es (listing `/tipsters`, profiles `/tipster/<slug>`).
+All evidence below captured 2026-11-20 via cloud browser, public navigation,
+no login. Plain external HTTP requests got 403 that day and that route stays
+stopped: capture runs through the browser, ≥10 s between research requests,
+stop on any block.
+
+## Data contract (verified live)
+
+**Listing** `/tipsters?period=90-days` — filters: 7/30/90 days, sport, league,
+market. ~25 rows per page; "Cargar más" carries `data-url` offset-based
+(`/tipsters?period=90-days&offset=25`). The directory ends around offset ~200
+(only tipsters ACTIVE in the window; not a historical catalog). Columns:
+beneficio, yield, % acierto, picks, cuota media of the selected rolling window.
+
+**Profile page** embeds the full preload state in one `<script>`
+(`tplConfig.preloadStateData`), three mutations carry the import data:
+
+| Mutation | Content |
+|---|---|
+| `UPP_DASHBOARD_OVERVIEW` | id, username (display case), usernameCanonical (slug), avatar filename or null, userJoinDate, countryCode |
+| `UPP_SUMMARY_ADD_DATA` | followersCount, cumulativeStats (all-time profit, stakes, picks, yield, hitRate, averageOdds) |
+| `UPP_CHART_DATA` | default window chart (`defaultDateCriteria: lastSixMonths`) + `chartFilters.dateFilters` = every month with activity since registration |
+
+**Period dropdown** POSTs `/tipster/<slug>/dashboard-graph`
+(`dateCriteria=<key>&lineCriteria[]=profit&lineCriteria[]=yield`) and returns
+`chartData.globalGraphData` with EXACT profit, stakes, picks for the selected
+period. Real capture: heroico 2026-10 → profit 7667, stakes 79080, picks 403
+(7667/79080 = 9.70% = site yield 9.7).
+
+## Window semantics (proven with numbers)
+
+- **3m / 6m = rolling windows**, boundary calendar months clipped. Proof:
+  heroico full May 2026 = −2897 profit, but the May row inside the 6m window
+  = −1176; the 6m global (7252) equals the sum of the CLIPPED monthly rows.
+  Stored as `yield3m`/`yield6m` (site-native windows).
+- **`year` = all-time total, NOT last 12 months.** On heroico it matches
+  cumulativeStats exactly (1031 picks incl. 2020-04). Never imported as 12m.
+- **`YYYY-MM` = full calendar months** with exact profit+stakes.
+- **yield12m = last 12 COMPLETE calendar months** at capture time
+  (2026-11-20 capture → 2025-11..2026-10), computed sum(profit)/sum(stakes).
+  User approved this definition 2026-11-20 (WhatsApp) with dates labelled.
+  heroico: profit 4755 / stakes 142420 = 3.34%, 1026 picks.
+- A rolling 12m exact window is NOT available (partial boundary months have
+  no exact stakes). The 12m filter will be calendar-month based for this
+  platform; do not mix it silently with the rolling windows of others.
+
+## Mapping decisions
+
+- `picks`/`profit`/`yield`: all-time cumulative. Yield columns store the
+  EXACT computed profit/stakes*100 (2 decimals); the site's 1-decimal figure
+  is a cross-check using retained source decimal resolution: tolerance is
+  max(0.15pp, half the observed last decimal step + 0.005pp storage rounding).
+  This treats original 155 as integer-rounded but 155.0 as one decimal.
+  Captured jakubey September detail explicitly confirms 154.75 behind global155.
+  Native year blocks, when captured, take precedence over summary yield only
+  if profit, stakes and picks agree exactly. Original summary stays retained.
+  Ingolueders77 and muskoinaffey11 were checked this way on 2026-11-20;
+  year charts confirm 5.64 and 2.00 while summary shows6 and3.1.
+  A totals disagreement or yield outside observed precision still holds the row.
+- `profitUnit: 'protipster-units'`: the site decorates numbers with '$' but
+  stake presets are 5..100; never converted to money.
+- `isPaid: false`: product classification rule confirmed by Juan on
+  2026-11-20 at 18:30 (WhatsApp): profiles without known payment evidence
+  stay in Free. This is a product default, not factual proof that a tipster
+  never offers paid services. https://www.protipster.es/sobre-nosotros,
+  checked again on 2026-11-20, confirms free registration and public access
+  to free tips. It does not establish the universal absence of paid tiers
+  or off-platform services. No paid signal was captured for these rows.
+  A future affirmative paid signal must change this classification.
+- `avatarUrl`: avatar filename → `/uploads/avatars/<base>.120.png`
+  (almo7tarif real case). null when avatar is null (heroico).
+- `sinceYear`/`signupAt`: from userJoinDate (site timezone not exposed;
+  stored as UTC by convention, date-granularity only).
+- `followers`, `countryCode`, `sourcePortfolioId` (numeric user id),
+  `sourceUrl` (exact profile URL) from the preload blocks.
+- `lastPickAt`: null (month granularity only, same as Apuestes). Activity
+  filters read the 3/6/12m windows (yield NULL = no picks in window).
+- Holds: `no-usable-content`, `months-incomplete` (an active month inside the
+  12m window without its exact monthly capture), `capture-inconsistency`,
+  `yield-out-of-schema-range`. Quarantined rows never write tipsters rows;
+  they land in import_validation_log under the run id.
+
+## Sample profiles captured 2026-11-20 (bounded, 3 profiles)
+
+- **heroico** (id 136241, VE, joined 2019-02): full contract, 6 active
+  months inside the 12m window -> yield12m 3.34% (4755/142420, 1026 picks).
+- **sonicc** (id 100841, DE, joined 2018-05): long history (2018 + 2026);
+  3 active months inside the window -> yield12m 7.74% (2566/33160, 186
+  picks); 2018 months correctly excluded. 3m == 6m content (9.96%) because
+  all recent activity fits in 3 months.
+- **almo7tarif** (id 252502, MA, joined 2021-03, avatar present): active
+  only since 2026-09; 2 monthly captures taken; without them the row holds
+  `cuarentena[months-incomplete]`.
+- **cornelorio** (#2 of the 90d listing): /tipster/cornelorio REDIRECTS to
+  /tipsters today. A capture must treat a profile redirect as a quarantine
+  case (no preload blocks -> the row holds `no-usable-content`), never
+  fabricate.
+
+## Capture procedure for a full run (not executed)
+
+Per profile: 1 page GET (identity + cumulative + 6m + active-month list) +
+1 POST (3m) + 1 POST per active month inside the 12m window (≤12).
+At ≥10 s between requests: ~1-2 min/profile for most, ~2.5 min worst case.
+For ~222 tipsters (90d listing): roughly 4-8 h of spaced browser time.
+Listing pagination: ~9 fetches for the 90d directory.
+
+## Pending before production (needs explicit owner approval)
+
+1. Prod DB: no migration needed (schema fits; source_url column from 0006
+   must already exist remotely — verify before the run).
+2. UI wiring in this branch (non-prod): platform selector option in
+   `components/FilterBar.tsx`, platform unions in `lib/query.ts` and
+   `components/tipster-card-model.ts`, `protipsterFromDbRow` card mapper
+   (12m trace with exact calendar dates, 3m/6m labelled as site rolling
+   windows), period-trace tooltips in `components/TipsterRow.tsx`.
+   NOT touched on purpose: `lib/activity-query.ts` (PR #31
+   `activity-filter-b2i-be-olbg` modifies it; coordinate the ProTipster
+   activity coverage text after that PR resolves, rebase if needed).
+   Avatar hosting decision still open (hotlink vs uploaded copy like
+   Apuestes PR #30).
+3. Full capture execution + dry-run + review, then prod import with run id.
+4. Apply Juan's product Free default to unknown-payment profiles; do not claim universal absence of paid services.
+5. Refresh cadence decision (profile data changes with every resolved pick).
