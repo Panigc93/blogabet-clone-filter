@@ -48,6 +48,14 @@ export const tipsters = pgTable('tipsters', {
   // (Apuestes: usernames no URL-safe no se reconstruyen desde el slug).
   // Migración local 0006 (draft, no aplicada en remoto).
   sourceUrl: text('source_url'),
+  // Señal de acceso observada en el perfil (Blogabet: banner free
+  // NON-VERIFIED, caja Subscribe con precio, SERVICE FULL, blog-not-found).
+  // access_class: 'free' | 'paid' | null (null = sin clasificar, incluye
+  // perfiles sin señal afirmativa y blogs muertos). Migración local 0007
+  // (draft, no aplicada en remoto).
+  accessClass: text('access_class'),
+  accessEvidence: text('access_evidence'),
+  accessObservedAt: timestamp('access_observed_at', { withTimezone: true }),
 }, (t) => ({
   platformSlugUnique: uniqueIndex('ux_tipsters_platform_slug').on(t.platform, t.slug),
   platformIdx:   index('idx_tipsters_platform').on(t.platform),

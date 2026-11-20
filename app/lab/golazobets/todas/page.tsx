@@ -36,6 +36,7 @@ const BASE = {
   yieldFree3m: null,
   statsUpdatedAt: null,
   sourcePortfolioId: null, sourceUrl: null,
+  accessClass: null, accessEvidence: null, accessObservedAt: null,
 }
 
 const BB: Tipster = {

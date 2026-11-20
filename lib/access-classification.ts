@@ -8,15 +8,15 @@ import { tipsters } from '@/db/schema'
 //
 // Evidence basis (audit of 2026-11-19 over retained responses; see
 // docs/verified-access-review.md):
-// - Blogabet: the only stored positive signal is the subscription price /
-//   special plan text parsed from the listing (crawler/crawl.ts).
-//   is_paid=false is "no price parsed", NOT a free confirmation: rows with
-//   is_paid=false exist whose stats show paid-pick history
-//   (picks_free_3m_avg non-null; two verified live against #paidStatsTab).
-//   The stats endpoint carries no free marker either (zero matches for the
-//   "free NON-VERIFIED blog" banner in the retained bodies). So from stored
-//   data Blogabet can assert Paid only; everything else is unclassified,
-//   never Free.
+// - Blogabet: two stored evidence layers, profile over listing.
+//   Profile signal (migration 0007, parser crawler/blogabet-profile-signal.ts):
+//   the affirmative "free NON-VERIFIED blog" banner classifies Free; a
+//   subscribe box (with price, or SERVICE FULL without one) classifies Paid.
+//   An observed profile with no signal — or a dead blog — supersedes the
+//   listing boolean: SERVICE FULL rows are stored is_paid=false while being
+//   paid, and dead blogs keep stale flags. Listing fallback (unread rows
+//   only): is_paid=true is Paid from the parsed price; is_paid=false is
+//   "no price parsed", NOT a free confirmation.
 // - OLBG / Bettingexpert: Free by affirmative source policy (their picks
 //   are free on-platform; docs/olbg-scoped-free-release.md). A stored
 //   is_paid=true there would contradict the policy and stays unclassified.
@@ -34,9 +34,19 @@ export function verifiedAccessReviewEnabled(env?: { VERIFIED_ACCESS_REVIEW?: str
   return value === '1'
 }
 
-export function classifyAccess(row: { platform: string; isPaid: boolean | null }): AccessClass {
+export function classifyAccess(row: {
+  platform: string
+  isPaid: boolean | null
+  accessClass?: string | null
+  accessObservedAt?: Date | string | null
+}): AccessClass {
   switch (row.platform) {
     case 'blogabet':
+      // Profile signal wins over the listing boolean: it is observed and
+      // affirmative where the listing only ever had absence.
+      if (row.accessClass === 'free') return 'free'
+      if (row.accessClass === 'paid') return 'paid'
+      if (row.accessObservedAt) return null // profile read, no affirmative signal
       return row.isPaid ? 'paid' : null
     case 'olbg':
     case 'bettingexpert':
@@ -55,7 +65,12 @@ export function effectiveAccessSql(isPaidExpr: SQL | typeof tipsters.isPaid = ti
   // Column or projected SQL: both embed identically in a sql`` template.
   const expr = isPaidExpr as SQL
   return sql<string | null>`CASE
-    WHEN ${tipsters.platform} = 'blogabet' THEN CASE WHEN ${expr} THEN 'paid' ELSE NULL END
+    WHEN ${tipsters.platform} = 'blogabet' THEN CASE
+      WHEN ${tipsters.accessClass} = 'free' THEN 'free'
+      WHEN ${tipsters.accessClass} = 'paid' THEN 'paid'
+      WHEN ${tipsters.accessObservedAt} IS NOT NULL THEN NULL
+      WHEN ${expr} THEN 'paid'
+      ELSE NULL END
     WHEN ${tipsters.platform} IN ('olbg', 'bettingexpert') THEN CASE WHEN ${expr} THEN NULL ELSE 'free' END
     ELSE CASE WHEN ${expr} THEN 'paid' WHEN ${expr} IS NULL THEN NULL ELSE 'free' END
   END`

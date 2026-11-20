@@ -85,7 +85,8 @@ pure parser and 13 fragment fixtures under `tests/fixtures/blogabet-profile/`:
 - **SERVICE FULL**: a paid service with no open slots renders a subscribe
   button labelled SERVICE FULL and no price (ibet-35, stored as
   `is_paid=false` with paid-pick history). Live proof that stored false is
-  not free, and of a paid state the listing cannot see.
+  not free, and of a paid state the listing cannot see. Juan confirmed
+  explicitly on 2026-11-20 that SERVICE FULL means paid.
 - **Verified blogs without a subscribe box show nothing affirmative**
   (yugovalue, anubispicks, scpicks23): no banner, no price, only the
   generic FOLLOW button. They stay unclassified.
@@ -109,3 +110,40 @@ Impact, kept separate:
   affirmative free marker and stay unclassified. No stored row changes
   classification until a profile read happens; nothing here extrapolates
   the sample to the catalog.
+
+## Integration (commit 4, 2026-11-20) — prepared, not executed
+
+End-to-end wiring on the isolated PGlite database only:
+
+- `drizzle/0007_blogabet_access_signal.sql` (LOCAL DRAFT, not applied to
+  Neon): three nullable columns on `tipsters` (`access_class`,
+  `access_evidence`, `access_observed_at`). The migration itself
+  reclassifies nothing; rows only gain a class when a profile read writes
+  one.
+- `crawler/blogabet-profile-probe.ts`: `signalToAccessUpdate` (pure
+  signal→columns mapping) + `probeProfiles` flow with `write:false`
+  dry-run default, injectable interval, lazy DB init. NOT executed against
+  the live site or any database.
+- `lib/access-classification.ts`: Blogabet branch — `access_class` wins;
+  an observed profile with no signal supersedes the listing boolean
+  (unknown); only unread rows fall back to `is_paid` (true→paid,
+  false→unknown, never free).
+- `scripts/seed-isolated-db.ts`: applies 0006+0007 and seeds six
+  fixture-backed Blogabet rows whose stored flags reproduce the real Neon
+  state of each sampled slug (ibet-35 stored `is_paid=false`).
+
+E2E on the isolated DB (`VERIFIED_ACCESS_REVIEW=1`, dev server + real UI):
+
+- `tipo=free` → exactly 2 rows: jj1ba0 (banner) + StatMind (Tipstrr free).
+  The 19 stored-`is_paid=false` demo rows stay out: unknown is never Free.
+- `tipo=paid` → 42 rows INCLUDING ibet-35 (SERVICE FULL, stored
+  `is_paid=false`) and EXCLUDING versustips11 (dead blog whose stored
+  `is_paid=true` is stale).
+- Unfiltered listing keeps yugovalue (no signal) and versustips11 (dead)
+  with no misleading label. Screenshots: ui-e2e-access-*.png.
+
+Impact if 0007 were applied to Neon (for later approval, not done):
+schema-only, additive, nullable — no backfill, no rewrite of existing
+rows, no classification change until a probe writes a signal. The probe
+flow itself would be a separate decision (live profile reads at >=10s
+intervals, one write per observed row).

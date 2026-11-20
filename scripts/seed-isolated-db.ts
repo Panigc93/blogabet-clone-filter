@@ -18,6 +18,9 @@ const mustMap = (m: TipstrrDbMapping) => {
   return m.insert
 }
 import { TLE_SNAPSHOT, STATMIND_SNAPSHOT } from '../app/lab/tipstrr/ficha/fixtures'
+import { parseBlogabetProfile } from '../crawler/blogabet-profile-signal'
+import { signalToAccessUpdate } from '../crawler/blogabet-profile-probe'
+import { eq, and } from 'drizzle-orm'
 
 const DIR = process.env.PGLITE_DIR || '/tmp/pglite-data'
 
@@ -28,7 +31,8 @@ const MIGRATIONS = [
   '0003_naive_dormammu.sql',
   '0004_multi_platform.sql',
   '0005_tipstrr_internal_pk.sql',
-  '0006_apuestes_source_url.sql', // local-only: schema includes sourceUrl; remote 0006 is a draft
+  '0006_apuestes_source_url.sql', // draft local (remoto sin aplicar): el esquema incluye sourceUrl
+  '0007_blogabet_access_signal.sql', // draft local: señal de acceso desde perfil
 ]
 
 // Filas Blogabet FABRICADAS (cifras inventadas, nombres "BB Demo") solo para
@@ -96,6 +100,38 @@ async function main() {
     mustMap(tipstrrSnapshotToInsert(TLE_SNAPSHOT, { id: -221629, idSource: 'source-captured', slug: 'the-least-expected', subscriptionPriceGbp: 39, isPaid: true })),
     mustMap(tipstrrSnapshotToInsert(STATMIND_SNAPSHOT, { id: -999999, idSource: 'isolated-fixture', slug: 'statmind', subscriptionPriceGbp: null, isPaid: false })),
   ])
+
+  // Filas Blogabet respaldadas por las fixtures reales de perfil (muestra
+  // acotada 2026-11-20): demuestran de extremo a extremo que la señal de
+  // perfil alimenta la clasificación efectiva. is_paid/is_verified/price
+  // reproducen el estado ALMACENADO real de cada fila (ibet-35: false aunque
+  // es servicio de pago lleno; versustips11: precio obsoleto de un blog ya
+  // muerto).
+  const OBSERVED = new Date('2026-11-20T17:00:00Z')
+  const fixtureRows: Array<{ slug: string; isPaid: boolean; isVerified: boolean; price: string | null }> = [
+    { slug: 'jj1ba0', isPaid: false, isVerified: false, price: null },
+    { slug: 'sabobic', isPaid: true, isVerified: true, price: '59.00' },
+    { slug: 'dedi22', isPaid: true, isVerified: true, price: '55.00' },
+    { slug: 'ibet-35', isPaid: false, isVerified: true, price: null },
+    { slug: 'yugovalue', isPaid: false, isVerified: true, price: null },
+    { slug: 'versustips11', isPaid: true, isVerified: false, price: '60.00' },
+  ]
+  for (let i = 0; i < fixtureRows.length; i++) {
+    const f = fixtureRows[i]!
+    await db.insert(tipsters).values({
+      ...bbDemoRow(60 + i),
+      id: 2000 + i,
+      slug: f.slug,
+      name: f.slug,
+      isPaid: f.isPaid,
+      isVerified: f.isVerified,
+      price: f.price,
+    })
+    const frag = readFileSync(join(__dirname, `../tests/fixtures/blogabet-profile/${f.slug}.fragment.html`), 'utf8')
+    const update = signalToAccessUpdate(parseBlogabetProfile(frag), OBSERVED)
+    await db.update(tipsters).set(update)
+      .where(and(eq(tipsters.platform, 'blogabet'), eq(tipsters.slug, f.slug)))
+  }
 
   const n = await pg.query<{ n: string }>('SELECT count(*)::text AS n FROM tipsters')
   const byPlatform = await pg.query<{ platform: string; n: string }>(

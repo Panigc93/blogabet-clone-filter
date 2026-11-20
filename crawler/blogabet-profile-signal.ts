@@ -13,6 +13,7 @@
 //     price: still PAID, but the listing parses no price and stores
 //     is_paid=false (observed live on ibet-35, which also carries paid-pick
 //     history). This is the concrete proof that stored false ≠ free.
+//     Juan confirmed explicitly on 2026-11-20: SERVICE FULL is paid.
 //   - Verified blogs without any subscribe box show nothing affirmative:
 //     no banner, no price, only the generic FOLLOW button. Absence again —
 //     they stay unclassified, never Free by default.

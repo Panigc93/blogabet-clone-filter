@@ -32,6 +32,19 @@ describe('classifyAccess', () => {
     expect(classifyAccess({ platform: 'blogabet', isPaid: false })).toBeNull()
   })
 
+  it('Blogabet: an observed profile signal wins over the listing boolean', () => {
+    const at = new Date('2026-11-20T17:00:00Z')
+    // Affirmative free banner on a live non-verified blog.
+    expect(classifyAccess({ platform: 'blogabet', isPaid: false, accessClass: 'free', accessObservedAt: at })).toBe('free')
+    // SERVICE FULL: stored is_paid=false, but the profile shows a paid service.
+    expect(classifyAccess({ platform: 'blogabet', isPaid: false, accessClass: 'paid', accessObservedAt: at })).toBe('paid')
+    // Fresh profile read overrides a stale listing price both ways.
+    expect(classifyAccess({ platform: 'blogabet', isPaid: true, accessClass: 'free', accessObservedAt: at })).toBe('free')
+    // A profile read with no signal (or a dead blog) supersedes the stale
+    // listing boolean instead of resurrecting it.
+    expect(classifyAccess({ platform: 'blogabet', isPaid: true, accessClass: null, accessObservedAt: at })).toBeNull()
+  })
+
   it('OLBG and Bettingexpert: Free by affirmative source policy; a stored paid flag stays unclassified', () => {
     expect(classifyAccess({ platform: 'olbg', isPaid: false })).toBe('free')
     expect(classifyAccess({ platform: 'bettingexpert', isPaid: false })).toBe('free')
@@ -89,6 +102,16 @@ describe('tipoCondition', () => {
     expect(t).toContain('olbg')
     expect(t).toContain('bettingexpert')
     expect(t).toContain('NULL')
+  })
+
+  it('effectiveAccessSql consumes the stored profile signal before the listing fallback', () => {
+    const columnNames = (s: SQL) => leaves(s).map(v => (v && typeof v === 'object' && 'name' in v ? (v as { name: unknown }).name : v))
+    const names = columnNames(effectiveAccessSql())
+    expect(names).toContain('access_class')
+    expect(names).toContain('access_observed_at')
+    const t = textLeaves(effectiveAccessSql())
+    // Profile-signal WHENs come before the legacy is_paid fallback WHEN.
+    expect(t.indexOf("'free'")).toBeLessThan(t.indexOf('IS NOT NULL'))
   })
 })
 
