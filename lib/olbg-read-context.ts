@@ -1,4 +1,4 @@
-import { sql, and, eq, gte, lte, type SQL } from 'drizzle-orm'
+import { sql, and, gte, lte, type SQL } from 'drizzle-orm'
 import { tipsters } from '@/db/schema'
 import { effectiveProfitUnit, buildFilters, type TipsterFilters, type SortField } from './query'
 import { tipoCondition } from './access-classification'
