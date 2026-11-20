@@ -35,7 +35,7 @@ const BASE = {
   picksFree3mAvg: null,
   yieldFree3m: null,
   statsUpdatedAt: null,
-  sourcePortfolioId: null,
+  sourcePortfolioId: null, sourceUrl: null,
 }
 
 const BB: Tipster = {

@@ -44,6 +44,10 @@ export const tipsters = pgTable('tipsters', {
   // numérico Tipstrr es surrogate interno (secuencia tipsters_internal_id_seq,
   // asignada por la ruta de import en su transacción).
   sourcePortfolioId: integer('source_portfolio_id'),
+  // URL exacta del perfil en el origen cuando una captura la aporta
+  // (Apuestes: usernames no URL-safe no se reconstruyen desde el slug).
+  // Migración local 0006 (draft, no aplicada en remoto).
+  sourceUrl: text('source_url'),
 }, (t) => ({
   platformSlugUnique: uniqueIndex('ux_tipsters_platform_slug').on(t.platform, t.slug),
   platformIdx:   index('idx_tipsters_platform').on(t.platform),
