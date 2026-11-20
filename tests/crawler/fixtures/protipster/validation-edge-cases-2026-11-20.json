@@ -1,0 +1,143 @@
+[
+  {
+    "slug": "kjell1",
+    "capturedAt": "2026-11-20T14:18:30+01:00",
+    "sourceUrl": "https://www.protipster.es/tipster/kjell1",
+    "overview": {
+      "id": 129283,
+      "username": "kjell1",
+      "usernameCanonical": "kjell1",
+      "avatar": null,
+      "userJoinDate": "2018-12-10 15:54:04",
+      "countryCode": "SE"
+    },
+    "summary": {
+      "followersCount": 72,
+      "cumulativeStats": {
+        "profit": 1086,
+        "stakes": 5205,
+        "picks": 77,
+        "yield": 20.9,
+        "hitRate": 44.16,
+        "averageOdds": 208
+      }
+    },
+    "chartDefault": {
+      "stats": {
+        "profit": 1086,
+        "stakes": 5205,
+        "picks": 77,
+        "yield": 20.9,
+        "hitRate": 44.16,
+        "averageOdds": 3.08
+      },
+      "defaultDateCriteria": "lastSixMonths",
+      "activeMonths": [
+        "2026-11"
+      ]
+    },
+    "period3m": {
+      "profit": 1086,
+      "stakes": 5205,
+      "picks": 77,
+      "yield": 20.9,
+      "hitRate": 44.16,
+      "averageOdds": 3.08
+    },
+    "months": {}
+  },
+  {
+    "slug": "ingolueders77",
+    "capturedAt": "2026-11-20T18:52:49.769102+01:00",
+    "sourceUrl": "https://www.protipster.es/tipster/ingolueders77",
+    "overview": {
+      "id": 699666,
+      "username": "ingolueders77",
+      "usernameCanonical": "ingolueders77",
+      "avatar": null,
+      "userJoinDate": "2026-05-06 13:03:18",
+      "countryCode": "DE"
+    },
+    "summary": {
+      "followersCount": 0,
+      "cumulativeStats": {
+        "profit": 11,
+        "stakes": 195,
+        "picks": 39,
+        "yield": 6,
+        "hitRate": 58.97,
+        "averageOdds": -110
+      }
+    },
+    "chartDefault": {
+      "stats": {
+        "profit": 11,
+        "stakes": 195,
+        "picks": 39,
+        "yield": 5.6,
+        "hitRate": 58.97,
+        "averageOdds": 1.91
+      },
+      "defaultDateCriteria": "lastSixMonths",
+      "activeMonths": [
+        "2026-11"
+      ]
+    },
+    "period3m": {
+      "profit": 11,
+      "stakes": 195,
+      "picks": 39,
+      "yield": 5.6,
+      "hitRate": 58.97,
+      "averageOdds": 1.91
+    },
+    "months": {}
+  },
+  {
+    "slug": "muskoinaffey11",
+    "capturedAt": "2026-11-20T18:56:05.604255+01:00",
+    "sourceUrl": "https://www.protipster.es/tipster/muskoinaffey11",
+    "overview": {
+      "id": 731930,
+      "username": "muskoinaffey11",
+      "usernameCanonical": "muskoinaffey11",
+      "avatar": null,
+      "userJoinDate": "2026-11-02 07:47:07",
+      "countryCode": "ru"
+    },
+    "summary": {
+      "followersCount": 0,
+      "cumulativeStats": {
+        "profit": 1,
+        "stakes": 50,
+        "picks": 10,
+        "yield": 3.1,
+        "hitRate": 50,
+        "averageOdds": 110
+      }
+    },
+    "chartDefault": {
+      "stats": {
+        "profit": 1,
+        "stakes": 50,
+        "picks": 10,
+        "yield": 2,
+        "hitRate": 50,
+        "averageOdds": 2.1
+      },
+      "defaultDateCriteria": "lastSixMonths",
+      "activeMonths": [
+        "2026-11"
+      ]
+    },
+    "period3m": {
+      "profit": 1,
+      "stakes": 50,
+      "picks": 10,
+      "yield": 2,
+      "hitRate": 50,
+      "averageOdds": 2.1
+    },
+    "months": {}
+  }
+]

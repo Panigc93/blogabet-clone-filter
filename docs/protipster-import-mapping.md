@@ -53,14 +53,14 @@ period. Real capture: heroico 2026-10 → profit 7667, stakes 79080, picks 403
   is a cross-check (|diff| > 0.15pp → hold `cuarentena[capture-inconsistency]`).
 - `profitUnit: 'protipster-units'`: the site decorates numbers with '$' but
   stake presets are 5..100; never converted to money.
-- `isPaid: false`: grounded in the site's own model page, not only in
-  samples. https://www.protipster.es/sobre-nosotros (2026-11-20) states
-  'Participar es gratis', 'Registrarse es gratis' and describes the model as
-  free tips with cash prizes for the most profitable tipsters; no
-  per-tipster subscription exists there. Sample corroboration: no paid
-  markers on listing, profile, or the public tips feed (195 pick links
-  visible logged out). Re-verify at full capture time; if the site ever
-  ships tipster subscriptions this mapping must change.
+- `isPaid: false`: product classification rule confirmed by Juan on
+  2026-11-20 at 18:30 (WhatsApp): profiles without known payment evidence
+  stay in Free. This is a product default, not factual proof that a tipster
+  never offers paid services. https://www.protipster.es/sobre-nosotros,
+  checked again on 2026-11-20, confirms free registration and public access
+  to free tips. It does not establish the universal absence of paid tiers
+  or off-platform services. No paid signal was captured for these rows.
+  A future affirmative paid signal must change this classification.
 - `avatarUrl`: avatar filename → `/uploads/avatars/<base>.120.png`
   (almo7tarif real case). null when avatar is null (heroico).
 - `sinceYear`/`signupAt`: from userJoinDate (site timezone not exposed;

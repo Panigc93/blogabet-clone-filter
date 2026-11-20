@@ -191,7 +191,7 @@ export function protipsterRowToInsert(row: ProtipsterCaptureRow, opts: Protipste
     avatarUrl: protipsterAvatarUrl(overview.avatar),
     flagUrl: null,
     countryCode: overview.countryCode,
-    isPaid: false, // no paid/subscription concept found (evidence 2026-11-20: listing, profile and public tips feed; tips visible logged out)
+    isPaid: false, // product rule approved 2026-11-20: no known paid signal stays Free; not proof of universal gratuity
     price: null,
     profitUnit: 'protipster-units',
     priceCurrency: 'eur',
@@ -211,7 +211,7 @@ export function protipsterRowToInsert(row: ProtipsterCaptureRow, opts: Protipste
     yield3m: exact['3m'],
     yield6m: exact['6m'],
     yield12m: exact['12m'],
-    picksFree3mAvg: null, // no paid concept: no free/paid split
+    picksFree3mAvg: null, // source has no separately verified free/paid statistics split
     yieldFree3m: null,
     statsUpdatedAt: captured,
     sourcePortfolioId: overview.id, // ProTipster numeric user id: natural key evidence
