@@ -1,0 +1,399 @@
+{
+  "capturedAt": "2026-11-20T13:02:00+01:00",
+  "slug": "almo7tarif",
+  "source": "POST /tipster/almo7tarif/dashboard-graph via UI period dropdown (cloud browser, fetch-wrapped)",
+  "responses": [
+    {
+      "dateCriteria": "2026-10",
+      "status": 200,
+      "body": {
+        "chartData": {
+          "detailedGraphData": [
+            [
+              "Date",
+              "Beneficio",
+              "Yield"
+            ],
+            [
+              "2 oct",
+              -200,
+              -100
+            ],
+            [
+              "4 oct",
+              -400,
+              -100
+            ],
+            [
+              "5 oct",
+              670,
+              67
+            ],
+            [
+              "6 oct",
+              -484,
+              -34.57
+            ],
+            [
+              "7 oct",
+              -600,
+              -100
+            ],
+            [
+              "8 oct",
+              -108,
+              -9
+            ],
+            [
+              "9 oct",
+              508,
+              63.5
+            ],
+            [
+              "10 oct",
+              2514,
+              43.34
+            ],
+            [
+              "11 oct",
+              126,
+              2.86
+            ],
+            [
+              "12 oct",
+              -1436,
+              -79.78
+            ],
+            [
+              "13 oct",
+              -434,
+              -19.73
+            ],
+            [
+              "14 oct",
+              1476,
+              52.71
+            ],
+            [
+              "15 oct",
+              338,
+              9.94
+            ],
+            [
+              "16 oct",
+              -1372,
+              -40.35
+            ],
+            [
+              "17 oct",
+              -2282,
+              -34.58
+            ],
+            [
+              "18 oct",
+              -1356,
+              -29.48
+            ],
+            [
+              "19 oct",
+              1610,
+              27.76
+            ],
+            [
+              "20 oct",
+              -576,
+              -26.18
+            ],
+            [
+              "21 oct",
+              1356,
+              56.5
+            ],
+            [
+              "22 oct",
+              -198,
+              -3.96
+            ],
+            [
+              "23 oct",
+              38,
+              0.66
+            ],
+            [
+              "24 oct",
+              1016,
+              9.07
+            ],
+            [
+              "25 oct",
+              -2494,
+              -36.68
+            ],
+            [
+              "26 oct",
+              1536,
+              36.57
+            ],
+            [
+              "27 oct",
+              -722,
+              -12.03
+            ],
+            [
+              "28 oct",
+              -516,
+              -9.21
+            ],
+            [
+              "29 oct",
+              -972,
+              -25.58
+            ],
+            [
+              "30 oct",
+              -1714,
+              -35.71
+            ],
+            [
+              "31 oct",
+              -1608,
+              -17.11
+            ]
+          ],
+          "globalGraphData": {
+            "averageOdds": "3.51",
+            "hitRate": "36.80",
+            "profit": -6284,
+            "stakes": 113600,
+            "picks": 568,
+            "yield": "-5.5"
+          }
+        },
+        "chartFilters": {
+          "defaultLinesCriteria": [
+            "profit",
+            "yield"
+          ],
+          "defaultDateCriteria": "2026-10",
+          "dateFilters": [
+            "year",
+            "lastThreeMonths",
+            "lastSixMonths",
+            "2026-11",
+            "2026-10",
+            "2026-09"
+          ],
+          "linesFilters": [
+            "profit",
+            "yield",
+            "hitRate",
+            "tipsCount"
+          ]
+        }
+      }
+    },
+    {
+      "dateCriteria": "2026-09",
+      "status": 200,
+      "body": {
+        "chartData": {
+          "detailedGraphData": [
+            [
+              "Date",
+              "Beneficio",
+              "Yield"
+            ],
+            [
+              "6 sept",
+              -400,
+              -100
+            ],
+            [
+              "9 sept",
+              -200,
+              -100
+            ],
+            [
+              "11 sept",
+              164,
+              82
+            ],
+            [
+              "12 sept",
+              -512,
+              -56.89
+            ],
+            [
+              "13 sept",
+              714,
+              71.4
+            ],
+            [
+              "14 sept",
+              510,
+              28.33
+            ],
+            [
+              "15 sept",
+              318,
+              17.67
+            ],
+            [
+              "16 sept",
+              -2574,
+              -71.5
+            ],
+            [
+              "17 sept",
+              922,
+              65.86
+            ],
+            [
+              "18 sept",
+              3704,
+              88.19
+            ],
+            [
+              "19 sept",
+              -2166,
+              -25.19
+            ],
+            [
+              "20 sept",
+              -2602,
+              -36.14
+            ],
+            [
+              "21 sept",
+              -948,
+              -67.71
+            ],
+            [
+              "22 sept",
+              172,
+              8.6
+            ],
+            [
+              "23 sept",
+              72,
+              12
+            ],
+            [
+              "24 sept",
+              -1542,
+              -51.4
+            ],
+            [
+              "25 sept",
+              -1134,
+              -47.25
+            ],
+            [
+              "26 sept",
+              -404,
+              -25.25
+            ],
+            [
+              "27 sept",
+              -1080,
+              -60
+            ],
+            [
+              "28 sept",
+              -400,
+              -100
+            ]
+          ],
+          "globalGraphData": {
+            "averageOdds": "3.60",
+            "hitRate": "31.39",
+            "profit": -7386,
+            "stakes": 44500,
+            "picks": 223,
+            "yield": "-16.6"
+          }
+        },
+        "chartFilters": {
+          "defaultLinesCriteria": [
+            "profit",
+            "yield"
+          ],
+          "defaultDateCriteria": "2026-09",
+          "dateFilters": [
+            "year",
+            "lastThreeMonths",
+            "lastSixMonths",
+            "2026-11",
+            "2026-10",
+            "2026-09"
+          ],
+          "linesFilters": [
+            "profit",
+            "yield",
+            "hitRate",
+            "tipsCount"
+          ]
+        }
+      }
+    },
+    {
+      "dateCriteria": "lastThreeMonths",
+      "status": 200,
+      "body": {
+        "chartData": {
+          "detailedGraphData": [
+            [
+              "Date",
+              "Beneficio",
+              "Yield"
+            ],
+            [
+              "sept",
+              -7386,
+              -16.6
+            ],
+            [
+              "oct",
+              -6284,
+              -5.53
+            ],
+            [
+              "nov",
+              8603,
+              12.71
+            ]
+          ],
+          "globalGraphData": {
+            "averageOdds": "3.10",
+            "hitRate": "40.38",
+            "profit": -5067,
+            "stakes": 225800,
+            "picks": 1513,
+            "yield": "-2.2"
+          }
+        },
+        "chartFilters": {
+          "defaultLinesCriteria": [
+            "profit",
+            "yield"
+          ],
+          "defaultDateCriteria": "lastThreeMonths",
+          "dateFilters": [
+            "year",
+            "lastThreeMonths",
+            "lastSixMonths",
+            "2026-11",
+            "2026-10",
+            "2026-09"
+          ],
+          "linesFilters": [
+            "profit",
+            "yield",
+            "hitRate",
+            "tipsCount"
+          ]
+        }
+      }
+    }
+  ]
+}

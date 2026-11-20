@@ -11,7 +11,7 @@ import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
 // Tipstrr rows come from dated real captures (fromTipstrrSnapshot), never
 // presented as a sync: capturedAt is always shown.
 
-export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'bettingexpert' | 'olbg' | 'apuestes'
+export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'bettingexpert' | 'olbg' | 'apuestes' | 'protipster'
 
 export interface PeriodStatView {
   valuePct: number | null
@@ -88,6 +88,7 @@ export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardD
   if (t.platform === 'bet2invest') return bet2investFromDbRow(t, now)
   if (t.platform === 'bettingexpert') return bettingexpertFromDbRow(t,now)
   if (t.platform === 'apuestes') return apuestesFromDbRow(t)
+  if (t.platform === 'protipster') return protipsterFromDbRow(t)
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -438,5 +439,65 @@ function apuestesFromDbRow(t: TipsterReadRow): TipsterCardData {
     picksFree3mAvg: null,
     yieldFree3m: null,
     showPeriodRow: t.yield6m != null || t.yield12m != null || t.picks6mAvg != null,
+  }
+}
+
+// ProTipster: capture-based like Apuestes. The 12m window is the 12 COMPLETE
+// calendar months at capture time (user-approved definition 2026-11-20, see
+// docs/protipster-import-mapping.md); its exact dates go in the period trace.
+// 3m/6m are the site's own rolling windows, labelled as such.
+function protipsterFromDbRow(t: TipsterReadRow): TipsterCardData {
+  const num = (v: string | null): number | null => {
+    if (v === null) return null
+    const n = parseFloat(v)
+    return Number.isFinite(n) ? n : null
+  }
+  const profit = num(t.profit)
+  const period = (v: string | null): PeriodStatView => ({ valuePct: num(v), trace: null, complete: true })
+  const profile = t.sourceUrl ?? 'https://www.protipster.es/tipsters'
+  // Window derived from the row's own capture instant; identical rule to
+  // twelveMonthWindow in crawler/platforms/protipster/to-db.ts.
+  let winLabel: string | null = null
+  if (t.capturedAt) {
+    const d = new Date(t.capturedAt)
+    if (!Number.isNaN(d.getTime())) {
+      const through = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - 1, 1))
+      const from = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - 12, 1))
+      const ym = (x: Date) => `${x.getUTCFullYear()}-${String(x.getUTCMonth() + 1).padStart(2, '0')}`
+      winLabel = `${fmtYm(ym(from))} – ${fmtYm(ym(through))} · 12 meses naturales completos`
+    }
+  }
+  return {
+    platform: 'protipster',
+    name: t.name,
+    avatarUrl: t.avatarUrl,
+    sourceUrl: profile,
+    sourceLabel: profile.replace('https://', ''),
+    capturedAt: null, // UI limpia: sin texto de captura en la tarjeta
+    sinceYear: t.sinceYear,
+    sinceTitle: 'Alta de la cuenta en ProTipster; no es fecha de primera apuesta',
+    picks: t.picks,
+    profitDisplay: profit !== null ? `${profit >= 0 ? '+' : ''}${Math.round(profit)} u` : null,
+    yieldPct: num(t.yield),
+    yieldTitle: 'Yield calculado como beneficio / unidades apostadas con cifras exactas de ProTipster; las unidades no son € ni equivalentes a las de otras plataformas',
+    verifiedPct: null, // no expuesto por ProTipster
+    followers: t.followers,
+    isVerified: null, // concepto no expuesto: sin badge
+    isPaid: t.isPaid === true,
+    priceLabel: null, // no captured paid price; Free is the owner-approved product default
+    priceCurrencySuffix: null,
+    resetCount: 0,
+    resetTitle: 'ProTipster no expone resets de estadísticas',
+    flagUrl: null,
+    countryCode: t.countryCode,
+    yield3m: { ...period(t.yield3m), trace: t.yield3m != null ? 'Ventana móvil de ProTipster: últimos 3 meses a la fecha de captura' : null },
+    yield6m: { ...period(t.yield6m), trace: t.yield6m != null ? 'Ventana móvil de ProTipster: últimos 6 meses a la fecha de captura' : null },
+    yield12m: { ...period(t.yield12m), trace: t.yield12m != null ? winLabel : null },
+    picks6mAvg: num(t.picks6mAvg),
+    picks6mTrace: null,
+    picksFree3mAvg: null,
+    yieldFree3m: null,
+    periodBasisNote: winLabel ? `12m: ${winLabel}` : undefined,
+    showPeriodRow: t.yield3m != null || t.yield6m != null || t.yield12m != null || t.picks6mAvg != null,
   }
 }

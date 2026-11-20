@@ -256,3 +256,61 @@ describe('Bet2Invest registration Since', () => {
     expect({ ...dated, sinceYear: null }).toEqual(empty)
   })
 })
+
+// FABRICATED row in the real ProTipster import shape (values from the real
+// heroico capture 2026-11-20); only the mapping is under test.
+const PT_ROW: Tipster = {
+  ...BB_ROW,
+  id: 8,
+  platform: 'protipster',
+  slug: 'heroico',
+  name: 'heroico',
+  profitUnit: 'protipster-units',
+  capturedAt: new Date('2026-11-20T11:50:00Z'),
+  avatarUrl: null,
+  isPaid: false,
+  price: null,
+  sinceYear: 2019,
+  picks: 1031,
+  profit: '5510.000',
+  yield: '3.85',
+  verifiedPct: null,
+  isVerified: false,
+  followers: 341,
+  countryCode: 'VE',
+  resetCount: 0,
+  lastResetAt: null,
+  picks6mAvg: '111.83',
+  yield3m: '9.92',
+  yield6m: '6.40',
+  yield12m: '3.34',
+  picksFree3mAvg: null,
+  yieldFree3m: null,
+  sourcePortfolioId: 136241,
+  sourceUrl: 'https://www.protipster.es/tipster/heroico',
+}
+
+describe('fromDbTipster (ProTipster)', () => {
+  const c = fromDbTipster(PT_ROW)
+  it('labels the 12m window with its exact calendar dates', () => {
+    expect(c.platform).toBe('protipster')
+    expect(c.yield12m.valuePct).toBe(3.34)
+    expect(c.yield12m.trace).toContain('nov 2025')
+    expect(c.yield12m.trace).toContain('oct 2026')
+    expect(c.yield12m.trace).toContain('12 meses naturales')
+  })
+  it('labels 3m/6m as the site rolling windows', () => {
+    expect(c.yield3m.trace).toContain('Ventana móvil')
+    expect(c.yield6m.trace).toContain('Ventana móvil')
+  })
+  it('renders units, source URL and free model honestly', () => {
+    expect(c.profitDisplay).toBe('+5510 u')
+    expect(c.sourceUrl).toBe('https://www.protipster.es/tipster/heroico')
+    expect(c.isPaid).toBe(false)
+    expect(c.priceLabel).toBeNull()
+    expect(c.countryCode).toBe('VE')
+    expect(c.followers).toBe(341)
+    expect(c.sinceTitle).toContain('Alta de la cuenta')
+    expect(c.showPeriodRow).toBe(true)
+  })
+})
