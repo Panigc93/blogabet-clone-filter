@@ -200,15 +200,16 @@ Every phase is independently bounded and stoppable; no phase touches
 
 PR #32 (protipster-integration-prep, abierta, no-prod) fusiona con esta rama
 sin conflictos (4 archivos solapados, hunks distintos; sin solape de esquema
-ni migraciones). Semántica Free: NO se establece por el booleano false.
-PR #32 documenta `isPaid: false` con fuente afirmativa propia (su
-docs/protipster-import-mapping.md), contrastada hoy en vivo:
-https://www.protipster.es/sobre-nosotros afirma "Es completamente gratuito
-registrarse" y "Los tips pueden ser vistos por cualquiera; no necesitas
-registrarte para ver tips gratuitos", y no describe ninguna suscripción por
-tipster (su modelo es concurso mensual con premios). Si PR #32 entra, la
-decisión de cómo clasifica 'protipster' es de su responsable: la
-recomendación es una rama explícita de política afirmativa (como OLBG/BE:
-true → sin clasificar, false → free, citando esa página) y NO heredar la
-rama por defecto del booleano. Hoy no hay filas ProTipster en producción,
-así que no afecta a los conteos de la propuesta.
+ni migraciones). Hoy no hay filas ProTipster en producción, así que no afecta
+a los conteos de la propuesta.
+
+Incertidumbre conservada: la página https://www.protipster.es/sobre-nosotros
+(verificada en vivo 2026-11-20) prueba registro gratuito y acceso a tips
+gratuitos ("Es completamente gratuito registrarse", tips visibles sin
+registro), pero NO prueba por sí sola la ausencia universal de suscripciones
+por tipster. Esta rama NO establece la semántica Free/Pago de ProTipster: el
+alcance de esa fuente y del modelo lo resuelve el responsable de PT (ya
+consultado 2026-11-20). Caveat de compatibilidad a resolver en el merge, no
+una decisión de clasificación: con el clasificador actual, filas PT con
+is_paid=false caerían en la rama por defecto (booleano), lo que NO debe
+leerse como Free afirmativo sin esa decisión.
