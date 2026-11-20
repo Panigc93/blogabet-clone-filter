@@ -26,7 +26,9 @@
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { tipsters, importValidationLog } from '../db/schema'
-import { planApuestesImport, executeApuestesImport } from '../crawler/platforms/apuestes/import'
+import * as impNs from '../crawler/platforms/apuestes/import'
+// tsx + paquete CJS: las named imports de ESM fallan; namespace + .default.
+const { planApuestesImport, executeApuestesImport } = (impNs as any).default ?? impNs
 
 export const RUN_ID = 'apuestes-prod-2026-11-20'
 const JSONL = new URL('../data/apuestes/profiles.jsonl', import.meta.url).pathname
