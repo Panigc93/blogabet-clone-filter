@@ -67,3 +67,45 @@ cards need no change: the Pago badge and price only render on
 - A full-catalog listing refresh (the 2026-11-20 scheduled run failed on a
   Blogabet HTTP 500 mid-pagination after 5 pages; the stats pass completed
   with 0 request errors).
+
+## Profile-page signals (bounded sample, 2026-11-20)
+
+13 profile pages (`<slug>.blogabet.com/`) fetched with the authorized
+crawler method (session cookie approved 2026-10-30, crawler headers, >=10s
+between requests, all HTTP 200, zero blocks/challenges; `/blog/picks`
+never touched). Findings, with `crawler/blogabet-profile-signal.ts` as the
+pure parser and 13 fragment fixtures under `tests/fixtures/blogabet-profile/`:
+
+- **Non-verified live blogs carry an affirmative FREE banner**: "This is a
+  free NON-VERIFIED blog!" (4/4 sampled: jj1ba0, aussie1126, safin1,
+  ilikemybet). Free for this class is no longer an inference from absence.
+- **Paid services show a subscribe box with the price** ("59€ / MONTH",
+  "55€ / MONTH") matching the stored listing price exactly (sabobic,
+  dedi22).
+- **SERVICE FULL**: a paid service with no open slots renders a subscribe
+  button labelled SERVICE FULL and no price (ibet-35, stored as
+  `is_paid=false` with paid-pick history). Live proof that stored false is
+  not free, and of a paid state the listing cannot see.
+- **Verified blogs without a subscribe box show nothing affirmative**
+  (yugovalue, anubispicks, scpicks23): no banner, no price, only the
+  generic FOLLOW button. They stay unclassified.
+- **Deleted blogs answer "Blog not found"** (3/3 sampled from the 655
+  stored non-verified+paid rows: versustips11, ouzbourne, iordan — all
+  stale since <=2026-10-25). Stored flags on dead blogs are unreliable.
+
+Free-pick history (paidStatsTab, picks_free columns) is NOT a free service:
+ibet-35 publishes free picks while selling a full service.
+
+Impact, kept separate:
+
+- *Proven* (the 13 pages above, fixtures): the five signal shapes exist and
+  the parser classifies them; one stored `is_paid=false` row is a full paid
+  service.
+- *Expected, not proven*: IF live non-verified blogs generally carry the
+  banner, the bulk of the 10,921 stored non-verified rows could become
+  affirmative-Free once profiles are read — but only 4 live banners were
+  observed, and only 3 of the 655 stored non-verified+paid rows were
+  checked (all dead). The 164 verified rows without a parsed price have no
+  affirmative free marker and stay unclassified. No stored row changes
+  classification until a profile read happens; nothing here extrapolates
+  the sample to the catalog.
