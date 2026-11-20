@@ -18,7 +18,7 @@ const MIGRATIONS = [
   '0002_add_is_verified.sql',
   '0003_naive_dormammu.sql',
   '0004_multi_platform.sql',
-  '0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql',
+  '0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql','0007_blogabet_access_signal.sql',
 ]
 
 const pg = new PGlite()

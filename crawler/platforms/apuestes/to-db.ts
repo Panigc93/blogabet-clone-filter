@@ -188,6 +188,17 @@ export function apuestesRowToInsert(row: ApuestesCaptureRow, opts: ApuestesDbMap
 
   const hist = row.hist!
   const paid = (row.pickPrice ?? 0) > 0 || Object.values(row.plans ?? {}).some(p => (p ?? 0) > 0)
+  // Absence is not zero: a captured pickPrice/plan price of 0 is positive
+  // free evidence, but a row with NO price fields at all carries no
+  // classification evidence and is held out, never imported as free.
+  const hasPriceEvidence = row.pickPrice != null || Object.values(row.plans ?? {}).some(p => p != null)
+  if (!paid && !hasPriceEvidence) {
+    return {
+      ok: false,
+      klass: 'cuarentena[price-evidence-absent]',
+      reason: 'pickPrice and every plan price absent: no explicit zero; absence never classifies as free',
+    }
+  }
   const oldestMonth = row.months.reduce((min, m) => (m.fecha_pub2 < min ? m.fecha_pub2 : min), row.months[0].fecha_pub2)
   const captured = new Date(row.capturedAt)
   const m6picks = num(row.m6?.totalPicks)

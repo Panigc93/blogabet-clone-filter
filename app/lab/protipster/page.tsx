@@ -40,6 +40,10 @@ const base: Tipster = {
   statsUpdatedAt: new Date('2026-11-20T11:50:00Z'),
   sourcePortfolioId: null,
   sourceUrl: null,
+  accessClass: null,
+  accessEvidence: null,
+  accessObservedAt: null,
+  accessPrice: null,
 }
 
 // Valores exactamente los que produce protipsterRowToInsert sobre las

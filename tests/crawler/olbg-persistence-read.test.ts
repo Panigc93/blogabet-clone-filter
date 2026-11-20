@@ -28,7 +28,7 @@ const pg = new PGlite(); const db = drizzle(pg)
 const b2iAt = '2026-11-17T12:00:00.000Z'
 const b2i: PeriodAudit = { slug:'b2i', capturedAt:b2iAt, windows: Object.fromEntries(([3,6,12] as const).map(n => [n,{...windowBounds(now,n),value:'10.00',months:1,bets:10,caveats:[],reason:null}])) as unknown as PeriodAudit['windows'] }
 beforeAll(async()=>{
- for(const f of ['0000_sudden_jazinda.sql','0001_add_last_reset_at.sql','0002_add_is_verified.sql','0003_naive_dormammu.sql','0004_multi_platform.sql','0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql']) {
+ for(const f of ['0000_sudden_jazinda.sql','0001_add_last_reset_at.sql','0002_add_is_verified.sql','0003_naive_dormammu.sql','0004_multi_platform.sql','0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql','0007_blogabet_access_signal.sql']) {
   for(const q of readFileSync(join(__dirname,'../../drizzle',f),'utf8').split('--> statement-breakpoint')) if(q.trim()) await pg.exec(q)
  }
  await pg.exec(OLBG_LOCAL_SCHEMA)

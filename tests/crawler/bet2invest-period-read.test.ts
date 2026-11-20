@@ -21,7 +21,7 @@ const audit = (slug: string, capturedAt = at, val = '10.00'): PeriodAudit => ({ 
 const txdb: ImportDatabase = { transaction: (fn) => pg.transaction((tx) => fn(tx)) }
 const fixture = () => buildOfflineRow({ slug: 'audit-import', html: readFileSync(join(__dirname, 'fixtures/b2i-e2e-ssr.html'), 'utf8'), monthsJson: JSON.parse(readFileSync(join(__dirname, 'fixtures/b2i-e2e-months.json'), 'utf8')), capturedAt: at, surrogateId: -1 })
 beforeAll(async () => {
-  for (const f of ['0000_sudden_jazinda.sql', '0001_add_last_reset_at.sql', '0002_add_is_verified.sql', '0003_naive_dormammu.sql', '0004_multi_platform.sql', '0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql']) {
+  for (const f of ['0000_sudden_jazinda.sql', '0001_add_last_reset_at.sql', '0002_add_is_verified.sql', '0003_naive_dormammu.sql', '0004_multi_platform.sql', '0005_tipstrr_internal_pk.sql','0006_apuestes_source_url.sql','0007_blogabet_access_signal.sql']) {
     for (const q of readFileSync(join(__dirname, '../../drizzle', f), 'utf8').split('--> statement-breakpoint')) if (q.trim()) await pg.exec(q)
   }
   const rows = [

@@ -96,6 +96,19 @@ describe('apuestesRowToInsert', () => {
     }
   })
 
+  it('holds rows with no price evidence at all: absence never classifies as free', () => {
+    const m = apuestesRowToInsert({ ...baseRow, pickPrice: null, plans: {} }, { id: 4, idSource: 'isolated-fixture', slug: 'noev' })
+    expect(m.ok).toBe(false)
+    if (!m.ok) expect(m.klass).toBe('cuarentena[price-evidence-absent]')
+  })
+
+  it('explicit zeros ARE positive free evidence and import as not paid', () => {
+    const zeroPlans = mustMap(apuestesRowToInsert({ ...baseRow, pickPrice: null, plans: { '10': 0, '12': 0 } }, { id: 5, idSource: 'isolated-fixture', slug: 'zero' }))
+    expect(zeroPlans.isPaid).toBe(false)
+    const zeroPick = mustMap(apuestesRowToInsert({ ...baseRow, pickPrice: 0, plans: {} }, { id: 6, idSource: 'isolated-fixture', slug: 'zero2' }))
+    expect(zeroPick.isPaid).toBe(false)
+  })
+
   it('provenance guard rejects isolated-fixture ids on the real route', () => {
     expect(() => assertApuestesImportProvenance('isolated-fixture', 'x')).toThrow()
     expect(() => assertApuestesImportProvenance('source-captured', 'x')).not.toThrow()
