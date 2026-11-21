@@ -75,3 +75,33 @@ export function bet2earnAvatarUrl(avatar: string | null): string | null {
 export function bet2earnSourceUrl(slug: string): string {
   return `${BET2EARN_ORIGIN}/api/user/${encodeURIComponent(slug)}`
 }
+
+// Public profile page, the destination a user should open. Demonstrated from
+// the site's own links on 2026-11-21: the API slug (lowercase, spaces) becomes
+// the frontend slug with spaces -> hyphens; underscores, '&' and accented
+// letters are kept as-is (the site's own hrefs: "krlostm_winamax" ->
+// /tipsters/krlostm_winamax, "mvpicks javi futbol femenino" ->
+// /tipsters/mvpicks-javi-futbol-femenino, "elguije" (with u-umlaut) ->
+// /tipsters/elg%C3%BCije, "pensador & grupo 6 pinnacle" ->
+// /tipsters/pensador-&-grupo-6-pinnacle; clicking the last one rendered the
+// matching profile). Link target only: the API source URL stays as provenance.
+export function bet2earnProfileUrl(slug: string): string {
+  return `${BET2EARN_ORIGIN}/tipsters/${slug.trim().toLowerCase().replace(/\s+/g, '-')}`
+}
+
+// Card destination derived from the captured API source URL. Anything that is
+// not a captured /api/user/{slug} URL falls back to the site root: never
+// fabricate a slug from a shape we have not seen.
+export function bet2earnProfileUrlFromSource(sourceUrl: string | null): string {
+  const fallback = `${BET2EARN_ORIGIN}/`
+  if (!sourceUrl) return fallback
+  const m = sourceUrl.match(/\/api\/user\/([^/]+)$/)
+  if (!m) return fallback
+  let slug: string
+  try {
+    slug = decodeURIComponent(m[1])
+  } catch {
+    return fallback
+  }
+  return bet2earnProfileUrl(slug)
+}

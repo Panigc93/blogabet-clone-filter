@@ -6,6 +6,7 @@ import { fromOlbgReadRow, unknownOlbgCard } from './olbg-card-model'
 import type { Tipster } from '@/db/schema'
 import type { FichaSnapshot } from '@/app/lab/tipstrr/ficha/fixtures'
 import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
+import { bet2earnProfileUrlFromSource } from '@/crawler/platforms/bet2earn/types'
 
 // Platform-agnostic view model for the tipster table row. The existing
 // Blogabet path is preserved verbatim (fromDbTipster maps the DB row 1:1);
@@ -536,7 +537,9 @@ function bet2earnFromDbRow(t: TipsterReadRow): TipsterCardData {
   }
   const profit = num(t.profit)
   const period = (v: string | null): PeriodStatView => ({ valuePct: num(v), trace: null, complete: true })
-  const profile = t.sourceUrl ?? 'https://bet2earn.com'
+  // Destino de tarjeta = página pública de perfil, derivada de la URL API de
+  // origen (que permanece en BD como procedencia). Ruta demostrada 2026-11-21.
+  const profile = bet2earnProfileUrlFromSource(t.sourceUrl)
   // Same window rule as completeMonthWindow in crawler/platforms/bet2earn/to-db.ts.
   let winLabel12: string | null = null
   let winLabel6: string | null = null

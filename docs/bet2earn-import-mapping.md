@@ -103,16 +103,30 @@ validation missed, and all three caught real cases:
   cross-check (`publishedYieldMatches`).
 - `yield3m/6m/12m`: last 3/6/12 COMPLETE calendar months at capture time,
   `created_at` bucketing. The 12-complete-month definition reuses the
-  owner instruction of 2026-11-20 12:46 CET (WhatsApp, authenticated
-  channel: yield de "los 12 meses naturales completos", ProTipster
-  context); it is NOT a rolling window and never mixes with one. A window
-  with 0 picks imports NULL (true empty).
+  owner instruction of 2026-11-20 12:46 CET (WhatsApp DM
+  wachanconn-01M65B3FVNTHFWQN9V0N5Y7Z7B, user message
+  wamid.HBgLMzQ2MDgxODE0MzQVAgASGBYzRUIwQTA5Q0U0NTA0OTdFRjc4NzE3AA==,
+  ProTipster context: yield of "the 12 complete calendar months"). This
+  reuse is PROVISIONAL for Bet2Earn until the owner confirms it applies
+  here too; the original is recoverable from the observation database by
+  that locator. It is NOT a rolling window and never mixes with one. A
+  window with 0 picks imports NULL (true empty).
 - `lastPickAt`: REAL per-pick date (max `created_at`) — unlike
   Apuestes/Bet2Invest/ProTipster (month granularity). Activity filters
   use it like Blogabet's.
 - `slug`: lowercase profile name (the API path key). `sourceUrl`: the API
-  URL actually fetched (a verified destination). The frontend profile
-  route was never verified and is NOT used.
+  URL actually fetched (provenance, stays in the DB). The CARD link
+  destination is the public frontend profile page,
+  `https://bet2earn.com/tipsters/<frontend-slug>` with frontend-slug =
+  API slug, spaces -> hyphens, underscores / '&' / accented letters kept
+  as-is. Demonstrated 2026-11-21 from the site's own links (premium
+  listing, search box) and by rendering
+  `/tipsters/futbolinvisiblevip`, `/tipsters/fabian-rivero` and
+  `/tipsters/pensador-&-grupo-6-pinnacle` (the last via clicking the
+  site's own link; name/yield/picks matched the capture). Derived in
+  `bet2earnProfileUrlFromSource`; anything that is not a captured
+  /api/user/{slug} URL falls back to the site root — never a fabricated
+  slug.
 - `isPaid`: listing provenance — `premium` → true, `free` → false (owner
   product rule 2026-11-20 18:30: unconfirmed paid status stays Free).
   Package prices are not reliably exposed (`cheapest_package` contradicts
@@ -130,7 +144,7 @@ validation missed, and all three caught real cases:
 
 ## Pending before production (needs explicit owner approval)
 
-1. Scope decision: publish the 175 validated histories as-is, or first
+1. Scope decision: publish the 171 validated aptos as-is (60 premium + 111 free, plan v4), or first
    resolve the 1,619 anonymous-visibility free profiles (requires an
    authenticated session — a NEW account is out of scope unless the owner
    authorizes one).

@@ -24,7 +24,7 @@ function realInsert(slug: string, listSource: 'premium' | 'free', profileBody: u
     historyBody,
   })
   row.sourceUrl = bet2earnSourceUrl(slug)
-  const m = bet2earnRowToInsert(row, { id: 0, idSource: 'internal-transactional', slug })
+  const m = bet2earnRowToInsert(row, { id: 0, idSource: 'internal-transactional', slug, sourceUrl: row.sourceUrl })
   if (!m.ok) throw new Error(`lab fixture ${slug}: ${m.reason}`)
   return {
     ...m.insert,
