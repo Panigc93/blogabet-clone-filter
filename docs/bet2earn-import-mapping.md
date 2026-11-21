@@ -106,11 +106,13 @@ validation missed, and all three caught real cases:
   owner instruction of 2026-11-20 12:46 CET (WhatsApp DM
   wachanconn-01M65B3FVNTHFWQN9V0N5Y7Z7B, user message
   wamid.HBgLMzQ2MDgxODE0MzQVAgASGBYzRUIwQTA5Q0U0NTA0OTdFRjc4NzE3AA==,
-  ProTipster context: yield of "the 12 complete calendar months"). This
-  reuse is PROVISIONAL for Bet2Earn until the owner confirms it applies
-  here too; the original is recoverable from the observation database by
-  that locator. It is NOT a rolling window and never mixes with one. A
-  window with 0 picks imports NULL (true empty).
+  ProTipster context: yield of "the 12 complete calendar months";
+  original recovered and verified 2026-11-21 via that locator). It is
+  NOT a rolling window and never mixes with one. The closed window
+  (e.g. 2025-11..2026-10 at capture time) matches that definition; a
+  window that CONTAINS a month does not imply continuous monthly
+  activity — months with 0 picks simply contribute 0, and a window
+  with 0 picks in total imports NULL (true empty).
 - `lastPickAt`: REAL per-pick date (max `created_at`) — unlike
   Apuestes/Bet2Invest/ProTipster (month granularity). Activity filters
   use it like Blogabet's.
