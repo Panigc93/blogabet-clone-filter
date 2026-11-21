@@ -65,9 +65,12 @@ function olbgWindow(months: number): SQL | null {
     sql`(olbg_stats.compact->'windows'->(${idx}::int)->>'tips')::numeric > 0`)!
 }
 
+// Bet2Earn has REAL per-pick dates: last_pick_at is the max pick
+// publication date of the captured history (docs/bet2earn-import-mapping.md),
+// so it uses the same window condition as Blogabet.
 export function activityCondition(months: number, unknown = false, rows: ActivityEvidence[] = evidence): SQL {
   const cutoff = sql`NOW() - make_interval(months => ${months})`
-  const bb = and(eq(tipsters.platform, 'blogabet'), gte(tipsters.lastPickAt, cutoff))!
+  const bb = and(or(eq(tipsters.platform, 'blogabet'), eq(tipsters.platform, 'bet2earn')), gte(tipsters.lastPickAt, cutoff))!
   const captured = [capturedWindow('apuestes', months), capturedWindow('bet2invest', months), capturedWindow('protipster', months), bettingexpertWindow(months), olbgWindow(months)].filter((c): c is SQL => c !== null)
   const observed = rows.filter(validEvidence).map(e => and(
     eq(tipsters.platform, e.platform), eq(tipsters.slug, e.slug),
@@ -82,7 +85,7 @@ export function activityCondition(months: number, unknown = false, rows: Activit
 
 export function activityWarning(months?: number, unknown?: boolean): string | null {
   if (months === undefined && !unknown) return null
-  if (unknown) return 'Sin prueba en el último mes disponible: ventana móvil cuando hay fechas; último mes completo para OLBG. Apuestes, Bet2Invest, Bettingexpert y ProTipster no tienen prueba de 1 mes. Incluye datos ausentes, parciales o antiguos: NO significa inactivo. Blogabet conserva su aproximación del catálogo.'
+  if (unknown) return 'Sin prueba en el último mes disponible: ventana móvil cuando hay fechas; último mes completo para OLBG. Apuestes, Bet2Invest, Bettingexpert y ProTipster no tienen prueba de 1 mes. Bet2Earn usa la fecha real del último pick de la captura. Incluye datos ausentes, parciales o antiguos: NO significa inactivo. Blogabet conserva su aproximación del catálogo.'
   const dates = evidence.map(e => e.capturedAt).sort()
   const range = dates.length ? ` Fechas de captura: ${dates[0]} a ${dates[dates.length - 1]}. ` : ' Sin fechas de captura disponibles. '
   const coverage = `Capturas con fecha aprovechable: Golazobets ${new Set(evidence.filter(e => e.platform === 'golazobets').map(e => e.slug)).size}; Tipstrr ${new Set(evidence.filter(e => e.platform === 'tipstrr').map(e => e.slug)).size}. Apuestes usa ventanas móviles de 3, 6 y 12 meses en la captura del 19-20 nov 2026. Bet2Invest (captura 17 nov 2026) y Bettingexpert usan los 3, 6 y 12 meses completos anteriores al mes de captura; no son ventanas móviles. ProTipster usa 3m/6m móviles y 12 meses naturales completos (nov 2025 a oct 2026), captura 20 nov 2026. El último mes no está disponible en esas cuatro plataformas. OLBG usa los meses completos anteriores a su captura que tengan picks publicados. `

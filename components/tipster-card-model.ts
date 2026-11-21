@@ -6,13 +6,14 @@ import { fromOlbgReadRow, unknownOlbgCard } from './olbg-card-model'
 import type { Tipster } from '@/db/schema'
 import type { FichaSnapshot } from '@/app/lab/tipstrr/ficha/fixtures'
 import { computeExactPeriodStats } from '@/crawler/platforms/tipstrr/periods'
+import { bet2earnProfileUrlFromSource } from '@/crawler/platforms/bet2earn/types'
 
 // Platform-agnostic view model for the tipster table row. The existing
 // Blogabet path is preserved verbatim (fromDbTipster maps the DB row 1:1);
 // Tipstrr rows come from dated real captures (fromTipstrrSnapshot), never
 // presented as a sync: capturedAt is always shown.
 
-export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'bettingexpert' | 'olbg' | 'apuestes' | 'protipster'
+export type Platform = 'blogabet' | 'tipstrr' | 'golazobets' | 'bet2invest' | 'bettingexpert' | 'olbg' | 'apuestes' | 'protipster' | 'bet2earn'
 
 export interface PeriodStatView {
   valuePct: number | null
@@ -90,6 +91,7 @@ export function fromDbTipster(t: TipsterReadRow, now = new Date()): TipsterCardD
   if (t.platform === 'bettingexpert') return bettingexpertFromDbRow(t,now)
   if (t.platform === 'apuestes') return apuestesFromDbRow(t)
   if (t.platform === 'protipster') return protipsterFromDbRow(t)
+  if (t.platform === 'bet2earn') return bet2earnFromDbRow(t)
   const num = (v: string | null): number | null => {
     if (v === null) return null
     const n = parseFloat(v)
@@ -517,6 +519,76 @@ function protipsterFromDbRow(t: TipsterReadRow): TipsterCardData {
     picksFree3mAvg: null,
     yieldFree3m: null,
     periodBasisNote: winLabel ? `12m: ${winLabel}` : undefined,
+    showPeriodRow: t.yield3m != null || t.yield6m != null || t.yield12m != null || t.picks6mAvg != null,
+  }
+}
+
+// Bet2Earn: capture-based like ProTipster, but with REAL per-pick dates
+// (lastPickAt is the max pick publication date, not month granularity).
+// 3m/6m/12m are the last complete calendar months at capture time
+// (created_at bucketing, the site's own monthly criterion). The 12m
+// complete-calendar-month definition reuses the owner's 2026-11-20
+// instruction (WhatsApp: yield de "los 12 meses naturales completos").
+function bet2earnFromDbRow(t: TipsterReadRow): TipsterCardData {
+  const num = (v: string | null): number | null => {
+    if (v === null) return null
+    const n = parseFloat(v)
+    return Number.isFinite(n) ? n : null
+  }
+  const profit = num(t.profit)
+  const period = (v: string | null): PeriodStatView => ({ valuePct: num(v), trace: null, complete: true })
+  // Destino de tarjeta = página pública de perfil, derivada de la URL API de
+  // origen (que permanece en BD como procedencia). Ruta demostrada 2026-11-21.
+  const profile = bet2earnProfileUrlFromSource(t.sourceUrl)
+  // Same window rule as completeMonthWindow in crawler/platforms/bet2earn/to-db.ts.
+  let winLabel12: string | null = null
+  let winLabel6: string | null = null
+  let winLabel3: string | null = null
+  if (t.capturedAt) {
+    const d = new Date(t.capturedAt)
+    if (!Number.isNaN(d.getTime())) {
+      const ym = (x: Date) => `${x.getUTCFullYear()}-${String(x.getUTCMonth() + 1).padStart(2, '0')}`
+      const label = (months: number) => {
+        const through = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - 1, 1))
+        const from = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - months, 1))
+        return `${fmtYm(ym(from))} – ${fmtYm(ym(through))} · ${months} meses naturales completos`
+      }
+      winLabel12 = label(12)
+      winLabel6 = label(6)
+      winLabel3 = label(3)
+    }
+  }
+  return {
+    platform: 'bet2earn',
+    name: t.name,
+    avatarUrl: t.avatarUrl,
+    sourceUrl: profile,
+    sourceLabel: profile.replace('https://', ''),
+    capturedAt: null, // UI limpia: sin texto de captura en la tarjeta
+    sinceYear: t.sinceYear,
+    sinceTitle: 'Alta de la cuenta en Bet2Earn; no es fecha de primera apuesta',
+    picks: t.picks,
+    profitDisplay: profit !== null ? `${profit >= 0 ? '+' : ''}${Math.round(profit)} u` : null,
+    yieldPct: num(t.yield),
+    yieldTitle: 'Yield calculado como beneficio / unidades apostadas con cifras exactas de Bet2Earn; las unidades no son € ni equivalentes a las de otras plataformas',
+    verifiedPct: null, // no expuesto por Bet2Earn
+    followers: t.followers,
+    isVerified: null, // concepto no expuesto: sin badge
+    isPaid: t.isPaid === true,
+    priceLabel: null, // precio de paquete no capturado de forma fiable
+    priceCurrencySuffix: null,
+    resetCount: 0,
+    resetTitle: 'Bet2Earn no expone resets de estadísticas',
+    flagUrl: null,
+    countryCode: null,
+    yield3m: { ...period(t.yield3m), trace: t.yield3m != null ? winLabel3 : null },
+    yield6m: { ...period(t.yield6m), trace: t.yield6m != null ? winLabel6 : null },
+    yield12m: { ...period(t.yield12m), trace: t.yield12m != null ? winLabel12 : null },
+    picks6mAvg: num(t.picks6mAvg),
+    picks6mTrace: null,
+    picksFree3mAvg: null,
+    yieldFree3m: null,
+    periodBasisNote: winLabel12 ? `12m: ${winLabel12}` : undefined,
     showPeriodRow: t.yield3m != null || t.yield6m != null || t.yield12m != null || t.picks6mAvg != null,
   }
 }

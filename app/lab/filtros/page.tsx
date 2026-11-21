@@ -14,6 +14,10 @@ export default function LabFiltros() {
         Fuente Tipstrr (años BB / resets / picks free desactivados, precio señalado como no aplicable en GBP):
       </p>
       <FilterBar searchParams={{ tipo: 'paid', platform: 'tipstrr' }} />
+      <p style={{ padding: '14px 14px 0', fontSize: 12, color: '#666' }}>
+        Fuente Bet2Earn (opción nueva; filtros solo-BB desactivados como en el resto de plataformas):
+      </p>
+      <FilterBar searchParams={{ platform: 'bet2earn' }} />
     </div>
   )
 }

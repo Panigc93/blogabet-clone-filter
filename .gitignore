@@ -48,4 +48,5 @@ crawler/.checkpoint-*
 # Private server data supplied separately during an authorized deployment
 /.private-data/
 data/apuestes/
+data/bet2earn/
 evidence/apuestes/
