@@ -149,6 +149,7 @@ export function FilterBar({ searchParams, olbgEnabled = false, beHistoryEnabled 
               <option value="bettingexpert">Bettingexpert</option>
               <option value="apuestes">Apuestes</option>
               <option value="protipster">ProTipster</option>
+              <option value="bet2earn">Bet2Earn</option>
               {olbgEnabled && <option value="olbg">OLBG</option>}
               <option value="all">Todas</option>
             </select>
