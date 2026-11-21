@@ -61,21 +61,40 @@ sum(profit)/sum(stake) is exact.
 Supersedes v3 (175): the TS plan applies three checks the python
 validation missed, and all three caught real cases:
 
-- **APTOS (import-ready): 171** = 61 Premium + 110 Free (history complete
+- **APTOS (import-ready): 171** = 60 Premium + 111 Free (history complete
   AND published yield inside its own rounding interval AND stakes>0 AND
   inside schema range).
-- **Held with data (9):** ASIANCONNECTION VICTOR (1,038 vs declared 1,042)
-  and letalbets (1,372 vs 1,373) → history-incomplete; GALAICO_OUTBET1
+- Group split note: v3's "62 Premium aptos" hid two offsetting errors —
+  letalbets (PREMIUM, incomplete, missed by the python check) and LB
+  PINNACLE (premium, 0 picks, consistent but nothing importable). v4
+  premium = 62 − 2 = 60; v4 free = 113 − borjachb20 − c1cj0 = 111.
+  "62/62 validated exact" at capture meant CONSISTENCY (history length ==
+  declared tipsExpiredCount, 0==0 for LB PINNACLE), not importability;
+  the 108,732 premium picks are the sum over the 61 profiles with picks
+  (LB PINNACLE contributes 0).
+- **Held with data (9):** letalbets PREMIUM (1,372 vs declared 1,373) and
+  ASIANCONNECTION VICTOR free (1,038 vs 1,042) → history-incomplete;
+  GALAICO_OUTBET1
   (7.75 vs 6), FumanchuBWIN (53.1 vs 9), nachoformula (96.7 vs 83),
   testweb (6.16 vs 10.74), testf1f1 (142.7 vs 149) →
   yield-out-of-interval; borjachb20 (1 pick with stake 0, published yield
   unverifiable) → capture-inconsistency; c1cj0 (yield 12,600 exceeds
-  numeric(6,2)) → yield-out-of-schema-range.
+  numeric(6,2)) → yield-out-of-schema-range. That hold is a DESTINATION
+  schema limit, not proof of corrupt source data: the value (12,600) and
+  its provenance are preserved as-is; neither schema nor data are altered
+  to force it in.
 - **Held without data:** 1,619 empty-history free + LB PINNACLE (premium
   account created 2026-11-05 with 0 picks: coherent empty, nothing to
   import) + 2 not-found.
-- Coverage of the 119 visible histories: 2016-04-30 → 2026-11-19;
-  82/119 inactive since before 2025.
+- Coverage (computed from the data, b2e_cobertura12m_v4.json; 12m window
+  = complete calendar months 2025-11..2026-10 at the 2026-11-21 capture;
+  a profile counts with ≥1 pick in the window, no continuity assumed):
+  aptos premium 60 → 59 with picks in the 12m window, last pick
+  2026-04-30..2026-11-20, history back to 2012-08; aptos free 111 → 20
+  with picks in the window, last pick 2020-09-07..2026-11-19, 78 with
+  last pick before 2025, history back to 2016-04. Context: all 62 premium
+  → 60 in-window; the 119 visible free → 21 in-window, 82 with last pick
+  before 2025.
 
 ## Mapping decisions
 
